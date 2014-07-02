@@ -1,7 +1,7 @@
 dwilib
 ======
 
-Tools in development to support research with Diffusion-weighted imaging (DWI) data.
+Tools in development to support analysis of Diffusion-weighted imaging (DWI) data, with focus on cancer lesions.
 
 Features
 --------
