@@ -1,18 +1,28 @@
 dwilib
 ======
 
-Tools in development for
-- managing Diffusion-weighted imaging (DWI) data in ASCII and MATLAB format,
-- performing model fitting on them,
-- calculating correlation by Gleason scores,
-- calculating and comparing diagnostic ROC AUCs,
-- calculating reproducibility measures,
-- a few plotting schemes,
-- etc.
+Tools in development to support research with Diffusion-weighted imaging (DWI) data.
 
-Requires NumPy, SciPy, Scikit-Learn, leastsqbound-scipy.
+Features
+--------
+- Read data in ASCII or MATLAB format, write in ASCII
+- Perform model fitting
+- Calculate correlation by Gleason scores
+- Calculate and compare diagnostic ROC AUCs
+- Calculate reproducibility measures
+- Plotting schemes
 
-TODO:
-- Clean up the mess.
-- Documentation.
-- Regression classification.
+Requirements
+------------
+- NumPy
+- SciPy
+- Scikit-Learn
+- leastsqbound-scipy
+- Matplotlib
+
+Todo
+----
+- Clean up the mess
+- Documentation
+- Proper pipelining
+- Regression classification
