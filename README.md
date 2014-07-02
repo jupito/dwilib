@@ -12,6 +12,7 @@ Tools in development for
 
 Requires NumPy, SciPy, Scikit-Learn, leastsqbound-scipy.
 
-TODO: Clean up the mess.
-TODO: Documentation.
-TODO: Regression classification.
+TODO:
+- Clean up the mess.
+- Documentation.
+- Regression classification.
