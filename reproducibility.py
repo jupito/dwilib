@@ -36,16 +36,17 @@ def mean_squared_difference(a1, a2):
     msd = np.sqrt(sum(sds) / (n-1))
     return msd
 
-def coefficients(a1, a2):
-    """Return mean, mean squared difference, confidence interval, within-patient
-    coefficient of variance, coefficient of repeatability."""
+def coefficients(a1, a2, avgfun=np.mean):
+    """Return average, average squared difference, confidence interval,
+    within-patient coefficient of variance, coefficient of repeatability."""
     n = len(a1)
-    mean = np.mean(np.concatenate((a1, a2)))
+    a = np.concatenate((a1, a2))
+    avg = avgfun(a)
     msd = mean_squared_difference(a1, a2)
     ci = 1.96*msd / np.sqrt(n)
-    wcv = (msd/np.sqrt(2)) / mean
+    wcv = (msd/np.sqrt(2)) / avg
     cor = 1.96*msd
-    d = dict(mean=mean, msd=msd, ci=ci, wcv=wcv, cor=cor)
+    d = dict(avg=avg, msd=msd, ci=ci, wcv=wcv, cor=cor)
     return d
 
 def icc(baselines):
@@ -82,30 +83,30 @@ pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
 
 X = pmaps[:,0,:] # Use ROI1 only.
 
-if args.verbose:
+if args.verbose > 1:
     print 'Samples: %i, features: %i'\
             % (X.shape[0], X.shape[1])
     print 'Number of bootstraps: %d' % args.nboot
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print '# param\tmean\tmsd/mean\tCI/mean\twCV\tCoR/mean\tICC\tbsICC\tlower\tupper'
+    print '# param\tmean\tmsd/avg\tCI/avg\twCV\tCoR/avg\tICC\tbsICC\tlower\tupper'
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
         continue
     baselines = util.pairs(values)
     d = dict(param=param)
-    d.update(coefficients(*baselines))
-    d['msdr'] = d['msd']/d['mean']
-    d['cir'] = d['ci']/d['mean']
-    d['corr'] = d['cor']/d['mean']
+    d.update(coefficients(*baselines, avgfun=np.median))
+    d['msdr'] = d['msd']/d['avg']
+    d['cir'] = d['ci']/d['avg']
+    d['corr'] = d['cor']/d['avg']
     d['icc'] = icc(baselines)
     icc_values = bootstrap_icc(baselines, nboot=args.nboot)
     d['icc_bs'] = np.mean(icc_values)
     d['ci1'], d['ci2'] = util.ci(icc_values)
     s = '{param:7}'\
-            '\t{mean:10f}\t{msdr:.4f}'\
+            '\t{avg:10f}\t{msdr:.4f}'\
             '\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
             '\t{icc:.4f}\t{icc_bs:.4f}\t{ci1:.4f}\t{ci2:.4f}'
     print s.format(**d)
