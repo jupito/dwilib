@@ -42,11 +42,13 @@ def coefficients(a1, a2, avgfun=np.mean):
     n = len(a1)
     a = np.concatenate((a1, a2))
     avg = avgfun(a)
+    avg_ci1, avg_ci2 = util.ci(a)
     msd = mean_squared_difference(a1, a2)
     ci = 1.96*msd / np.sqrt(n)
     wcv = (msd/np.sqrt(2)) / avg
     cor = 1.96*msd
-    d = dict(avg=avg, msd=msd, ci=ci, wcv=wcv, cor=cor)
+    d = dict(avg=avg, avg_ci1=avg_ci1, avg_ci2=avg_ci2, msd=msd, ci=ci, wcv=wcv,
+            cor=cor)
     return d
 
 def icc(baselines):
@@ -90,7 +92,7 @@ if args.verbose > 1:
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print '# param\tmean\tmsd/avg\tCI/avg\twCV\tCoR/avg\tICC\tbsICC\tlower\tupper'
+    print '# param\tavg[lower-upper]\tmsd/avg\tCI/avg\twCV\tCoR/avg\tICC\tbsICC[lower-upper]'
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
@@ -104,9 +106,9 @@ for values, param in zip(X.T, params):
     d['icc'] = icc(baselines)
     icc_values = bootstrap_icc(baselines, nboot=args.nboot)
     d['icc_bs'] = np.mean(icc_values)
-    d['ci1'], d['ci2'] = util.ci(icc_values)
+    d['icc_ci1'], d['icc_ci2'] = util.ci(icc_values)
     s = '{param:7}'\
-            '\t{avg:10f}\t{msdr:.4f}'\
+            '\t{avg:.6f}[{avg_ci1:.6f}-{avg_ci2:.6f}]\t{msdr:.4f}'\
             '\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
-            '\t{icc:.4f}\t{icc_bs:.4f}\t{ci1:.4f}\t{ci2:.4f}'
+            '\t{icc:.4f}\t{icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
     print s.format(**d)
