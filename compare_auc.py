@@ -155,10 +155,11 @@ for x, y in zip(X_all, Y_all):
 
 # Print AUC's and mean bootstrapped AUC's.
 if args.verbose:
-    print '# param\tAUC\tAUCbs'
+    print '# param\tAUC\tAUCbs\tlower\tupper'
 for param, auc, auc_bs in zip(params_all, aucs, aucs_bs):
     avg = mean(auc_bs)
-    print '%s\t%0.6f\t%0.6f' % (param, auc, avg)
+    ci1, ci2 = util.ci(auc_bs)
+    print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
 
 # Print bootstrapped AUC comparisons.
 if args.verbose:
