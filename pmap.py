@@ -1,16 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: iso-8859-15 -*-
 
 # Fit and write parametric maps as ASCII files.
 
 import os.path
 import sys
 import argparse
-import numpy as np
-import scipy as sp
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import pylab
 
 import dwimage
 import fit
