@@ -5,8 +5,7 @@
 import sys
 import numpy as np
 
-import asciifile
-import util
+from dwi import asciifile
 
 for filename in sys.argv[1:]:
     af = asciifile.AsciiFile(filename)

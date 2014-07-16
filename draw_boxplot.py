@@ -7,9 +7,8 @@ import sys
 import numpy as np
 import pylab as pl
 
-import asciifile
-import patient
-import util
+from dwi import patient
+from dwi import util
 
 def load_param(param, pmaps, labels, different_labels, label_nocancer, split=True):
     """Load data indicated by command arguments."""

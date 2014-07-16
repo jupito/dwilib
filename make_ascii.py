@@ -10,10 +10,8 @@ import pylab as pl
 from sklearn import preprocessing
 from sklearn import metrics
 
-import patient
-import asciifile
-import dwimage
-import util
+from dwi import patient
+from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""

@@ -9,8 +9,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-import asciifile
-import util
+from dwi import asciifile
 
 if len(sys.argv) < 3:
     print 'Need parameters'

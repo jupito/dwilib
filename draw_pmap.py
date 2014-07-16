@@ -10,8 +10,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-import asciifile
-import util
+from dwi import asciifile
 
 def draw_pmap(img, filename):
     fig = plt.figure()

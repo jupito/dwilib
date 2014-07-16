@@ -9,8 +9,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-import asciifile
-import util
+from dwi import patient
+from dwi import util
 
 a, infiles = util.get_args(2)
 outfile = a[0]

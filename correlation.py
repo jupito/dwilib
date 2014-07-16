@@ -11,9 +11,8 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 
-import asciifile
-import patient
-import util
+from dwi import patient
+from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""

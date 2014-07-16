@@ -6,8 +6,8 @@ import os.path
 import sys
 import argparse
 
-import dwimage
-import fit
+from dwi import dwimage
+from dwi import fit
 
 def parse_args():
     """Parse command-line arguments."""

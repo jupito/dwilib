@@ -6,10 +6,8 @@ import scipy as sp
 from sklearn import preprocessing
 from sklearn import metrics
 
-import patient
-import asciifile
-import dwimage
-import util
+from dwi import patient
+from dwi import dwimage
 
 sys.path.append('/home/jussi/src/RLScore')
 from rlscore.learner import RLS

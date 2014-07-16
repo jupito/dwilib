@@ -9,7 +9,7 @@ import scipy as sp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-import dwimage
+from dwi import dwimage
 
 PREFIX = 'plot'
 

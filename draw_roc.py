@@ -8,10 +8,8 @@ import scipy as sp
 import scipy.stats
 import pylab as pl
 
-import patient
-import asciifile
-import dwimage
-import util
+from dwi import patient
+from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""
