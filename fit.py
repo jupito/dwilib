@@ -42,12 +42,14 @@ class Parameter(object):
         return g
 
 class Model(object):
-    def __init__(self, name, description, func, params, normalize=False):
+    def __init__(self, name, description, func, params,
+            normalize=False, postproc=None):
         self.name = name
         self.description = description
         self.func = func
         self.params = params
         self.normalize = normalize
+        self.postproc = postproc # Postprocessing for fitted parameters.
 
     def __str__(self):
         return self.name
@@ -96,7 +98,10 @@ def fit_model_mi(model, xdata, ydata):
     function = model.func
     guesses = model.guesses(si0)
     bounds = model.bounds(si0)
-    return fit_curve_mi(function, xdata, ydata, guesses, bounds)
+    params, err = fit_curve_mi(function, xdata, ydata, guesses, bounds)
+    if model.postproc:
+        model.postproc(params)
+    return params, err
 
 def rmse(f, p, xdata, ydata):
     """Root-mean-square error."""
@@ -105,15 +110,18 @@ def rmse(f, p, xdata, ydata):
 
 def biexp(p, x):
     Af, Df, Ds, C = p
-    if Df < Ds:
-        return np.inf
     return C * ((1-Af) * np.exp(-x*Ds) + Af * np.exp(-x*Df))
 
 def biexp_normalized(p, x):
     Af, Df, Ds = p
-    if Df < Ds:
-        return np.inf
     return (1-Af) * np.exp(-x*Ds) + Af * np.exp(-x*Df)
+
+def biexp_flip(params):
+    """If Df < Ds, flip them."""
+    if params[1] < params[2]:
+        params[1], params[2] = params[2], params[1]
+        params[0] = 1.-params[0]
+    return params
 
 #ParamC = Parameter('C', (1000, 1000, 1), (0, 100000000))
 #ParamC = Parameter('C', (1, 10000, 5), (0, 100000000))
@@ -197,7 +205,8 @@ Models.append(Model('Biexp',
             Parameter('Df', (0.001, 0.009, 0.0002), (0, 1), True),
             Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1), True),
             ParamC
-        ]))
+        ],
+        postproc=biexp_flip))
 
 Models.append(Model('BiexpN',
         '''Normalized Bi-exponential.
@@ -208,7 +217,8 @@ Models.append(Model('BiexpN',
             Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1), True),
             Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1), True),
         ],
-        normalize=True))
+        normalize=True,
+        postproc=biexp_flip))
 
 """
 Im Matlab, we are using lsqnonlin and following initializations:
