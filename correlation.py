@@ -22,7 +22,7 @@ def parse_args():
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
             help='pmap files')
     p.add_argument('--scans', '-s', default='scans.txt',
-            help='label type')
+            help='scans file')
     p.add_argument('--labeltype', '-l', choices=['score', 'bin', 'ord'],
             default='score', help='label type')
     p.add_argument('--groups', '-g', nargs='+', default=[],
@@ -90,7 +90,8 @@ except ValueError, e:
     pass # Parameters not found.
 
 # Print coefficients for each parameter.
-print '# param   \tr\tp\tlower\tupper'
+if args.verbose:
+    print '# param   \tr\tp\tlower\tupper'
 skipped_params = ['SI0N', 'C', 'RMSE']
 for x, param in zip(X.T, params):
     if param in skipped_params:
