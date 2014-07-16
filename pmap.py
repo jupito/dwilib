@@ -69,7 +69,14 @@ def fit_file(model, filename):
 
 
 args = parse_args()
+
+selected_models = args.models
+if 'all' in selected_models:
+    selected_models += [m.name for m in fit.Models]
+elif 'normalized' in selected_models:
+    selected_models += 'SiN MonoN KurtN StretchedN BiexpN'.split()
+
 for model in fit.Models:
-    if model.name in args.models or 'all' in args.models:
+    if model.name in selected_models:
         for filename in args.input:
             fit_file(model, filename)
