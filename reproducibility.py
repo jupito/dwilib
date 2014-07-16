@@ -108,7 +108,7 @@ for values, param in zip(X.T, params):
     d['icc_bs'] = np.mean(icc_values)
     d['icc_ci1'], d['icc_ci2'] = util.ci(icc_values)
     s = '{param:7}'\
-            '\t{avg:.6f}[{avg_ci1:.6f}-{avg_ci2:.6f}]\t{msdr:.4f}'\
-            '\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
+            '\t{avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
+            '\t{msdr:.4f}\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
             '\t{icc:.4f}\t{icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
     print s.format(**d)
