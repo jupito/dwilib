@@ -1,12 +1,13 @@
 dwilib
 ======
 
-Tools in development to support analysis of Diffusion-weighted imaging (DWI) data, with focus on cancer lesions.
+Tools in development to support analysis of Diffusion-weighted imaging (DWI) data, with focus on prostate cancer.
+
+Currently it can only read the data in custom ASCII format, but support for DICOM is under way.
 
 Features
 --------
-- Read data in ASCII or MATLAB format, write in ASCII
-- Perform model fitting
+- Perform model fitting (ADC, Kurtosis, etc.)
 - Calculate correlation by Gleason scores
 - Calculate and compare diagnostic ROC AUCs
 - Calculate reproducibility measures
@@ -19,10 +20,12 @@ Requirements
 - Scikit-Learn
 - leastsqbound-scipy
 - Matplotlib
+- Pydicom
 
 Todo
 ----
-- Clean up the mess
+- Clean up the messy parts
 - Documentation
+- DICOM support
 - Proper pipelining
 - Regression classification
