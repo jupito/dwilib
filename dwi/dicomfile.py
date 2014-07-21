@@ -36,15 +36,11 @@ def read_files(filenames):
         slices.setdefault(key, []).append(d.pixel_array)
     positions = sorted(positions)
     bvalues = sorted(bvalues)
-    slices = mean_slices(slices)
-    image = construct_image(slices, positions, bvalues)
-    return bvalues, image
-
-def mean_slices(slices):
-    """If any slices are scanned multiple times, use mean."""
+    # If any slices are scanned multiple times, use mean.
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
-    return slices
+    image = construct_image(slices, positions, bvalues)
+    return bvalues, image
 
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
