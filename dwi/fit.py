@@ -126,11 +126,8 @@ def biexp_flip(params):
     if params[1] < params[2]:
         params[1], params[2] = params[2], params[1]
         params[0] = 1.-params[0]
-    return params
 
-#ParamC = Parameter('C', (1000, 1000, 1), (0, 100000000))
-#ParamC = Parameter('C', (1, 10000, 5), (0, 100000000))
-#ParamC = Parameter('C', (0, 5000, 1000), (0, 100000000), True)
+# General C parameter used in non-normalized models.
 ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), True, relative=True)
 
 Models = []
