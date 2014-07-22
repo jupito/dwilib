@@ -73,13 +73,8 @@ class DWImage(object):
         bset : sequence
             Different b-values.
         """
-        #self.sis = sis
-        #self.bset = bset
-        start, end = 0, len(bset)
-        # XXX: only b-values 300-700
-        #start, end = 2, 5
-        self.sis = sis[:,start:end]
-        self.bset = bset[start:end]
+        self.sis = sis
+        self.bset = bset
 
     def height(self):
         return self.subwindow[1] - self.subwindow[0] + 1
