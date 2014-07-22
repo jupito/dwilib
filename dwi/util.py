@@ -54,11 +54,14 @@ def combinations(l):
 
 def chunks(seq, n):
     """Return sequence as chunks of n elements."""
+    if len(seq) % n:
+        raise Exception('Sequence length not divisible.')
     return (seq[i:i+n] for i in xrange(0, len(seq), n))
 
 def pairs(seq):
     """Return sequence split in two, each containing every second item."""
-    assert len(seq) % 2 == 0, 'Sequence length not even.'
+    if len(seq) % 2:
+        raise Exception('Sequence length not even.')
     return (seq[0::2], seq[1::2])
 
 def get_indices(seq, val):
