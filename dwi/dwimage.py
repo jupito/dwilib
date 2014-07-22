@@ -1,10 +1,9 @@
 """Utilities for handling DWI images."""
 
 from time import time
-import os.path
+import os
 import numpy as np
 import scipy as sp
-import scipy.io
 
 import asciifile
 import fit
