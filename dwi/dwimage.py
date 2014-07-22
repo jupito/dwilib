@@ -89,15 +89,14 @@ class DWImage(object):
         return len(self.sis)
 
     def __str__(self):
-        s = 'File: {}\n'\
-                'Number: {}\n'\
-                'B-values: {}: {}\n'\
-                'Window: {}, {}, {}x{}'.format(
-                self.filename,
-                self.number,
-                len(self.bset), self.bset,
-                self.size(), self.subwindow, self.height(), self.width()
-                )
+        d = dict(fn=self.filename, n=self.number,
+                nb=len(self.bset), b=self.bset,
+                s=self.size(), win=self.subwindow,
+                h=self.height(), w=self.width())
+        s = 'File: {fn}\n'\
+                'Number: {n}\n'\
+                'B-values: {nb}: {b}\n'\
+                'Window: {s}, {win}, {h}x{w}'.format(**d)
         return s
 
     def fit_elem(self, model, elem, bvalues=[], mean=False):
