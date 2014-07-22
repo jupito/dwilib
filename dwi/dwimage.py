@@ -74,11 +74,8 @@ class DWImage(object):
         if self.sis.shape != (len(self.sis), len(self.bset)):
             raise Exception('Image size does not match with b-values.')
 
-    def height(self):
-        return self.subwindow[1] - self.subwindow[0]
-
-    def width(self):
-        return self.subwindow[3] - self.subwindow[2]
+    def subwindow_shape(self):
+        return tuple((b-a for a, b in util.chunks(self.subwindow, 2)))
 
     def size(self):
         """Return number of voxels."""
@@ -90,12 +87,12 @@ class DWImage(object):
     def __str__(self):
         d = dict(fn=self.filename, n=self.number,
                 nb=len(self.bset), b=list(self.bset),
-                s=self.size(), win=self.subwindow,
-                h=self.height(), w=self.width())
+                s=self.size(), w=self.subwindow,
+                ws=self.subwindow_shape())
         s = 'File: {fn}\n'\
                 'Number: {n}\n'\
                 'B-values: {nb}: {b}\n'\
-                'Window: {s}, {win}, {h}x{w}'.format(**d)
+                'Window: {s}, {w}, {ws}'.format(**d)
         return s
 
     def fit_elem(self, model, elem, bvalues=[], mean=False):
