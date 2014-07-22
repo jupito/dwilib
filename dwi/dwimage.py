@@ -88,9 +88,12 @@ class DWImage(object):
         """Return number of voxels."""
         return len(self.sis)
 
+    def __repr__(self):
+        return '%s:%i' % (self.filename, self.number)
+
     def __str__(self):
         d = dict(fn=self.filename, n=self.number,
-                nb=len(self.bset), b=self.bset,
+                nb=len(self.bset), b=list(self.bset),
                 s=self.size(), win=self.subwindow,
                 h=self.height(), w=self.width())
         s = 'File: {fn}\n'\
