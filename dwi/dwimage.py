@@ -84,7 +84,7 @@ class DWImage(object):
 
     def normalize(self):
         for si in self.sis:
-            normalize_si_curve(si)
+            util.normalize_si_curve(si)
 
     def __str__(self):
         s = 'File: {}\n'\
@@ -107,8 +107,6 @@ class DWImage(object):
             ydata = self.sis.mean(axis=0)[bvalues]
         else:
             ydata = self.sis[elem][bvalues]
-        if model.normalize:
-            normalize_si_curve(ydata)
         return fit.fit_model_mi(model, xdata, ydata)
 
     def fit_whole(self, model, bvalues=[], log=None, mean=False):
@@ -137,9 +135,3 @@ class DWImage(object):
             log('\nFinished with %i errors, %i warnings.\n'\
                     % (cnt_errors, cnt_warnings))
         return pmap
-
-def normalize_si_curve(si):
-    """Normalize a signal intensity curve (divide all by b0)."""
-    unit = si[0]
-    for i in range(len(si)):
-        si[i] /= unit

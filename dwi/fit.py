@@ -10,7 +10,8 @@ from leastsqbound import leastsqbound
 import util
 
 class Parameter(object):
-    def __init__(self, name, steps, bounds, use_stepsize=False, relative=False):
+    def __init__(self, name, steps, bounds,
+            use_stepsize=False, relative=False):
         self.name = name
         self.steps = steps
         self.bounds = bounds
@@ -43,12 +44,11 @@ class Parameter(object):
 
 class Model(object):
     def __init__(self, name, description, func, params,
-            normalize=False, preproc=None, postproc=None):
+            preproc=None, postproc=None):
         self.name = name
         self.description = description
         self.func = func
         self.params = params
-        self.normalize = normalize
         self.preproc = preproc # Preprocessing for SI curve.
         self.postproc = postproc # Postprocessing for fitted parameters.
 
@@ -121,12 +121,6 @@ def biexp_normalized(p, x):
     Af, Df, Ds = p
     return (1-Af) * np.exp(-x*Ds) + Af * np.exp(-x*Df)
 
-def normalize_si_curve(si):
-    """Normalize a signal intensity curve (divide all by SI(b0))."""
-    unit = si[0]
-    for i in range(len(si)):
-        si[i] /= unit
-
 def biexp_flip(params):
     """If Df < Ds, flip them."""
     if params[1] < params[2]:
@@ -144,7 +138,7 @@ Models.append(Model('SiN',
         '''Normalized SI values.''',
         None,
         [],
-        preproc=normalize_si_curve))
+        preproc=util.normalize_si_curve))
 
 Models.append(Model('Mono',
         '''ADC mono: single exponential decay.
@@ -163,7 +157,7 @@ Models.append(Model('MonoN',
         [
             Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1), True),
         ],
-        preproc=normalize_si_curve))
+        preproc=util.normalize_si_curve))
 
 Models.append(Model('Kurt',
         '''ADC kurtosis: K reflects deviation from Gaussian shape.
@@ -184,7 +178,7 @@ Models.append(Model('KurtN',
             Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1), True),
             Parameter('KN', (0.0, 2.0, 0.1), (0, 10), True),
         ],
-        preproc=normalize_si_curve))
+        preproc=util.normalize_si_curve))
 
 Models.append(Model('Stretched',
         '''ADC stretched.
@@ -205,7 +199,7 @@ Models.append(Model('StretchedN',
             Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1), True),
             Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1), True),
         ],
-        preproc=normalize_si_curve))
+        preproc=util.normalize_si_curve))
 
 Models.append(Model('Biexp',
         '''Bi-exponential.
@@ -228,7 +222,7 @@ Models.append(Model('BiexpN',
             Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1), True),
             Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1), True),
         ],
-        preproc=normalize_si_curve,
+        preproc=util.normalize_si_curve,
         postproc=biexp_flip))
 
 """

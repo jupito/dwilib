@@ -8,6 +8,7 @@ from sklearn import metrics
 
 from dwi import patient
 from dwi import dwimage
+from dwi import util
 
 sys.path.append('/home/jussi/src/RLScore')
 from rlscore.learner import RLS
@@ -33,7 +34,7 @@ def load_data(pmaps, labels, group_ids):
 
 def normalize_sis(X):
     for x in X:
-        dwimage.normalize_si_curve(x)
+        util.normalize_si_curve(x)
     return X
 
 def normalize_params(X):

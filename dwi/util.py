@@ -186,6 +186,12 @@ def ci(x, p=0.05):
 
 
 
+def normalize_si_curve(si):
+    """Normalize a signal intensity curve (divide all by SI(b0))."""
+    unit = si[0]
+    for i in range(len(si)):
+        si[i] /= unit
+
 def add_dummy_feature(X):
     """Add an extra dummy feature to an array of samples."""
     r = np.ones((X.shape[0], X.shape[1]+1), dtype=X.dtype)
