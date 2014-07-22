@@ -18,8 +18,9 @@ class AsciiFile(object):
 
     def subwindow(self):
         a = re.findall(r'\d+', self.d.get('subwindow', ''))
-        a = util.fabricate_subwindow(len(self.a))
-        return map(int, a)
+        if not a:
+            a = util.fabricate_subwindow(len(self.a))
+        return tuple(map(int, a))
 
     def subwinsize(self):
         a = self.subwindow()
@@ -30,8 +31,7 @@ class AsciiFile(object):
 
     def bset(self):
         a = re.findall(r'\d+', self.d.get('bset', ''))
-        a = map(int, a)
-        return tuple(a)
+        return tuple(map(int, a))
 
     def params(self):
         r = range(self.a.shape[1])
