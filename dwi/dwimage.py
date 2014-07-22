@@ -1,4 +1,4 @@
-# DW-MRI handling.
+"""Utilities for handling DWI images."""
 
 from time import time
 import os.path
@@ -28,8 +28,8 @@ def load_matlab(filename, varname='ROIdata'):
         bset = win.bset[0].astype(np.float)
         dwi = DWImage(sis, bset)
         dwi.filename = filename
-        dwi.roislice = '-' # TODO
-        dwi.name = '-' # TODO
+        dwi.roislice = '-' # Not implemented.
+        dwi.name = '-' # Not implemented.
         dwi.number = int(win.number[0,0])
         try:
             dwi.subwindow = map(int, win.subwindow[0])
@@ -61,7 +61,18 @@ def load_ascii(filename, nrois=1):
     return r
 
 class DWImage(object):
+    """DWI image, stored single-dimensionally."""
+
     def __init__(self, sis, bset):
+        """Create a new DWI image.
+
+        Parameters
+        ----------
+        sis : array_like, shape = (n_voxels, n_bvalues)
+            Voxels representing signal intensities.
+        bset : sequence
+            Different b-values.
+        """
         #self.sis = sis
         #self.bset = bset
         start, end = 0, len(bset)
@@ -77,6 +88,7 @@ class DWImage(object):
         return self.subwindow[3] - self.subwindow[2] + 1
 
     def size(self):
+        """Return number of voxels."""
         return len(self.sis)
 
     def scale(self):
