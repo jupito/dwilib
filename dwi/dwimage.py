@@ -88,13 +88,6 @@ class DWImage(object):
         """Return number of voxels."""
         return len(self.sis)
 
-    def scale(self):
-        self.sis = util.scale(self.sis)
-
-    def normalize(self):
-        for si in self.sis:
-            util.normalize_si_curve(si)
-
     def __str__(self):
         s = 'File: {}\n'\
                 'Number: {}\n'\
