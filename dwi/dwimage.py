@@ -107,7 +107,7 @@ class DWImage(object):
             ydata = self.sis.mean(axis=0)[bvalues]
         else:
             ydata = self.sis[elem][bvalues]
-        return fit.fit_model_mi(model, xdata, ydata)
+        return model.fit_mi(xdata, ydata)
 
     def fit_whole(self, model, bvalues=[], log=None, mean=False):
         """Curve fitting for the whole image."""

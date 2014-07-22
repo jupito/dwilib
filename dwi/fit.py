@@ -100,8 +100,20 @@ class Model(object):
         """Return all combinations of initial guesses."""
         return util.combinations(map(lambda p: p.guesses(si0), self.params))
 
-    def fit_mi(self):
-        pass # TODO
+    def fit_mi(self, xdata, ydata):
+        """Fit model to data with multiple initializations."""
+        if self.preproc:
+            self.preproc(ydata)
+        if self.func:
+            si0 = ydata[0]
+            guesses = self.guesses(si0)
+            bounds = self.bounds(si0)
+            params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
+        else:
+            params, err = ydata, 0.
+        if self.postproc:
+            self.postproc(params)
+        return params, err
 
 def fit_curve(f, xdata, ydata, guess, bounds):
     """Fit a curve to data."""
@@ -125,21 +137,6 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds):
             best_params = params
             best_err = err
     return best_params, best_err
-
-def fit_model_mi(model, xdata, ydata):
-    """Fit a model to data with multiple initializations."""
-    if model.preproc:
-        model.preproc(ydata)
-    if model.func:
-        si0 = ydata[0]
-        guesses = model.guesses(si0)
-        bounds = model.bounds(si0)
-        params, err = fit_curve_mi(model.func, xdata, ydata, guesses, bounds)
-    else:
-        params, err = ydata, 0.
-    if model.postproc:
-        model.postproc(params)
-    return params, err
 
 def rmse(f, p, xdata, ydata):
     """Root-mean-square error."""
