@@ -13,9 +13,11 @@ def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description =
             'Produce parameter maps by fitting curves.')
-    p.add_argument('--models', '-m', nargs='+', required=True,
+    p.add_argument('--listmodels', '-l', action='store_true',
+            help='list models')
+    p.add_argument('--models', '-m', nargs='+', default=[],
             help='models to use')
-    p.add_argument('--input', '-i', nargs='+', required=True,
+    p.add_argument('--input', '-i', nargs='+', default=[],
             help='input files')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
@@ -63,6 +65,12 @@ def fit_file(model, filename):
 
 
 args = parse_args()
+
+if args.listmodels:
+    for model in fit.Models:
+        print '{n}: {d}'.format(n=model.name, d=model.description)
+    print '{n}: {d}'.format(n='all', d='all models')
+    print '{n}: {d}'.format(n='normalized', d='all normalized models')
 
 selected_models = args.models
 if 'all' in selected_models:
