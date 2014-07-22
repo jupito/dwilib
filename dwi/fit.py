@@ -12,11 +12,21 @@ import util
 class Parameter(object):
     def __init__(self, name, steps, bounds,
             use_stepsize=True, relative=False):
+        """Create a new model parameter.
+
+        Parameters
+        ----------
+        name: name
+        steps: step definition as (start, stop, size/number)
+        bounds: constraint definition (start, end)
+        use_stepsize: use step size instead of number (default True)
+        relative: steps are considered relative to SI(0) (default False)
+        """
         self.name = name
         self.steps = steps
         self.bounds = bounds
         self.use_stepsize = use_stepsize
-        self.relative = relative # Steps are considered relative to SI(0).
+        self.relative = relative
 
     def __str__(self):
         return self.name
