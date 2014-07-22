@@ -68,7 +68,7 @@ args = parse_args()
 
 if args.listmodels:
     for model in fit.Models:
-        print '{n}: {d}'.format(n=model.name, d=model.description)
+        print '{n}: {d}'.format(n=model.name, d=model.desc)
     print '{n}: {d}'.format(n='all', d='all models')
     print '{n}: {d}'.format(n='normalized', d='all normalized models')
 

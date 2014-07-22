@@ -56,7 +56,7 @@ class Parameter(object):
         return g
 
 class Model(object):
-    def __init__(self, name, description, func, params,
+    def __init__(self, name, desc, func, params,
             preproc=None, postproc=None):
         """Create a new model definition.
 
@@ -64,7 +64,7 @@ class Model(object):
         ----------
         name : string
             Model name.
-        description : string
+        desc : string
             Model description.
         func : callable
             Fitted function.
@@ -76,7 +76,7 @@ class Model(object):
             Postprocessing function for fitted parameters.
         """
         self.name = name
-        self.description = description
+        self.desc = desc
         self.func = func
         self.params = params
         self.preproc = preproc
