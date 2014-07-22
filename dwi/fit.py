@@ -11,7 +11,7 @@ import util
 
 class Parameter(object):
     def __init__(self, name, steps, bounds,
-            use_stepsize=False, relative=False):
+            use_stepsize=True, relative=False):
         self.name = name
         self.steps = steps
         self.bounds = bounds
@@ -128,7 +128,7 @@ def biexp_flip(params):
         params[0] = 1.-params[0]
 
 # General C parameter used in non-normalized models.
-ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), True, relative=True)
+ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
 
 Models = []
 Models.append(Model('SiN',
@@ -143,7 +143,7 @@ Models.append(Model('Mono',
         lambda p, x:\
             p[1] * np.exp(-x * p[0]),
         [
-            Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1), True),
+            Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
             ParamC
         ]))
 Models.append(Model('MonoN',
@@ -152,7 +152,7 @@ Models.append(Model('MonoN',
         lambda p, x:\
             np.exp(-x * p[0]),
         [
-            Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1), True),
+            Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
         ],
         preproc=util.normalize_si_curve))
 
@@ -162,8 +162,8 @@ Models.append(Model('Kurt',
         lambda p, x:\
             p[2] * np.exp(-x * p[0] + 1.0/6.0 * x**2 * p[0]**2 * p[1]),
         [
-            Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1), True),
-            Parameter('K', (0.0, 2.0, 0.1), (0, 10), True),
+            Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
+            Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
             ParamC
         ]))
 Models.append(Model('KurtN',
@@ -172,8 +172,8 @@ Models.append(Model('KurtN',
         lambda p, x:\
             np.exp(-x * p[0] + 1.0/6.0 * x**2 * p[0]**2 * p[1]),
         [
-            Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1), True),
-            Parameter('KN', (0.0, 2.0, 0.1), (0, 10), True),
+            Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
+            Parameter('KN', (0.0, 2.0, 0.1), (0, 10)),
         ],
         preproc=util.normalize_si_curve))
 
@@ -183,8 +183,8 @@ Models.append(Model('Stretched',
         lambda p, x:\
             p[2] * np.exp(-(x * p[0])**p[1]),
         [
-            Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1), True),
-            Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1), True),
+            Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
+            Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
             ParamC
         ]))
 Models.append(Model('StretchedN',
@@ -193,8 +193,8 @@ Models.append(Model('StretchedN',
         lambda p, x:\
             np.exp(-(x * p[0])**p[1]),
         [
-            Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1), True),
-            Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1), True),
+            Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
+            Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1)),
         ],
         preproc=util.normalize_si_curve))
 
@@ -203,9 +203,9 @@ Models.append(Model('Biexp',
         C * ((1 - Af) * exp(-b * Ds) + Af * exp(-b * Df))''',
         biexp,
         [
-            Parameter('Af', (0.2, 1.0, 0.1), (0, 1), True),
-            Parameter('Df', (0.001, 0.009, 0.0002), (0, 1), True),
-            Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1), True),
+            Parameter('Af', (0.2, 1.0, 0.1), (0, 1)),
+            Parameter('Df', (0.001, 0.009, 0.0002), (0, 1)),
+            Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1)),
             ParamC
         ],
         postproc=biexp_flip))
@@ -215,9 +215,9 @@ Models.append(Model('BiexpN',
         (1 - Af) * exp(-b * Ds) + Af * exp(-b * Df)''',
         biexp_normalized,
         [
-            Parameter('AfN', (0.2, 1.0, 0.1), (0, 1), True),
-            Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1), True),
-            Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1), True),
+            Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
+            Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1)),
+            Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1)),
         ],
         preproc=util.normalize_si_curve,
         postproc=biexp_flip))
