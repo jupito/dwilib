@@ -62,12 +62,29 @@ class Parameter(object):
 class Model(object):
     def __init__(self, name, description, func, params,
             preproc=None, postproc=None):
+        """Create a new model definition.
+
+        Parameters
+        ----------
+        name : string
+            Model name.
+        description : string
+            Model description.
+        func : callable
+            Fitted function.
+        params : Parameter
+            Parameter definitions.
+        preproc : callable, optional
+            Preprocessing function for data.
+        postproc : callable, optional
+            Postprocessing function for fitted parameters.
+        """
         self.name = name
         self.description = description
         self.func = func
         self.params = params
-        self.preproc = preproc # Preprocessing for SI curve.
-        self.postproc = postproc # Postprocessing for fitted parameters.
+        self.preproc = preproc
+        self.postproc = postproc
 
     def __str__(self):
         return self.name
@@ -76,12 +93,11 @@ class Model(object):
         return '%s %s' % (self.name, ' '.join(map(repr, self.params)))
 
     def bounds(self, si0):
-        '''Return bounds of all parameters.'''
-        #return map(lambda p: p.bounds, self.params)
+        """Return bounds of all parameters."""
         return [p.bounds_rel(si0) for p in self.params]
 
     def guesses(self, si0):
-        '''Return all combinations of initial guesses.'''
+        """Return all combinations of initial guesses."""
         return util.combinations(map(lambda p: p.guesses(si0), self.params))
 
     def fit_mi(self):
