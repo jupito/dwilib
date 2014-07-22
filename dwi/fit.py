@@ -97,11 +97,13 @@ def fit_model_mi(model, xdata, ydata):
     """Fit a model to data with multiple initializations."""
     if model.preproc:
         model.preproc(ydata)
-    si0 = ydata[0]
-    function = model.func
-    guesses = model.guesses(si0)
-    bounds = model.bounds(si0)
-    params, err = fit_curve_mi(function, xdata, ydata, guesses, bounds)
+    if model.func:
+        si0 = ydata[0]
+        guesses = model.guesses(si0)
+        bounds = model.bounds(si0)
+        params, err = fit_curve_mi(model.func, xdata, ydata, guesses, bounds)
+    else:
+        params, err = ydata, 0.
     if model.postproc:
         model.postproc(params)
     return params, err

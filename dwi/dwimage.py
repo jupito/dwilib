@@ -109,8 +109,6 @@ class DWImage(object):
             ydata = self.sis[elem][bvalues]
         if model.normalize:
             normalize_si_curve(ydata)
-        if not model.func:
-            return ydata, 0 # Dummy.
         return fit.fit_model_mi(model, xdata, ydata)
 
     def fit_whole(self, model, bvalues=[], log=None, mean=False):
