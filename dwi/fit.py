@@ -139,19 +139,45 @@ def rmse(f, p, xdata, ydata):
     sqerr = (f(p, xdata) - ydata) ** 2
     return np.sqrt(sqerr.mean())
 
-def biexp(p, x):
-    Af, Df, Ds, C = p
-    return C * ((1-Af) * np.exp(-x*Ds) + Af * np.exp(-x*Df))
-
-def biexp_normalized(p, x):
-    Af, Df, Ds = p
-    return (1-Af) * np.exp(-x*Ds) + Af * np.exp(-x*Df)
-
 def biexp_flip(params):
     """If Df < Ds, flip them."""
     if params[1] < params[2]:
         params[1], params[2] = params[2], params[1]
         params[0] = 1.-params[0]
+
+
+# Model functions.
+
+def adcm(b, ADCm, C=1):
+    """ADC mono: single exponential decay.
+
+    C * exp(-b * ADCm)
+    """
+    return C * np.exp(-b * ADCm)
+
+def adck(b, ADCk, K, C=1):
+    """ADC kurtosis: K reflects deviation from Gaussian shape.
+
+    C * exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)
+    """
+    return C * np.exp(-b * ADCk + 1./6. * b**2 * ADCk**2 * K)
+
+def adcs(b, ADCs, alpha, C=1):
+    """ADC stretched.
+
+    C * exp(-(b * ADCs)^alpha)
+    """
+    return C * np.exp(-(b * ADCs)**alpha)
+
+def biexp(b, Af, Df, Ds, C=1):
+    """Bi-exponential.
+
+    C * ((1 - Af) * exp(-b * Ds) + Af * exp(-b * Df))
+    """
+    return C * ((1-Af) * np.exp(-b*Ds) + Af * np.exp(-b*Df))
+
+
+# Model definitions.
 
 # General C parameter used in non-normalized models.
 ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
@@ -166,8 +192,7 @@ Models.append(Model('SiN',
 Models.append(Model('Mono',
         '''ADC mono: single exponential decay.
         C * exp(-b * ADCm)''',
-        lambda p, x:\
-            p[1] * np.exp(-x * p[0]),
+        lambda p, x: adcm(x, *p),
         [
             Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
             ParamC
@@ -175,8 +200,7 @@ Models.append(Model('Mono',
 Models.append(Model('MonoN',
         '''Normalized ADC mono: single exponential decay.
         exp(-b * ADCm)''',
-        lambda p, x:\
-            np.exp(-x * p[0]),
+        lambda p, x: adcm(x, *p),
         [
             Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
         ],
@@ -185,8 +209,7 @@ Models.append(Model('MonoN',
 Models.append(Model('Kurt',
         '''ADC kurtosis: K reflects deviation from Gaussian shape.
         C * exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)''',
-        lambda p, x:\
-            p[2] * np.exp(-x * p[0] + 1.0/6.0 * x**2 * p[0]**2 * p[1]),
+        lambda p, x: adck(x, *p),
         [
             Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
             Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
@@ -195,8 +218,7 @@ Models.append(Model('Kurt',
 Models.append(Model('KurtN',
         '''Normalized ADC kurtosis: K reflects deviation from Gaussian shape.
         exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)''',
-        lambda p, x:\
-            np.exp(-x * p[0] + 1.0/6.0 * x**2 * p[0]**2 * p[1]),
+        lambda p, x: adck(x, *p),
         [
             Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
             Parameter('KN', (0.0, 2.0, 0.1), (0, 10)),
@@ -206,8 +228,7 @@ Models.append(Model('KurtN',
 Models.append(Model('Stretched',
         '''ADC stretched.
         C * exp(-(b * ADCs)^alpha)''',
-        lambda p, x:\
-            p[2] * np.exp(-(x * p[0])**p[1]),
+        lambda p, x: adcs(x, *p),
         [
             Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
             Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
@@ -216,8 +237,7 @@ Models.append(Model('Stretched',
 Models.append(Model('StretchedN',
         '''Normalized ADC stretched.
         exp(-(b * ADCs)^alpha)''',
-        lambda p, x:\
-            np.exp(-(x * p[0])**p[1]),
+        lambda p, x: adcs(x, *p),
         [
             Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
             Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1)),
@@ -227,7 +247,7 @@ Models.append(Model('StretchedN',
 Models.append(Model('Biexp',
         '''Bi-exponential.
         C * ((1 - Af) * exp(-b * Ds) + Af * exp(-b * Df))''',
-        biexp,
+        lambda p, x: biexp(x, *p),
         [
             Parameter('Af', (0.2, 1.0, 0.1), (0, 1)),
             Parameter('Df', (0.001, 0.009, 0.0002), (0, 1)),
@@ -239,7 +259,7 @@ Models.append(Model('Biexp',
 Models.append(Model('BiexpN',
         '''Normalized Bi-exponential.
         (1 - Af) * exp(-b * Ds) + Af * exp(-b * Df)''',
-        biexp_normalized,
+        lambda p, x: biexp(x, *p),
         [
             Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
             Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1)),
