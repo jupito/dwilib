@@ -1,6 +1,6 @@
 # coding=utf-8
 
-# Fitting.
+"""Parametric model definitions and fitting."""
 
 import numpy as np
 import scipy as sp
@@ -10,17 +10,24 @@ from leastsqbound import leastsqbound
 import util
 
 class Parameter(object):
+    """Parameter used in model definitions."""
+
     def __init__(self, name, steps, bounds,
             use_stepsize=True, relative=False):
         """Create a new model parameter.
 
         Parameters
         ----------
-        name: name
-        steps: step definition as (start, stop, size/number)
-        bounds: constraint definition (start, end)
-        use_stepsize: use step size instead of number (default True)
-        relative: steps are considered relative to SI(0) (default False)
+        name : string
+            Parameter name.
+        steps : tuple
+            Steps as (start, stop, size/number).
+        bounds : tuple
+            Constraints as (start, end).
+        use_stepsize : bool, optional
+            Use step size instead of number.
+        relative : bool, optional
+            Consider steps and bounds relative to SI(0).
         """
         self.name = name
         self.steps = steps
@@ -43,7 +50,7 @@ class Parameter(object):
         return tuple(np.array(self.bounds) * c)
 
     def guesses(self, si0):
-        '''Return initial guesses.'''
+        """Return initial guesses."""
         if self.use_stepsize:
             g = np.arange(*self.steps)
         else:
