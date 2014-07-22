@@ -55,6 +55,7 @@ class Parameter(object):
             g = g * si0
         return g
 
+
 class Model(object):
     def __init__(self, name, desc, func, params,
             preproc=None, postproc=None):
@@ -110,6 +111,7 @@ class Model(object):
         if self.postproc:
             self.postproc(params)
         return params, err
+
 
 def fit_curve(f, xdata, ydata, guess, bounds):
     """Fit a curve to data."""
@@ -184,22 +186,20 @@ ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
 
 Models = []
 Models.append(Model('SiN',
-        '''Normalized SI values.''',
+        'Normalized signal intensity values',
         None,
         [],
         preproc=util.normalize_si_curve))
 
 Models.append(Model('Mono',
-        '''ADC mono: single exponential decay.
-        C * exp(-b * ADCm)''',
+        'ADC monoexponential',
         lambda p, x: adcm(x, *p),
         [
             Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
             ParamC
         ]))
 Models.append(Model('MonoN',
-        '''Normalized ADC mono: single exponential decay.
-        exp(-b * ADCm)''',
+        'Normalized ADC monoexponential',
         lambda p, x: adcm(x, *p),
         [
             Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
@@ -207,8 +207,7 @@ Models.append(Model('MonoN',
         preproc=util.normalize_si_curve))
 
 Models.append(Model('Kurt',
-        '''ADC kurtosis: K reflects deviation from Gaussian shape.
-        C * exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)''',
+        'ADC kurtosis',
         lambda p, x: adck(x, *p),
         [
             Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
@@ -216,8 +215,7 @@ Models.append(Model('Kurt',
             ParamC
         ]))
 Models.append(Model('KurtN',
-        '''Normalized ADC kurtosis: K reflects deviation from Gaussian shape.
-        exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)''',
+        'Normalized ADC kurtosis',
         lambda p, x: adck(x, *p),
         [
             Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
@@ -226,8 +224,7 @@ Models.append(Model('KurtN',
         preproc=util.normalize_si_curve))
 
 Models.append(Model('Stretched',
-        '''ADC stretched.
-        C * exp(-(b * ADCs)^alpha)''',
+        'ADC stretched',
         lambda p, x: adcs(x, *p),
         [
             Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
@@ -235,8 +232,7 @@ Models.append(Model('Stretched',
             ParamC
         ]))
 Models.append(Model('StretchedN',
-        '''Normalized ADC stretched.
-        exp(-(b * ADCs)^alpha)''',
+        'Normalized ADC stretched',
         lambda p, x: adcs(x, *p),
         [
             Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
@@ -245,8 +241,7 @@ Models.append(Model('StretchedN',
         preproc=util.normalize_si_curve))
 
 Models.append(Model('Biexp',
-        '''Bi-exponential.
-        C * ((1 - Af) * exp(-b * Ds) + Af * exp(-b * Df))''',
+        'Bi-exponential',
         lambda p, x: biexp(x, *p),
         [
             Parameter('Af', (0.2, 1.0, 0.1), (0, 1)),
@@ -255,10 +250,8 @@ Models.append(Model('Biexp',
             ParamC
         ],
         postproc=biexp_flip))
-
 Models.append(Model('BiexpN',
-        '''Normalized Bi-exponential.
-        (1 - Af) * exp(-b * Ds) + Af * exp(-b * Df)''',
+        'Normalized Bi-exponential',
         lambda p, x: biexp(x, *p),
         [
             Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
