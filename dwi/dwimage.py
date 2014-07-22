@@ -51,10 +51,7 @@ def load_ascii(filename, nrois=1):
         dwi.roislice = af.roislice()
         dwi.name = af.name()
         dwi.number = af.number + i
-        try:
-            dwi.subwindow = af.subwindow()
-        except:
-            dwi.subwindow = util.fabricate_subwindow(len(sis))
+        dwi.subwindow = af.subwindow()
         r.append(dwi)
     return r
 
@@ -78,10 +75,10 @@ class DWImage(object):
             raise Exception('Image size does not match with b-values.')
 
     def height(self):
-        return self.subwindow[1] - self.subwindow[0] + 1
+        return self.subwindow[1] - self.subwindow[0]
 
     def width(self):
-        return self.subwindow[3] - self.subwindow[2] + 1
+        return self.subwindow[3] - self.subwindow[2]
 
     def size(self):
         """Return number of voxels."""

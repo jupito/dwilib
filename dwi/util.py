@@ -42,7 +42,7 @@ def fabricate_subwindow(size, height=None):
     if height:
         width = size / height
         if height * width == size:
-            return [0, height-1, 0, width-1]
+            return (0, height, 0, width)
         else:
             return fabricate_subwindow(size, height + 1)
     else:
