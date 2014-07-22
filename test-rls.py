@@ -32,6 +32,12 @@ def load_data(pmaps, labels, group_ids):
     Y = np.array(Y, dtype=float)
     return X, Y, G
 
+def scale(a, min=0.0, max=1.0):
+    """Scale data between given values."""
+    # FIXME: min, max parameters don't work
+    std = (a - a.min()) / (a.max() - a.min())
+    return std / (max - min) + min
+
 def normalize_sis(X):
     for x in X:
         util.normalize_si_curve(x)
@@ -46,7 +52,7 @@ def normalize_y(Y):
     #Y = preprocessing.scale(Y)
     #Y = preprocessing.scale(Y, with_mean=False)
     #Y = preprocessing.MinMaxScaler().fit_transform(Y)
-    Y = util.scale(Y)
+    Y = scale(Y)
     return Y
 
 def get_group_index_lists(group_ids):

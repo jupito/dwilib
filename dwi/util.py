@@ -6,12 +6,6 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 import sklearn.metrics
 
-def scale(a, min=0.0, max=1.0):
-    """Scale data between given values."""
-    # FIXME: min, max parameters don't work
-    std = (a - a.min()) / (a.max() - a.min())
-    return std / (max - min) + min
-
 def finites(a):
     """Return finite elements as a flat array."""
     return np.array(filter(np.isfinite, a.flat))
