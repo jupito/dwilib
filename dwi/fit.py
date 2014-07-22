@@ -1,8 +1,6 @@
 """Parametric model definitions and fitting."""
 
 import numpy as np
-import scipy as sp
-import scipy.optimize
 from leastsqbound import leastsqbound
 
 import util
