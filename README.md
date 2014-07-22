@@ -18,9 +18,9 @@ Requirements
 - NumPy
 - SciPy
 - Scikit-Learn
-- leastsqbound-scipy
-- Matplotlib
-- Pydicom
+- [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if fitting)
+- Matplotlib (if plotting)
+- [Pydicom](https://code.google.com/p/pydicom/) (if reading DICOM files)
 
 Todo
 ----
