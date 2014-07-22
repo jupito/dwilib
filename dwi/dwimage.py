@@ -24,8 +24,8 @@ def load_matlab(filename, varname='ROIdata'):
     r = []
     for window in mat[varname][0]:
         win = window[0,0]
-        sis = win.SIs.astype(np.float).T
-        bset = win.bset[0].astype(np.float)
+        sis = win.SIs.T
+        bset = win.bset[0]
         dwi = DWImage(sis, bset)
         dwi.filename = filename
         dwi.roislice = '-' # Not implemented.
@@ -46,7 +46,7 @@ def load_ascii(filename, nrois=1):
     r = []
     for i in range(nrois):
         sis = a[i]
-        bset = np.array(af.bset(), np.float)
+        bset = af.bset()
         dwi = DWImage(sis, bset)
         dwi.filename = filename
         dwi.roislice = af.roislice()
@@ -73,8 +73,10 @@ class DWImage(object):
         bset : sequence
             Different b-values.
         """
-        self.sis = sis
-        self.bset = bset
+        self.sis = np.array(sis, dtype=float)
+        self.bset = np.array(sorted(set(bset)), dtype=float)
+        if self.sis.shape != (len(self.sis), len(self.bset)):
+            raise Exception('Image size does not match with b-values.')
 
     def height(self):
         return self.subwindow[1] - self.subwindow[0] + 1
