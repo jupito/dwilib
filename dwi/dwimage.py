@@ -95,7 +95,26 @@ class DWImage(object):
         return len(self.sis)
 
     def fit_elem(self, model, elem, bvalues=[], mean=False):
-        """Curve fitting for an image element."""
+        """Fit model to an image element.
+
+        Parameters
+        ----------
+        model : fit.Model
+            Model used for fitting.
+        elem : integer
+            Voxel index.
+        bvalues : sequence of integers, optional
+            Selected b-values (empty for all).
+        mean : bool, optional
+            Use mean of all voxels.
+
+        Returns
+        -------
+        params : ndarray
+            Result parameters.
+        err : float
+            RMSE.
+        """
         if not bvalues:
             bvalues = range(len(self.bset))
         xdata = self.bset[bvalues]
@@ -106,7 +125,24 @@ class DWImage(object):
         return model.fit_mi(xdata, ydata)
 
     def fit_whole(self, model, bvalues=[], log=None, mean=False):
-        """Curve fitting for the whole image."""
+        """Fit model to whole image.
+
+        Parameters
+        ----------
+        model : fit.Model
+            Model used for fitting.
+        bvalues : sequence of integers, optional
+            Selected b-values (empty for all).
+        log : OutStream, optional
+            Logging stream.
+        mean : bool, optional
+            Use mean of all voxels.
+
+        Returns
+        -------
+        pmap : ndarray
+            Result parameters and RMSE.
+        """
         start = time()
         size = 1 if mean else self.size()
         pmap = np.zeros((size, len(model.params) + 1))
