@@ -11,13 +11,14 @@ class AsciiFile(object):
         self.filename = filename
         self.basename = os.path.basename(filename)
         self.d, self.a = read_ascii_file(self.filename)
+        self.number = int(self.d.get('number', 0))
 
     def __str__(self):
         return '{}\n{}\n{}'.format(self.filename, self.d, self.a.shape)
 
     def subwindow(self):
         a = re.findall(r'\d+', self.d.get('subwindow', ''))
-        a = util.fabricate_subwindow(len(self.a)) # XXX
+        a = util.fabricate_subwindow(len(self.a))
         return map(int, a)
 
     def subwinsize(self):

@@ -35,7 +35,6 @@ def load_matlab(filename, varname='ROIdata'):
             dwi.subwindow = map(int, win.subwindow[0])
         except:
             dwi.subwindow = util.fabricate_subwindow(len(sis))
-        dwi.execution_time = -1
         r.append(dwi)
     return r
 
@@ -51,12 +50,11 @@ def load_ascii(filename, nrois=1):
         dwi.filename = filename
         dwi.roislice = af.roislice()
         dwi.name = af.name()
-        dwi.number = int(af.d['number']) + i
+        dwi.number = af.number + i
         try:
             dwi.subwindow = af.subwindow()
         except:
             dwi.subwindow = util.fabricate_subwindow(len(sis))
-        dwi.execution_time = -1
         r.append(dwi)
     return r
 
@@ -75,6 +73,7 @@ class DWImage(object):
         """
         self.sis = np.array(sis, dtype=float)
         self.bset = np.array(sorted(set(bset)), dtype=float)
+        self.execution_time = -1
         if self.sis.shape != (len(self.sis), len(self.bset)):
             raise Exception('Image size does not match with b-values.')
 
