@@ -65,7 +65,7 @@ def load_dicom(filenames):
         dwi.roislice = '-'
         dwi.name = '-'
         dwi.number = i
-        dwi.subwindow = (0, image.shape[1], 0, image.shape[2])
+        dwi.subwindow = (0, s.shape[0], 0, s.shape[1])
         r.append(dwi)
     return r
 
