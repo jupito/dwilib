@@ -69,6 +69,18 @@ def load_dicom(filenames):
         r.append(dwi)
     return r
 
+def load_dicom_3d(filenames):
+    """Load a 3d image from DICOM files with slices combined."""
+    import dicomfile
+    bset, image = dicomfile.read_files(filenames)
+    dwi = DWImage(image, bset)
+    dwi.filename = filenames[0] + '...'
+    dwi.roislice = '-'
+    dwi.name = '-'
+    dwi.number = 0
+    dwi.subwindow = (0, image.shape[0], 0, image.shape[1], 0, image.shape[2])
+    return [dwi]
+
 class DWImage(object):
     """DWI image, a single slice of signal intensities at several b-values.
 
@@ -99,8 +111,6 @@ class DWImage(object):
         self.sis.shape = (-1,self.image.shape[-1])
         self.bset = np.array(sorted(set(bset)), dtype=float)
         self.execution_time = -1
-        if not len(self.image.shape) == 3:
-            raise Exception('Image has invalid dimensions.')
         if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
             raise Exception('Image size does not match with b-values.')
 
