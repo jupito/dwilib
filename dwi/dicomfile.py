@@ -44,13 +44,14 @@ def read_files(filenames):
 
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
-    shape = slices.values()[0].shape + (len(positions), len(bvalues))
+    w, h = slices.values()[0].shape
+    shape = (len(positions), w, h, len(bvalues))
     image = np.empty(shape)
     image.fill(np.nan)
     for k, v in slices.iteritems():
         i = positions.index(k[0])
         j = bvalues.index(k[1])
-        image[:,:,i,j] = v
+        image[i,:,:,j] = v
     if np.isnan(np.min(image)):
         raise Exception("Slices missing.")
     return image
