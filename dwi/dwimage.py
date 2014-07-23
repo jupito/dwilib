@@ -57,8 +57,7 @@ def load_ascii(filename, nrois=1):
 def load_dicom(filenames):
     """Load images from DICOM files."""
     import dicomfile
-    bset, image = dicomfile.read_files(filenames)
-    slices = image.reshape(len(image),-1,len(bset))
+    bset, slices = dicomfile.read_files(filenames)
     r = []
     for i, s in enumerate(slices):
         dwi = DWImage(s, bset)
@@ -71,22 +70,38 @@ def load_dicom(filenames):
     return r
 
 class DWImage(object):
-    """DWI image, stored single-dimensionally."""
+    """DWI image, a single slice of signal intensities at several b-values.
 
-    def __init__(self, sis, bset):
+    Variables
+    ---------
+    image : ndarray, shape = [height, width, n_bvalues]
+        Slice of voxels.
+    sis : ndarray, shape = [height * width, n_bvalues]
+        Flattened view of the image.
+    bset : ndarray, shape = [n_bvalues]
+        Different b-values.
+    execution_time : number
+        Number of seconds spent executing last calculation, or -1.
+    """
+
+    def __init__(self, image, bset):
         """Create a new DWI image.
 
         Parameters
         ----------
-        sis : array_like, shape = (n_voxels, n_bvalues)
-            Voxels representing signal intensities.
+        image : array_like, shape = [(height,) width, n_bvalues]
+            Array of signal intensities at different b-values.
         bset : sequence
             Different b-values.
         """
-        self.sis = np.array(sis, dtype=float)
+        self.image = np.array(image, dtype=float, ndmin=3)
+        self.sis = self.image.view()
+        self.sis.shape = (-1,self.image.shape[-1])
         self.bset = np.array(sorted(set(bset)), dtype=float)
         self.execution_time = -1
-        if self.sis.shape != (len(self.sis), len(self.bset)):
+        if not len(self.image.shape) == 3:
+            raise Exception('Image has invalid dimensions.')
+        if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
             raise Exception('Image size does not match with b-values.')
 
     def __repr__(self):
@@ -95,12 +110,13 @@ class DWImage(object):
     def __str__(self):
         d = dict(fn=self.filename, n=self.number,
                 nb=len(self.bset), b=list(self.bset),
-                s=self.size(), w=self.subwindow,
-                ws=self.subwindow_shape())
+                size=self.sis.shape[0], shape=self.image.shape[0:-1],
+                w=self.subwindow, ws=self.subwindow_shape())
         s = 'File: {fn}\n'\
                 'Number: {n}\n'\
                 'B-values: {nb}: {b}\n'\
-                'Window: {s}, {w}, {ws}'.format(**d)
+                'Voxels: {size}, {shape}\n'\
+                'Window: {w}, {ws}'.format(**d)
         return s
 
     def subwindow_shape(self):
