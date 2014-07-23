@@ -110,7 +110,7 @@ class DWImage(object):
     def __str__(self):
         d = dict(fn=self.filename, n=self.number,
                 nb=len(self.bset), b=list(self.bset),
-                size=self.sis.shape[0], shape=self.image.shape[0:-1],
+                size=self.size(), shape=self.shape(),
                 w=self.subwindow, ws=self.subwindow_shape())
         s = 'File: {fn}\n'\
                 'Number: {n}\n'\
@@ -121,6 +121,10 @@ class DWImage(object):
 
     def subwindow_shape(self):
         return tuple((b-a for a, b in util.chunks(self.subwindow, 2)))
+
+    def shape(self):
+        """Return image height and width."""
+        return self.image.shape[0:-1]
 
     def size(self):
         """Return number of voxels."""
