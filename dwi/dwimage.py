@@ -54,6 +54,22 @@ def load_ascii(filename, nrois=1):
         r.append(dwi)
     return r
 
+def load_dicom(filenames):
+    """Load images from DICOM files."""
+    import dicomfile
+    bset, image = dicomfile.read_files(filenames)
+    slices = image.reshape(len(image),-1,len(bset))
+    r = []
+    for i, s in enumerate(slices):
+        dwi = DWImage(s, bset)
+        dwi.filename = filenames[0] + '...'
+        dwi.roislice = '-'
+        dwi.name = '-'
+        dwi.number = i
+        dwi.subwindow = (0, image.shape[1], 0, image.shape[2])
+        r.append(dwi)
+    return r
+
 class DWImage(object):
     """DWI image, stored single-dimensionally."""
 
