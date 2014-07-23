@@ -5,7 +5,6 @@ import os
 import numpy as np
 import scipy as sp
 
-import asciifile
 import fit
 import util
 
@@ -39,6 +38,7 @@ def load_matlab(filename, varname='ROIdata'):
 
 def load_ascii(filename, nrois=1):
     """Load images from an ASCII file."""
+    import asciifile
     af = asciifile.AsciiFile(filename)
     a = af.a.reshape(nrois,-1,af.a.shape[-1])
     r = []
