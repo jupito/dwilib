@@ -185,6 +185,11 @@ def biexp(b, Af, Df, Ds, C=1):
 ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
 
 Models = []
+
+Models.append(Model('Si',
+        'Signal intensity values',
+        None,
+        []))
 Models.append(Model('SiN',
         'Normalized signal intensity values',
         None,
