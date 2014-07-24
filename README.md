@@ -3,8 +3,6 @@ dwilib
 
 Tools in development to support analysis of Diffusion-weighted imaging (DWI) data, with focus on prostate cancer.
 
-Currently it can only read the data in custom ASCII format, but support for DICOM is under way.
-
 Features
 --------
 - Perform model fitting (ADC, Kurtosis, etc.)
@@ -12,6 +10,8 @@ Features
 - Calculate and compare diagnostic ROC AUCs
 - Calculate reproducibility measures
 - Plotting schemes
+- Viewer for multi-slice, multi-b-value DWI DICOM files (uses a Matplotlib GUI
+  widget)
 
 Requirements
 ------------
@@ -26,6 +26,5 @@ Todo
 ----
 - Clean up the messy parts
 - Documentation
-- DICOM support
 - Proper pipelining
 - Regression classification
