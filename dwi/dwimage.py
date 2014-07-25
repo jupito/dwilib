@@ -71,9 +71,9 @@ class DWImage(object):
 
     Variables
     ---------
-    image : ndarray, shape = [height, width, n_bvalues]
-        Slice of voxels.
-    sis : ndarray, shape = [height * width, n_bvalues]
+    image : ndarray, shape = [depth, height, width, n_bvalues]
+        Array of voxels.
+    sis : ndarray, shape = [depth * height * width, n_bvalues]
         Flattened view of the image.
     bset : ndarray, shape = [n_bvalues]
         Different b-values.
@@ -86,16 +86,18 @@ class DWImage(object):
 
         Parameters
         ----------
-        image : array_like, shape = [(height,) width, n_bvalues]
+        image : array_like, shape = [((depth,) height,) width, n_bvalues]
             Array of signal intensities at different b-values.
         bset : sequence
             Different b-values.
         """
-        self.image = np.array(image, dtype=float, ndmin=3)
+        self.image = np.array(image, dtype=float, ndmin=4)
         self.sis = self.image.view()
         self.sis.shape = (-1,self.image.shape[-1])
         self.bset = np.array(sorted(set(bset)), dtype=float)
         self.execution_time = -1
+        if len(self.image.shape) != 4:
+            raise Exception('Invalid image dimensions.')
         if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
             raise Exception('Image size does not match with b-values.')
 
