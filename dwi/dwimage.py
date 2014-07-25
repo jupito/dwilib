@@ -30,7 +30,7 @@ def load_matlab(filename, varname='ROIdata'):
         dwi.name = '-' # Not implemented.
         dwi.number = int(win.number[0,0])
         try:
-            dwi.subwindow = map(int, win.subwindow[0])
+            dwi.subwindow = tuple(map(int, win.subwindow[0]))
         except:
             dwi.subwindow = util.fabricate_subwindow(len(sis))
         r.append(dwi)
