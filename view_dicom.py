@@ -86,7 +86,7 @@ class Gui(object):
 args = parse_args()
 filenames = args.files
 
-dwimage = dwi.dwimage.load_dicom_3d(filenames)[0]
+dwimage = dwi.dwimage.load_dicom(filenames)[0]
 
 #plt.switch_backend('gtk')
 print dwimage

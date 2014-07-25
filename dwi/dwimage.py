@@ -55,21 +55,6 @@ def load_ascii(filename, nrois=1):
     return r
 
 def load_dicom(filenames):
-    """Load images from DICOM files."""
-    import dicomfile
-    bset, slices = dicomfile.read_files(filenames)
-    r = []
-    for i, s in enumerate(slices):
-        dwi = DWImage(s, bset)
-        dwi.filename = filenames[0] + '...'
-        dwi.roislice = '-'
-        dwi.name = '-'
-        dwi.number = i
-        dwi.subwindow = (0, s.shape[0], 0, s.shape[1])
-        r.append(dwi)
-    return r
-
-def load_dicom_3d(filenames):
     """Load a 3d image from DICOM files with slices combined."""
     import dicomfile
     bset, image = dicomfile.read_files(filenames)

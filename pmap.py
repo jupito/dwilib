@@ -69,7 +69,7 @@ def fit_ascii(model, filename):
         fit_dwi(model, dwi)
 
 def fit_dicom(model, filenames):
-    dwis = dwimage.load_dicom_3d(filenames)
+    dwis = dwimage.load_dicom(filenames)
     for dwi in dwis:
         fit_dwi(model, dwi)
 
