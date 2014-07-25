@@ -19,6 +19,8 @@ def parse_args():
             help='models to use')
     p.add_argument('--input', '-i', nargs='+', default=[],
             help='input files')
+    p.add_argument('--dicom', '-d', nargs='+', default=[],
+            help='input DICOM files')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -52,16 +54,24 @@ def log(str):
     sys.stderr.write(str)
     sys.stderr.flush()
 
-def fit_file(model, filename):
+def fit_dwi(model, dwi):
+    if args.verbose:
+        print dwi
+    if not model.params:
+        model.params = ['SI%dN' % b for b in dwi.bset]
+    params = model.params + ['RMSE']
+    pmap = dwi.fit_whole(model, log=None, mean=False)
+    write_pmap_ascii(dwi, model, params, pmap)
+
+def fit_ascii(model, filename):
     dwis = dwimage.load(filename, 1)
     for dwi in dwis:
-        if args.verbose:
-            print dwi
-        if not model.params:
-            model.params = ['SI%dN' % b for b in dwi.bset]
-        params = model.params + ['RMSE']
-        pmap = dwi.fit_whole(model, log=None, mean=False)
-        write_pmap_ascii(dwi, model, params, pmap)
+        fit_dwi(model, dwi)
+
+def fit_dicom(model, filenames):
+    dwis = dwimage.load_dicom_3d(filenames)
+    for dwi in dwis:
+        fit_dwi(model, dwi)
 
 
 args = parse_args()
@@ -81,4 +91,6 @@ elif 'normalized' in selected_models:
 for model in fit.Models:
     if model.name in selected_models:
         for filename in args.input:
-            fit_file(model, filename)
+            fit_ascii(model, filename)
+        if args.dicom:
+            fit_dicom(model, args.dicom)
