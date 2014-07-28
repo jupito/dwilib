@@ -15,8 +15,10 @@ def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(
             description='View DWI DICOM images.')
-    p.add_argument('--files', '-f', nargs='*', default=[], required=False,
+    p.add_argument('--files', '-f', nargs='+', default=[], required=False,
             help='DICOM files')
+    p.add_argument('--roi', '-r', nargs=6, default=[], required=False, type=int,
+            help='ROI (6 numbers)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -87,6 +89,8 @@ args = parse_args()
 filenames = args.files
 
 dwimage = dwi.dwimage.load_dicom(filenames)[0]
+if args.roi:
+    dwimage = dwimage.get_roi(args.roi)
 
 #plt.switch_backend('gtk')
 print dwimage

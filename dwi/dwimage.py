@@ -127,6 +127,19 @@ class DWImage(object):
         """Return number of voxels."""
         return len(self.sis)
 
+    def get_roi(self, position, bvalues=[]):
+        """Get a view of a specific ROI (region of interest)."""
+        z0, z1, y0, y1, x0, x1 = position
+        if not bvalues:
+            bvalues = range(len(self.bset))
+        image = self.image[z0:z1,y0:y1,x0:x1,bvalues]
+        bset = self.bset[bvalues]
+        dwimage = DWImage(image, bset)
+        dwimage.filename = self.filename
+        dwimage.number = self.number
+        dwimage.subwindow = self.subwindow
+        return dwimage
+
     def fit_elem(self, model, elem, bvalues=[], mean=False):
         """Fit model to an image element.
 
