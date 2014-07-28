@@ -136,6 +136,8 @@ class DWImage(object):
         bset = self.bset[bvalues]
         dwimage = DWImage(image, bset)
         dwimage.filename = self.filename
+        dwimage.roislice = self.roislice
+        dwimage.name = self.name
         dwimage.number = self.number
         dwimage.subwindow = self.subwindow
         return dwimage
