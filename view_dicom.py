@@ -64,7 +64,7 @@ class Gui(object):
 
     def on_motion(self, event):
         if self.update and event.xdata and event.ydata:
-            w, h = self.im.get_size()
+            h, w = self.im.get_size()
             relx = event.xdata / w
             rely = event.ydata / h
             self.i = int(relx * self.image.shape[0])
