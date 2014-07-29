@@ -17,8 +17,8 @@ def parse_args():
             description='View DWI DICOM images.')
     p.add_argument('--files', '-f', nargs='+', default=[], required=False,
             help='DICOM files')
-    p.add_argument('--roi', '-r', nargs=6, default=[], required=False, type=int,
-            help='ROI (6 numbers)')
+    p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[],
+            required=False, type=int, help='ROI (6 integers)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
