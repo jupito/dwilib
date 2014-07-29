@@ -30,8 +30,8 @@ class AsciiFile(object):
         return tuple(r)
 
     def bset(self):
-        a = re.findall(r'\d+', self.d.get('bset', ''))
-        return tuple(map(int, a))
+        a = re.findall(r'[\d.]+', self.d.get('bset', ''))
+        return tuple(map(float, a))
 
     def params(self):
         r = range(self.a.shape[1])
