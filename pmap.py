@@ -61,10 +61,11 @@ def fit_dwi(model, dwi):
         dwi = dwi.get_roi(args.roi)
     if args.verbose:
         print dwi
+    logger = log if args.verbose > 1 else None
     if not model.params:
         model.params = ['SI%dN' % b for b in dwi.bset]
     params = model.params + ['RMSE']
-    pmap = dwi.fit_whole(model, log=None, mean=False)
+    pmap = dwi.fit_whole(model, log=logger, mean=False)
     write_pmap_ascii(dwi, model, params, pmap)
 
 def fit_ascii(model, filename):
