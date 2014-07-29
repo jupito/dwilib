@@ -139,7 +139,13 @@ class DWImage(object):
         dwimage.roislice = self.roislice
         dwimage.name = self.name
         dwimage.number = self.number
-        dwimage.subwindow = self.subwindow
+        dwimage.subwindow = (
+                self.subwindow[0] + z0,
+                self.subwindow[0] + z1,
+                self.subwindow[2] + y0,
+                self.subwindow[2] + y1,
+                self.subwindow[4] + x0,
+                self.subwindow[4] + x1)
         return dwimage
 
     def fit_elem(self, model, elem, bvalues=[], mean=False):
