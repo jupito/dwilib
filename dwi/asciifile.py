@@ -26,7 +26,7 @@ class AsciiFile(object):
         a = self.subwindow()
         r = []
         for i in range(len(a)/2):
-            r.append(a[i*2+1] - a[i*2] + 1)
+            r.append(a[i*2+1] - a[i*2])
         return tuple(r)
 
     def bset(self):
