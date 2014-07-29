@@ -15,10 +15,10 @@ def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(
             description='View DWI DICOM images.')
-    p.add_argument('--files', '-f', nargs='+', default=[], required=False,
+    p.add_argument('--files', '-f', nargs='+', default=[], required=True,
             help='DICOM files')
-    p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[],
-            required=False, type=int, help='ROI (6 integers)')
+    p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[], type=int,
+            help='ROI (6 integers)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -86,15 +86,15 @@ class Gui(object):
 
 
 args = parse_args()
-filenames = args.files
 
-dwimage = dwi.dwimage.load_dicom(filenames)[0]
+dwimage = dwi.dwimage.load_dicom(args.files)[0]
 if args.roi:
     dwimage = dwimage.get_roi(args.roi)
 
-#plt.switch_backend('gtk')
 print dwimage
 d = dict(min=dwimage.image.min(), max=dwimage.image.max())
 print 'Image intensity min/max: {min}/{max}'.format(**d)
 print
+
+#plt.switch_backend('gtk')
 Gui(dwimage.image)
