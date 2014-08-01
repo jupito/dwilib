@@ -32,3 +32,4 @@ Todo
 - Documentation
 - Proper pipelining
 - Regression classification
+- Autonomous tumor delineation/ROI placement
