@@ -29,6 +29,9 @@ class AsciiFile(object):
             r.append(a[i*2+1] - a[i*2])
         return tuple(r)
 
+    def subwindow_shape(self):
+        return tuple((b-a for a, b in util.chunks(self.subwindow(), 2)))
+
     def bset(self):
         a = re.findall(r'[\d.]+', self.d.get('bset', ''))
         return tuple(map(float, a))
