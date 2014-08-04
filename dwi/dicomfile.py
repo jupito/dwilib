@@ -30,10 +30,11 @@ def read_files(filenames):
             raise Exception("Shape mismatch.")
         position = tuple(map(float, d.ImagePositionPatient))
         bvalue = d.DiffusionBValue
+        pixels = get_pixels(d)
         positions.add(position)
         bvalues.add(bvalue)
         key = (position, bvalue)
-        slices.setdefault(key, []).append(d.pixel_array)
+        slices.setdefault(key, []).append(pixels)
     positions = sorted(positions)
     bvalues = sorted(bvalues)
     # If any slices are scanned multiple times, use mean.
@@ -55,3 +56,7 @@ def construct_image(slices, positions, bvalues):
     if np.isnan(np.min(image)):
         raise Exception("Slices missing.")
     return image
+
+def get_pixels(d):
+    """Return rescaled pixel array from DICOM object."""
+    return d.pixel_array.astype(float) * d.RescaleSlope + d.RescaleIntercept
