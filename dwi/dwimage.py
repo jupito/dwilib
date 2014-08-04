@@ -3,7 +3,6 @@
 from time import time
 import os
 import numpy as np
-import scipy as sp
 
 import fit
 import util
@@ -18,6 +17,8 @@ def load(filename, nrois=1, varname='ROIdata'):
 
 def load_matlab(filename, varname='ROIdata'):
     """Load images from a MATLAB file."""
+    import scipy as sp
+    import scipy.io
     mat = sp.io.loadmat(filename, struct_as_record=False)
     r = []
     for window in mat[varname][0]:
