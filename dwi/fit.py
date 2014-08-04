@@ -99,10 +99,10 @@ class Model(object):
 
     def fit_mi(self, xdata, ydata):
         """Fit model to data with multiple initializations."""
-        # S(0) is not expected to be 0, elevate the whole curve.
-        # XXX: Image should be properly preprocessed.
-        if ydata[0] == 0:
-            ydata += 1
+        ## S(0) is not expected to be 0, elevate the whole curve.
+        ## XXX: Image should be properly preprocessed.
+        #if ydata[0] == 0:
+        #    ydata += 1
         if self.preproc:
             self.preproc(ydata)
         if self.func:
