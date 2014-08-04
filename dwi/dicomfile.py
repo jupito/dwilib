@@ -58,5 +58,10 @@ def construct_image(slices, positions, bvalues):
     return image
 
 def get_pixels(d):
-    """Return rescaled pixel array from DICOM object."""
-    return d.pixel_array.astype(float) * d.RescaleSlope + d.RescaleIntercept
+    """Return rescaled and clipped pixel array from DICOM object."""
+    pixels = d.pixel_array.astype(float)
+    pixels = pixels * d.RescaleSlope + d.RescaleIntercept
+    lowest = d.WindowCenter - d.WindowWidth/2
+    highest = d.WindowCenter + d.WindowWidth/2
+    pixels = pixels.clip(lowest, highest, out=pixels)
+    return pixels
