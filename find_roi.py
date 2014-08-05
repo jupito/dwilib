@@ -28,20 +28,25 @@ def parse_args():
     return args
 
 def get_score_param(img, param):
-    r = 0
+    """Return parameter score of given ROI."""
     if param.startswith('ADC'):
         r = 1-np.mean(img)
     elif param.startswith('K'):
+        r = np.mean(img)/1000
+    elif param.startswith('score'):
         r = np.mean(img)
+    else:
+        r = 0 # Unknown parameter
     return r
 
 def get_score(img, params):
+    """Return total score of given ROI."""
     scores = [get_score_param(i, p) for i, p in zip(img.T, params)]
     r = sum(scores)
     return r
 
 def get_roi_scores(img, d, params):
-    """Return array of all scores for each possible ROI."""
+    """Return array of all scores for each possible ROI of given dimension."""
     scores_shape = tuple((img.shape[i]-d[i]+1 for i in range(3)))
     scores = np.zeros(scores_shape)
     scores.fill(np.nan)
@@ -62,9 +67,10 @@ def get_scoremap(img, d, params, n_rois):
     indices = scores.ravel().argsort()[::-1] # Sort ROI's by descending score.
     indices = indices[0:n_rois] # Select best ones.
     indices = [np.unravel_index(i, scores.shape) for i in indices]
-    scoremap = np.zeros_like(img[...,0])
+    #scoremap = np.zeros_like(img[...,0])
+    scoremap = np.zeros(img.shape[0:-1] + (1,))
     for z, y, x in indices:
-        scoremap[z:z+d[0], y:y+d[1], x:x+d[2]] += scores[z,y,x]
+        scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
 
@@ -88,6 +94,8 @@ n_rois = 10
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
 scoremaps = [sum(scoremaps)]
 
+roimap = get_scoremap(scoremaps[0], args.dim, ['score'], 1)
+
 ##
 #for i in range(scoremap.shape[0]):
 #    for j in range(scoremap.shape[1]):
@@ -110,6 +118,6 @@ scoremaps = [sum(scoremaps)]
 
 import matplotlib
 import matplotlib.pyplot as plt
-for scoremap in scoremaps:
-    plt.imshow(scoremap[0,...], cmap='gray', interpolation='nearest')
+for pmap in scoremaps + [roimap]:
+    plt.imshow(pmap[0,...,0], cmap='gray', interpolation='nearest')
     plt.show()
