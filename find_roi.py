@@ -95,6 +95,9 @@ scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
 scoremaps = [sum(scoremaps)]
 
 roimap = get_scoremap(scoremaps[0], args.dim, ['score'], 1)
+corner = [axis[0] for axis in roimap[...,0].nonzero()]
+coords = [(x, x+d) for x, d in zip(corner, args.dim)]
+print 'Optimal ROI: {}'.format(coords)
 
 ##
 #for i in range(scoremap.shape[0]):
