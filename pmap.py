@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# Fit and write parametric maps as ASCII files.
+"""Fit models to imaging data and write resulting parametric maps as ASCII
+files."""
 
 import os.path
 import sys
