@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """Fit models to imaging data and write resulting parametric maps as ASCII
 files."""
