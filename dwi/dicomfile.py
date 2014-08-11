@@ -29,7 +29,7 @@ def read_files(filenames):
         if d.pixel_array.shape != shape:
             raise Exception("Shape mismatch.")
         position = tuple(map(float, d.ImagePositionPatient))
-        bvalue = d.DiffusionBValue
+        bvalue = get_bvalue(d)
         pixels = get_pixels(d)
         positions.add(position)
         bvalues.add(bvalue)
@@ -56,6 +56,18 @@ def construct_image(slices, positions, bvalues):
     if np.isnan(np.min(image)):
         raise Exception("Slices missing.")
     return image
+
+def get_bvalue(d):
+    """Return image b-value. It may also be stored as frame second."""
+    if 'DiffusionBValue' in d:
+        r = d.DiffusionBValue
+    elif 'FrameTime' in d:
+        r = d.FrameTime / 1000
+    elif 'FrameReferenceTime' in d:
+        r = d.FrameReferenceTime / 1000
+    else:
+        raise AttributeError('DICOM file does not contain a b-value')
+    return r
 
 def get_pixels(d):
     """Return rescaled and clipped pixel array from DICOM object."""
