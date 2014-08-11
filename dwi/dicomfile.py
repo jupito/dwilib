@@ -70,10 +70,11 @@ def get_bvalue(d):
     return r
 
 def get_pixels(d):
-    """Return rescaled and clipped pixel array from DICOM object."""
+    """Return rescaled pixel array from DICOM object."""
     pixels = d.pixel_array.astype(float)
     pixels = pixels * d.RescaleSlope + d.RescaleIntercept
-    lowest = d.WindowCenter - d.WindowWidth/2
-    highest = d.WindowCenter + d.WindowWidth/2
-    pixels = pixels.clip(lowest, highest, out=pixels)
+    ## Clipping should not be done.
+    #lowest = d.WindowCenter - d.WindowWidth/2
+    #highest = d.WindowCenter + d.WindowWidth/2
+    #pixels = pixels.clip(lowest, highest, out=pixels)
     return pixels
