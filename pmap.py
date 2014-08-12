@@ -8,7 +8,7 @@ import sys
 import argparse
 
 from dwi import dwimage
-from dwi import fit
+from dwi import models
 
 def parse_args():
     """Parse command-line arguments."""
@@ -85,18 +85,18 @@ def fit_dicom(model, filenames):
 args = parse_args()
 
 if args.listmodels:
-    for model in fit.Models:
+    for model in models.Models:
         print '{n}: {d}'.format(n=model.name, d=model.desc)
     print '{n}: {d}'.format(n='all', d='all models')
     print '{n}: {d}'.format(n='normalized', d='all normalized models')
 
 selected_models = args.models
 if 'all' in selected_models:
-    selected_models += [m.name for m in fit.Models]
+    selected_models += [m.name for m in models.Models]
 elif 'normalized' in selected_models:
     selected_models += 'SiN MonoN KurtN StretchedN BiexpN'.split()
 
-for model in fit.Models:
+for model in models.Models:
     if model.name in selected_models:
         for filename in args.input:
             fit_ascii(model, filename)
