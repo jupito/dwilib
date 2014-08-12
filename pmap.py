@@ -24,6 +24,8 @@ def parse_args():
             help='input DICOM files')
     p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[],
             required=False, type=int, help='ROI (6 integers)')
+    p.add_argument('--average', '-a', action='store_true',
+            help='average voxels into one')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -66,7 +68,7 @@ def fit_dwi(model, dwi):
     if not model.params:
         model.params = ['SI%dN' % b for b in dwi.bset]
     params = model.params + ['RMSE']
-    pmap = dwi.fit_whole(model, log=logger, mean=False)
+    pmap = dwi.fit_whole(model, log=logger, mean=args.average)
     write_pmap_ascii(dwi, model, params, pmap)
 
 def fit_ascii(model, filename):
