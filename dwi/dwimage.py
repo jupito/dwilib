@@ -77,8 +77,6 @@ class DWImage(object):
         Flattened view of the image.
     bset : ndarray, shape = [n_bvalues]
         Different b-values.
-    execution_time : number
-        Number of seconds spent executing last calculation, or -1.
     """
 
     def __init__(self, image, bset):
@@ -95,7 +93,7 @@ class DWImage(object):
         self.sis = self.image.view()
         self.sis.shape = (-1,self.image.shape[-1])
         self.bset = np.array(sorted(set(bset)), dtype=float)
-        self.execution_time = -1
+        self.start_time = self.end_time = -1
         if len(self.image.shape) != 4:
             raise Exception('Invalid image dimensions.')
         if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
@@ -148,6 +146,18 @@ class DWImage(object):
                 self.subwindow[4] + x1)
         return dwimage
 
+    def start_execution(self):
+        """Start taking time for an operation."""
+        self.start_time = time()
+
+    def end_execution(self):
+        """End taking time for an operation."""
+        self.end_time = time()
+
+    def execution_time(self):
+        """Return time consumed by previous operation."""
+        return self.end_time - self.start_time
+
     def fit_elem(self, model, elem, bvalues=[], mean=False):
         """Fit model to an image element.
 
@@ -197,7 +207,7 @@ class DWImage(object):
         pmap : ndarray
             Result parameters and RMSE.
         """
-        start = time()
+        self.start_execution()
         size = 1 if mean else self.size()
         pmap = np.zeros((size, len(model.params) + 1))
         cnt_errors = 0
@@ -216,7 +226,7 @@ class DWImage(object):
                 cnt_errors += 1
         if cnt_errors:
             map(util.impute, pmap.T)
-        self.execution_time = time() - start
+        self.end_execution()
         if log:
             log('\nFinished with %i errors, %i warnings.\n'\
                     % (cnt_errors, cnt_warnings))
