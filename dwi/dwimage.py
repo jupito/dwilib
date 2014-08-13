@@ -17,9 +17,8 @@ def load(filename, nrois=1, varname='ROIdata'):
 
 def load_matlab(filename, varname='ROIdata'):
     """Load images from a MATLAB file."""
-    import scipy as sp
     import scipy.io
-    mat = sp.io.loadmat(filename, struct_as_record=False)
+    mat = scipy.io.loadmat(filename, struct_as_record=False)
     r = []
     for window in mat[varname][0]:
         win = window[0,0]
