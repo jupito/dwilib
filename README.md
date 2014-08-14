@@ -7,8 +7,7 @@ data, with focus on prostate cancer.
 Input data can be provided in DICOM or custom ASCII or MATLAB format.
 
 This software is being developed as part of a research project at [University
-of Turku](http://www.utu.fi/) and [Turku PET
-Centre](http://www.turkupetcentre.fi/).
+of Turku](http://www.utu.fi/).
 
 Features
 --------
