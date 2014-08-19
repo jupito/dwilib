@@ -158,8 +158,30 @@ class DWImage(object):
         """Return time consumed by previous operation."""
         return self.end_time - self.start_time
 
+    def fit(self, model):
+        """Fit model to whole image.
+
+        Parameters
+        ----------
+        model : fit.Model
+            Model used for fitting.
+
+        Returns
+        -------
+        pmap : ndarray
+            Result parameters and RMSE.
+        """
+        self.start_execution()
+        xdata = self.bset
+        ydatas = self.sis
+        pmap = model.fit_mi_multi(xdata, ydatas)
+        self.end_execution()
+        return pmap
+
     def fit_elem(self, model, elem, bvalues=[], mean=False):
         """Fit model to an image element.
+
+        NOTE: This is the old implementation, use fit() instead.
 
         Parameters
         ----------
@@ -190,6 +212,8 @@ class DWImage(object):
 
     def fit_whole(self, model, bvalues=[], log=None, mean=False):
         """Fit model to whole image.
+
+        NOTE: This is the old implementation, use fit() instead.
 
         Parameters
         ----------
@@ -230,24 +254,4 @@ class DWImage(object):
         if log:
             log('\nFinished with %i errors, %i warnings.\n'\
                     % (cnt_errors, cnt_warnings))
-        return pmap
-
-    def fit(self, model):
-        """Fit model to whole image.
-
-        Parameters
-        ----------
-        model : fit.Model
-            Model used for fitting.
-
-        Returns
-        -------
-        pmap : ndarray
-            Result parameters and RMSE.
-        """
-        self.start_execution()
-        xdata = self.bset
-        ydatas = self.sis
-        pmap = model.fit_mi_multi(xdata, ydatas)
-        self.end_execution()
         return pmap

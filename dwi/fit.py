@@ -97,8 +97,25 @@ class Model(object):
         """Return all combinations of initial guesses."""
         return util.combinations(map(lambda p: p.guesses(si0), self.params))
 
+    def fit_mi_multi(self, xdata, ydatas):
+        """Fit model to multiple voxels."""
+        ydatas = prepare_for_fitting(ydatas)
+        shape = (len(ydatas), len(self.params) + 1)
+        pmap = np.zeros(shape)
+        for i, ydata in enumerate(ydatas):
+            params, err = self.fit_mi(xdata, ydata)
+            pmap[i, -1] = err
+            if np.isfinite(err):
+                pmap[i, :-1] = params
+            else:
+                pmap[i, :-1].fill(np.nan)
+        return pmap
+
     def fit_mi(self, xdata, ydata):
-        """Fit model to data with multiple initializations."""
+        """Fit model to data with multiple initializations.
+
+        NOTE: This is the old implementation, use fit_mi_multi() instead.
+        """
         if ydata[0] == 0:
             # S(0) is not expected to be 0, set whole curve to 1 (ADC 0).
             ydata[:] = 1
@@ -114,20 +131,6 @@ class Model(object):
         if self.postproc:
             self.postproc(params)
         return params, err
-
-    def fit_mi_multi(self, xdata, ydatas):
-        """Fit model to multiple voxels."""
-        ydatas = prepare_for_fitting(ydatas)
-        shape = (len(ydatas), len(self.params) + 1)
-        pmap = np.zeros(shape)
-        for i, ydata in enumerate(ydatas):
-            params, err = self.fit_mi(xdata, ydata)
-            pmap[i, -1] = err
-            if np.isfinite(err):
-                pmap[i, :-1] = params
-            else:
-                pmap[i, :-1].fill(np.nan)
-        return pmap
 
 
 def prepare_for_fitting(voxels):
