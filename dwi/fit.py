@@ -118,10 +118,7 @@ class Model(object):
         return pmap
 
     def fit_mi(self, xdata, ydata):
-        """Fit model to data with multiple initializations.
-
-        NOTE: This is the old implementation, use fit() instead.
-        """
+        """Fit model to data with multiple initializations."""
         if ydata[0] == 0:
             # S(0) is not expected to be 0, set whole curve to 1 (ADC 0).
             ydata[:] = 1
