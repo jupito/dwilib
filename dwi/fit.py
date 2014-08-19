@@ -107,7 +107,10 @@ class Model(object):
                 self.preproc(ydata)
         for i, ydata in enumerate(ydatas):
             if self.func:
-                params, err = self.fit_single(xdata, ydata)
+                si0 = ydata[0]
+                guesses = self.guesses(si0)
+                bounds = self.bounds(si0)
+                params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
             else:
                 params, err = ydata, 0.
             pmap[i, -1] = err
@@ -119,14 +122,6 @@ class Model(object):
             for params in pmap:
                 self.postproc(params[:-1])
         return pmap
-
-    def fit_single(self, xdata, ydata):
-        """Fit model to data with multiple initializations."""
-        si0 = ydata[0]
-        guesses = self.guesses(si0)
-        bounds = self.bounds(si0)
-        params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
-        return params, err
 
 
 def prepare_for_fitting(voxels):
