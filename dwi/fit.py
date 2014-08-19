@@ -105,19 +105,19 @@ class Model(object):
                 self.preproc(ydata)
         shape = (len(ydatas), len(self.params) + 1)
         pmap = np.zeros(shape)
-        for i, ydata in enumerate(ydatas):
-            if self.func:
+        if self.func:
+            for i, ydata in enumerate(ydatas):
                 si0 = ydata[0]
                 guesses = self.guesses(si0)
                 bounds = self.bounds(si0)
                 params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
-            else:
-                params, err = ydata, 0.
-            pmap[i, -1] = err
-            if np.isfinite(err):
-                pmap[i, :-1] = params
-            else:
-                pmap[i, :-1].fill(np.nan)
+                pmap[i, -1] = err
+                if np.isfinite(err):
+                    pmap[i, :-1] = params
+                else:
+                    pmap[i, :-1].fill(np.nan)
+        else:
+            pmap[:, :-1] = ydatas # Fill with original data.
         if self.postproc:
             for params in pmap:
                 self.postproc(params[:-1])
