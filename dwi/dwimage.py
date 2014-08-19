@@ -174,7 +174,7 @@ class DWImage(object):
         self.start_execution()
         xdata = self.bset
         ydatas = self.sis
-        pmap = model.fit_mi_multi(xdata, ydatas)
+        pmap = model.fit(xdata, ydatas)
         self.end_execution()
         return pmap
 
