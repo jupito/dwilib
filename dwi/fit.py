@@ -119,9 +119,6 @@ class Model(object):
 
     def fit_single(self, xdata, ydata):
         """Fit model to data with multiple initializations."""
-        if ydata[0] == 0:
-            # S(0) is not expected to be 0, set whole curve to 1 (ADC 0).
-            ydata[:] = 1
         if self.func:
             si0 = ydata[0]
             guesses = self.guesses(si0)
