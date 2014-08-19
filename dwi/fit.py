@@ -102,6 +102,9 @@ class Model(object):
         ydatas = prepare_for_fitting(ydatas)
         shape = (len(ydatas), len(self.params) + 1)
         pmap = np.zeros(shape)
+        if self.preproc:
+            for ydata in ydatas:
+                self.preproc(ydata)
         for i, ydata in enumerate(ydatas):
             params, err = self.fit_mi(xdata, ydata)
             pmap[i, -1] = err
@@ -109,6 +112,9 @@ class Model(object):
                 pmap[i, :-1] = params
             else:
                 pmap[i, :-1].fill(np.nan)
+        if self.postproc:
+            for params in pmap:
+                self.postproc(params[:-1])
         return pmap
 
     def fit_mi(self, xdata, ydata):
@@ -119,8 +125,6 @@ class Model(object):
         if ydata[0] == 0:
             # S(0) is not expected to be 0, set whole curve to 1 (ADC 0).
             ydata[:] = 1
-        if self.preproc:
-            self.preproc(ydata)
         if self.func:
             si0 = ydata[0]
             guesses = self.guesses(si0)
@@ -128,8 +132,6 @@ class Model(object):
             params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
         else:
             params, err = ydata, 0.
-        if self.postproc:
-            self.postproc(params)
         return params, err
 
 
