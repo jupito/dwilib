@@ -100,11 +100,11 @@ class Model(object):
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""
         ydatas = prepare_for_fitting(ydatas)
-        shape = (len(ydatas), len(self.params) + 1)
-        pmap = np.zeros(shape)
         if self.preproc:
             for ydata in ydatas:
                 self.preproc(ydata)
+        shape = (len(ydatas), len(self.params) + 1)
+        pmap = np.zeros(shape)
         for i, ydata in enumerate(ydatas):
             if self.func:
                 si0 = ydata[0]
