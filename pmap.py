@@ -68,7 +68,8 @@ def fit_dwi(model, dwi):
     if not model.params:
         model.params = ['SI%dN' % b for b in dwi.bset]
     params = model.params + ['RMSE']
-    pmap = dwi.fit_whole(model, log=logger, mean=args.average)
+    #pmap = dwi.fit_whole(model, log=logger, mean=args.average)
+    pmap = dwi.fit(model)
     write_pmap_ascii(dwi, model, params, pmap)
 
 def fit_ascii(model, filename):

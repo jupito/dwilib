@@ -231,3 +231,23 @@ class DWImage(object):
             log('\nFinished with %i errors, %i warnings.\n'\
                     % (cnt_errors, cnt_warnings))
         return pmap
+
+    def fit(self, model):
+        """Fit model to whole image.
+
+        Parameters
+        ----------
+        model : fit.Model
+            Model used for fitting.
+
+        Returns
+        -------
+        pmap : ndarray
+            Result parameters and RMSE.
+        """
+        self.start_execution()
+        xdata = self.bset
+        ydatas = self.sis
+        pmap = model.fit_mi_multi(xdata, ydatas)
+        self.end_execution()
+        return pmap
