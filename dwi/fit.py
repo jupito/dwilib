@@ -106,7 +106,7 @@ class Model(object):
             for ydata in ydatas:
                 self.preproc(ydata)
         for i, ydata in enumerate(ydatas):
-            params, err = self.fit_mi(xdata, ydata)
+            params, err = self.fit_single(xdata, ydata)
             pmap[i, -1] = err
             if np.isfinite(err):
                 pmap[i, :-1] = params
@@ -117,7 +117,7 @@ class Model(object):
                 self.postproc(params[:-1])
         return pmap
 
-    def fit_mi(self, xdata, ydata):
+    def fit_single(self, xdata, ydata):
         """Fit model to data with multiple initializations."""
         if ydata[0] == 0:
             # S(0) is not expected to be 0, set whole curve to 1 (ADC 0).
