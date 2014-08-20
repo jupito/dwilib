@@ -37,7 +37,11 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
             out_pmap[i, :-1].fill(np.nan)
 
 def fit_curve_mi(f, xdata, ydata, guesses, bounds):
-    """Fit a curve to data with multiple initializations."""
+    """Fit a curve to data with multiple initializations.
+
+    Try all given combinations of parameter initializations, and return the
+    parameters and RMSE of best fit.
+    """
     guess = guesses[0]
     best_params = []
     best_err = np.inf
