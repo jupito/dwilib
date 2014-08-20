@@ -92,14 +92,8 @@ class Model(object):
         shape = (len(ydatas), len(self.params) + 1)
         pmap = np.zeros(shape)
         if self.func:
-            for i, ydata in enumerate(ydatas):
-                params, err = fit_curve_mi(self.func, xdata, ydata,
-                        self.guesses(), self.bounds())
-                pmap[i, -1] = err
-                if np.isfinite(err):
-                    pmap[i, :-1] = params
-                else:
-                    pmap[i, :-1].fill(np.nan)
+            fit_curves_mi(self.func, xdata, ydatas,
+                    self.guesses(), self.bounds(), pmap)
         else:
             pmap[:, :-1] = ydatas # Fill with original data.
         if self.postproc:
@@ -139,6 +133,16 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds):
             best_params = params
             best_err = err
     return best_params, best_err
+
+def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
+    """Fit curves to data with multiple initializations."""
+    for i, ydata in enumerate(ydatas):
+        params, err = fit_curve_mi(f, xdata, ydata, guesses, bounds)
+        out_pmap[i, -1] = err
+        if np.isfinite(err):
+            out_pmap[i, :-1] = params
+        else:
+            out_pmap[i, :-1].fill(np.nan)
 
 def rmse(f, p, xdata, ydata):
     """Root-mean-square error."""
