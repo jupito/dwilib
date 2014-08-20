@@ -8,8 +8,7 @@ import util
 class Parameter(object):
     """Parameter used in model definitions."""
 
-    def __init__(self, name, steps, bounds,
-            use_stepsize=True, relative=False):
+    def __init__(self, name, steps, bounds, use_stepsize=True):
         """Create a new model parameter.
 
         Parameters
@@ -22,14 +21,11 @@ class Parameter(object):
             Constraints as (start, end).
         use_stepsize : bool, optional
             Use step size instead of number.
-        relative : bool, optional
-            Consider steps and bounds relative to SI(0).
         """
         self.name = name
         self.steps = steps
         self.bounds = bounds
         self.use_stepsize = use_stepsize
-        self.relative = relative
 
     def __str__(self):
         return self.name
@@ -37,22 +33,12 @@ class Parameter(object):
     def __repr__(self):
         return '%s=%s' % (self.name, self.steps)
 
-    def steps_rel(self, si0):
-        c = si0 if self.relative else 1.0
-        return tuple(np.array(self.steps) * c)
-
-    def bounds_rel(self, si0):
-        c = si0 if self.relative else 1.0
-        return tuple(np.array(self.bounds) * c)
-
-    def guesses(self, si0):
+    def guesses(self):
         """Return initial guesses."""
         if self.use_stepsize:
             g = np.arange(*self.steps)
         else:
             g = np.linspace(*self.steps)
-        if self.relative:
-            g = g * si0
         return g
 
 
@@ -89,13 +75,13 @@ class Model(object):
     def __repr__(self):
         return '%s %s' % (self.name, ' '.join(map(repr, self.params)))
 
-    def bounds(self, si0):
+    def bounds(self):
         """Return bounds of all parameters."""
-        return [p.bounds_rel(si0) for p in self.params]
+        return [p.bounds for p in self.params]
 
-    def guesses(self, si0):
+    def guesses(self):
         """Return all combinations of initial guesses."""
-        return util.combinations(map(lambda p: p.guesses(si0), self.params))
+        return util.combinations(map(lambda p: p.guesses(), self.params))
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""
@@ -107,10 +93,8 @@ class Model(object):
         pmap = np.zeros(shape)
         if self.func:
             for i, ydata in enumerate(ydatas):
-                si0 = ydata[0]
-                guesses = self.guesses(si0)
-                bounds = self.bounds(si0)
-                params, err = fit_curve_mi(self.func, xdata, ydata, guesses, bounds)
+                params, err = fit_curve_mi(self.func, xdata, ydata,
+                        self.guesses(), self.bounds())
                 pmap[i, -1] = err
                 if np.isfinite(err):
                     pmap[i, :-1] = params
