@@ -4,7 +4,30 @@ import numpy as np
 from leastsqbound import leastsqbound
 
 def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
-    """Fit curves to data with multiple initializations."""
+    """Fit curves to data with multiple initializations.
+
+    Parameters
+    ----------
+    f : callable
+        Cost function used for fitting in form of f(parameters, x).
+    xdata : ndarray, shape = [n_bvalues]
+        X data points, i.e. b-values
+    ydatas : ndarray, shape = [n_curves, n_bvalues]
+        Y data points, i.e. signal intensity curves
+    guesses : sequence of tuples
+        All combinations of parameter initializations, i.e. starting guesses
+    bounds : sequence of tuples
+        Constraints for parameters, i.e. minimum and maximum values
+    out_pmap : ndarray, shape = [n_curves, n_parameters+1]
+        Output array
+
+    For each signal intensity curve, the resulting parameters with best fit will
+    be placed in the output array, along with an RMSE value (root mean square
+    error). In case of error, curve parameters will be set to NaN and RMSE to
+    infinite.
+
+    See files fit.py and models.py for more information on usage.
+    """
     for i, ydata in enumerate(ydatas):
         params, err = fit_curve_mi(f, xdata, ydata, guesses, bounds)
         out_pmap[i, -1] = err
