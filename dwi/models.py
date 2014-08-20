@@ -46,7 +46,8 @@ def biexp(b, Af, Df, Ds, C=1):
 # Model definitions.
 
 # General C parameter used in non-normalized models.
-ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
+#ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
+ParamC = Parameter('C', (500, 1250, 250), (0, 1e9))
 
 Models = []
 
