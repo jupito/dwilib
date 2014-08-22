@@ -61,7 +61,7 @@ def log(str):
 
 def fit_dwi(model, dwi):
     if args.roi:
-        dwi = dwi.get_roi(args.roi)
+        dwi = dwi.get_roi(args.roi, onebased=True)
     if args.verbose:
         print dwi
     logger = log if args.verbose > 1 else None
