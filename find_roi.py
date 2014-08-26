@@ -84,7 +84,11 @@ print img.shape
 print get_score(img, params)
 
 # Clip outliers.
-img[...,1].clip(0, 1, out=img[...,1])
+for i in range(img.shape[-1]):
+    if params[i].startswith('ADC'):
+        img[...,i].clip(0, 0.002, out=img[...,i])
+    elif params[i].startswith('K'):
+        img[...,i].clip(0, 2, out=img[...,i])
 
 print util.fivenum(img[...,0].ravel())
 print util.fivenum(img[...,1].ravel())
