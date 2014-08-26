@@ -106,6 +106,10 @@ print 'Optimal ROI: {}'.format(coords)
 import matplotlib
 import matplotlib.pyplot as plt
 for pmap in scoremaps + [roimap]:
-    view = pmap[0,...,0]
-    plt.imshow(view, cmap='gray', interpolation='nearest')
+    iview = img[0,...,0]
+    pview = pmap[0,...,0]
+    view = np.zeros(iview.shape + (3,))
+    view[...,2] = iview / iview.max()
+    view[...,0] = pview / pview.max()
+    plt.imshow(view, interpolation='nearest')
     plt.show()
