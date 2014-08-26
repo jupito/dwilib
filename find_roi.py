@@ -93,8 +93,8 @@ for i in range(img.shape[-1]):
 print util.fivenum(img[...,0].ravel())
 print util.fivenum(img[...,1].ravel())
 
-dims = [(1,i,i) for i in range(5, 16)]
-n_rois = 10
+dims = [(1,i,i) for i in range(5, 10)]
+n_rois = 500
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
 scoremaps = [sum(scoremaps)]
 
