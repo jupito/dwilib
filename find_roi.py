@@ -103,26 +103,6 @@ corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
 
-##
-#for i in range(scoremap.shape[0]):
-#    for j in range(scoremap.shape[1]):
-#        for k in range(scoremap.shape[2]):
-#            scoremap[i,j,k] = get_score(img[i,j,k,:])
-#
-#for _ in range(5):
-#    scoremap2 = scoremap.copy()
-#    for i in range(scoremap.shape[0]):
-#        for j in range(scoremap.shape[1])[1:-1]:
-#            for k in range(scoremap.shape[2])[1:-1]:
-#                scoremap2[i,j,k] = scoremap[i,j,k] * np.sqrt(np.mean(scoremap[i,j-1:j+1,k-1:k+1]**2))
-#    scoremap = scoremap2
-#
-#    import matplotlib
-#    import matplotlib.pyplot as plt
-#    plt.imshow(scoremap[0,1:-1,1:-1], cmap='gray', interpolation='nearest')
-#    plt.show()
-##
-
 import matplotlib
 import matplotlib.pyplot as plt
 for pmap in scoremaps + [roimap]:
