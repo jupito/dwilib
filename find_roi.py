@@ -94,9 +94,9 @@ for i in range(img.shape[-1]):
 dims = [(1,i,i) for i in range(5, 10)]
 n_rois = 500
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
-scoremaps = [sum(scoremaps)]
+sum_scoremaps = sum(scoremaps)
 
-roimap = get_scoremap(scoremaps[0], args.dim, ['score'], 1)
+roimap = get_scoremap(sum_scoremaps, args.dim, ['score'], 1)
 corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
@@ -104,7 +104,7 @@ print 'Optimal ROI: {}'.format(coords)
 if args.graphic:
     import matplotlib
     import matplotlib.pyplot as plt
-    for pmap in scoremaps + [roimap]:
+    for pmap in [sum_scoremaps, roimap]:
         iview = img[0,...,0]
         pview = pmap[0,...,0]
         view = np.zeros(iview.shape + (3,))
