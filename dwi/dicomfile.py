@@ -10,6 +10,8 @@ def read_files(filenames):
     The slices are sorted simply by their position as it is, assuming it only
     changes in one dimension. In case there are more than one scan of a position
     and a b-value, the files are averaged by mean.
+
+    DICOM files without pixel data are silently skipped.
     """
     patient_id = None
     orientation = None
@@ -19,6 +21,8 @@ def read_files(filenames):
     slices = dict() # Lists of single slices indexed by (position, bvalue).
     for f in filenames:
         d = dicom.read_file(f)
+        if not 'PixelData' in d:
+            continue
         patient_id = patient_id or d.PatientID
         if d.PatientID != patient_id:
             raise Exception("Patient ID mismatch.")
