@@ -18,8 +18,8 @@ def parse_args():
             'Find interesting ROI\'s in a DWI image.')
     p.add_argument('--input', '-i', required=True,
             help='input files')
-    p.add_argument('--roi', '-r', metavar='i', nargs=6, type=int, default=[],
-            help='ROI (6 integers)')
+    #p.add_argument('--roi', '-r', metavar='i', nargs=6, type=int, default=[],
+    #        help='ROI (6 integers)')
     p.add_argument('--dim', '-d', metavar='i', nargs=3, type=int,
             default=[1,5,5], help='dimensions of wanted ROI (3 integers)')
     p.add_argument('--graphic', '-g', action='store_true',
