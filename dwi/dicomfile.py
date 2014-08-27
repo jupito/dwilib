@@ -3,6 +3,15 @@ import dicom
 
 # Support for reading DWI data from DICOM files.
 
+def read_dir(dirname):
+    """Read a directory containing DICOM files. See dicomfile.read_files().
+    """
+    import os
+    import os.path
+    filenames = os.listdir(dirname)
+    pathnames = [os.path.join(dirname, f) for f in filenames]
+    return read_files(pathnames)
+
 def read_files(filenames):
     """Read a bunch of files, each containing a single slice with one b-value,
     and construct a 4d image array.
