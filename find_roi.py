@@ -91,9 +91,6 @@ for i in range(img.shape[-1]):
     elif params[i].startswith('K'):
         img[...,i].clip(0, 2, out=img[...,i])
 
-print util.fivenum(img[...,0].ravel())
-print util.fivenum(img[...,1].ravel())
-
 dims = [(1,i,i) for i in range(5, 10)]
 n_rois = 500
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
