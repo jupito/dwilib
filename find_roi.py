@@ -22,6 +22,8 @@ def parse_args():
             help='ROI (6 integers)')
     p.add_argument('--dim', '-d', metavar='i', nargs=3, type=int,
             default=[1,5,5], help='dimensions of wanted ROI (3 integers)')
+    p.add_argument('--graphic', '-g', action='store_true',
+            help='show graphic')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -103,13 +105,14 @@ corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
 
-import matplotlib
-import matplotlib.pyplot as plt
-for pmap in scoremaps + [roimap]:
-    iview = img[0,...,0]
-    pview = pmap[0,...,0]
-    view = np.zeros(iview.shape + (3,))
-    view[...,2] = iview / iview.max()
-    view[...,0] = pview / pview.max()
-    plt.imshow(view, interpolation='nearest')
-    plt.show()
+if args.graphic:
+    import matplotlib
+    import matplotlib.pyplot as plt
+    for pmap in scoremaps + [roimap]:
+        iview = img[0,...,0]
+        pview = pmap[0,...,0]
+        view = np.zeros(iview.shape + (3,))
+        view[...,2] = iview / iview.max()
+        view[...,0] = pview / pview.max()
+        plt.imshow(view, interpolation='nearest')
+        plt.show()
