@@ -57,7 +57,10 @@ def load_ascii(filename, nrois=1):
 def load_dicom(filenames):
     """Load a 3d image from DICOM files with slices combined."""
     import dicomfile
-    bset, image = dicomfile.read_files(filenames)
+    if len(filenames) == 1:
+        bset, image = dicomfile.read_dir(filenames[0]) # Directory.
+    else:
+        bset, image = dicomfile.read_files(filenames) # File list.
     dwi = DWImage(image, bset)
     dwi.filename = filenames[0] + '...'
     dwi.roislice = '-'
