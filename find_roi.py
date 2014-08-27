@@ -82,8 +82,7 @@ af = asciifile.AsciiFile(args.input)
 img = af.a.view()
 params = af.params()
 img.shape = af.subwindow_shape() + (img.shape[-1],)
-print img.shape
-print get_score(img, params)
+print 'Image shape: {}'.format(img.shape)
 
 # Clip outliers.
 for i in range(img.shape[-1]):
