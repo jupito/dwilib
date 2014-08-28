@@ -55,7 +55,10 @@ def load_ascii(filename, nrois=1):
     return r
 
 def load_dicom(filenames):
-    """Load a 3d image from DICOM files with slices combined."""
+    """Load a 3d image from DICOM files with slices combined.
+
+    If only one filename is given, it is assumed to be a directory.
+    """
     import dicomfile
     if len(filenames) == 1:
         bset, image = dicomfile.read_dir(filenames[0]) # Directory.
