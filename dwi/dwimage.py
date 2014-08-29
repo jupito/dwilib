@@ -152,6 +152,8 @@ class DWImage(object):
                 self.subwindow[2] + y1,
                 self.subwindow[4] + x0,
                 self.subwindow[4] + x1)
+        if onebased:
+            dwimage.subwindow = tuple([i+1 for i in dwimage.subwindow])
         return dwimage
 
     def start_execution(self):
