@@ -105,7 +105,8 @@ print 'Optimal ROI: {}'.format(coords)
 
 if args.verbose:
     for i, p in enumerate(params):
-        a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],i]
+        z, y, x = coords
+        a = img[z[0]:z[1], y[0]:y[1], x[0]:x[1], i]
         print p, a.min(), a.max(), np.median(a)
 
 if args.graphic:
