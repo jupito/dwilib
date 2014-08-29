@@ -34,7 +34,7 @@ def get_score_param(img, param):
     if param.startswith('ADC'):
         r = 1-np.mean(img)
         if np.min(img) < 0.0002:
-            r =- 1000000
+            r = 0
     elif param.startswith('K'):
         r = np.mean(img)/1000
     elif param.startswith('score'):
