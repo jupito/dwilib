@@ -103,8 +103,9 @@ corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
 
-a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],0]
-print a.min(), a.max(), np.median(a)
+if args.verbose:
+    a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],0]
+    print a.min(), a.max(), np.median(a)
 
 if args.graphic:
     import matplotlib
