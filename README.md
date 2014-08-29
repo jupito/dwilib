@@ -11,7 +11,8 @@ of Turku](http://www.utu.fi/).
 
 Features
 --------
-- Perform model fitting (ADC, Kurtosis, etc.)
+- Perform model fitting (Monoexponential ADC, Kurtosis, Stretched exponential,
+  Biexponential)
 - Calculate correlation by Gleason scores
 - Calculate and compare diagnostic ROC AUCs
 - Calculate reproducibility measures
