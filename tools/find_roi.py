@@ -33,6 +33,8 @@ def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
         r = 1-np.mean(img)
+        if np.min(img) < 0.0002:
+            r =- 1000000
     elif param.startswith('K'):
         r = np.mean(img)/1000
     elif param.startswith('score'):
@@ -92,7 +94,7 @@ for i in range(img.shape[-1]):
         img[...,i].clip(0, 2, out=img[...,i])
 
 dims = [(1,i,i) for i in range(5, 10)]
-n_rois = 500
+n_rois = 5000
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
 sum_scoremaps = sum(scoremaps)
 
@@ -100,6 +102,9 @@ roimap = get_scoremap(sum_scoremaps, args.dim, ['score'], 1)
 corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
+
+a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],0]
+print a.min(), a.max(), np.median(a)
 
 if args.graphic:
     import matplotlib
