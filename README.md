@@ -24,10 +24,10 @@ Requirements
 ------------
 - NumPy
 - SciPy
-- Scikit-Learn
+- [Scikit-Learn](http://scikit-learn.org/)
 - [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if
   fitting)
-- Matplotlib (if plotting)
+- [Matplotlib](http://matplotlib.org/) (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
 
 Todo or In Progress
