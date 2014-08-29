@@ -17,7 +17,7 @@ Features
 - Calculate and compare diagnostic ROC AUCs
 - Calculate reproducibility measures
 - Plotting schemes
-- Viewer for multi-slice, multi-b-value DWI DICOM files (uses a Matplotlib GUI
+- Viewer for multi-slice, multi-b-value DWI DICOM files (uses the Matplotlib GUI
   widget)
 
 Requirements
@@ -30,10 +30,9 @@ Requirements
 - Matplotlib (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
 
-Todo
-----
-- Clean up the messy parts
-- Documentation
+Todo or In Progress
+-------------------
+- Better documentation
 - Proper pipelining
 - Regression classification
 - Autonomous tumor delineation/ROI placement
