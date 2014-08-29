@@ -104,8 +104,9 @@ coords = [(x, x+d) for x, d in zip(corner, args.dim)]
 print 'Optimal ROI: {}'.format(coords)
 
 if args.verbose:
-    a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],0]
-    print a.min(), a.max(), np.median(a)
+    for i, p in enumerate(params):
+        a = img[0,coords[1][0]:coords[1][1],coords[2][0]:coords[2][1],i]
+        print p, a.min(), a.max(), np.median(a)
 
 if args.graphic:
     import matplotlib
