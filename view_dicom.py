@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 import dwi.dicomfile
 import dwi.dwimage
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -21,6 +22,8 @@ def parse_args():
             help='ROI (6 integers)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
+    p.add_argument('--normalize', '-n', action='store_true',
+            help='normalize curves')
     args = p.parse_args()
     return args
 
@@ -90,6 +93,10 @@ args = parse_args()
 dwimage = dwi.dwimage.load_dicom(args.files)[0]
 if args.roi:
     dwimage = dwimage.get_roi(args.roi)
+
+if args.normalize:
+    for si in dwimage.sis:
+        dwi.util.normalize_si_curve(si)
 
 print dwimage
 d = dict(min=dwimage.image.min(), max=dwimage.image.max())
