@@ -13,7 +13,7 @@ Features
 --------
 - Perform model fitting (Monoexponential ADC, Kurtosis, Stretched exponential,
   Biexponential)
-- Calculate correlation by Gleason scores
+- Calculate correlation with Gleason score
 - Calculate and compare diagnostic ROC AUCs
 - Calculate reproducibility measures
 - Plotting schemes
