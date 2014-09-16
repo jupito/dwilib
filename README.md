@@ -1,7 +1,7 @@
 dwilib
 ======
 
-Tools in development to support analysis of Diffusion-weighted imaging (DWI)
+Tools in development to support analysis of Diffusion-Weighted Imaging (DWI)
 data, with focus on prostate cancer.
 
 Input data can be provided in DICOM or custom ASCII or MATLAB format.
@@ -22,6 +22,7 @@ Features
 
 Requirements
 ------------
+- Python 2.7
 - NumPy
 - SciPy
 - [Scikit-Learn](http://scikit-learn.org/)
