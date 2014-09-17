@@ -22,6 +22,8 @@ def parse_args():
             help='input files')
     p.add_argument('--dicom', '-d', nargs='+', default=[],
             help='input DICOM files')
+    p.add_argument('--output', '-o', required=False,
+            help='output file (for single model)')
     p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[],
             required=False, type=int, help='ROI (6 integers)')
     p.add_argument('--average', '-a', action='store_true',
@@ -33,7 +35,10 @@ def parse_args():
 
 def write_pmap_ascii(dwi, model, params, pmap):
     """Write parameter images to an ASCII file."""
-    filename = '%s_%s.txt' % (os.path.basename(dwi.filename), model)
+    if args.output:
+        filename = args.output
+    else:
+        filename = '%s_%s.txt' % (os.path.basename(dwi.filename), model)
     print 'Writing parameters to %s...' % filename
     with open(filename, 'w') as f:
         write_pmap_ascii_head(dwi, model, params, f)
@@ -84,6 +89,9 @@ def fit_dicom(model, filenames):
 
 
 args = parse_args()
+
+if args.output and len(args.models) > 1:
+    raise 'Error: one output file, several models.'
 
 if args.listmodels:
     for model in models.Models:
