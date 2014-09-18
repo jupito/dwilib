@@ -24,8 +24,8 @@ def parse_args():
             help='input DICOM files')
     p.add_argument('--output', '-o', required=False,
             help='output file (for single model)')
-    p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[],
-            required=False, type=int, help='ROI (6 integers)')
+    p.add_argument('--subwindow', '-s', metavar='i', nargs=6, default=[],
+            required=False, type=int, help='use subwindow (6 integers)')
     p.add_argument('--average', '-a', action='store_true',
             help='average voxels into one')
     p.add_argument('--verbose', '-v', action='count',
@@ -65,8 +65,8 @@ def log(str):
     sys.stderr.flush()
 
 def fit_dwi(model, dwi):
-    if args.roi:
-        dwi = dwi.get_roi(args.roi, onebased=True)
+    if args.subwindow:
+        dwi = dwi.get_roi(args.subwindow, onebased=True)
     if args.verbose:
         print dwi
     logger = log if args.verbose > 1 else None
