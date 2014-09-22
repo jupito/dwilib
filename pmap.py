@@ -47,7 +47,7 @@ def write_pmap_ascii(dwi, model, params, pmap):
     if args.output:
         filename = args.output
     else:
-        filename = '%s_%s.txt' % (os.path.basename(dwi.filename), model)
+        filename = 'pmap_%s_%s.txt' % (os.path.basename(dwi.filename), model)
     print 'Writing parameters to %s...' % filename
     with open(filename, 'w') as f:
         write_pmap_ascii_head(dwi, model, params, f)
