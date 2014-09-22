@@ -12,10 +12,10 @@ possible arguments for the program. Use -l to list all available models.
                    [-i FILENAME [FILENAME ...]] [-d PATHNAME [PATHNAME ...]]
                    [-o FILENAME]
 
-Produce parametric maps by fitting one or more diffusion models to imaging
-data. Multiple input images can be provided in ASCII format. Single input image
-can be provided as a group of DICOM files. Output is written in ASCII files
-named by input and model.
+    Produce parametric maps by fitting one or more diffusion models to imaging
+    data. Multiple input images can be provided in ASCII format. Single input
+    image can be provided as a group of DICOM files. Output is written in ASCII
+    files named by input and model.
 
     optional arguments:
       -h, --help            show this help message and exit
