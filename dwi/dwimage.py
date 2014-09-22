@@ -65,7 +65,7 @@ def load_dicom(filenames):
     else:
         bset, image = dicomfile.read_files(filenames) # File list.
     dwi = DWImage(image, bset)
-    dwi.filename = filenames[0] + '...'
+    dwi.filename = os.path.abspath(filenames[0])
     dwi.roislice = '-'
     dwi.name = '-'
     dwi.number = 0
