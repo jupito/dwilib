@@ -60,8 +60,7 @@ def write_pmap_ascii_head(dwi, model, params, f):
     f.write('ROIslice: %s\n' % dwi.roislice)
     f.write('name: %s\n' % dwi.name)
     f.write('executiontime: %d s\n' % dwi.execution_time())
-    f.write('description: %s %s\n' % (os.path.basename(dwi.filename),
-        repr(model)))
+    f.write('description: %s %s\n' % (dwi.filename, repr(model)))
     f.write('model: %s\n' % model.name)
     f.write('parameters: %s\n' % ' '.join(map(str, params)))
 
