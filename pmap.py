@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 
-"""Fit models to imaging data and write resulting parametric maps as ASCII
-files."""
+"""Produce parametric maps by fitting one or more diffusion models to imaging
+data. Multiple input images can be provided in ASCII format. Single input image
+can be provided as a group of DICOM files. Output is written in ASCII files
+named by input and model."""
 
 import os.path
 import sys
@@ -12,24 +14,31 @@ from dwi import models
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description =
-            'Produce parameter maps by fitting curves.')
-    p.add_argument('--listmodels', '-l', action='store_true',
-            help='list models')
-    p.add_argument('--models', '-m', nargs='+', default=[],
+    p = argparse.ArgumentParser(description = __doc__)
+    p.add_argument('-v', '--verbose',
+            action='count',
+            help='increase verbosity')
+    p.add_argument('-l', '--listmodels',
+            action='store_true',
+            help='list available models')
+    p.add_argument('-a', '--average',
+            action='store_true',
+            help='average input voxels into one')
+    p.add_argument('-s', '--subwindow', metavar='I',
+            nargs=6, default=[], required=False, type=int,
+            help='use subwindow (specified by 6 one-based indices)')
+    p.add_argument('-m', '--models', metavar='MODEL',
+            nargs='+', default=[],
             help='models to use')
-    p.add_argument('--input', '-i', nargs='+', default=[],
-            help='input files')
-    p.add_argument('--dicom', '-d', nargs='+', default=[],
-            help='input DICOM files')
-    p.add_argument('--output', '-o', required=False,
-            help='output file (for single model)')
-    p.add_argument('--subwindow', '-s', metavar='i', nargs=6, default=[],
-            required=False, type=int, help='use subwindow (6 integers)')
-    p.add_argument('--average', '-a', action='store_true',
-            help='average voxels into one')
-    p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
+    p.add_argument('-i', '--input', metavar='FILENAME',
+            nargs='+', default=[],
+            help='input ASCII files')
+    p.add_argument('-d', '--dicom', metavar='PATHNAME',
+            nargs='+', default=[],
+            help='input DICOM files or directories')
+    p.add_argument('-o', '--output', metavar='FILENAME',
+            required=False,
+            help='output file (for single model only)')
     args = p.parse_args()
     return args
 
