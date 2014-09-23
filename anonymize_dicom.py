@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Anonymize DICOM files."""
+"""Anonymize DICOM files. Write in-place or into another directory."""
 
 import argparse
 import os
@@ -85,7 +85,10 @@ def delete_confidential(dataset, elem):
 
 args = parse_args()
 for infile in args.input:
-    outfile = os.path.join(args.output, os.path.basename(infile))
+    if args.output:
+        outfile = os.path.join(args.output, os.path.basename(infile))
+    else:
+        outfile = infile
     deleted = []
     f = dicom.read_file(infile)
     f.walk(delete_confidential, recursive=True)
