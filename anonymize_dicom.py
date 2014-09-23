@@ -69,6 +69,9 @@ def parse_args():
     p.add_argument('-v', '--verbose',
             action='count',
             help='increase verbosity')
+    p.add_argument('-n', '--dry-run',
+            action='store_true',
+            help='don\'t write any changes')
     p.add_argument('-i', '--input', metavar='FILENAME',
             nargs='+',
             help='input DICOM files')
@@ -99,4 +102,5 @@ for infile in args.input:
         if args.verbose:
             d = dict(i=infile, o=outfile, n=len(deleted))
             print '{i}: Deleted {n} elements, writing to {o}.'.format(**d)
-        f.save_as(outfile, WriteLikeOriginal=True)
+        if not args.dry_run:
+            f.save_as(outfile, WriteLikeOriginal=True)
