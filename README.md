@@ -19,6 +19,7 @@ Features
 - Plotting schemes
 - Viewer for multi-slice, multi-b-value DWI DICOM files (uses the Matplotlib GUI
   widget)
+- Build tool for automated pipelining of data processing tasks
 
 Requirements
 ------------
@@ -30,10 +31,11 @@ Requirements
   fitting)
 - [Matplotlib](http://matplotlib.org/) (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
+- [PyDoIt](http://pydoit.org/) (if using the build tool)
 
 Todo or In Progress
 -------------------
-- Better documentation
-- Proper pipelining
-- Regression classification
+- Improved documentation
+- Improved build tool
 - Autonomous tumor delineation/ROI placement
+- Regression classification
