@@ -2,6 +2,7 @@
 
 """Convert ROI mask files from MATLAB format to ASCII."""
 
+import os
 import sys
 
 import scipy.io
@@ -13,15 +14,17 @@ def mask_to_text(mask):
     return '\n'.join(map(line_to_text, mask))
 
 
-filename = sys.argv[1]
-mat = scipy.io.loadmat(filename, struct_as_record=False)
+infile = sys.argv[1]
+mat = scipy.io.loadmat(infile, struct_as_record=False)
 
-roislices = map(str, mat['ROIslices'][0])
-print 'ROIslices: {}'.format(' '.join(roislices))
+roislices = map(int, mat['ROIslices'][0])
+rois = mat['ROIs'][0]
 
-for roi in mat['ROIs'][0]:
+for roi in rois:
     struct = roi[0,0]
-    print 'name: {}'.format(struct.name[0])
-    print 'vol: {}'.format(struct.vol[0,0])
-    print 'shape: {}'.format(struct.mask.shape)
-    print mask_to_text(struct.mask)
+    name = struct.name[0]
+    #vol = struct.vol[0,0]
+    outfile = '%s_%s.mask' % (os.path.basename(infile), name)
+    with open(outfile, 'wb') as f:
+        f.write('slice: %i\n' % roislices[0])
+        f.write(mask_to_text(struct.mask))
