@@ -103,7 +103,6 @@ sum_scoremaps = sum(scoremaps)
 roimap = get_scoremap(sum_scoremaps, args.dim, ['score'], 1)
 corner = [axis[0] for axis in roimap[...,0].nonzero()]
 coords = [(x, x+d) for x, d in zip(corner, args.dim)]
-print 'Optimal ROI: {}'.format(coords)
 
 if args.verbose:
     for i, p in enumerate(params):
@@ -114,6 +113,8 @@ if args.verbose:
         a = img[..., i]
         print p, a.min(), a.max(), np.median(a)
         print util.fivenum(a.flatten())
+
+print 'Optimal ROI: {}'.format(coords)
 
 
 #if args.graphic:
