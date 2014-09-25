@@ -32,7 +32,8 @@ def parse_args():
 def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
-        r = 1-np.mean(img)
+        #r = 1-np.mean(img)
+        r = 1./(np.mean(img)-0.0008)
         if np.min(img) < 0.0002:
             r = 0
     elif param.startswith('K'):
@@ -93,8 +94,10 @@ for i in range(img.shape[-1]):
     elif params[i].startswith('K'):
         img[...,i].clip(0, 2, out=img[...,i])
 
+#dims = [(1,1,1)]
 dims = [(1,i,i) for i in range(5, 10)]
-n_rois = 5000
+#n_rois = 2000
+n_rois = 70*70/2
 scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
 sum_scoremaps = sum(scoremaps)
 
@@ -108,15 +111,89 @@ if args.verbose:
         z, y, x = coords
         a = img[z[0]:z[1], y[0]:y[1], x[0]:x[1], i]
         print p, a.min(), a.max(), np.median(a)
+        print util.fivenum(a.flatten())
+        a = img[..., i]
+        print p, a.min(), a.max(), np.median(a)
+        print util.fivenum(a.flatten())
+
+
+#if args.graphic:
+#    import matplotlib
+#    import matplotlib.pyplot as plt
+#    for pmap in [sum_scoremaps, roimap]:
+#        iview = img[0,...,0]
+#        pview = pmap[0,...,0]
+#        view = np.zeros(iview.shape + (3,))
+#        view[...,2] = iview / iview.max()
+#        view[...,0] = pview / pview.max()
+#        plt.imshow(view, interpolation='nearest')
+#        plt.show()
+
+def draw_roi(img, y, x):
+    img[y:y+4,x,    :] = [1,0,0]
+    img[y:y+4,x+4,  :] = [1,0,0]
+    img[y,    x:x+4,:] = [1,0,0]
+    img[y+4,  x:x+5,:] = [1,0,0]
 
 if args.graphic:
     import matplotlib
     import matplotlib.pyplot as plt
-    for pmap in [sum_scoremaps, roimap]:
-        iview = img[0,...,0]
-        pview = pmap[0,...,0]
-        view = np.zeros(iview.shape + (3,))
-        view[...,2] = iview / iview.max()
-        view[...,0] = pview / pview.max()
-        plt.imshow(view, interpolation='nearest')
-        plt.show()
+    import pylab as pl
+    n_cols, n_rows = 3, 1
+    fig = plt.figure(figsize=(n_cols*6, n_rows*6))
+
+    iview = img[0,...,0]
+    view = np.zeros(iview.shape + (3,))
+    view[...,0] = iview / iview.max()
+    view[...,1] = iview / iview.max()
+    view[...,2] = iview / iview.max()
+    #draw_roi(view, 41, 53)
+    draw_roi(view, 37, 22)
+    ax1 = fig.add_subplot(1, n_cols, 1)
+    ax1.set_title('ADC map with manually placed ROI')
+    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
+    im = plt.imshow(view, interpolation='nearest')
+
+    pmap = sum_scoremaps
+    iview = img[0,...,0]
+    pview = pmap[0,...,0]
+    view = np.zeros(iview.shape + (3,))
+    view[...,0] = iview / iview.max()
+    view[...,1] = iview / iview.max()
+    view[...,2] = iview / iview.max()
+    #view[...,0] = pview / pview.max()
+    view[...,1] -= pview / pview.max()
+    view[...,2] -= pview / pview.max()
+    view.clip(0, 1, out=view)
+    ax2 = fig.add_subplot(1, n_cols, 2)
+    ax2.set_title('Calculated score map')
+    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
+    #plt.imshow(view, interpolation='nearest')
+    imgray = plt.imshow(iview, alpha=1, cmap='gray', interpolation='nearest')
+    pview /= pview.max()
+    imjet = plt.imshow(pview, alpha=0.8, cmap='jet', interpolation='nearest')
+
+    pmap = roimap
+    iview = img[0,...,0]
+    pview = pmap[0,...,0]
+    view = np.zeros(iview.shape + (3,))
+    view[...,0] = iview / iview.max()
+    view[...,1] = iview / iview.max()
+    view[...,2] = iview / iview.max()
+    ##view[...,0] = pview / pview.max()
+    #view[...,1] -= pview / pview.max()
+    #view[...,2] -= pview / pview.max()
+    draw_roi(view, coords[1][0], coords[2][0])
+    view.clip(0, 1, out=view)
+    ax3 = fig.add_subplot(1, n_cols, 3)
+    ax3.set_title('Final automatic ROI placement')
+    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
+    im = plt.imshow(view, interpolation='nearest')
+
+    fig.colorbar(imgray, ax=ax1, shrink=0.65)
+    fig.colorbar(imjet, ax=ax2, shrink=0.65)
+    fig.colorbar(imgray, ax=ax3, shrink=0.65)
+    plt.tight_layout()
+    #plt.show()
+    #plt.savefig('auto_roi_01_1a_monon.png', bbox_inches='tight')
+    plt.savefig('auto_roi_24_1a_monon.png', bbox_inches='tight')
