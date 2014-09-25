@@ -81,6 +81,12 @@ def get_scoremap(img, d, params, n_rois):
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
+def line_to_text(line):
+    return ''.join(map(str, line))
+
+def mask_to_text(mask):
+    return '\n'.join(map(line_to_text, mask))
+
 
 args = parse_args()
 
@@ -118,6 +124,14 @@ if args.verbose:
         print util.fivenum(a.flatten())
 
 print 'Optimal ROI: {}'.format(coords)
+
+# Write mask.
+if args.output:
+    mask = np.zeros((roimap.shape[0:-1]), dtype=int)
+    z, y, x = coords
+    mask[z[0]:z[1], y[0]:y[1], x[0]:x[1]] = 1
+    with open(args.output, 'wb') as f:
+        f.write(mask_to_text(mask[0]))
 
 
 #if args.graphic:
