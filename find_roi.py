@@ -14,18 +14,19 @@ from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description =
-            'Find interesting ROI\'s in a DWI image.')
-    p.add_argument('--input', '-i', required=True,
-            help='input files')
-    #p.add_argument('--roi', '-r', metavar='i', nargs=6, type=int, default=[],
-    #        help='ROI (6 integers)')
-    p.add_argument('--dim', '-d', metavar='i', nargs=3, type=int,
-            default=[1,5,5], help='dimensions of wanted ROI (3 integers)')
-    p.add_argument('--graphic', '-g', action='store_true',
+    p = argparse.ArgumentParser(description = __doc__)
+    p.add_argument('-v', '--verbose',
+            action='count',
+            help='increase verbosity')
+    p.add_argument('-d', '--dim', metavar='I',
+            nargs=3, type=int, default=[1,5,5],
+            help='dimensions of wanted ROI (3 integers; default 1 5 5)')
+    p.add_argument('-g', '--graphic',
+            action='store_true',
             help='show graphic')
-    p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
+    p.add_argument('-i', '--input',
+            required=True,
+            help='input files')
     args = p.parse_args()
     return args
 
