@@ -26,7 +26,9 @@ def parse_args():
             help='show graphic')
     p.add_argument('-i', '--input',
             required=True,
-            help='input files')
+            help='input file')
+    p.add_argument('-o', '--output',
+            help='output mask file')
     args = p.parse_args()
     return args
 
