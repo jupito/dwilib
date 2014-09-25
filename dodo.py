@@ -1,6 +1,7 @@
 """PyDoIt file for automating tasks."""
 
 import glob
+import os
 
 #from doit.tools import Interactive
 from doit.tools import create_folder
@@ -80,15 +81,18 @@ def task_anonymize():
                 'file_dep': [f],
                 }
 
-def task_find_rois():
+def task_find_roi():
     """Find ROIs."""
     for case, scan in SUBWINDOWS.keys():
-        subwindow = SUBWINDOWS[(case, scan)]
         outdir = 'masks_auto'
-        d = dict(c=case, s=scan, od=outdir)
+        d = dict(prg=FIND_ROI, c=case, s=scan, od=outdir)
         infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
         outfile = '{od}/{c}_{s}_auto.mask'.format(**d)
-        cmd = '{prg} -i {i} -o {o}'.format(prg=FIND_ROI, i=infile, o=outfile)
+        d['i'] = infile
+        d['o'] = outfile
+        cmd = '{prg} -i {i} -o {o}'.format(**d)
+        if not os.path.exists(infile):
+            continue
         yield {
                 'name': '{c}_{s}'.format(**d),
                 'actions': [(create_folder, [outdir]),
@@ -96,6 +100,30 @@ def task_find_rois():
                 'file_dep': [infile],
                 'targets': [outfile],
                 'clean': True,
+                }
+
+def task_compare_masks():
+    """Compare ROI masks."""
+    for case, scan in SUBWINDOWS.keys():
+        subwindow = SUBWINDOWS[(case, scan)]
+        subwindow = ' '.join(map(str, subwindow))
+        d = dict(prg=COMPARE_MASKS, c=case, s=scan, w=subwindow)
+        file1 = 'masks/{c}_{s}_ca.mask'.format(**d)
+        file2 = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
+        outdir = 'roi_comparison'
+        outfile = os.path.join(outdir, '{c}_{s}.txt'.format(**d))
+        d['f1'] = file1
+        d['f2'] = file2
+        d['o'] = outfile
+        cmd = '{prg} -s {w} {f1} {f2} > {o}'.format(**d)
+        if not os.path.exists(file1) or not os.path.exists(file2):
+            continue
+        yield {
+                'name': '{c}_{s}'.format(**d),
+                'actions': [(create_folder, [outdir]),
+                        cmd],
+                'file_dep': [file1, file2],
+                'targets': [outfile],
                 }
 
 SUBWINDOWS = read_subwindows('subwindows.txt')
