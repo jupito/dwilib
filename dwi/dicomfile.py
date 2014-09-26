@@ -22,7 +22,6 @@ def read_files(filenames):
 
     DICOM files without pixel data are silently skipped.
     """
-    patient_id = None
     orientation = None
     shape = None
     positions = set()
@@ -32,9 +31,6 @@ def read_files(filenames):
         d = dicom.read_file(f)
         if not 'PixelData' in d:
             continue
-        patient_id = patient_id or d.PatientID
-        if d.PatientID != patient_id:
-            raise Exception("Patient ID mismatch.")
         orientation = orientation or d.ImageOrientationPatient
         if d.ImageOrientationPatient != orientation:
             raise Exception("Orientation mismatch.")
