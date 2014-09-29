@@ -48,6 +48,18 @@ def fit_cmd(model, subwindow, infiles, outfile):
 
 # Tasks
 
+def task_anonymize():
+    """Anonymize imaging data."""
+    files = glob.glob('dicoms/*/DICOMDIR') + glob.glob('dicoms/*/DICOM/*')
+    files.sort()
+    for f in files:
+        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
+        yield {
+                'name': f,
+                'actions': [cmd],
+                'file_dep': [f],
+                }
+
 def task_fit():
     """Fit models to imaging data."""
     for case, scan in SUBWINDOWS.keys():
@@ -69,18 +81,6 @@ def task_fit():
                     'targets': [outfile],
                     'clean': True,
                     }
-
-def task_anonymize():
-    """Anonymize imaging data."""
-    files = glob.glob('dicoms/*/DICOMDIR') + glob.glob('dicoms/*/DICOM/*')
-    files.sort()
-    for f in files:
-        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
-        yield {
-                'name': f,
-                'actions': [cmd],
-                'file_dep': [f],
-                }
 
 def task_find_roi():
     """Find ROIs."""
