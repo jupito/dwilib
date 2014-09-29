@@ -17,7 +17,8 @@ PMAP = DWILIB+'/pmap.py'
 ANON = DWILIB+'/anonymize_dicom.py'
 FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
-MODELS = 'Si SiN Mono MonoN Kurt KurtN'.split()
+MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
+        'Biexp BiexpN'.split()
 
 # Common functions
 
@@ -47,27 +48,27 @@ def fit_cmd(model, subwindow, infiles, outfile):
 
 # Tasks
 
-#def task_fit():
-#    """Fit models to imaging data."""
-#    for case, scan in SUBWINDOWS.keys():
-#        subwindow = SUBWINDOWS[(case, scan)]
-#        outdir = 'pmaps'
-#        d = dict(c=case, s=scan, od=outdir)
-#        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}/DICOM/*'.format(**d)))
-#        if len(infiles) == 0:
-#            continue
-#        for model in MODELS:
-#            d['m'] = model
-#            outfile = '{od}/pmap_{c}_{s}_{m}.txt'.format(**d)
-#            cmd = fit_cmd(model, subwindow, infiles, outfile)
-#            yield {
-#                    'name': '{c}_{s}_{m}'.format(**d),
-#                    'actions': [(create_folder, [outdir]),
-#                            cmd],
-#                    'file_dep': infiles,
-#                    'targets': [outfile],
-#                    'clean': True,
-#                    }
+def task_fit():
+    """Fit models to imaging data."""
+    for case, scan in SUBWINDOWS.keys():
+        subwindow = SUBWINDOWS[(case, scan)]
+        outdir = 'pmaps'
+        d = dict(c=case, s=scan, od=outdir)
+        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}/DICOM/*'.format(**d)))
+        if len(infiles) == 0:
+            continue
+        for model in MODELS:
+            d['m'] = model
+            outfile = '{od}/pmap_{c}_{s}_{m}.txt'.format(**d)
+            cmd = fit_cmd(model, subwindow, infiles, outfile)
+            yield {
+                    'name': '{c}_{s}_{m}'.format(**d),
+                    'actions': [(create_folder, [outdir]),
+                            cmd],
+                    'file_dep': infiles,
+                    'targets': [outfile],
+                    'clean': True,
+                    }
 
 def task_anonymize():
     """Anonymize imaging data."""
