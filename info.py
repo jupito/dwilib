@@ -6,6 +6,7 @@ import sys
 import numpy as np
 
 from dwi import asciifile
+from dwi import util
 
 for filename in sys.argv[1:]:
     af = asciifile.AsciiFile(filename)
@@ -20,3 +21,4 @@ for filename in sys.argv[1:]:
         print '{i}\t{param}'\
                 '\t{median:g}\t{mean:g}\t{var:g}'\
                 '\t{min:g}\t{max:g}\t{sum:g}'.format(**d)
+        print util.fivenum(a)
