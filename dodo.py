@@ -36,10 +36,13 @@ def read_subwindows(filename):
             r[(case, scan)] = subwindow
     return r
 
+def subwindow_to_str(subwindow):
+    return ' '.join(map(str, subwindow))
+
 def fit_cmd(model, subwindow, infiles, outfile):
     d = dict(prg=PMAP,
             m=model,
-            sw=' '.join(map(str, subwindow)),
+            sw=subwindow_to_str(subwindow),
             i=' '.join(infiles),
             o=outfile,
             )
@@ -107,8 +110,11 @@ def task_compare_masks():
     """Compare ROI masks."""
     for case, scan in SUBWINDOWS.keys():
         subwindow = SUBWINDOWS[(case, scan)]
-        subwindow = ' '.join(map(str, subwindow))
-        d = dict(prg=COMPARE_MASKS, c=case, s=scan, w=subwindow)
+        d = dict(prg=COMPARE_MASKS,
+                c=case,
+                s=scan,
+                w=subwindow_to_str(subwindow),
+                )
         file1 = 'masks/{c}_{s}_ca.mask'.format(**d)
         file2 = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
         outdir = 'roi_comparison'
