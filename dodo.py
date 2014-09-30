@@ -123,7 +123,8 @@ def task_compare_masks():
         d['f2'] = file2
         d['o'] = outfile
         cmd = '{prg} -s {w} {f1} {f2} > {o}'.format(**d)
-        if not os.path.exists(file1) or not os.path.exists(file2):
+        if not os.path.exists(file1):
+            print 'Missing mask file %s' % file1
             continue
         yield {
                 'name': '{c}_{s}'.format(**d),
