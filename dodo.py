@@ -69,7 +69,7 @@ def task_fit():
         subwindow = SUBWINDOWS[(case, scan)]
         outdir = 'pmaps'
         d = dict(c=case, s=scan, od=outdir)
-        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}/DICOM/*'.format(**d)))
+        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
         if len(infiles) == 0:
             continue
         for model in MODELS:
