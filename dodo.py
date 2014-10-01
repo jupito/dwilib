@@ -7,7 +7,15 @@ import os
 from doit.tools import create_folder
 #from doit.tools import result_dep
 
+"""
+Backends:
+dbm: (default) It uses python dbm module.
+json: Plain text using a json structure, it is slow but good for debugging.
+sqlite3: (experimental) very slow implementation, support concurrent access.
+"""
+
 DOIT_CONFIG = {
+    'backend': 'sqlite3',
     'default_tasks': [],
     'verbosity': 2,
     }
