@@ -31,7 +31,7 @@ Requirements
   fitting)
 - [Matplotlib](http://matplotlib.org/) (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
-- [PyDoIt](http://pydoit.org/) (if using the build tool)
+- [DoIt](http://pydoit.org/) (if using the build tool)
 
 Todo or In Progress
 -------------------
