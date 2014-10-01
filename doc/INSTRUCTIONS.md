@@ -1,6 +1,43 @@
 Instructions for using dwilib
 =============================
 
+
+Files
+-----
+### Model fitting
+* pmap.py -- Fit diffusion models to imaging data (see below).
+
+### Statistical
+* compare_auc.py
+* compare_boxplot.py
+* compare_hist.py
+* compare_masks.py
+* compare_pmaps.py
+* correlation.py -- Test parameter correlation with Gleason scores.
+* reproducibility.py -- Calculate reproducibility measures.
+
+### Plotting
+* draw_boxplot.py
+* draw_pmap.py
+* draw_pmaps.py
+* draw_roc.py
+* plot.py
+* plot_gleason.py
+
+### DICOM tools
+* anonymize_dicom.py -- Anonymize DICOM files.
+* info_dicom.py -- Show information on DICOM files.
+* view_dicom.py -- View DICOM DWI images.
+
+### Other
+* dodo.py -- Build tool for [DoIt](http://pydoit.org/).
+* find_roi.py -- Automatic ROI search tool.
+* info.py
+* make_ascii.py
+* print_all.py
+* test-rls.py
+
+
 Fitting models to data
 ----------------------
 
