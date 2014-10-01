@@ -8,15 +8,16 @@ Files
 * pmap.py -- Fit diffusion models to imaging data (see below).
 
 ### Statistical
-* compare_auc.py
-* compare_boxplot.py
-* compare_hist.py
-* compare_masks.py
-* compare_pmaps.py
+* compare_auc.py -- Calculate and compare diagnostic ROC AUCs.
+* compare_masks.py -- Compare ROI masks.
 * correlation.py -- Test parameter correlation with Gleason scores.
+* find_roi.py -- Automatic ROI search.
 * reproducibility.py -- Calculate reproducibility measures.
 
 ### Plotting
+* compare_boxplot.py
+* compare_hist.py
+* compare_pmaps.py
 * draw_boxplot.py
 * draw_pmap.py
 * draw_pmaps.py
@@ -31,8 +32,7 @@ Files
 
 ### Other
 * dodo.py -- Build tool for [DoIt](http://pydoit.org/).
-* find_roi.py -- Automatic ROI search tool.
-* info.py
+* info.py -- Print information on columns of numbers.
 * make_ascii.py
 * print_all.py
 * test-rls.py
