@@ -34,6 +34,6 @@ for filename in sys.argv[1:]:
     for i, a in enumerate(af.a.T):
         p = af.params()[i]
         name = '%s_%s_%02i%s.png' % (os.path.basename(filename), 'pmap', i, p)
-        draw_pmap(a.reshape(af.subwinsize()), name)
+        draw_pmap(a.reshape(af.subwinsize()[1:]), name)
         name = '%s_%s_%02i%s.png' % (os.path.basename(filename), 'hist', i, p)
         draw_histogram(a, name)
