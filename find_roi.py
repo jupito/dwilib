@@ -132,19 +132,6 @@ if args.output:
     with open(args.output, 'wb') as f:
         f.write(mask_to_text(mask[0]))
 
-
-#if args.graphic:
-#    import matplotlib
-#    import matplotlib.pyplot as plt
-#    for pmap in [sum_scoremaps, roimap]:
-#        iview = img[0,...,0]
-#        pview = pmap[0,...,0]
-#        view = np.zeros(iview.shape + (3,))
-#        view[...,2] = iview / iview.max()
-#        view[...,0] = pview / pview.max()
-#        plt.imshow(view, interpolation='nearest')
-#        plt.show()
-
 def draw_roi(img, y, x):
     img[y:y+4,x,    :] = [1,0,0]
     img[y:y+4,x+4,  :] = [1,0,0]
