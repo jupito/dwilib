@@ -39,7 +39,7 @@ for i, af in enumerate(afs):
         if j == 0:
             ax.set_ylabel(os.path.basename(af.filename))
         if do == 'pmap':
-            img = a.reshape(af.subwinsize())
+            img = a.reshape(af.subwinsize()[1:])
             plt.imshow(img)
             plt.colorbar()
         elif do == 'hist':
