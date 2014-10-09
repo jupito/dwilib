@@ -22,8 +22,7 @@ def parse_args():
             nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('-g', '--graphic',
-            action='store_true',
-            help='show graphic')
+            help='output graphic file')
     p.add_argument('-i', '--input',
             required=True,
             help='input file')
@@ -165,7 +164,7 @@ if args.graphic:
     view[...,1] = iview / iview.max()
     view[...,2] = iview / iview.max()
     #draw_roi(view, 41, 53)
-    draw_roi(view, 37, 22)
+    #draw_roi(view, 37, 22)
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
@@ -212,5 +211,5 @@ if args.graphic:
     fig.colorbar(imgray, ax=ax3, shrink=0.65)
     plt.tight_layout()
     #plt.show()
-    #plt.savefig('auto_roi_01_1a_monon.png', bbox_inches='tight')
-    plt.savefig('auto_roi_24_1a_monon.png', bbox_inches='tight')
+
+    plt.savefig(args.graphic, bbox_inches='tight')
