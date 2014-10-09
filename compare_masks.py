@@ -5,6 +5,7 @@
 import argparse
 
 import numpy as np
+from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -21,19 +22,6 @@ def parse_args():
             help='mask file #2')
     args = p.parse_args()
     return args
-
-def read_mask_file(filename):
-    arrays = []
-    with open(filename, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == '0' or line[0] == '1':
-                a = np.array(list(line), dtype=int)
-                arrays.append(a)
-    mask = np.array(arrays)
-    return mask
 
 def mask_subwindow(mask, subwindow):
     subwindow = [n-1 for n in subwindow] # Handle 1-based indexing.
@@ -53,8 +41,8 @@ def distance(a, b):
     return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
 args = parse_args()
-mask1 = read_mask_file(args.mask1)
-mask2 = read_mask_file(args.mask2)
+mask1 = util.read_mask_file(args.mask1)
+mask2 = util.read_mask_file(args.mask2)
 
 if args.subwindow:
     mask1 = mask_subwindow(mask1, map(int, args.subwindow))

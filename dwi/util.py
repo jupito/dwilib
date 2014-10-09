@@ -280,3 +280,17 @@ def scan_pairs(afs):
             raise Exception('Not a pair: %s, %s' % (af1.basename, af2.basename))
         r.append((num1, scan1, scan2))
     return r
+
+def read_mask_file(filename):
+    """Read a ROI mask file."""
+    arrays = []
+    with open(filename, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            if line[0] == '0' or line[0] == '1':
+                a = np.array(list(line), dtype=int)
+                arrays.append(a)
+    mask = np.array(arrays)
+    return mask
