@@ -100,9 +100,11 @@ def task_find_roi():
         d = dict(prg=FIND_ROI, c=case, s=scan, od=outdir)
         infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
         outfile = '{od}/{c}_{s}_auto.mask'.format(**d)
+        graphicfile = '{od}/autoroi_{c}_{s}.png'.format(**d)
         d['i'] = infile
         d['o'] = outfile
-        cmd = '{prg} -i {i} -o {o}'.format(**d)
+        d['g'] = graphicfile
+        cmd = '{prg} -i {i} -o {o} -g {g}'.format(**d)
         if not os.path.exists(infile):
             continue
         yield {
@@ -110,7 +112,7 @@ def task_find_roi():
                 'actions': [(create_folder, [outdir]),
                         cmd],
                 'file_dep': [infile],
-                'targets': [outfile],
+                'targets': [outfile, graphicfile],
                 'clean': True,
                 }
 
