@@ -174,7 +174,6 @@ if args.graphic:
         draw_roi(view, *inmask_pos)
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
-    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
     im = plt.imshow(view, interpolation='nearest')
 
     pmap = sum_scoremaps
@@ -190,7 +189,6 @@ if args.graphic:
     view.clip(0, 1, out=view)
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
     #plt.imshow(view, interpolation='nearest')
     imgray = plt.imshow(iview, alpha=1, cmap='gray', interpolation='nearest')
     pview /= pview.max()
@@ -210,13 +208,11 @@ if args.graphic:
     view.clip(0, 1, out=view)
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('Final automatic ROI placement')
-    #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
     im = plt.imshow(view, interpolation='nearest')
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
     fig.colorbar(imgray, ax=ax3, shrink=0.65)
-    plt.tight_layout()
-    #plt.show()
 
+    plt.tight_layout()
     plt.savefig(args.graphic, bbox_inches='tight')
