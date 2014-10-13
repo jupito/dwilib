@@ -186,7 +186,6 @@ if args.graphic:
 
     pmap = roimap
     iview = img[0,...,0]
-    pview = pmap[0,...,0]
     view = np.zeros(iview.shape + (3,))
     view[...,0] = iview / iview.max()
     view[...,1] = iview / iview.max()
