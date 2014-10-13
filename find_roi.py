@@ -170,8 +170,6 @@ if args.graphic:
     view[...,0] = iview / iview.max()
     view[...,1] = iview / iview.max()
     view[...,2] = iview / iview.max()
-    #draw_roi(view, 41, 53)
-    #draw_roi(view, 37, 22)
     if args.output:
         draw_roi(view, *inmask_pos)
     ax1 = fig.add_subplot(1, n_cols, 1)
