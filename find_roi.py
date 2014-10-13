@@ -176,8 +176,8 @@ if args.graphic:
     pmap = sum_scoremaps
     iview = img[0,...,0]
     pview = pmap[0,...,0]
-    imgray = plt.imshow(iview, alpha=1, cmap='gray')
     pview /= pview.max()
+    imgray = plt.imshow(iview, alpha=1, cmap='gray')
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
