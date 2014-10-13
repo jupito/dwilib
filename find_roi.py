@@ -153,10 +153,10 @@ if args.inmask:
 
 
 def draw_roi(img, y, x, color=(1,0,0)):
-    img[y:y+4,x,    :] = color
-    img[y:y+4,x+4,  :] = color
-    img[y,    x:x+4,:] = color
-    img[y+4,  x:x+5,:] = color
+    img[y:y+4, x] = color
+    img[y:y+4, x+4] = color
+    img[y, x:x+4] = color
+    img[y+4, x:x+5] = color
 
 if args.graphic:
     import matplotlib
