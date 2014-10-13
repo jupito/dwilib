@@ -169,7 +169,7 @@ if args.graphic:
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     iview = img[0,...,0]
-    im = plt.imshow(iview, cmap='gray')
+    plt.imshow(iview, cmap='gray')
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
@@ -183,14 +183,14 @@ if args.graphic:
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('Final automatic ROI placement')
     iview = img[0,...,0]
-    manual = np.zeros(iview.shape + (4,))
-    auto = np.zeros(iview.shape + (4,))
+    plt.imshow(iview, cmap='gray')
     if args.output:
+        manual = np.zeros(iview.shape + (4,))
         draw_roi(manual, *inmask_pos, color=(1,0,0,0.7))
+        plt.imshow(manual)
+    auto = np.zeros(iview.shape + (4,))
     draw_roi(auto, coords[1][0], coords[2][0], color=(0,1,0,0.7))
-    im = plt.imshow(iview, cmap='gray')
-    im = plt.imshow(manual)
-    im = plt.imshow(auto)
+    plt.imshow(auto)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
