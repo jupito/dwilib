@@ -99,12 +99,14 @@ def task_find_roi():
         outdir = 'masks_auto'
         d = dict(prg=FIND_ROI, c=case, s=scan, od=outdir)
         infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
+        inmask = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
         outfile = '{od}/{c}_{s}_auto.mask'.format(**d)
         graphicfile = '{od}/autoroi_{c}_{s}.png'.format(**d)
         d['i'] = infile
+        d['m'] = inmask
         d['o'] = outfile
         d['g'] = graphicfile
-        cmd = '{prg} -i {i} -o {o} -g {g}'.format(**d)
+        cmd = '{prg} -i {i} -m {m} -o {o} -g {g}'.format(**d)
         if not os.path.exists(infile):
             continue
         yield {
