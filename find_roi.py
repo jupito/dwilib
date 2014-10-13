@@ -153,10 +153,10 @@ if args.inmask:
 
 
 def draw_roi(img, y, x, color=(1,0,0)):
-    img[y:y+4, x] = color
-    img[y:y+4, x+4] = color
-    img[y, x:x+4] = color
-    img[y+4, x:x+5] = color
+    img[y:y+4:4, x] = color
+    img[y:y+4:4, x+4] = color
+    img[y, x:x+4:4] = color
+    img[y+4, x:x+5:4] = color
 
 if args.graphic:
     import matplotlib
@@ -167,8 +167,8 @@ if args.graphic:
     n_cols, n_rows = 3, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
-    MANUAL_COLOR = (1.0, 0.2, 0.2, 0.8)
-    AUTO_COLOR = (0.2, 1.0, 0.2, 0.8)
+    MANUAL_COLOR = (1.0, 0.2, 0.2, 0.9)
+    AUTO_COLOR = (0.2, 1.0, 0.2, 0.9)
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
@@ -190,10 +190,10 @@ if args.graphic:
     if args.output:
         manual = np.zeros(iview.shape + (4,))
         draw_roi(manual, *inmask_pos, color=MANUAL_COLOR)
-        plt.imshow(manual)
+        plt.imshow(manual, alpha=0.8)
     auto = np.zeros(iview.shape + (4,))
     draw_roi(auto, coords[1][0], coords[2][0], color=AUTO_COLOR)
-    plt.imshow(auto)
+    plt.imshow(auto, alpha=0.8)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
