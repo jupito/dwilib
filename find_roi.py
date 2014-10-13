@@ -162,6 +162,7 @@ if args.graphic:
     import matplotlib
     import matplotlib.pyplot as plt
     import pylab as pl
+    plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.interpolation'] = 'nearest'
     n_cols, n_rows = 3, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
@@ -169,21 +170,20 @@ if args.graphic:
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     iview = img[0,...,0]
-    plt.imshow(iview, cmap='gray')
+    plt.imshow(iview)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    pmap = sum_scoremaps
     iview = img[0,...,0]
-    pview = pmap[0,...,0]
+    pview = sum_scoremaps[0,...,0]
     pview /= pview.max()
-    imgray = plt.imshow(iview, alpha=1, cmap='gray')
+    imgray = plt.imshow(iview, alpha=1)
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('Final automatic ROI placement')
     iview = img[0,...,0]
-    plt.imshow(iview, cmap='gray')
+    plt.imshow(iview)
     if args.output:
         manual = np.zeros(iview.shape + (4,))
         draw_roi(manual, *inmask_pos, color=(1,0,0,0.7))
