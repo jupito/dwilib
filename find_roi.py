@@ -169,11 +169,7 @@ if args.graphic:
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     iview = img[0,...,0]
-    view = np.zeros(iview.shape + (3,))
-    view[...,0] = iview / iview.max()
-    view[...,1] = iview / iview.max()
-    view[...,2] = iview / iview.max()
-    im = plt.imshow(view)
+    im = plt.imshow(iview, cmap='gray')
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
