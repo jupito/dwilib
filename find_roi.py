@@ -21,13 +21,15 @@ def parse_args():
     p.add_argument('-d', '--dim', metavar='I',
             nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
-    p.add_argument('-g', '--graphic',
-            help='output graphic file')
     p.add_argument('-i', '--input',
             required=True,
-            help='input file')
+            help='input parametric map file')
+    p.add_argument('-m', '--inmask',
+            help='input mask file')
     p.add_argument('-o', '--output',
             help='output mask file')
+    p.add_argument('-g', '--graphic',
+            help='output graphic file')
     args = p.parse_args()
     return args
 
@@ -132,6 +134,24 @@ if args.output:
     with open(args.output, 'wb') as f:
         f.write(mask_to_text(mask[0]))
 
+
+
+def roi_position(mask):
+    # XXX: Quick and dirty ad hoc hack.
+    for y, row in enumerate(mask):
+        for x, n in enumerate(row):
+            if n:
+                return (y, x)
+
+if args.inmask:
+    inmask = util.read_mask_file(args.inmask)
+    inmask_pos = list(roi_position(inmask))
+    inmask_pos[0] -= af.subwindow()[2]
+    inmask_pos[1] -= af.subwindow()[4]
+    print inmask_pos
+
+
+
 def draw_roi(img, y, x):
     img[y:y+4,x,    :] = [1,0,0]
     img[y:y+4,x+4,  :] = [1,0,0]
@@ -152,6 +172,8 @@ if args.graphic:
     view[...,2] = iview / iview.max()
     #draw_roi(view, 41, 53)
     #draw_roi(view, 37, 22)
+    if args.output:
+        draw_roi(view, *inmask_pos)
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     #ax.tick_params(left=0, bottom=0, labelleft=0, labelbottom=0)
