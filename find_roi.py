@@ -167,6 +167,9 @@ if args.graphic:
     n_cols, n_rows = 3, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
+    MANUAL_COLOR = (1.0, 0.2, 0.2, 0.8)
+    AUTO_COLOR = (0.2, 1.0, 0.2, 0.8)
+
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     iview = img[0,...,0]
@@ -186,10 +189,10 @@ if args.graphic:
     plt.imshow(iview)
     if args.output:
         manual = np.zeros(iview.shape + (4,))
-        draw_roi(manual, *inmask_pos, color=(1,0,0,0.7))
+        draw_roi(manual, *inmask_pos, color=MANUAL_COLOR)
         plt.imshow(manual)
     auto = np.zeros(iview.shape + (4,))
-    draw_roi(auto, coords[1][0], coords[2][0], color=(0,1,0,0.7))
+    draw_roi(auto, coords[1][0], coords[2][0], color=AUTO_COLOR)
     plt.imshow(auto)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
