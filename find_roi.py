@@ -171,8 +171,6 @@ if args.graphic:
     view[...,0] = iview / iview.max()
     view[...,1] = iview / iview.max()
     view[...,2] = iview / iview.max()
-    if args.output:
-        draw_roi(view, *inmask_pos)
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
     im = plt.imshow(view)
@@ -180,17 +178,8 @@ if args.graphic:
     pmap = sum_scoremaps
     iview = img[0,...,0]
     pview = pmap[0,...,0]
-    view = np.zeros(iview.shape + (3,))
-    view[...,0] = iview / iview.max()
-    view[...,1] = iview / iview.max()
-    view[...,2] = iview / iview.max()
-    #view[...,0] = pview / pview.max()
-    view[...,1] -= pview / pview.max()
-    view[...,2] -= pview / pview.max()
-    view.clip(0, 1, out=view)
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    #plt.imshow(view)
     imgray = plt.imshow(iview, alpha=1, cmap='gray')
     pview /= pview.max()
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
@@ -202,9 +191,6 @@ if args.graphic:
     view[...,0] = iview / iview.max()
     view[...,1] = iview / iview.max()
     view[...,2] = iview / iview.max()
-    ##view[...,0] = pview / pview.max()
-    #view[...,1] -= pview / pview.max()
-    #view[...,2] -= pview / pview.max()
     if args.output:
         draw_roi(view, *inmask_pos)
     draw_roi(view, coords[1][0], coords[2][0], color=(0,1,0))
