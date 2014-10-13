@@ -152,11 +152,11 @@ if args.inmask:
 
 
 
-def draw_roi(img, y, x):
-    img[y:y+4,x,    :] = [1,0,0]
-    img[y:y+4,x+4,  :] = [1,0,0]
-    img[y,    x:x+4,:] = [1,0,0]
-    img[y+4,  x:x+5,:] = [1,0,0]
+def draw_roi(img, y, x, color=(1,0,0)):
+    img[y:y+4,x,    :] = color
+    img[y:y+4,x+4,  :] = color
+    img[y,    x:x+4,:] = color
+    img[y+4,  x:x+5,:] = color
 
 if args.graphic:
     import matplotlib
@@ -205,7 +205,9 @@ if args.graphic:
     ##view[...,0] = pview / pview.max()
     #view[...,1] -= pview / pview.max()
     #view[...,2] -= pview / pview.max()
-    draw_roi(view, coords[1][0], coords[2][0])
+    if args.output:
+        draw_roi(view, *inmask_pos)
+    draw_roi(view, coords[1][0], coords[2][0], color=(0,1,0))
     view.clip(0, 1, out=view)
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('Final automatic ROI placement')
