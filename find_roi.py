@@ -152,7 +152,8 @@ if args.inmask:
 
 
 def roi_distance(a, b):
-    return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+    # TODO: Use general mask distance.
+    return util.distance(a, b)
 
 def draw_roi(img, y, x, color=(1,0,0)):
     img[y:y+4:4, x] = color
