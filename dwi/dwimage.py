@@ -33,6 +33,7 @@ def load_matlab(filename, varname='ROIdata'):
             dwi.subwindow = tuple(map(int, win.subwindow[0]))
         except:
             dwi.subwindow = util.fabricate_subwindow(len(sis))
+        dwi.voxel_spacing = (1.0, 1.0, 1.0)
         r.append(dwi)
     return r
 
@@ -51,6 +52,7 @@ def load_ascii(filename, nrois=1):
         dwi.name = af.name()
         dwi.number = af.number + i
         dwi.subwindow = af.subwindow()
+        dwi.voxel_spacing = (1.0, 1.0, 1.0)
         r.append(dwi)
     return r
 
@@ -157,6 +159,7 @@ class DWImage(object):
                 self.subwindow[4] + x1)
         if onebased:
             dwimage.subwindow = tuple([i+1 for i in dwimage.subwindow])
+        dwimage.voxel_spacing = self.voxel_spacing
         return dwimage
 
     def start_execution(self):
