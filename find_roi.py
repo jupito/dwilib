@@ -151,6 +151,8 @@ if args.inmask:
     print inmask_pos
 
 
+def roi_distance(a, b):
+    return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
 
 def draw_roi(img, y, x, color=(1,0,0)):
     img[y:y+4:4, x] = color
@@ -162,6 +164,7 @@ if args.graphic:
     import matplotlib
     import matplotlib.pyplot as plt
     import pylab as pl
+
     plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.interpolation'] = 'nearest'
     n_cols, n_rows = 3, 1
@@ -169,6 +172,14 @@ if args.graphic:
 
     MANUAL_COLOR = (1.0, 0.0, 0.0, 1.0)
     AUTO_COLOR = (0.0, 1.0, 0.0, 1.0)
+
+    auto_pos = (coords[1][0], coords[2][0])
+    if args.inmask:
+        manual_pos = inmask_pos
+        distance = roi_distance(manual_pos, auto_pos)
+    else:
+        manual_pos = (-1, -1)
+        distance = -1
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title(params[0])
@@ -184,12 +195,13 @@ if args.graphic:
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
-    ax3.set_title('Manual (red) and automatic (green) ROI')
+    ax3.set_title('ROIs: %s, %s, distance: %.2f' % (manual_pos, auto_pos,
+            distance))
     iview = img[0,...,0]
     plt.imshow(iview)
-    if args.output:
+    if args.inmask:
         manual = np.zeros(iview.shape + (4,))
-        draw_roi(manual, *inmask_pos, color=MANUAL_COLOR)
+        draw_roi(manual, *manual_pos, color=MANUAL_COLOR)
         plt.imshow(manual, alpha=0.8)
     auto = np.zeros(iview.shape + (4,))
     draw_roi(auto, coords[1][0], coords[2][0], color=AUTO_COLOR)
