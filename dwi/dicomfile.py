@@ -50,7 +50,8 @@ def read_files(filenames):
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
     image = construct_image(slices, positions, bvalues)
-    return bvalues, image
+    d = dict(bvalues=bvalues, image=image)
+    return d
 
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
