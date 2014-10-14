@@ -167,8 +167,8 @@ if args.graphic:
     n_cols, n_rows = 3, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
-    MANUAL_COLOR = (1.0, 0.1, 0.1, 1.0)
-    AUTO_COLOR = (0.1, 1.0, 0.1, 1.0)
+    MANUAL_COLOR = (1.0, 0.0, 0.0, 1.0)
+    AUTO_COLOR = (0.0, 1.0, 0.0, 1.0)
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('ADC map with manually placed ROI')
