@@ -156,6 +156,7 @@ if args.inmask:
     inmask_pos = list(roi_position(inmask))
     inmask_pos[0] -= af.subwindow()[2]
     inmask_pos[1] -= af.subwindow()[4]
+    inmask_pos = tuple(inmask_pos)
     print inmask_pos
 
 if args.graphic:
