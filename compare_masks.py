@@ -37,8 +37,9 @@ def roi_position(mask):
             if n:
                 return (y, x)
 
-def distance(a, b):
-    return np.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
+def roi_distance(a, b):
+    # TODO: Use general mask distance.
+    return util.distance(a, b)
 
 args = parse_args()
 mask1 = util.read_mask_file(args.mask1)
@@ -55,4 +56,4 @@ pos2 = roi_position(mask2)
 
 if args.verbose:
     print pos1, pos2
-print distance(pos1, pos2)
+print roi_distance(pos1, pos2)
