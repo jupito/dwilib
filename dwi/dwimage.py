@@ -72,6 +72,7 @@ def load_dicom(filenames):
     dwi.name = '-'
     dwi.number = 0
     dwi.subwindow = (0, image.shape[0], 0, image.shape[1], 0, image.shape[2])
+    dwi.voxel_spacing = d['voxel_spacing']
     return [dwi]
 
 class DWImage(object):
