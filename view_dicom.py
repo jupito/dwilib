@@ -99,8 +99,11 @@ if args.normalize:
         dwi.util.normalize_si_curve(si)
 
 print dwimage
-d = dict(min=dwimage.image.min(), max=dwimage.image.max())
+d = dict(min=dwimage.image.min(),
+        max=dwimage.image.max(),
+        vs=dwimage.voxel_spacing)
 print 'Image intensity min/max: {min}/{max}'.format(**d)
+print 'Voxel spacing: {vs}'.format(**d)
 print
 
 #plt.switch_backend('gtk')
