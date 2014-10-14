@@ -88,6 +88,23 @@ def line_to_text(line):
 def mask_to_text(mask):
     return '\n'.join(map(line_to_text, mask))
 
+def roi_position(mask):
+    # XXX: Quick and dirty ad hoc hack.
+    for y, row in enumerate(mask):
+        for x, n in enumerate(row):
+            if n:
+                return (y, x)
+
+def roi_distance(a, b):
+    # TODO: Use general mask distance.
+    return util.distance(a, b)
+
+def draw_roi(img, y, x, color=(1,0,0)):
+    img[y:y+4:4, x] = color
+    img[y:y+4:4, x+4] = color
+    img[y, x:x+4:4] = color
+    img[y+4, x:x+5:4] = color
+
 
 args = parse_args()
 
@@ -134,32 +151,12 @@ if args.output:
     with open(args.output, 'wb') as f:
         f.write(mask_to_text(mask[0]))
 
-
-
-def roi_position(mask):
-    # XXX: Quick and dirty ad hoc hack.
-    for y, row in enumerate(mask):
-        for x, n in enumerate(row):
-            if n:
-                return (y, x)
-
 if args.inmask:
     inmask = util.read_mask_file(args.inmask)
     inmask_pos = list(roi_position(inmask))
     inmask_pos[0] -= af.subwindow()[2]
     inmask_pos[1] -= af.subwindow()[4]
     print inmask_pos
-
-
-def roi_distance(a, b):
-    # TODO: Use general mask distance.
-    return util.distance(a, b)
-
-def draw_roi(img, y, x, color=(1,0,0)):
-    img[y:y+4:4, x] = color
-    img[y:y+4:4, x+4] = color
-    img[y, x:x+4:4] = color
-    img[y+4, x:x+5:4] = color
 
 if args.graphic:
     import matplotlib
