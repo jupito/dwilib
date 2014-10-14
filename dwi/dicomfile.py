@@ -24,6 +24,7 @@ def read_files(filenames):
     """
     orientation = None
     shape = None
+    voxel_spacing = None
     positions = set()
     bvalues = set()
     slices = dict() # Lists of single slices indexed by (position, bvalue).
@@ -37,6 +38,7 @@ def read_files(filenames):
         shape = shape or d.pixel_array.shape
         if d.pixel_array.shape != shape:
             raise Exception("Shape mismatch.")
+        voxel_spacing = voxel_spacing or get_voxel_spacing(d)
         position = tuple(map(float, d.ImagePositionPatient))
         bvalue = get_bvalue(d)
         pixels = get_pixels(d)
@@ -50,7 +52,7 @@ def read_files(filenames):
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
     image = construct_image(slices, positions, bvalues)
-    d = dict(bvalues=bvalues, image=image)
+    d = dict(bvalues=bvalues, voxel_spacing=voxel_spacing, image=image)
     return d
 
 def construct_image(slices, positions, bvalues):
@@ -88,3 +90,12 @@ def get_pixels(d):
     #highest = d.WindowCenter + d.WindowWidth/2
     #pixels = pixels.clip(lowest, highest, out=pixels)
     return pixels
+
+def get_voxel_spacing(d):
+    """Return voxel spacing in millimeters as (z, y, x)."""
+    # XXX: Some manufacturers misinterpret SpacingBetweenSlices, it would be
+    # better to calculate this from ImageOrientationPatient and
+    # ImagePositionPatient.
+    z = d.SpacingBetweenSlices
+    x, y = d.PixelSpacing
+    return (z, y, x)
