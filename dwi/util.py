@@ -181,6 +181,11 @@ def ci(x, p=0.05):
     ci2 = x[i2]
     return ci1, ci2
 
+def distance(a, b):
+    """Return the Euclidean distance of two vectors."""
+    from scipy.spatial import distance
+    return distance.euclidean(a, b)
+
 
 
 def normalize_si_curve(si):
