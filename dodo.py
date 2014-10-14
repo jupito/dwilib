@@ -145,6 +145,7 @@ def task_compare_masks():
                         cmd],
                 'file_dep': [file1, file2],
                 'targets': [outfile],
+                'clean': True,
                 }
 
 SUBWINDOWS = read_subwindows('subwindows.txt')
