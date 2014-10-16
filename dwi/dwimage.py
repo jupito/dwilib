@@ -62,7 +62,7 @@ def load_dicom(filenames):
     If only one filename is given, it is assumed to be a directory.
     """
     import dicomfile
-    if len(filenames) == 1:
+    if len(filenames) == 1 and os.path.isdir(filenames[0]):
         d = dicomfile.read_dir(filenames[0]) # Directory.
     else:
         d = dicomfile.read_files(filenames) # File list.
