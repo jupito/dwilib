@@ -12,6 +12,9 @@ from dwi import asciifile
 from dwi import fit
 from dwi import util
 
+ADCM_MIN = 0.00050680935535585281
+ADCM_MAX = 0.0017784125828491648
+
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = __doc__)
@@ -38,7 +41,9 @@ def get_score_param(img, param):
     if param.startswith('ADC'):
         #r = 1-np.mean(img)
         r = 1./(np.mean(img)-0.0008)
-        if np.min(img) < 0.0002:
+        #if np.min(img) < 0.0002:
+        #    r = 0
+        if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
             r = 0
     elif param.startswith('K'):
         r = np.mean(img)/1000
@@ -197,7 +202,18 @@ if args.graphic:
     ax3.set_title('ROIs: %s, %s, distance: %.2f' % (manual_pos, auto_pos,
             distance))
     iview = img[0,...,0]
-    plt.imshow(iview)
+    #plt.imshow(iview)
+    view = np.zeros(iview.shape + (3,), dtype=float)
+    view[...,0] = iview / iview.max()
+    view[...,1] = iview / iview.max()
+    view[...,2] = iview / iview.max()
+    for i, a in enumerate(iview):
+        for j, v in enumerate(a):
+            if v < ADCM_MIN:
+                view[i,j,:] = [0.5, 0, 0]
+            elif v > ADCM_MAX:
+                view[i,j,:] = [0, 0.5, 0]
+    plt.imshow(view)
     if args.inmask:
         manual = np.zeros(iview.shape + (4,))
         draw_roi(manual, *manual_pos, color=MANUAL_COLOR)
