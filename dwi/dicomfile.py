@@ -96,6 +96,6 @@ def get_voxel_spacing(d):
     # XXX: Some manufacturers misinterpret SpacingBetweenSlices, it would be
     # better to calculate this from ImageOrientationPatient and
     # ImagePositionPatient.
-    z = d.SpacingBetweenSlices
-    x, y = d.PixelSpacing
+    z = d.SpacingBetweenSlices if 'SpacingBetweenSlices' in d else 1.
+    x, y = d.PixelSpacing if 'PixelSpacing' in d else (1., 1.)
     return (z, y, x)
