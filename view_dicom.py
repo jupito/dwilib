@@ -23,7 +23,7 @@ def parse_args():
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     p.add_argument('--normalize', '-n', action='store_true',
-            help='normalize curves')
+            help='normalize signal intensity curves')
     args = p.parse_args()
     return args
 
