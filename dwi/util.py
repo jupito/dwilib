@@ -305,7 +305,7 @@ def read_mask_file(filename):
     """Read a ROI mask file."""
     arrays = []
     with open(filename, 'r') as f:
-        for line in f:
+        for line in f.xreadlines():
             line = line.strip()
             if not line:
                 continue
