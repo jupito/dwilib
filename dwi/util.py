@@ -286,6 +286,21 @@ def scan_pairs(afs):
         r.append((num1, scan1, scan2))
     return r
 
+def read_subwindows(filename):
+    """Read a list of subwindows from file, return in a dictionary."""
+    r = {}
+    with open(filename, 'rb') as f:
+        for line in f.xreadlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            words = line.split()
+            if len(words) != 8:
+                raise Exception('Cannot parse subwindow: %s' % line)
+            case, scan, subwindow = int(words[0]), words[1], map(int, words[2:])
+            r[(case, scan)] = subwindow
+    return r
+
 def read_mask_file(filename):
     """Read a ROI mask file."""
     arrays = []
