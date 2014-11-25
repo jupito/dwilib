@@ -92,7 +92,7 @@ args = parse_args()
 
 dwimage = dwi.dwimage.load_dicom(args.files)[0]
 if args.roi:
-    dwimage = dwimage.get_roi(args.roi)
+    dwimage = dwimage.get_roi(args.roi, onebased=True)
 
 if args.normalize:
     for si in dwimage.sis:
