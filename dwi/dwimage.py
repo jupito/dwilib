@@ -136,7 +136,7 @@ class DWImage(object):
         """Return number of voxels."""
         return len(self.sis)
 
-    def get_roi(self, position, bvalues=[], onebased=False):
+    def get_roi(self, position, bvalues=[], onebased=True):
         """Get a view of a specific ROI (region of interest)."""
         if onebased:
             position = [i-1 for i in position] # One-based indexing.
