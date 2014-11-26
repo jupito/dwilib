@@ -97,7 +97,7 @@ def fivenum(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
     q1 = scoreatpercentile(a, 25)
     q3 = scoreatpercentile(a, 75)
-    return min(a), q1, np.median(a), q3, max(a)
+    return np.min(a), q1, np.median(a), q3, np.max(a)
 
 def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
