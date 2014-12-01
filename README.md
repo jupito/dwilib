@@ -31,6 +31,7 @@ Requirements
   fitting)
 - [Matplotlib](http://matplotlib.org/) (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
+- [scikit-image](http://scikit-image.org/) (if doing texture analysis)
 - [DoIt](http://pydoit.org/) (if using the build tool)
 
 Todo or In Progress
