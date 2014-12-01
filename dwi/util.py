@@ -303,6 +303,22 @@ def read_subwindows(filename):
             r[(case, scan)] = subwindow
     return r
 
+def read_sample_list(filename):
+    """Read a list of samples from file."""
+    entries = []
+    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
+    with open(filename, 'r') as f:
+        for line in f:
+            m = p.match(line.strip())
+            if m:
+                case, name, scans = m.groups()
+                case = int(case)
+                name = name.lower()
+                scans = tuple(sorted(scans.lower().split(',')))
+                d = dict(case=case, name=name, scans=scans)
+                entries.append(d)
+    return entries
+
 def read_mask_file(filename):
     """Read a ROI mask file."""
     arrays = []
