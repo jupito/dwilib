@@ -5,7 +5,6 @@
 import os.path
 import sys
 import argparse
-
 import numpy as np
 
 from dwi import asciifile
