@@ -12,8 +12,10 @@ def load(filename, nrois=1, varname='ROIdata'):
     root, ext = os.path.splitext(filename)
     if ext == '.mat':
         return load_matlab(filename, varname)
-    else:
+    elif ext == '.txt':
         return load_ascii(filename, nrois)
+    else:
+        return load_dicom([filename])
 
 def load_matlab(filename, varname='ROIdata'):
     """Load images from a MATLAB file."""
