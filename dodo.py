@@ -49,6 +49,7 @@ def read_sample_list(filename):
                 entries.append(d)
     return entries
 
+# TODO: Call from common modules instead.
 def read_subwindows(filename):
     r = {}
     with open(filename, 'rb') as f:
