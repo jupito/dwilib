@@ -25,10 +25,29 @@ PMAP = DWILIB+'/pmap.py'
 ANON = DWILIB+'/anonymize_dicom.py'
 FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
+SELECT_VOXELS = DWILIB+'/select_voxels.py'
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 
 # Common functions
+
+# TODO: Call from common modules instead.
+def read_sample_list(filename):
+    """Read a list of samples from file."""
+    import re
+    entries = []
+    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
+    with open(filename, 'r') as f:
+        for line in f:
+            m = p.match(line.strip())
+            if m:
+                case, name, scans = m.groups()
+                case = int(case)
+                name = name.lower()
+                scans = tuple(sorted(scans.lower().split(',')))
+                d = dict(case=case, name=name, scans=scans)
+                entries.append(d)
+    return entries
 
 def read_subwindows(filename):
     r = {}
@@ -148,4 +167,50 @@ def task_compare_masks():
                 'clean': True,
                 }
 
+def get_task_select_roi(case, scan, model, param, subwindow, mask):
+    d = dict(c=case, s=scan, m=model, p=param, subwindow=subwindow, mask=mask)
+    outdir = 'rois_{mask}'.format(**d)
+    s = os.path.join('masks_{mask}', '{c}_{s}_*.mask')
+    maskpath = glob.glob(s.format(**d))[0]
+    s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
+            '{c}_*_{s}_{p}')
+    inpath = glob.glob(s.format(**d))[0]
+    s = os.path.join(outdir, '{c}_{s}_{m}_{p}_{mask}.txt')
+    outpath = s.format(**d)
+    args = [SELECT_VOXELS]
+    #args += ['-v']
+    if subwindow:
+        args += ['-s %s' % subwindow_to_str(subwindow)]
+    args += ['-m "%s"' % maskpath]
+    args += ['-i "%s"' % inpath]
+    args += ['-o "%s"' % outpath]
+    cmd = ' '.join(args)
+    return {
+            'name': '{c}_{s}'.format(**d),
+            'actions': [(create_folder, [outdir]),
+                    cmd],
+            'file_dep': [maskpath],
+            'targets': [outpath],
+            'clean': True,
+            }
+
+def task_select_roi_cancer():
+    """Select cancer ROIs from the pmap DICOMs."""
+    for sample in SAMPLES_ALL:
+        for scan in sample['scans']:
+            case = sample['case']
+            subwin = None
+            mask = 'cancer'
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
+
+def task_select_roi_auto():
+    """Select automatic ROIs from the pmap DICOMs."""
+    for sample in SAMPLES_ALL:
+        for scan in sample['scans']:
+            case = sample['case']
+            subwin = SUBWINDOWS[(case, scan)]
+            mask = 'auto'
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
+
+SAMPLES_ALL = read_sample_list('samples_all.txt')
 SUBWINDOWS = read_subwindows('subwindows.txt')
