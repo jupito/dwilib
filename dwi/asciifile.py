@@ -13,6 +13,9 @@ class AsciiFile(object):
         self.d, self.a = read_ascii_file(self.filename)
         self.number = int(self.d.get('number', 0))
 
+    def __repr__(self):
+        return self.filename
+
     def __str__(self):
         return '{}\n{}\n{}'.format(self.filename, self.d, self.a.shape)
 
