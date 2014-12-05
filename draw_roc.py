@@ -32,6 +32,8 @@ def parse_args():
             help='group of Gleason scores classified as negative')
     p.add_argument('--threshold', '-t', type=int, default=1,
             help='classification threshold')
+    p.add_argument('--average', '-a', action='store_true',
+            help='average input voxels into one')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -62,12 +64,17 @@ pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
 pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
 
 nums = [n for n, s in numsscans]
-pmaps1, pmaps2 = util.split_roi(pmaps)
+if args.average:
+    pmaps1, pmaps2 = np.mean(pmaps, axis=1, keepdims=True), []
+else:
+    pmaps1, pmaps2 = util.split_roi(pmaps)
 
 labels = patient.load_labels(patients, nums, args.labeltype)
 labels_nocancer = [0] * len(labels)
+print pmaps.shape, pmaps1.shape, len(labels), len(numsscans)
 X1, Y1, G1 = load_data(pmaps1, labels, numsscans)
-X2, Y2, G2 = load_data(pmaps2, labels_nocancer, numsscans)
+if len(pmaps2):
+    X2, Y2, G2 = load_data(pmaps2, labels_nocancer, numsscans)
 
 if args.roi2:
     X = np.concatenate((X1, X2))
