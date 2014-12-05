@@ -7,6 +7,8 @@ import os
 from doit.tools import create_folder
 #from doit.tools import result_dep
 
+import dwi.util
+
 """
 Backends:
 dbm: (default) It uses python dbm module.
@@ -30,39 +32,6 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 
 # Common functions
-
-# TODO: Call from common modules instead.
-def read_sample_list(filename):
-    """Read a list of samples from file."""
-    import re
-    entries = []
-    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
-    with open(filename, 'r') as f:
-        for line in f:
-            m = p.match(line.strip())
-            if m:
-                case, name, scans = m.groups()
-                case = int(case)
-                name = name.lower()
-                scans = tuple(sorted(scans.lower().split(',')))
-                d = dict(case=case, name=name, scans=scans)
-                entries.append(d)
-    return entries
-
-# TODO: Call from common modules instead.
-def read_subwindows(filename):
-    r = {}
-    with open(filename, 'rb') as f:
-        for line in f.xreadlines():
-            line = line.strip()
-            if line.startswith('#'):
-                continue
-            words = line.split()
-            if len(words) != 8:
-                raise Exception('Cannot parse subwindow: %s.' % line)
-            case, scan, subwindow = int(words[0]), words[1], map(int, words[2:])
-            r[(case, scan)] = subwindow
-    return r
 
 def subwindow_to_str(subwindow):
     return ' '.join(map(str, subwindow))
@@ -213,5 +182,5 @@ def task_select_roi_auto():
             mask = 'auto'
             yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
 
-SAMPLES_ALL = read_sample_list('samples_all.txt')
-SUBWINDOWS = read_subwindows('subwindows.txt')
+SAMPLES_ALL = dwi.util.read_sample_list('samples_all.txt')
+SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
