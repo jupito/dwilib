@@ -176,7 +176,7 @@ def get_task_select_roi(case, scan, model, param, subwindow, mask):
     s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
             '{c}_*_{s}_{p}')
     inpath = glob.glob(s.format(**d))[0]
-    s = os.path.join(outdir, '{c}_{s}_{m}_{p}_{mask}.txt')
+    s = os.path.join(outdir, '{c}_x_x_{s}_{m}_{p}_{mask}.txt')
     outpath = s.format(**d)
     args = [SELECT_VOXELS]
     #args += ['-v']
