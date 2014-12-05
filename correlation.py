@@ -28,6 +28,8 @@ def parse_args():
             help='Gleason score grouping')
     p.add_argument('--measurements', choices=['all', 'mean', 'a', 'b'],
             default='all', help='measurement baselines')
+    p.add_argument('--average', '-a', action='store_true',
+            help='average input voxels into one (otherwise use only first)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     args = p.parse_args()
@@ -52,7 +54,10 @@ patients = patient.read_patients_file(args.scans)
 pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
 pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
 
-X = pmaps[:,0,:] # Use ROI1 only.
+if args.average:
+    X = np.mean(pmaps, axis=1)
+else:
+    X = pmaps[:,0,:] # Use ROI1 only.
 nums = [n for n, s in numsscans]
 labels = patient.load_labels(patients, nums, args.labeltype)
 different_labels = sorted(list(set(labels)))
