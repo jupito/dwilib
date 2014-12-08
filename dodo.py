@@ -22,7 +22,7 @@ DOIT_CONFIG = {
     'verbosity': 2,
     }
 
-DWILIB = '~/src/dwilib'
+DWILIB = '~/src/dwilib/tools'
 PMAP = DWILIB+'/pmap.py'
 ANON = DWILIB+'/anonymize_dicom.py'
 FIND_ROI = DWILIB+'/find_roi.py'

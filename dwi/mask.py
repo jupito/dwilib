@@ -9,7 +9,7 @@ class Mask(object):
         if slice < 1:
             raise Exception('Invalid slice')
         self.slice = slice # Slice number, one-based indexing
-        self.array = array # 2D mask of one slice, 0/1 integer array.
+        self.array = array.astype(bool) # 2D mask of one slice.
 
     def __repr__(self):
         return repr((self.slice, self.array.shape))
@@ -29,9 +29,9 @@ class Mask(object):
     def get_masked(self, array):
         """Get masked region as a flat array."""
         if array.ndim == self.array.ndim:
-            return array[self.array.astype(bool)]
+            return array[self.array]
         else:
-            return array[self.slice-1, self.array.astype(bool)]
+            return array[self.slice-1, self.array]
 
 def load_ascii(filename):
     """Read a ROI mask file."""
