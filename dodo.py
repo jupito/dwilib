@@ -138,10 +138,12 @@ def task_compare_masks():
                 }
 
 def get_task_select_roi(case, scan, model, param, subwindow, mask):
+    # TODO: Cannot depend on mask files, as they are named irregularly.
     d = dict(c=case, s=scan, m=model, p=param, subwindow=subwindow, mask=mask)
     outdir = 'rois_{mask}'.format(**d)
     s = os.path.join('masks_{mask}', '{c}_{s}_*.mask')
-    maskpath = glob.glob(s.format(**d))[0]
+    #maskpath = glob.glob(s.format(**d))[0]
+    maskpath = s.format(**d)
     s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
             '{c}_*_{s}_{p}')
     inpath = glob.glob(s.format(**d))[0]
@@ -151,7 +153,7 @@ def get_task_select_roi(case, scan, model, param, subwindow, mask):
     #args += ['-v']
     if subwindow:
         args += ['-s %s' % subwindow_to_str(subwindow)]
-    args += ['-m "%s"' % maskpath]
+    args += ['-m %s' % maskpath]
     args += ['-i "%s"' % inpath]
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
@@ -159,7 +161,8 @@ def get_task_select_roi(case, scan, model, param, subwindow, mask):
             'name': '{c}_{s}'.format(**d),
             'actions': [(create_folder, [outdir]),
                     cmd],
-            'file_dep': [maskpath],
+            #'file_dep': [maskpath],
+            'file_dep': [],
             'targets': [outpath],
             'clean': True,
             }
