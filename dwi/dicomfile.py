@@ -6,7 +6,6 @@ import dicom
 def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
-    import os
     import os.path
     filenames = os.listdir(dirname)
     pathnames = [os.path.join(dirname, f) for f in filenames]
