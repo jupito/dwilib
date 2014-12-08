@@ -4,6 +4,13 @@ Instructions for using dwilib
 
 Files
 -----
+Directory "tools" contains tools for different tasks which are described below.
+They expect to find the library directory "dwi" along the usual path of Python
+libraries, so modify the environment variable PYTHONPATH as needed.
+
+Directory "scripts" contains some smaller scripts that were used at some point
+when calculating things for our research.
+
 ### Model fitting
 * pmap.py -- Fit diffusion models to imaging data (see below).
 
