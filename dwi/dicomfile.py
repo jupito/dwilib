@@ -98,4 +98,4 @@ def get_voxel_spacing(d):
     # ImagePositionPatient.
     z = d.SpacingBetweenSlices if 'SpacingBetweenSlices' in d else 1.
     x, y = d.PixelSpacing if 'PixelSpacing' in d else (1., 1.)
-    return (z, y, x)
+    return tuple(map(float, (z, y, x)))
