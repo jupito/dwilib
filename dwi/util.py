@@ -332,3 +332,21 @@ def read_mask_file(filename):
                 arrays.append(a)
     mask = np.array(arrays)
     return mask
+
+def read_subregion_file(filename):
+    """Read a subregion definition from file.
+
+    It's formatted as one voxel index per line, zero-based, in order of y1, y2,
+    x1, x2, z1, z2. Is returned as (z1, z2, y1, y2, x1, x2).
+    """
+    entries = []
+    with open(filename, 'r') as f:
+        for line in f.xreadlines():
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            entries.append(int(float(line)))
+    if len(entries) != 6:
+        raise Exception('Invalid subregion file: %s' % filename)
+    entries = entries[4:6] + entries[0:4] # Move z indices to front.
+    return tuple(entries)
