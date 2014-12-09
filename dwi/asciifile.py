@@ -80,5 +80,5 @@ def read_ascii(f):
     return d, rows
 
 def read_ascii_file(filename):
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         return read_ascii(f)

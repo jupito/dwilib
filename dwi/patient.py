@@ -71,7 +71,7 @@ def read_patients_file(filename):
     patients = []
     #p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d)')
     p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d(\+\d)?)')
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -121,7 +121,7 @@ def read_exclude_file(filename):
     """Load a list scans to exclude."""
     exclusions = []
     p = re.compile(r'(\d+)\s+([*\w]+)')
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             m = p.match(line.strip())
             if m:

@@ -37,7 +37,7 @@ def load_ascii(filename):
     """Read a ROI mask file."""
     slice = 1
     arrays = []
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         p = re.compile(r'(\w+)\s*:\s*(.*)')
         for line in f:
             line = line.strip()
