@@ -293,7 +293,7 @@ def scan_pairs(afs):
 def read_subwindows(filename):
     """Read a list of subwindows from file, return in a dictionary."""
     r = {}
-    with open(filename, 'rb') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith(COMMENT_PREFIX):
@@ -309,7 +309,7 @@ def read_sample_list(filename):
     """Read a list of samples from file."""
     entries = []
     p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             m = p.match(line.strip())
             if m:
@@ -324,7 +324,7 @@ def read_sample_list(filename):
 def read_mask_file(filename):
     """Read a ROI mask file."""
     arrays = []
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -342,7 +342,7 @@ def read_subregion_file(filename):
     x1, x2, z1, z2. Is returned as (z1, z2, y1, y2, x1, x2).
     """
     entries = []
-    with open(filename, 'r') as f:
+    with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith(COMMENT_PREFIX):
