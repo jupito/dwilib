@@ -6,6 +6,8 @@ import numpy as np
 from scipy.stats import scoreatpercentile
 import sklearn.metrics
 
+COMMENT_PREFIX = '#'
+
 def finites(a):
     """Return finite elements as a flat array."""
     return np.array(filter(np.isfinite, a.flat))
@@ -294,7 +296,7 @@ def read_subwindows(filename):
     with open(filename, 'rb') as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith(COMMENT_PREFIX):
                 continue
             words = line.split()
             if len(words) != 8:
@@ -343,7 +345,7 @@ def read_subregion_file(filename):
     with open(filename, 'r') as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith(COMMENT_PREFIX):
                 continue
             entries.append(int(float(line)))
     if len(entries) != 6:
