@@ -292,7 +292,7 @@ def read_subwindows(filename):
     """Read a list of subwindows from file, return in a dictionary."""
     r = {}
     with open(filename, 'rb') as f:
-        for line in f.xreadlines():
+        for line in f:
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
@@ -323,7 +323,7 @@ def read_mask_file(filename):
     """Read a ROI mask file."""
     arrays = []
     with open(filename, 'r') as f:
-        for line in f.xreadlines():
+        for line in f:
             line = line.strip()
             if not line:
                 continue
@@ -341,7 +341,7 @@ def read_subregion_file(filename):
     """
     entries = []
     with open(filename, 'r') as f:
-        for line in f.xreadlines():
+        for line in f:
             line = line.strip()
             if not line or line.startswith('#'):
                 continue
