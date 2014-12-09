@@ -152,7 +152,7 @@ if args.output:
     mask = np.zeros((roimap.shape[0:-1]), dtype=int)
     z, y, x = coords
     mask[z[0]:z[1], y[0]:y[1], x[0]:x[1]] = 1
-    with open(args.output, 'wb') as f:
+    with open(args.output, 'w') as f:
         f.write('slice: %s\n' % 1)
         f.write(mask_to_text(mask[0]))
 
