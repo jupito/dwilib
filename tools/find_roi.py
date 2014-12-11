@@ -7,10 +7,9 @@ import sys
 import argparse
 import numpy as np
 
-from dwi import asciifile
-from dwi import fit
-from dwi import util
+import dwi.asciifile
 import dwi.mask
+import dwi.util
 
 ADCM_MIN = 0.00050680935535585281
 ADCM_MAX = 0.0017784125828491648
@@ -96,7 +95,7 @@ def roi_position(mask):
 
 def roi_distance(a, b):
     # TODO: Use general mask distance.
-    return util.distance(a, b)
+    return dwi.util.distance(a, b)
 
 def draw_roi(img, y, x, color=(1,0,0)):
     img[y:y+4:4, x] = color
@@ -107,7 +106,7 @@ def draw_roi(img, y, x, color=(1,0,0)):
 
 args = parse_args()
 
-af = asciifile.AsciiFile(args.input)
+af = dwi.asciifile.AsciiFile(args.input)
 img = af.a.view()
 params = af.params()
 img.shape = af.subwindow_shape() + (img.shape[-1],)
@@ -135,10 +134,10 @@ if args.verbose:
         z, y, x = coords
         a = img[z[0]:z[1], y[0]:y[1], x[0]:x[1], i]
         print p, a.min(), a.max(), np.median(a)
-        print util.fivenum(a.flatten())
+        print dwi.util.fivenum(a.flatten())
         a = img[..., i]
         print p, a.min(), a.max(), np.median(a)
-        print util.fivenum(a.flatten())
+        print dwi.util.fivenum(a.flatten())
 
 print 'Optimal ROI: {}'.format(coords)
 
@@ -151,7 +150,7 @@ if args.output:
     mask.write(args.output)
 
 if args.inmask:
-    inmask = util.read_mask_file(args.inmask)
+    inmask = dwi.util.read_mask_file(args.inmask)
     inmask_pos = list(roi_position(inmask))
     inmask_pos[0] -= af.subwindow()[2]-1
     inmask_pos[1] -= af.subwindow()[4]-1
