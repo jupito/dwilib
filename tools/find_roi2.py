@@ -204,16 +204,19 @@ def draw(data):
     n_cols, n_rows = 3, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
-    MANUAL_COLOR = (1.0, 0.0, 0.0, 1.0)
+    CANCER_COLOR = (1.0, 0.0, 0.0, 1.0)
+    NORMAL_COLOR = (1.0, 1.0, 0.0, 1.0)
     AUTO_COLOR = (0.0, 1.0, 0.0, 1.0)
 
+    cancer_pos = (-1, -1)
+    normal_pos = (-1, -1)
+    distance = -1
     auto_pos = (data['roi_coords'][1][0], data['roi_coords'][2][0])
     if 'cancer_mask' in data:
-        manual_pos = (0, 0) # TODO
-        distance = dwi.util.distance(manual_pos, auto_pos)
-    else:
-        manual_pos = (-1, -1)
-        distance = -1
+        cancer_pos = data['cancer_mask'].where()[0][1:3]
+        distance = dwi.util.distance(cancer_pos, auto_pos)
+    if 'normal_mask' in data:
+        normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title(PARAMS[0])
@@ -230,7 +233,7 @@ def draw(data):
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
-    ax3.set_title('ROIs: %s, %s, distance: %.2f' % (manual_pos, auto_pos,
+    ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
             distance))
     iview = data['image'][0,...,0]
     #plt.imshow(iview)
@@ -246,9 +249,13 @@ def draw(data):
                 view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
     if 'cancer_mask' in data:
-        manual = np.zeros(iview.shape + (4,))
-        draw_roi(manual, *manual_pos, color=MANUAL_COLOR)
-        plt.imshow(manual, alpha=0.8)
+        cancer = np.zeros(iview.shape + (4,))
+        draw_roi(cancer, *cancer_pos, color=CANCER_COLOR)
+        plt.imshow(cancer, alpha=0.8)
+    if 'normal_mask' in data:
+        normal = np.zeros(iview.shape + (4,))
+        draw_roi(normal, *normal_pos, color=NORMAL_COLOR)
+        plt.imshow(normal, alpha=0.8)
     auto = np.zeros(iview.shape + (4,))
     draw_roi(auto, data['roi_coords'][1][0], data['roi_coords'][2][0],
             color=AUTO_COLOR)
