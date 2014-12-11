@@ -338,8 +338,10 @@ def read_mask_file(filename):
 def read_subregion_file(filename):
     """Read a subregion definition from file.
 
-    It's formatted as one voxel index per line, zero-based, in order of y1, y2,
-    x1, x2, z1, z2. Is returned as (z1, z2, y1, y2, x1, x2).
+    It's formatted as one voxel index per line, zero-based, in order of y_first,
+    y_last, x_first, x_last, z_first, z_last. The "last" ones need +1 to get
+    Python-like start:stop indices. They are returned as (z_start, z_stop,
+    y_start, y_stop, x_start, x_stop).
     """
     entries = []
     with open(filename, 'rU') as f:
@@ -351,4 +353,8 @@ def read_subregion_file(filename):
     if len(entries) != 6:
         raise Exception('Invalid subregion file: %s' % filename)
     entries = entries[4:6] + entries[0:4] # Move z indices to front.
+    # Add one to "last" indices get Python-like start:stop indices.
+    entries[1] += 1
+    entries[3] += 1
+    entries[5] += 1
     return tuple(entries)
