@@ -188,11 +188,19 @@ def find_roi(img, roidim):
 
 ###
 
-def draw_roi(img, y, x, color=(1,0,0)):
+def draw_roi(img, pos, color):
+    """Draw a rectangle ROI on a layer."""
+    y, x = pos
     img[y:y+4:4, x] = color
     img[y:y+4:4, x+4] = color
     img[y, x:x+4:4] = color
     img[y+4, x:x+5:4] = color
+
+def get_roi_layer(img, pos, color):
+    """Get a layer with a rectangle ROI for drawing."""
+    layer = np.zeros(img.shape + (4,))
+    draw_roi(layer, pos, color)
+    return layer
 
 def draw(data):
     import matplotlib
@@ -249,17 +257,10 @@ def draw(data):
                 view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
     if 'cancer_mask' in data:
-        cancer = np.zeros(iview.shape + (4,))
-        draw_roi(cancer, *cancer_pos, color=CANCER_COLOR)
-        plt.imshow(cancer, alpha=0.8)
+        plt.imshow(get_roi_layer(iview, cancer_pos, CANCER_COLOR), alpha=0.8)
     if 'normal_mask' in data:
-        normal = np.zeros(iview.shape + (4,))
-        draw_roi(normal, *normal_pos, color=NORMAL_COLOR)
-        plt.imshow(normal, alpha=0.8)
-    auto = np.zeros(iview.shape + (4,))
-    draw_roi(auto, data['roi_coords'][1][0], data['roi_coords'][2][0],
-            color=AUTO_COLOR)
-    plt.imshow(auto, alpha=0.8)
+        plt.imshow(get_roi_layer(iview, normal_pos, NORMAL_COLOR), alpha=0.8)
+    plt.imshow(get_roi_layer(iview, auto_pos, AUTO_COLOR), alpha=0.8)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
