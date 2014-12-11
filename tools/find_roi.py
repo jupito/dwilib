@@ -168,7 +168,7 @@ if args.graphic:
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
     MANUAL_COLOR = (1.0, 0.0, 0.0, 1.0)
-    AUTO_COLOR = (0.0, 1.0, 0.0, 1.0)
+    AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
     auto_pos = (coords[1][0], coords[2][0])
     if args.inmask:
