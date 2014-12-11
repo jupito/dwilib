@@ -116,6 +116,7 @@ def read_data():
                     subregion=subregion,
                     cancer_mask=cropped_cancer_mask,
                     normal_mask=cropped_normal_mask,
+                    original_shape=image.shape,
                     image=cropped_image)
             data.append(d)
     return data
@@ -270,6 +271,18 @@ def draw(data):
     filename = 'find_roi2/{case}_{scan}.png'.format(**data)
     plt.savefig(filename, bbox_inches='tight')
 
+def write_mask(d):
+    """Write mask. XXX: Here only single-slice ones."""
+    a = np.zeros((d['original_shape'][1:3]), dtype=int)
+    _, y, x = d['roi_coords']
+    y_offset, x_offset = d['subregion'][2], d['subregion'][4]
+    y = (y[0]-y_offset, y[1]-y_offset)
+    x = (x[0]-x_offset, x[1]-x_offset)
+    a[y[0]:y[1], x[0]:x[1]] = 1
+    mask = dwi.mask.Mask(1, a)
+    filename = 'find_roi2/{case}_{scan}.mask'.format(**d)
+    mask.write(filename)
+
 
 args = parse_args()
 
@@ -283,6 +296,7 @@ for d in data:
     d.update(find_roi(d['image'], args.roidim))
     print 'Optimal ROI: {}'.format(d['roi_coords'])
     draw(d)
+    write_mask(d)
 
 #if args.verbose:
 #    for i, p in enumerate(params):
