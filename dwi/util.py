@@ -68,6 +68,15 @@ def get_indices(seq, val):
             r.append(i)
     return r
 
+def crop_image(image, subwindow, onebased=False):
+    """Get a view of image subwindow defined as Python-like start:stop
+    indices."""
+    if onebased:
+        subwindow = [i-1 for i in subwindow]
+    z1, z2, y1, y2, x1, x2 = subwindow
+    view = image[z1:z2, y1:y2, x1:x2]
+    return view
+
 
 
 def resample_bootstrap_single(a):
