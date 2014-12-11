@@ -94,6 +94,11 @@ class Mask3D(object):
         """Return indices of masked voxels."""
         return np.argwhere(self.array)
 
+    def crop(self, subwindow, onebased=False):
+        """Return a copied subwindow."""
+        a = dwi.util.crop_image(self.array, subwindow, onebased).copy()
+        return Mask3D(a)
+
 def read_dicom_mask(path):
     import dwi.dicomfile
     d = dwi.dicomfile.read_dir(path)
