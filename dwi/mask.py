@@ -3,6 +3,8 @@
 import re
 import numpy as np
 
+import dwi.util
+
 class Mask(object):
     """Mask for one slice in 3D image."""
     def __init__(self, slice, array):
@@ -54,3 +56,36 @@ def load_ascii(filename):
         return Mask(slice, np.array(arrays))
     else:
         raise Exception('No mask found in %s' % filename)
+
+class Mask3D(object):
+    """Image mask stored as a 3D array."""
+    def __init__(self, a):
+        if a.ndim != 3:
+            raise 'Invalid mask dimensionality: %s' % a.shape
+        self.array = a.astype(bool)
+
+    def __repr__(self):
+        return repr(self.array.shape)
+
+    def __str__(self):
+        return repr(self)
+
+    def n_selected(self):
+        """Return number of selected voxels."""
+        return np.count_nonzero(mask)
+
+    def get_masked(self, a):
+        """Return masked voxels."""
+        return a[self.array]
+
+    def where(self):
+        """Return indices of masked voxels."""
+        return np.argwhere(self.array)
+
+def read_dicom_mask(path):
+    import dwi.dicomfile
+    d = dwi.dicomfile.read_dir(path)
+    image = d['image']
+    image = image.squeeze(axis=3) # Remove single subvalue dimension.
+    mask = Mask3D(image)
+    return mask
