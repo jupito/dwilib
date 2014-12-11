@@ -205,8 +205,8 @@ def draw(data):
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
     CANCER_COLOR = (1.0, 0.0, 0.0, 1.0)
-    NORMAL_COLOR = (1.0, 1.0, 0.0, 1.0)
-    AUTO_COLOR = (0.0, 1.0, 0.0, 1.0)
+    NORMAL_COLOR = (0.0, 1.0, 0.0, 1.0)
+    AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
     cancer_pos = (-1, -1)
     normal_pos = (-1, -1)
