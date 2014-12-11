@@ -322,7 +322,7 @@ def read_sample_list(filename):
     return entries
 
 def read_mask_file(filename):
-    """Read a ROI mask file."""
+    """Read a ROI mask file. XXX: Deprecated, use dwi.mask module instead."""
     arrays = []
     with open(filename, 'rU') as f:
         for line in f:
