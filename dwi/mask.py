@@ -35,6 +35,18 @@ class Mask(object):
         else:
             return array[self.slice-1, self.array]
 
+    def write(self, filename):
+        """Write mask as an ASCII file."""
+        with open(filename, 'w') as f:
+            f.write('slice: %s\n' % self.slice)
+            f.write(mask_to_text(self.array.astype(int)))
+
+def mask_to_text(mask):
+    return '\n'.join(map(line_to_text, mask))
+
+def line_to_text(line):
+    return ''.join(map(str, line))
+
 def load_ascii(filename):
     """Read a ROI mask file."""
     slice = 1

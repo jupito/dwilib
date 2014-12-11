@@ -10,6 +10,7 @@ import numpy as np
 from dwi import asciifile
 from dwi import fit
 from dwi import util
+import dwi.mask
 
 ADCM_MIN = 0.00050680935535585281
 ADCM_MAX = 0.0017784125828491648
@@ -86,12 +87,6 @@ def get_scoremap(img, d, params, n_rois):
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
-def line_to_text(line):
-    return ''.join(map(str, line))
-
-def mask_to_text(mask):
-    return '\n'.join(map(line_to_text, mask))
-
 def roi_position(mask):
     # XXX: Quick and dirty ad hoc hack.
     for y, row in enumerate(mask):
@@ -149,12 +144,11 @@ print 'Optimal ROI: {}'.format(coords)
 
 # Write mask. XXX: Here only single-slice ones.
 if args.output:
-    mask = np.zeros((roimap.shape[0:-1]), dtype=int)
+    a = np.zeros((roimap.shape[0:-1]), dtype=int)
     z, y, x = coords
-    mask[z[0]:z[1], y[0]:y[1], x[0]:x[1]] = 1
-    with open(args.output, 'w') as f:
-        f.write('slice: %s\n' % 1)
-        f.write(mask_to_text(mask[0]))
+    a[z[0]:z[1], y[0]:y[1], x[0]:x[1]] = 1
+    mask = dwi.mask.Mask(1, a[0])
+    mask.write(args.output)
 
 if args.inmask:
     inmask = util.read_mask_file(args.inmask)
