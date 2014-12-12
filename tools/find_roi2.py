@@ -270,17 +270,18 @@ def draw(data):
     plt.tight_layout()
     filename = 'find_roi2/{case}_{scan}.png'.format(**data)
     plt.savefig(filename, bbox_inches='tight')
+    fig.clf()
 
 def write_mask(d):
     """Write mask. XXX: Here only single-slice ones."""
     a = np.zeros((d['original_shape'][1:3]), dtype=int)
     _, y, x = d['roi_coords']
     y_offset, x_offset = d['subregion'][2], d['subregion'][4]
-    y = (y[0]-y_offset, y[1]-y_offset)
-    x = (x[0]-x_offset, x[1]-x_offset)
+    y = (y[0]+y_offset, y[1]+y_offset)
+    x = (x[0]+x_offset, x[1]+x_offset)
     a[y[0]:y[1], x[0]:x[1]] = 1
-    mask = dwi.mask.Mask(1, a)
-    filename = 'find_roi2/{case}_{scan}.mask'.format(**d)
+    mask = dwi.mask.Mask(d['slice_index']+1, a)
+    filename = 'masks_auto2/{case}_{scan}_auto2.mask'.format(**d)
     mask.write(filename)
 
 
