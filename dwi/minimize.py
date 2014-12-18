@@ -29,12 +29,12 @@ def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
 
 def gradient_descent_mi(f, inits, **kwargs):
     """Gradient descent with multiple initializations."""
-    d_min = None
+    best = dict(y=np.inf)
     for init in inits:
         d = gradient_descent(f, init=init, **kwargs)
-        if not d_min or d['y'] < d_min['y']:
-            d_min = d
-    return d_min
+        if d['y'] < best['y']:
+            best = d
+    return best
 
 def line_search(f, x, args, rho=0.4, c=0.4, alpha0=0.4):
     """Backtracking line search. Nodecal & Wright 1999 pg41."""
