@@ -18,13 +18,12 @@ def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
     assert maxiter > 0
     init = np.atleast_1d(np.asarray(init, dtype=float))
     x = init
-    warnflag = 1
     for i in xrange(maxiter):
         dfx = gradient(f, x, args)
         x_prev = x
         x = x - dfx*step
     d = dict(x=x, y=f(x, *args), grad=dfx, nit=i+1, init=init, step=step,
-            args=args, maxiter=maxiter, warnflag=warnflag)
+            args=args, maxiter=maxiter)
     return d
 
 def gradient_descent_mi(f, inits, **kwargs):
