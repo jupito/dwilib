@@ -14,6 +14,16 @@ import dwi.util
 
 PARAMS = ['ADCm']
 
+IN_SUBREGION_DIR = 'bounding_box_100_10pad'
+IN_MASK_DIR = 'dicom_masks'
+IN_IMAGE_DIR = 'results_Mono_combinedDICOM'
+IN_SAMPLELIST_FILE = 'samples_all.txt'
+IN_SUBWINDOWS_FILE = 'subwindows.txt'
+IN_PATIENTS_FILE = 'patients.txt'
+
+OUT_MASK_DIR = 'masks_auto2'
+OUT_IMAGE_DIR = 'find_roi2_images'
+
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = __doc__)
@@ -36,7 +46,7 @@ def parse_args():
 def read_subregion(case, scan):
     """Read subregion definition."""
     d = dict(c=case, s=scan)
-    s = 'bounding_box_100_10pad/{c}_*_{s}_*.txt'.format(**d)
+    s = IN_SUBREGION_DIR + '/{c}_*_{s}_*.txt'.format(**d)
     paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Subregion file confusion: %s' % s)
@@ -51,7 +61,7 @@ def read_dicom_masks(case, scan):
     they are ignored for now.
     """
     d = dict(c=case, s=scan)
-    s = 'dicom_masks/{c}_*_{s}_D_*'.format(**d)
+    s = IN_MASK_DIR + '/{c}_*_{s}_D_*'.format(**d)
     cancer_path, normal_path, other_paths = None, None, []
     paths = sorted(glob.glob(s), key=str.lower)
     if len(paths) < 2:
@@ -72,7 +82,7 @@ def read_dicom_masks(case, scan):
 
 def read_image(case, scan, param):
     d = dict(c=case, s=scan, p=param)
-    s = 'results_*_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
+    s = IN_IMAGE_DIR + '/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Image path confusion: %s' % s)
@@ -90,9 +100,9 @@ def clip_outliers(img):
             img[...,i].clip(0, 2, out=img[...,i])
 
 def read_data():
-    samples = dwi.util.read_sample_list('samples_all.txt')
-    subwindows = dwi.util.read_subwindows('subwindows.txt')
-    patientsinfo = dwi.patient.read_patients_file('patients.txt')
+    samples = dwi.util.read_sample_list(IN_SAMPLELIST_FILE)
+    subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
+    patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
     data = []
     for sample in samples:
         case = sample['case']
@@ -200,7 +210,7 @@ def draw(data):
     fig.colorbar(imgray, ax=ax3, shrink=0.65)
 
     plt.tight_layout()
-    filename = 'find_roi2/{case}_{scan}.png'.format(**data)
+    filename = OUT_IMAGE_DIR + '/{case}_{scan}.png'.format(**data)
     plt.savefig(filename, bbox_inches='tight')
     fig.clf()
 
@@ -213,7 +223,7 @@ def write_mask(d):
     x = (x[0]+x_offset, x[1]+x_offset)
     a[y[0]:y[1], x[0]:x[1]] = 1
     mask = dwi.mask.Mask(d['slice_index']+1, a)
-    filename = 'masks_auto2/{case}_{scan}_auto2.mask'.format(**d)
+    filename = OUT_MASK_DIR + '/{case}_{scan}_auto2.mask'.format(**d)
     mask.write(filename)
 
 
