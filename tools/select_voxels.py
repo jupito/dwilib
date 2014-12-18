@@ -73,6 +73,7 @@ else:
 if args.verbose:
     print 'Writing %i voxels with %i values to %s' % (voxels.shape[0],
             voxels.shape[1], args.output)
+
 with open(args.output, 'w') as f:
     model = 'selection'
     params = range(voxels.shape[1])
