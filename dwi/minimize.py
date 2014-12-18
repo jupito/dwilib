@@ -9,28 +9,22 @@ def gradient(f, x, args=[], eps=epsilon):
     """Approximate gradient of f at x."""
     return scipy.optimize.approx_fprime(x, f, eps, *args)
 
-def gradient_descent(f, df=None, init=[0.0], step=0.5, args=[], maxiter=10000,
-        trylimit=1.0e-10):
-    """Minimize f by gradient descent."""
+def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
+    """Minimize f by gradient descent.
+
+    The gradient is numerically approximated at each step.
+    """
     assert 0 < step < 1
     assert maxiter > 0
-    assert trylimit >= 0
     init = np.atleast_1d(np.asarray(init, dtype=float))
     x = init
     warnflag = 1
     for i in xrange(maxiter):
-        if df:
-            dfx = df(x, args)
-        else:
-            dfx = gradient(f, x, args)
+        dfx = gradient(f, x, args)
         x_prev = x
         x = x - dfx*step
-        #step *= 0.90
-        if (abs(x-x_prev) < trylimit).all():
-            warnflag = 0
-            break
     d = dict(x=x, y=f(x, *args), grad=dfx, nit=i+1, init=init, step=step,
-            args=args, maxiter=maxiter, trylimit=trylimit, warnflag=warnflag)
+            args=args, maxiter=maxiter, warnflag=warnflag)
     return d
 
 def gradient_descent_mi(f, inits, **kwargs):
