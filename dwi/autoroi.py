@@ -56,9 +56,10 @@ def get_scoremap(img, d, params, n_rois):
 
 def find_roi(img, roidim, params):
     #dims = [(1,1,1)]
-    dims = [(1,i,i) for i in range(5, 10)]
+    dims = [(2,i,i) for i in range(5, 10)]
     #n_rois = 2000
     n_rois = 70*70/2
+    #n_rois = 20*70*70
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     sum_scoremaps = sum(scoremaps)
     roimap = get_scoremap(sum_scoremaps, roidim, ['score'], 1)
