@@ -1,9 +1,17 @@
 """Fitting implementation that fits curves simply one by one in serial.
 
-This is an alternative implementation that uses a simpler self-written
-fixed-step gradient descent minimization.
+This is an alternative implementation that uses a simple self-written
+fixed-step gradient descent minimization. The aim is easy parallelization.
 
-NOTE: Bounds are not suppertod least for now, and are thus ignored.
+The simple fixed-step gradient descent minimizer seems to work sufficiently
+well and fast, if you give it enough initial guesses and keep the number of
+iterations small.
+
+I didn't get the nonlinear conjugate gradient method working with our data. I
+had better results with some simpler test functions, though, so it might work
+with some tweaking.
+
+NOTE: Bounds are not supported, and are thus ignored.
 """
 
 import numpy as np
@@ -23,7 +31,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
         Y data points, i.e. signal intensity curves
     guesses : sequence of tuples
         All combinations of parameter initializations, i.e. starting guesses
-    bounds : sequence of tuples
+    bounds : sequence of tuples (NOTE: not implemented)
         Constraints for parameters, i.e. minimum and maximum values
     out_pmap : ndarray, shape = [n_curves, n_parameters+1]
         Output array
