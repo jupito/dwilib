@@ -62,7 +62,9 @@ def find_roi(img, roidim, params):
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     sum_scoremaps = sum(scoremaps)
     roimap = get_scoremap(sum_scoremaps, roidim, ['score'], 1)
+    # Get first nonzero position at each axis.
     corner = [axis[0] for axis in roimap[...,0].nonzero()]
+    # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
-    d = dict(sum_scoremaps=sum_scoremaps, roi_coords=coords)
+    d = dict(sum_scoremaps=sum_scoremaps, roi_corner=corner, roi_coords=coords)
     return d
