@@ -118,7 +118,7 @@ def read_data(cases):
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
-            cropped_image = cropped_image[[slice_index],...] # TODO: one slice
+            #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
             clip_outliers(cropped_image)
             d = dict(case=case, scan=scan, score=score,
                     subwindow=subwindow,
@@ -161,6 +161,7 @@ def draw(data):
     NORMAL_COLOR = (0.0, 1.0, 0.0, 1.0)
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
+    slice_index = data['roi_corner'][0]
     cancer_pos = (-1, -1)
     normal_pos = (-1, -1)
     distance = -1
@@ -172,15 +173,14 @@ def draw(data):
         normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title(PARAMS[0])
-    slice_index = 0
+    ax1.set_title('Slice %i %s' % (slice_index, PARAMS[0]))
     iview = data['image'][slice_index,:,:,0]
     plt.imshow(iview)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    iview = data['image'][0,...,0]
-    pview = data['sum_scoremaps'][0,...,0]
+    iview = data['image'][slice_index,...,0]
+    pview = data['sum_scoremaps'][slice_index,...,0]
     pview /= pview.max()
     imgray = plt.imshow(iview, alpha=1)
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
@@ -188,7 +188,7 @@ def draw(data):
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
             distance))
-    iview = data['image'][0,...,0]
+    iview = data['image'][slice_index,:,:,0]
     #plt.imshow(iview)
     view = np.zeros(iview.shape + (3,), dtype=float)
     view[...,0] = iview / iview.max()
@@ -218,13 +218,14 @@ def draw(data):
 
 def write_mask(d):
     """Write mask. XXX: Here only single-slice ones."""
+    slice_index = d['roi_corner'][0]
     a = np.zeros((d['original_shape'][1:3]), dtype=int)
     _, y, x = d['roi_coords']
     y_offset, x_offset = d['subregion'][2], d['subregion'][4]
     y = (y[0]+y_offset, y[1]+y_offset)
     x = (x[0]+x_offset, x[1]+x_offset)
     a[y[0]:y[1], x[0]:x[1]] = 1
-    mask = dwi.mask.Mask(d['slice_index']+1, a)
+    mask = dwi.mask.Mask(slice_index+1, a)
     filename = OUT_MASK_DIR + '/{case}_{scan}_auto2.mask'.format(**d)
     mask.write(filename)
 
