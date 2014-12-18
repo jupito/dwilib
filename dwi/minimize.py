@@ -10,7 +10,7 @@ def gradient(f, x, args=[], eps=epsilon):
     return scipy.optimize.approx_fprime(x, f, eps, *args)
 
 def gradient_descent(f, df=None, init=[0.0], step=0.5, args=[], maxiter=10000,
-        accuracy=1.0e-15):
+        accuracy=1.0e-10):
     """Minimize f by gradient descent."""
     assert 0 < step < 1
     assert maxiter > 0
@@ -25,12 +25,8 @@ def gradient_descent(f, df=None, init=[0.0], step=0.5, args=[], maxiter=10000,
             dfx = gradient(f, x, args)
         x_prev = x
         x = x - dfx*step
-        #print x, f(x, *args)
         #step *= 0.90
-        #if (abs(x-x_prev) < accuracy).all():
-        #if abs(f(x, *args)-f(x_prev, *args)) < accuracy:
-        #if abs(f(x, *args)-f(x_prev, *args)) < accuracy:
-        if abs(f(x, *args)-f(x_prev, *args)) < epsilon:
+        if (abs(x-x_prev) < accuracy).all():
             warnflag = 0
             break
     d = dict(x=x, y=f(x, *args), grad=dfx, nit=i+1, init=init, step=step,
@@ -46,7 +42,7 @@ def gradient_descent_mi(f, inits, **kwargs):
             d_min = d
     return d_min
 
-def line_search(f, x, args, rho=0.5, c=0.5, alpha0=0.5):
+def line_search(f, x, args, rho=0.4, c=0.4, alpha0=0.4):
     """Backtracking line search. Nodecal & Wright 1999 pg41."""
     alpha = alpha0
     dfx = gradient(f, x, args)
@@ -61,7 +57,7 @@ def fletcher_reeves(x, x_):
 def polak_ribiere(x, x_):
     return np.dot(x, (x-x_)) / np.dot(x_, x_)
 
-def cg(f, x0, args=[], maxiter=1000):
+def cg(f, x0, args=[], maxiter=10000):
     """Nonlinear conjugate gradient method. Nocedel & Wright 1999 pg120."""
     x0 = np.atleast_1d(np.asarray(x0, dtype=float))
     x = x0
@@ -73,8 +69,8 @@ def cg(f, x0, args=[], maxiter=1000):
         alpha = line_search(f, x, args)
         x = x + alpha*p
         dfx = gradient(f, x, args)
-        #beta = fletcher_reeves(dfx, dfx_prev)
-        beta = max(0, polak_ribiere(dfx, dfx_prev))
+        beta = fletcher_reeves(dfx, dfx_prev)
+        #beta = max(0, polak_ribiere(dfx, dfx_prev))
         p = -dfx + beta*p
         k = k+1
     d = dict(x=x, y=f(x, *args), nit=k)
