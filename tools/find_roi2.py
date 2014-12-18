@@ -239,7 +239,7 @@ for d in data:
     print d['case'], d['scan'], d['score'], d['subwindow'], d['subregion']
     print d['image'].shape, d['cancer_mask'], d['normal_mask']
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS))
-    print 'Optimal ROI: {}'.format(d['roi_coords'])
+    print 'Optimal ROI: {} at {}'.format(d['roi_coords'], d['roi_corner'])
     draw(d)
     write_mask(d)
 
