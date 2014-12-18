@@ -32,8 +32,8 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
-    p.add_argument('--case', type=int,
-            help='case number')
+    p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
+            help='case numbers')
     p.add_argument('--scan',
             help='scan id')
     p.add_argument('--outmask',
@@ -99,13 +99,15 @@ def clip_outliers(img):
         elif PARAMS[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data():
+def read_data(cases):
     samples = dwi.util.read_sample_list(IN_SAMPLELIST_FILE)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
     data = []
     for sample in samples:
         case = sample['case']
+        if cases and not case in cases:
+            continue
         score = dwi.patient.get_patient(patientsinfo, case).score
         for scan in sample['scans']:
             subwindow = subwindows[(case, scan)]
@@ -230,7 +232,7 @@ def write_mask(d):
 args = parse_args()
 
 print 'Reading data...'
-data = read_data()
+data = read_data(args.cases)
 
 for d in data:
     print
