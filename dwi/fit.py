@@ -3,7 +3,7 @@
 import numpy as np
 
 import util
-import fit_one_by_one
+import fit_one_by_one as fit_module
 
 class Parameter(object):
     """Parameter used in model definitions."""
@@ -112,4 +112,4 @@ def prepare_for_fitting(voxels):
     return voxels
 
 # Select fitting implementation.
-fit_curves_mi = fit_one_by_one.fit_curves_mi
+fit_curves_mi = fit_module.fit_curves_mi
