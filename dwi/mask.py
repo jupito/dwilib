@@ -86,9 +86,25 @@ class Mask3D(object):
         """Return number of selected voxels."""
         return np.count_nonzero(mask)
 
+    def get_subwindow(self, coordinates, onebased=True):
+        """Get a view of a specific subwindow."""
+        if onebased:
+            coordinates = [i-1 for i in coordinates]
+        z0, z1, y0, y1, x0, x1 = coordinates
+        array = self.array[z0:z1, y0:y1, x0:x1]
+        return Mask3D(array)
+
     def get_masked(self, a):
         """Return masked voxels."""
         return a[self.array]
+
+    def apply_mask(self, a, value=0):
+        """Cover masked voxels by zero or other value."""
+        copy = a.copy()
+        print copy.shape
+        copy[-self.array,...] = value
+        print copy.shape
+        return copy
 
     def where(self):
         """Return indices of masked voxels."""
@@ -106,3 +122,11 @@ def read_dicom_mask(path):
     image = image.squeeze(axis=3) # Remove single subvalue dimension.
     mask = Mask3D(image)
     return mask
+
+def read_mask(path):
+    # Read mask either as a DICOM directory or ASCII file.
+    import os.path
+    if os.path.isdir(path):
+        return read_dicom_mask(path)
+    else:
+        return load_ascii(path)
