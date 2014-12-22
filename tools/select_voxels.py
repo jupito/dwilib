@@ -16,15 +16,15 @@ def parse_args():
     p.add_argument('-v', '--verbose',
             action='count',
             help='increase verbosity')
+    p.add_argument('--input', '-i', metavar='INFILE',
+            nargs='+', required=True,
+            help='input parametric map files')
     p.add_argument('--subwindow', '-s', metavar='I',
             nargs=6, default=[], required=False, type=int,
             help='use subwindow (specified by 6 one-based indices)')
     p.add_argument('--mask', '-m', metavar='MASKFILE',
             required=False,
             help='mask file (applied within subwindow size)')
-    p.add_argument('--input', '-i', metavar='INFILE',
-            required=True,
-            help='input parametric map file')
     p.add_argument('--output', '-o', metavar='OUTFILE',
             required=True,
             help='output parametric map file')
@@ -49,7 +49,7 @@ def write_pmap_ascii_body(pmap, f):
 args = parse_args()
 
 # Load image.
-dwimage = dwi.dwimage.load(args.input)[0]
+dwimage = dwi.dwimage.load(args.input[0])[0]
 if args.verbose:
     print dwimage
 
