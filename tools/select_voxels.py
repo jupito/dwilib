@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 """Select voxels from image by subwindow, ROI, and write them into an ASCII
-file."""
+file. Multiple same-size images may be combined by overlaying the parameters."""
 
 import argparse
 import numpy as np
@@ -31,6 +31,22 @@ def parse_args():
     args = p.parse_args()
     return args
 
+def merge_dwimages(dwimages):
+    # Merge multiple images of same size by overlaying the parameters.
+    images = [d.image for d in dwimages]
+    bsets = [d.bset for d in dwimages]
+    filenames = [d.filename for d in dwimages]
+    image = np.concatenate(images, axis=-1)
+    bset = np.concatenate(bsets)
+    dwimage = dwi.dwimage.DWImage(image, bset)
+    dwimage.filename = '; '.join(filenames)
+    dwimage.number = dwimages[0].number
+    dwimage.subwindow = dwimages[0].subwindow
+    dwimage.roislice = dwimages[0].roislice
+    dwimage.name = dwimages[0].name
+    dwimage.voxel_spacing = dwimages[0].voxel_spacing
+    return dwimage
+
 def write_pmap_ascii_head(dwi, model, params, f):
     f.write('subwindow: [%s]\n' % ' '.join(map(str, dwi.subwindow)))
     f.write('number: %d\n' % dwi.number)
@@ -49,7 +65,13 @@ def write_pmap_ascii_body(pmap, f):
 args = parse_args()
 
 # Load image.
-dwimage = dwi.dwimage.load(args.input[0])[0]
+if len(args.input) == 1:
+    dwimage = dwi.dwimage.load(args.input[0])[0]
+else:
+    dwimages = []
+    for infile in args.input:
+        dwimages.append(dwi.dwimage.load(infile)[0])
+    dwimage = merge_dwimages(dwimages)
 if args.verbose:
     print dwimage
 
