@@ -25,6 +25,10 @@ def parse_args():
     p.add_argument('--mask', '-m', metavar='MASKFILE',
             required=False,
             help='mask file (applied within subwindow size)')
+    p.add_argument('--keep-masked', action='store_true',
+            help='keep masked voxels (as zeros)')
+    p.add_argument('--subwindow-mask', action='store_true',
+            help='apply subwindow on mask, too')
     p.add_argument('--output', '-o', metavar='OUTFILE',
             required=True,
             help='output parametric map file')
@@ -84,10 +88,15 @@ if args.subwindow:
 # Select sequence of voxels.
 image = dwimage.image
 if args.mask:
-    mask = dwi.mask.load_ascii(args.mask)
+    mask = dwi.mask.read_mask(args.mask)
+    if args.subwindow and args.subwindow_mask:
+        mask = mask.get_subwindow(args.subwindow)
     if args.verbose:
         print 'Using mask %s' % mask
-    voxels = mask.get_masked(image)
+    if args.keep_masked:
+        voxels = mask.apply_mask(image).reshape((-1,image.shape[-1]))
+    else:
+        voxels = mask.get_masked(image)
 else:
     voxels = image.reshape((-1,image.shape[-1]))
 
