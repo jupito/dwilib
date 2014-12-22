@@ -101,9 +101,7 @@ class Mask3D(object):
     def apply_mask(self, a, value=0):
         """Cover masked voxels by zero or other value."""
         copy = a.copy()
-        print copy.shape
         copy[-self.array,...] = value
-        print copy.shape
         return copy
 
     def where(self):
