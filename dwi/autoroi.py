@@ -18,6 +18,9 @@ def get_score_param(img, param):
         r = np.mean(img)/1000
     elif param.startswith('score'):
         r = np.mean(img)
+    elif param == 'prostate_mask':
+        # Ban areas partially outside of prostate.
+        r = 0 if img.all() else -np.inf
     else:
         r = 0 # Unknown parameter
     return r
@@ -54,12 +57,18 @@ def get_scoremap(img, d, params, n_rois):
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
-def find_roi(img, roidim, params):
+def find_roi(img, roidim, params, prostate_mask=None):
     #dims = [(1,1,1)]
     dims = [(2,i,i) for i in range(5, 10)]
     #n_rois = 2000
     n_rois = 70*70/2
     #n_rois = 20*70*70
+    if prostate_mask:
+        # Add mask to image as an extra parameter.
+        mask = prostate_mask.array.view()
+        mask.shape += (1,)
+        img = np.concatenate((img, mask), axis=3)
+        params = params + ['prostate_mask']
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     sum_scoremaps = sum(scoremaps)
     roimap = get_scoremap(sum_scoremaps, roidim, ['score'], 1)
