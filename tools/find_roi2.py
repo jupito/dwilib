@@ -260,9 +260,10 @@ data = read_data(args.cases)
 for d in data:
     print
     print d['case'], d['scan'], d['score'], d['subwindow'], d['subregion']
-    print d['image'].shape
-    print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
-            d['normal_mask'], d['prostate_mask']])
+    if args.verbose:
+        print d['image'].shape
+        print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
+                d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS))
     print 'Optimal ROI: {} at {}'.format(d['roi_coords'], d['roi_corner'])
     draw(d)
