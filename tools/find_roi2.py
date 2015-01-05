@@ -147,6 +147,10 @@ def read_data(cases):
                     original_shape=image.shape,
                     image=cropped_image)
             data.append(d)
+            assert d['cancer_mask'].array.shape ==\
+                    d['normal_mask'].array.shape ==\
+                    d['prostate_mask'].array.shape ==\
+                    d['image'].shape[0:3]
     return data
 
 ###
