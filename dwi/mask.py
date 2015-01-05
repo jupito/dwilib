@@ -86,6 +86,10 @@ class Mask3D(object):
         """Return number of selected voxels."""
         return np.count_nonzero(mask)
 
+    def selected_slices(self):
+        """Return slice indices that have voxels selected."""
+        return np.unique(self.array.nonzero()[0])
+
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
         if onebased:
