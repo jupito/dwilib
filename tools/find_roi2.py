@@ -264,7 +264,8 @@ for d in data:
         print d['image'].shape
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
-    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS))
+    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
+            prostate_mask=d['prostate_mask']))
     print 'Optimal ROI: {} at {}'.format(d['roi_coords'], d['roi_corner'])
     draw(d)
     write_mask(d)
