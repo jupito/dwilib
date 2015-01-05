@@ -80,6 +80,21 @@ def read_dicom_masks(case, scan):
     masks = map(dwi.mask.read_dicom_mask, [cancer_path, normal_path])
     return tuple(masks)
 
+def read_prostate_mask(case, scan):
+    """Read 3D prostate mask in DICOM format.
+    
+    The first multi-slice mask with proper pathname is used.
+    """
+    d = dict(c=case, s=scan)
+    IN_PROSTATE_MASK_DIR = 'masks_prostate'
+    s = IN_PROSTATE_MASK_DIR + '/{c}_*_{s}_*'.format(**d)
+    paths = sorted(glob.glob(s))
+    for path in paths:
+        mask = dwi.mask.read_mask(path)
+        if len(mask.selected_slices()) > 1:
+            return mask
+    raise Exception('Multi-slice prostate mask not found: %s' % s)
+
 def read_image(case, scan, param):
     d = dict(c=case, s=scan, p=param)
     s = IN_IMAGE_DIR + '/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
@@ -114,9 +129,11 @@ def read_data(cases):
             slice_index = subwindow[0] # Make it zero-based.
             subregion = read_subregion(case, scan)
             cancer_mask, normal_mask = read_dicom_masks(case, scan)
+            prostate_mask = read_prostate_mask(case, scan)
             image = read_image(case, scan, PARAMS[0])
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
+            cropped_prostate_mask = prostate_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
             #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
             clip_outliers(cropped_image)
@@ -126,6 +143,7 @@ def read_data(cases):
                     subregion=subregion,
                     cancer_mask=cropped_cancer_mask,
                     normal_mask=cropped_normal_mask,
+                    prostate_mask=cropped_prostate_mask,
                     original_shape=image.shape,
                     image=cropped_image)
             data.append(d)
@@ -238,7 +256,7 @@ data = read_data(args.cases)
 for d in data:
     print
     print d['case'], d['scan'], d['score'], d['subwindow'], d['subregion']
-    print d['image'].shape, d['cancer_mask'], d['normal_mask']
+    print d['image'].shape, d['cancer_mask'], d['normal_mask'], d['prostate_mask']
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS))
     print 'Optimal ROI: {} at {}'.format(d['roi_coords'], d['roi_corner'])
     draw(d)
