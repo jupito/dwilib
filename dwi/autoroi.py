@@ -30,7 +30,7 @@ def get_score_param(img, param):
 
 def get_score(img, params):
     """Return total score of given ROI."""
-    scores = [get_score_param(i, p) for i, p in zip(img.T, params)]
+    scores = [get_score_param(img[...,i], p) for i, p in enumerate(params)]
     r = sum(scores)
     return r
 
