@@ -12,15 +12,18 @@ def get_score_param(img, param):
         r = 1./(np.mean(img)-0.0008)
         #if np.min(img) < 0.0002:
         #    r = 0
-        if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
-            r = 0
+        #if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
+        #    r = 0
     elif param.startswith('K'):
         r = np.mean(img)/1000
     elif param.startswith('score'):
         r = np.mean(img)
     elif param == 'prostate_mask':
-        # Ban areas partially outside of prostate.
-        r = 0 if img.all() else -np.inf
+        # Ban areas more than a certain amount outside of prostate.
+        if float(img.sum())/img.size > 0.20:
+            r = 0
+        else:
+            r = -np.inf
     else:
         r = 0 # Unknown parameter
     return r
