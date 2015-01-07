@@ -158,10 +158,11 @@ def read_data(cases):
 def draw_roi(img, pos, color):
     """Draw a rectangle ROI on a layer."""
     y, x = pos
-    img[y:y+4:4, x] = color
-    img[y:y+4:4, x+4] = color
-    img[y, x:x+4:4] = color
-    img[y+4, x:x+5:4] = color
+    #img[y:y+4:4, x] = color
+    #img[y:y+4:4, x+4] = color
+    #img[y, x:x+4:4] = color
+    #img[y+4, x:x+5:4] = color
+    img[y:y+5, x:x+5] = color
 
 def get_roi_layer(img, pos, color):
     """Get a layer with a rectangle ROI for drawing."""
@@ -224,10 +225,10 @@ def draw(data):
                 view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
     if 'cancer_mask' in data:
-        plt.imshow(get_roi_layer(iview, cancer_pos, CANCER_COLOR), alpha=0.8)
+        plt.imshow(get_roi_layer(iview, cancer_pos, CANCER_COLOR), alpha=0.7)
     if 'normal_mask' in data:
-        plt.imshow(get_roi_layer(iview, normal_pos, NORMAL_COLOR), alpha=0.8)
-    plt.imshow(get_roi_layer(iview, auto_pos, AUTO_COLOR), alpha=0.8)
+        plt.imshow(get_roi_layer(iview, normal_pos, NORMAL_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(iview, auto_pos, AUTO_COLOR), alpha=0.7)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
