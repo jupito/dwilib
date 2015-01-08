@@ -125,8 +125,13 @@ def read_data(cases):
             continue
         score = dwi.patient.get_patient(patientsinfo, case).score
         for scan in sample['scans']:
-            subwindow = subwindows[(case, scan)]
-            slice_index = subwindow[0] # Make it zero-based.
+            try:
+                subwindow = subwindows[(case, scan)]
+                slice_index = subwindow[0] # Make it zero-based.
+            except KeyError:
+                # No subwindow defined.
+                subwindow = None
+                slice_index = None
             subregion = read_subregion(case, scan)
             cancer_mask, normal_mask = read_dicom_masks(case, scan)
             prostate_mask = read_prostate_mask(case, scan)
