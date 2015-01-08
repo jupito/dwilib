@@ -15,7 +15,7 @@ import dwi.util
 PARAMS = ['ADCm']
 
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
-IN_MASK_DIR = 'dicom_masks'
+IN_MASK_DIR = 'masks_rois'
 IN_IMAGE_DIR = 'results_Mono_combinedDICOM'
 IN_SAMPLELIST_FILE = 'samples_all.txt'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
@@ -53,32 +53,40 @@ def read_subregion(case, scan):
     subregion = dwi.util.read_subregion_file(paths[0])
     return subregion
 
-def read_dicom_masks(case, scan):
-    """Read cancer and normal masks in DICOM format.
+def read_roi_masks(case, scan, keys=['ca', 'n', 'ca2']):
+    """Read cancer and normal ROI masks.
     
-    Cancer mask path ends with "_ca", normal with "_n". Unless these names
-    exist, first two are used. Some cases have a third mask which has cancer,
-    they are ignored for now.
+    Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2' for
+    an optional second cancer ROI.
+
+    A dictionary is returned, with the ending as key and mask as value.
     """
     d = dict(c=case, s=scan)
-    s = IN_MASK_DIR + '/{c}_*_{s}_D_*'.format(**d)
-    cancer_path, normal_path, other_paths = None, None, []
-    paths = sorted(glob.glob(s), key=str.lower)
-    if len(paths) < 2:
-        raise Exception('Not all masks were not found: %s' % s)
+    s = IN_MASK_DIR + '/{c}_*_{s}_[Dd]_*'.format(**d)
+    masks = {}
+    paths = glob.iglob(s)
     for path in paths:
-        if not cancer_path and path.lower().endswith('ca'):
-            cancer_path = path
-        elif not normal_path and path.lower().endswith('n'):
-            normal_path = path
-        else:
-            other_paths.append(path)
-    if not cancer_path:
-        cancer_path = other_paths.pop(0)
-    if not normal_path:
-        normal_path = other_paths.pop(0)
-    masks = map(dwi.mask.read_dicom_mask, [cancer_path, normal_path])
-    return tuple(masks)
+        for key in keys:
+            if path.lower().endswith('_' + key):
+                masks[key] = dwi.mask.read_mask(path)
+    if not ('ca' in masks and 'n' in masks):
+        raise Exception('Mask for cancer or normal ROI was not found: %s' % s)
+    return masks
+
+#def read_roi_mask(case, scan, typ):
+#    """Read a ROI mask of given type.
+#    
+#    Mask pathname ends with ROI type, which can be 'ca' for cancer ROI, 'n' for
+#    normal ROI, or 'ca2' for an optional second cancer ROI.
+#    """
+#    ending = '_' + typ.lower()
+#    d = dict(c=case, s=scan)
+#    s = IN_MASK_DIR + '/{c}_*_{s}_[Dd]_*'.format(**d)
+#    paths = glob.iglob(s)
+#    for path in paths:
+#        if path.lower().endswith(ending)
+#            return dwi.mask.read_mask(path)
+#    raise Exception('ROI mask of type "{t}" not found in {s}'.format(t=t, s=s))
 
 def read_prostate_mask(case, scan):
     """Read 3D prostate mask in DICOM format.
@@ -133,7 +141,8 @@ def read_data(cases):
                 subwindow = None
                 slice_index = None
             subregion = read_subregion(case, scan)
-            cancer_mask, normal_mask = read_dicom_masks(case, scan)
+            masks = read_roi_masks(case, scan)
+            cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = read_prostate_mask(case, scan)
             image = read_image(case, scan, PARAMS[0])
             cropped_cancer_mask = cancer_mask.crop(subregion)
