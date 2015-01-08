@@ -17,7 +17,6 @@ PARAMS = ['ADCm']
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_MASK_DIR = 'masks_rois'
 IN_IMAGE_DIR = 'results_Mono_combinedDICOM'
-IN_SAMPLELIST_FILE = 'samples_all.txt'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
 
@@ -30,6 +29,8 @@ def parse_args():
     p.add_argument('--verbose', '-v',
             action='count',
             help='increase verbosity')
+    p.add_argument('--samplelist', default='samples_all.txt',
+            help='scan id')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
@@ -122,8 +123,8 @@ def clip_outliers(img):
         elif PARAMS[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(cases):
-    samples = dwi.util.read_sample_list(IN_SAMPLELIST_FILE)
+def read_data(samplelist_file, cases):
+    samples = dwi.util.read_sample_list(samplelist_file)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
     data = []
@@ -270,7 +271,7 @@ def write_mask(d):
 args = parse_args()
 
 print 'Reading data...'
-data = read_data(args.cases)
+data = read_data(args.samplelist, args.cases)
 
 for d in data:
     print
