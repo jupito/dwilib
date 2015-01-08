@@ -3,6 +3,7 @@
 import glob
 import os
 
+from doit import get_var
 #from doit.tools import Interactive
 from doit.tools import create_folder
 #from doit.tools import result_dep
@@ -30,6 +31,8 @@ COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
+
+SAMPLELIST_FILE = get_var('samplelist', 'samples_all.txt')
 
 # Common functions
 
@@ -194,5 +197,5 @@ def task_select_roi_auto2():
             mask = 'auto2'
             yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
 
-SAMPLES_ALL = dwi.util.read_sample_list('samples_all.txt')
+SAMPLES_ALL = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
