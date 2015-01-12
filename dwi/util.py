@@ -168,7 +168,7 @@ def roc_auc(fpr, tpr):
     return area
 
 def calculate_roc_auc(y, x, autoflip=False):
-    """Calculate ROC and AUC."""
+    """Calculate ROC and AUC from data points and their classifications."""
     y = np.asarray(y)
     x = np.asarray(x)
     fpr, tpr, thresholds = sklearn.metrics.roc_curve(y, x)
