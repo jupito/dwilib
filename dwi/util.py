@@ -161,7 +161,7 @@ def roc(truths, scores):
     return fpr, tpr, acc
 
 def roc_auc(fpr, tpr):
-    """Calculate ROC AUC."""
+    """Calculate ROC AUC from false and true positive rates."""
     area = 0
     for i in range(len(fpr))[1:]:
         area += abs(fpr[i]-fpr[i-1]) * (tpr[i]+tpr[i-1]) / 2
