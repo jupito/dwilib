@@ -3,7 +3,6 @@ import itertools
 import re
 import random
 import numpy as np
-from scipy.stats import scoreatpercentile
 import sklearn.metrics
 
 COMMENT_PREFIX = '#'
@@ -106,12 +105,14 @@ def resample_bootstrap_stratified(Y, X):
 
 def fivenum(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
+    from scipy.stats import scoreatpercentile
     q1 = scoreatpercentile(a, 25)
     q3 = scoreatpercentile(a, 75)
     return np.min(a), q1, np.median(a), q3, np.max(a)
 
 def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
+    from scipy.stats import scoreatpercentile
     min = np.min(a)
     q1 = scoreatpercentile(a, 25)
     median = np.median(a)
