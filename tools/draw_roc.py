@@ -109,10 +109,6 @@ skipped_params = ['SI0N', 'C', 'RMSE']
 for x, param, row in zip(X.T, params, range(len(params))):
     if param in skipped_params:
         continue
-    #import random
-    #x = [random.random() for _ in x]
-    #fpr, tpr, acc = util.roc(Y, x)
-    #auc = util.roc_auc(fpr, tpr)
     fpr, tpr, auc = util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
     print '%s:\tAUC: %f' % (param, auc)
     if args.outfile:
