@@ -6,7 +6,6 @@ ROC curves into a file."""
 import sys
 import argparse
 import numpy as np
-from numpy import mean, std
 import scipy as sp
 import scipy.stats
 
