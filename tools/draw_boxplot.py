@@ -47,7 +47,7 @@ pmaps = pmaps[:,0:1,:] # Use ROI1 only.
 gs = patient.get_gleason_scores(patients)
 scores = [patient.get_patient(patients, n).score for n, _ in numsscans]
 scores_ord = [patient.score_ord(gs, s) for s in scores] # Use ordinal.
-scores_bin = [s.is_aggressive() for s in scores] # Is aggressive? (ROI 1.)
+scores_bin = [s > GleasonScore('3+4') for s in scores] # Is aggressive? (ROI 1.)
 scores_cancer = [1] * len(scores) # Is cancer? (ROI 1 vs 2.)
 
 #labels = scores_ord

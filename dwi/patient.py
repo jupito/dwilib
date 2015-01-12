@@ -36,10 +36,6 @@ class GleasonScore(object):
     def __lt__(self, other):
         return self.score < other.score
 
-    def is_aggressive(self):
-        """Is this considered aggressive."""
-        return self.score[0] > 3
-
 @total_ordering
 class Patient(object):
     def __init__(self, num, name, scans, score):
@@ -181,7 +177,7 @@ def load_labels(patients, nums, labeltype='score'):
         labels = [score_ord(gs, s) for s in scores]
     elif labeltype == 'bin':
         # Is aggressive? (ROI1.)
-        labels = [s.is_aggressive() for s in scores]
+        labels = [s > GleasonScore('3+4') for s in scores]
     elif labeltype == 'cancer':
         # Is cancer? (ROI1 vs 2, all true for ROI1.)
         labels = [1] * len(scores)
