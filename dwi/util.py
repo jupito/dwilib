@@ -267,6 +267,7 @@ def group_labels(groups, values):
 
 
 def get_args(n=1):
+    """Get arguments. XXX: Deprecated, don't use."""
     if len(sys.argv) < 1 + n + 1:
         print 'Need parameters'
         sys.exit(1)
