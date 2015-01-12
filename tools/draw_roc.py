@@ -7,7 +7,6 @@ import sys
 import argparse
 import numpy as np
 import scipy as sp
-import scipy.stats
 
 from dwi import patient
 from dwi import util
