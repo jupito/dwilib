@@ -174,7 +174,6 @@ def calculate_roc_auc(y, x, autoflip=False):
     fpr, tpr, thresholds = sklearn.metrics.roc_curve(y, x)
     auc = sklearn.metrics.auc(fpr, tpr)
     if autoflip and auc < 0.5:
-        #auc = 1.0 - auc
         fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
     return fpr, tpr, auc
 
