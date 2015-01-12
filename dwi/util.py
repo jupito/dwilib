@@ -112,13 +112,8 @@ def fivenum(a):
 
 def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
-    from scipy.stats import scoreatpercentile
-    min = np.min(a)
-    q1 = scoreatpercentile(a, 25)
-    median = np.median(a)
-    q3 = scoreatpercentile(a, 75)
-    max = np.max(a)
-    return dict(min=min, q1=q1, median=median, q3=q3, max=max)
+    v = fivenum(a)
+    return dict(min=v[0], q1=v[1], median=v[2], q3=v[3], max=v[4])
 
 def stem_and_leaf(values):
     # XXX: only first and second decimal places
