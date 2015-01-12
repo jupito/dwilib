@@ -64,6 +64,8 @@ def read_ascii(f):
     pvar = re.compile(r'(\w+)\s*:\s*(.*)')
     for line in f:
         line = line.strip()
+        if line.startswith('#'):
+            continue
         var = pvar.match(line)
         if var:
             d[var.group(1)] = var.group(2)
