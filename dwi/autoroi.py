@@ -63,6 +63,7 @@ def get_scoremap(img, d, params, n_rois):
 def find_roi(img, roidim, params, prostate_mask=None):
     #dims = [(1,1,1)]
     dims = [(2,i,i) for i in range(5, 10)]
+    dims += [(3,i,i) for i in range(5, 10)]
     #n_rois = 2000
     n_rois = 70*70/2
     #n_rois = 20*70*70
