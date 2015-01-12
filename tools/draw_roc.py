@@ -6,7 +6,6 @@ ROC curves into a file."""
 import sys
 import argparse
 import numpy as np
-import scipy as sp
 
 from dwi import patient
 from dwi import util
