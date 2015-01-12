@@ -71,7 +71,6 @@ else:
 
 labels = patient.load_labels(patients, nums, args.labeltype)
 labels_nocancer = [0] * len(labels)
-print pmaps.shape, pmaps1.shape, len(labels), len(numsscans)
 X1, Y1, G1 = load_data(pmaps1, labels, numsscans)
 if len(pmaps2):
     X2, Y2, G2 = load_data(pmaps2, labels_nocancer, numsscans)
