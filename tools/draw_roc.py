@@ -3,7 +3,6 @@
 """Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally draw the
 ROC curves into a file."""
 
-import sys
 import argparse
 import numpy as np
 
