@@ -1,5 +1,8 @@
 #!/usr/bin/env python2
 
+"""Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally draw the
+ROC curves into a file."""
+
 import sys
 import argparse
 import numpy as np
@@ -12,7 +15,7 @@ from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description = 'Draw ROC curves.')
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
