@@ -6,7 +6,6 @@ import numpy as np
 from numpy import mean, std
 import scipy as sp
 import scipy.stats
-import pylab as pl
 
 from dwi import patient
 from dwi import util
@@ -14,7 +13,7 @@ from dwi import util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = 'Draw ROC curves.')
-    p.add_argument('--outfile', '-o', required=True,
+    p.add_argument('--outfile', '-o',
             help='output file')
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
             help='pmap files')
@@ -102,10 +101,12 @@ if args.verbose:
 util.negate_for_roc(X.T, params)
 
 # Plot ROCs.
-n_rows, n_cols = len(params), 1
-pl.figure(figsize=(n_cols*6, n_rows*6))
+if args.outfile:
+    import pylab as pl
+    n_rows, n_cols = len(params), 1
+    pl.figure(figsize=(n_cols*6, n_rows*6))
 skipped_params = ['SI0N', 'C', 'RMSE']
-for x, param, row in zip(X.T, params, range(n_rows)):
+for x, param, row in zip(X.T, params, range(len(params))):
     if param in skipped_params:
         continue
     #import random
@@ -114,15 +115,17 @@ for x, param, row in zip(X.T, params, range(n_rows)):
     #auc = util.roc_auc(fpr, tpr)
     fpr, tpr, auc = util.calculate_roc_auc(Y, x)
     print '%s:\tAUC: %f' % (param, auc)
-    pl.subplot2grid((n_rows, n_cols), (row, 0))
-    pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc)
-    pl.plot([0, 1], [0, 1], 'k--')
-    pl.xlim([0.0, 1.0])
-    pl.ylim([0.0, 1.0])
-    pl.xlabel('False Positive rate')
-    pl.ylabel('True Positive rate')
-    pl.title('%s' % param)
-    pl.legend(loc='lower right')
+    if args.outfile:
+        pl.subplot2grid((n_rows, n_cols), (row, 0))
+        pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc)
+        pl.plot([0, 1], [0, 1], 'k--')
+        pl.xlim([0.0, 1.0])
+        pl.ylim([0.0, 1.0])
+        pl.xlabel('False Positive rate')
+        pl.ylabel('True Positive rate')
+        pl.title('%s' % param)
+        pl.legend(loc='lower right')
 
-print 'Writing %s...' % args.outfile
-pl.savefig(args.outfile, bbox_inches='tight')
+if args.outfile:
+    print 'Writing %s...' % args.outfile
+    pl.savefig(args.outfile, bbox_inches='tight')
