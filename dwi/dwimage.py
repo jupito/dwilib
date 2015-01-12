@@ -105,7 +105,8 @@ class DWImage(object):
         self.image = np.array(image, dtype=float, ndmin=4)
         self.sis = self.image.view()
         self.sis.shape = (-1,self.image.shape[-1])
-        self.bset = np.array(sorted(set(bset)), dtype=float)
+        #self.bset = np.array(sorted(set(bset)), dtype=float)
+        self.bset = np.array(bset, dtype=float)
         self.start_time = self.end_time = -1
         if len(self.image.shape) != 4:
             raise Exception('Invalid image dimensions.')
