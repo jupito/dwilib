@@ -13,8 +13,8 @@ from dwi import util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = 'Draw ROC curves.')
-    p.add_argument('--outfile', '-o',
-            help='output file')
+    p.add_argument('--verbose', '-v', action='count',
+            help='be more verbose')
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
             help='pmap files')
     p.add_argument('--scans', '-s', default='scans.txt',
@@ -33,8 +33,8 @@ def parse_args():
             help='classification threshold')
     p.add_argument('--average', '-a', action='store_true',
             help='average input voxels into one')
-    p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
+    p.add_argument('--outfile', '-o',
+            help='output file')
     args = p.parse_args()
     return args
 
