@@ -167,12 +167,15 @@ def roc_auc(fpr, tpr):
         area += abs(fpr[i]-fpr[i-1]) * (tpr[i]+tpr[i-1]) / 2
     return area
 
-def calculate_roc_auc(y, x, flip_auc=False):
+def calculate_roc_auc(y, x, autoflip=False):
     """Calculate ROC and AUC."""
+    y = np.asarray(y)
+    x = np.asarray(x)
     fpr, tpr, thresholds = sklearn.metrics.roc_curve(y, x)
     auc = sklearn.metrics.auc(fpr, tpr)
-    if flip_auc and auc < 0.5:
-        auc = 1.0 - auc
+    if autoflip and auc < 0.5:
+        #auc = 1.0 - auc
+        fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
     return fpr, tpr, auc
 
 def negate_for_roc(X, params):

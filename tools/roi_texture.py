@@ -144,7 +144,7 @@ def get_texture_aucs(data):
         yo = np.zeros_like(o, dtype=int)
         y = np.concatenate((yc, yn, yo))
         x = np.concatenate((c, n, o))
-        _, _, auc = util.calculate_roc_auc(y, x, flip_auc=True)
+        _, _, auc = util.calculate_roc_auc(y, x, autoflip=True)
         aucs.append(auc)
     return aucs
 
@@ -169,7 +169,7 @@ print len(data['other_rois'])
 ##yo = np.zeros_like(o, dtype=int)
 #y = np.concatenate((yc, yn))
 #x = np.concatenate((c, n))
-#_, _, auc = util.calculate_roc_auc(y, x, flip_auc=True)
+#_, _, auc = util.calculate_roc_auc(y, x, autoflip=True)
 #print auc
 
 if args.total:

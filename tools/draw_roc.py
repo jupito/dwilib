@@ -118,7 +118,7 @@ for x, param, row in zip(X.T, params, range(len(params))):
     #x = [random.random() for _ in x]
     #fpr, tpr, acc = util.roc(Y, x)
     #auc = util.roc_auc(fpr, tpr)
-    fpr, tpr, auc = util.calculate_roc_auc(Y, x, flip_auc=args.autoflip)
+    fpr, tpr, auc = util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
     print '%s:\tAUC: %f' % (param, auc)
     if args.outfile:
         pl.subplot2grid((n_rows, n_cols), (row, 0))
