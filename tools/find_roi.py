@@ -20,8 +20,8 @@ IN_IMAGE_DIR = 'results_Mono_combinedDICOM'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
 
-OUT_MASK_DIR = 'masks_auto2'
-OUT_IMAGE_DIR = 'find_roi2_images'
+OUT_MASK_DIR = 'masks_auto'
+OUT_IMAGE_DIR = 'find_roi_images'
 
 def parse_args():
     """Parse command-line arguments."""
@@ -261,7 +261,7 @@ def write_mask(d):
     x = (x[0]+x_offset, x[1]+x_offset)
     a[y[0]:y[1], x[0]:x[1]] = 1
     mask = dwi.mask.Mask(slice_index+1, a)
-    filename = OUT_MASK_DIR + '/{case}_{scan}_auto2.mask'.format(**d)
+    filename = OUT_MASK_DIR + '/{case}_{scan}_auto.mask'.format(**d)
     print 'Writing mask:', filename
     mask.write(filename)
 

@@ -179,13 +179,13 @@ def task_select_roi_cancer():
             mask = 'cancer'
             yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
 
-def task_select_roi_auto2():
+def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for sample in SAMPLES_ALL:
         for scan in sample['scans']:
             case = sample['case']
             subwin = None
-            mask = 'auto2'
+            mask = 'auto'
             yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
 
 SAMPLES_ALL = dwi.util.read_sample_list(SAMPLELIST_FILE)
