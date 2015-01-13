@@ -247,6 +247,7 @@ def draw(data):
 
     plt.tight_layout()
     filename = OUT_IMAGE_DIR + '/{case}_{scan}.png'.format(**data)
+    print 'Writing figure:', filename
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
 
@@ -261,24 +262,23 @@ def write_mask(d):
     a[y[0]:y[1], x[0]:x[1]] = 1
     mask = dwi.mask.Mask(slice_index+1, a)
     filename = OUT_MASK_DIR + '/{case}_{scan}_auto2.mask'.format(**d)
+    print 'Writing mask:', filename
     mask.write(filename)
 
 
 args = parse_args()
-
 print 'Reading data...'
 data = read_data(args.samplelist, args.cases)
 
 for d in data:
-    print
-    print d['case'], d['scan'], d['score'], d['subwindow'], d['subregion']
+    print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
     if args.verbose:
         print d['image'].shape
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
             prostate_mask=d['prostate_mask']))
-    print 'Optimal ROI: {} at {}'.format(d['roi_coords'], d['roi_corner'])
+    print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
     draw(d)
     write_mask(d)
 
