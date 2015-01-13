@@ -30,7 +30,7 @@ def parse_args():
             action='count',
             help='increase verbosity')
     p.add_argument('--samplelist', default='samples_all.txt',
-            help='scan id')
+            help='sample list file')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
