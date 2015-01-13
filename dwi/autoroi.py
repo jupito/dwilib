@@ -5,6 +5,8 @@ ADCM_MAX = 0.0017784125828491648
 
 import numpy as np
 
+import dwi.util
+
 def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
@@ -64,6 +66,8 @@ def find_roi(img, roidim, params, prostate_mask=None):
     #dims = [(1,1,1)]
     dims = [(2,i,i) for i in range(5, 10)]
     dims += [(3,i,i) for i in range(5, 10)]
+    #dims = dwi.util.combinations([range(2, 4), range(5, 10), range(5, 10)])
+    #print dims
     #n_rois = 2000
     n_rois = 70*70/2
     #n_rois = 20*70*70
