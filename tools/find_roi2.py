@@ -173,10 +173,6 @@ def read_data(samplelist_file, cases):
 def draw_roi(img, pos, color):
     """Draw a rectangle ROI on a layer."""
     y, x = pos
-    #img[y:y+4:4, x] = color
-    #img[y:y+4:4, x+4] = color
-    #img[y, x:x+4:4] = color
-    #img[y+4, x:x+5:4] = color
     img[y:y+5, x:x+5] = color
 
 def get_roi_layer(img, pos, color):
