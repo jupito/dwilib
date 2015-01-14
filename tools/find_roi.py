@@ -35,8 +35,8 @@ def parse_args():
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
-    p.add_argument('--scan',
-            help='scan id')
+    p.add_argument('--scans', metavar='I', nargs='*', default=[],
+            help='scan identifiers')
     p.add_argument('--outmask',
             help='output mask file')
     p.add_argument('--outpic',
@@ -123,7 +123,7 @@ def clip_outliers(img):
         elif PARAMS[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, cases):
+def read_data(samplelist_file, cases=[], scans=[]):
     samples = dwi.util.read_sample_list(samplelist_file)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
@@ -134,6 +134,8 @@ def read_data(samplelist_file, cases):
             continue
         score = dwi.patient.get_patient(patientsinfo, case).score
         for scan in sample['scans']:
+            if scans and not scan in scans:
+                continue
             try:
                 subwindow = subwindows[(case, scan)]
                 slice_index = subwindow[0] # Make it zero-based.
@@ -268,7 +270,7 @@ def write_mask(d):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.cases)
+data = read_data(args.samplelist, args.cases, args.scans)
 
 for d in data:
     print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
