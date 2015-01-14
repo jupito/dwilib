@@ -35,7 +35,7 @@ def parse_args():
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
-    p.add_argument('--scans', metavar='I', nargs='*', default=[],
+    p.add_argument('--scans', metavar='S', nargs='*', default=[],
             help='scan identifiers')
     p.add_argument('--outmask',
             help='output mask file')
