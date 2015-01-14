@@ -68,9 +68,7 @@ def find_roi(img, roidim, params, prostate_mask=None):
     dims += [(3,i,i) for i in range(5, 10)]
     #dims = dwi.util.combinations([range(2, 4), range(5, 10), range(5, 10)])
     #print dims
-    #n_rois = 2000
-    n_rois = 70*70/2
-    #n_rois = 20*70*70
+    n_rois = 1000
     if prostate_mask:
         # Add mask to image as an extra parameter.
         mask = prostate_mask.array.view()
