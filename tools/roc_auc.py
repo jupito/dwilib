@@ -13,32 +13,23 @@ def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
-    p.add_argument('--pmaps', '-m', nargs='+', required=True,
-            help='pmap files')
+            help='increase verbosity')
+    p.add_argument('--samplelist', default='samples_all.txt',
+            help='sample list file')
     p.add_argument('--scans', '-s', default='scans.txt',
             help='scans file')
-    p.add_argument('--roi2', '-2', action='store_true',
-            help='use ROI2')
-    p.add_argument('--measurements',
-            choices=['all', 'mean', 'a', 'b'], default='all',
-            help='measurement baselines')
-    p.add_argument('--labeltype', '-l',
-            choices=['score', 'ord', 'bin', 'cancer'], default='bin',
-            help='label type')
-    p.add_argument('--negatives', '-g', nargs='+', default=['3+3'],
-            help='group of Gleason scores classified as negative')
     p.add_argument('--threshold', '-t', type=int, default=1,
-            help='classification threshold')
+            help='classification threshold (largest negative)')
     p.add_argument('--average', '-a', action='store_true',
             help='average input voxels into one')
     p.add_argument('--autoflip', action='store_true',
             help='flip data when AUC < .5')
     p.add_argument('--outfile', '-o',
-            help='output file')
+            help='figure output file')
     args = p.parse_args()
     return args
 
+"""
 def load_data(pmaps, labels, group_ids):
     """Load data indicated by command arguments."""
     assert len(pmaps) == len(labels) == len(group_ids)
@@ -125,3 +116,52 @@ for x, param, row in zip(X.T, params, range(len(params))):
 if args.outfile:
     print 'Writing %s...' % args.outfile
     pl.savefig(args.outfile, bbox_inches='tight')
+"""
+
+def read_data(samplelist_file, cases):
+    samples = dwi.util.read_sample_list(samplelist_file)
+    subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
+    patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
+    data = []
+    for sample in samples:
+        case = sample['case']
+        if cases and not case in cases:
+            continue
+        score = dwi.patient.get_patient(patientsinfo, case).score
+        for scan in sample['scans']:
+            try:
+                subwindow = subwindows[(case, scan)]
+                slice_index = subwindow[0] # Make it zero-based.
+            except KeyError:
+                # No subwindow defined.
+                subwindow = None
+                slice_index = None
+            subregion = read_subregion(case, scan)
+            masks = read_roi_masks(case, scan)
+            cancer_mask, normal_mask = masks['ca'], masks['n']
+            prostate_mask = read_prostate_mask(case, scan)
+            image = read_image(case, scan, PARAMS[0])
+            cropped_cancer_mask = cancer_mask.crop(subregion)
+            cropped_normal_mask = normal_mask.crop(subregion)
+            cropped_prostate_mask = prostate_mask.crop(subregion)
+            cropped_image = dwi.util.crop_image(image, subregion).copy()
+            #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
+            clip_outliers(cropped_image)
+            d = dict(case=case, scan=scan, score=score,
+                    subwindow=subwindow,
+                    slice_index=slice_index,
+                    subregion=subregion,
+                    cancer_mask=cropped_cancer_mask,
+                    normal_mask=cropped_normal_mask,
+                    prostate_mask=cropped_prostate_mask,
+                    original_shape=image.shape,
+                    image=cropped_image)
+            data.append(d)
+            assert d['cancer_mask'].array.shape ==\
+                    d['normal_mask'].array.shape ==\
+                    d['prostate_mask'].array.shape ==\
+                    d['image'].shape[0:3]
+    return data
+
+args = parse_args()
+data = read_data(args.samplelist, args.cases)
