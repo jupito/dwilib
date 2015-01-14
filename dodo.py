@@ -90,28 +90,26 @@ def task_fit():
 
 def task_find_roi():
     """Find ROIs."""
-    for case, scan in SUBWINDOWS.keys():
-        outdir = 'masks_auto'
-        d = dict(prg=FIND_ROI, c=case, s=scan, od=outdir)
-        infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
-        inmask = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
-        outfile = '{od}/{c}_{s}_auto.mask'.format(**d)
-        graphicfile = '{od}/autoroi_{c}_{s}.png'.format(**d)
-        d['i'] = infile
-        d['m'] = inmask
-        d['o'] = outfile
-        d['g'] = graphicfile
-        cmd = '{prg} -i {i} -m {m} -o {o} -g {g}'.format(**d)
-        if not os.path.exists(infile):
-            continue
-        yield {
-                'name': '{c}_{s}'.format(**d),
-                'actions': [(create_folder, [outdir]),
-                        cmd],
-                'file_dep': [infile],
-                'targets': [outfile, graphicfile],
-                'clean': True,
-                }
+    for sample in SAMPLES:
+        case = sample['case']
+        for scan in sample['scans']:
+            d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
+            d['outdir_mask'] = 'masks_auto'
+            d['outfile_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
+            d['outdir_fig'] = 'find_roi_images'
+            d['outfile_fig'] = '{outdir_fig}/autoroi_{c}_{s}.png'.format(**d)
+            #infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
+            #inmask = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
+            cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
+            yield {
+                    'name': '{c}_{s}'.format(**d),
+                    'actions': [(create_folder, [d['outdir_mask']]),
+                                (create_folder, [d['outdir_fig']]),
+                            cmd],
+                    #'file_dep': [infile],
+                    'targets': [outfile_mask, outfile_fig],
+                    'clean': True,
+                    }
 
 def task_compare_masks():
     """Compare ROI masks."""
