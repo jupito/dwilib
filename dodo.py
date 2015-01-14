@@ -95,8 +95,8 @@ def task_find_roi():
         for scan in sample['scans']:
             d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
             d['outdir_mask'] = 'masks_auto'
-            d['outfile_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
             d['outdir_fig'] = 'find_roi_images'
+            d['outfile_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
             d['outfile_fig'] = '{outdir_fig}/autoroi_{c}_{s}.png'.format(**d)
             #infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
             #inmask = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
@@ -107,7 +107,7 @@ def task_find_roi():
                                 (create_folder, [d['outdir_fig']]),
                             cmd],
                     #'file_dep': [infile],
-                    'targets': [outfile_mask, outfile_fig],
+                    'targets': [d['outfile_mask'], d['outfile_fig']],
                     'clean': True,
                     }
 
