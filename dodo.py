@@ -34,6 +34,8 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
+SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
+SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 # Common functions
 
@@ -188,6 +190,3 @@ def task_select_roi_auto():
             subwin = None
             mask = 'auto'
             yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
-
-SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
-SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
