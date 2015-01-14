@@ -32,7 +32,8 @@ SELECT_VOXELS = DWILIB+'/select_voxels.py'
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 
-SAMPLELIST_FILE = get_var('samplelist', 'samples_all.txt')
+SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
+SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
 
 # Common functions
 
