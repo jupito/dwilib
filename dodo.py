@@ -71,18 +71,17 @@ def task_fit():
     """Fit models to imaging data."""
     for case, scan in SUBWINDOWS.keys():
         subwindow = SUBWINDOWS[(case, scan)]
-        outdir = 'pmaps'
-        d = dict(c=case, s=scan, od=outdir)
+        d = dict(c=case, s=scan)
         infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
         if len(infiles) == 0:
             continue
         for model in MODELS:
             d['m'] = model
-            outfile = '{od}/pmap_{c}_{s}_{m}.txt'.format(**d)
+            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
             cmd = fit_cmd(model, subwindow, infiles, outfile)
             yield {
                     'name': '{c}_{s}_{m}'.format(**d),
-                    'actions': [(create_folder, [outdir]),
+                    'actions': [(create_folder, [dirname(outfile)]),
                             cmd],
                     'file_dep': infiles,
                     'targets': [outfile],
