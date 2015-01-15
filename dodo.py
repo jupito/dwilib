@@ -173,13 +173,13 @@ def task_select_roi_cancer():
     for sample in SAMPLES:
         for scan in sample['scans']:
             case = sample['case']
-            mask = 'cancer'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', mask)
+            masktype = 'cancer'
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for sample in SAMPLES:
         for scan in sample['scans']:
             case = sample['case']
-            mask = 'auto'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', mask)
+            masktype = 'auto'
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype)
