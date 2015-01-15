@@ -142,7 +142,6 @@ def task_compare_masks():
                 }
 
 def get_task_select_roi(case, scan, model, param, subwindow, mask):
-    # TODO: Cannot depend on mask files, as they are named irregularly.
     d = dict(c=case, s=scan, m=model, p=param, subwindow=subwindow, mask=mask)
     outdir = 'rois_{mask}'.format(**d)
     s = os.path.join('masks_{mask}', '{c}_{s}_{mask}.mask')
