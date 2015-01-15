@@ -218,7 +218,7 @@ def draw(data):
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    iview = data['image'][slice_index,...,0]
+    iview = data['image'][slice_index,:,:,0]
     pview = data['sum_scoremaps'][slice_index,...,0]
     pview /= pview.max()
     imgray = plt.imshow(iview, alpha=1)
