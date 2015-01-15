@@ -142,14 +142,12 @@ def task_compare_masks():
 
 def get_task_select_roi(case, scan, model, param, masktype, subwindow=None):
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype, sw=subwindow)
-    outdir = 'rois_{mt}'.format(**d)
     s = os.path.join('masks_{mt}', '{c}_{s}_{mt}.mask')
     maskpath = s.format(**d)
     s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
             '{c}_*_{s}_{p}')
     inpath = glob.glob(s.format(**d))[0]
-    s = os.path.join(outdir, '{c}_x_x_{s}_{m}_{p}_{mt}.txt')
-    outpath = s.format(**d)
+    outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     args = [SELECT_VOXELS]
     #args += ['-v']
     if subwindow:
@@ -160,7 +158,7 @@ def get_task_select_roi(case, scan, model, param, masktype, subwindow=None):
     cmd = ' '.join(args)
     return {
             'name': '{c}_{s}'.format(**d),
-            'actions': [(create_folder, [outdir]),
+            'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             'file_dep': [maskpath],
             'targets': [outpath],
