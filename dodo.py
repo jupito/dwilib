@@ -96,8 +96,8 @@ def task_find_roi():
             d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
             d['outdir_mask'] = 'masks_auto'
             d['outdir_fig'] = 'find_roi_images'
-            d['outfile_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
-            d['outfile_fig'] = '{outdir_fig}/{c}_{s}.png'.format(**d)
+            d['outpath_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
+            d['outpath_fig'] = '{outdir_fig}/{c}_{s}.png'.format(**d)
             file_deps = [SAMPLELIST_FILE]
             file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
             file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
@@ -108,7 +108,7 @@ def task_find_roi():
                                 (create_folder, [d['outdir_fig']]),
                             cmd],
                     'file_dep': file_deps,
-                    'targets': [d['outfile_mask'], d['outfile_fig']],
+                    'targets': [d['outpath_mask'], d['outpath_fig']],
                     'clean': True,
                     }
 
