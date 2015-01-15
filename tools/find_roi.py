@@ -204,6 +204,7 @@ def draw(data):
     pmap = data['image'][slice_index].copy()
     clip_image(pmap)
     pmap = pmap[...,0]
+
     cancer_pos = (-1, -1)
     normal_pos = (-1, -1)
     distance = -1
