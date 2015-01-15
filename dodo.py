@@ -141,8 +141,8 @@ def task_compare_masks():
                 'clean': True,
                 }
 
-def get_task_select_roi(case, scan, model, param, subwindow, mask):
-    d = dict(c=case, s=scan, m=model, p=param, subwindow=subwindow, mask=mask)
+def get_task_select_roi(case, scan, model, param, mask, subwindow=None):
+    d = dict(c=case, s=scan, m=model, p=param, mask=mask, subwindow=subwindow)
     outdir = 'rois_{mask}'.format(**d)
     s = os.path.join('masks_{mask}', '{c}_{s}_{mask}.mask')
     maskpath = s.format(**d)
@@ -175,7 +175,7 @@ def task_select_roi_cancer():
             case = sample['case']
             subwin = None
             mask = 'cancer'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', mask, subwin)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
@@ -184,4 +184,4 @@ def task_select_roi_auto():
             case = sample['case']
             subwin = None
             mask = 'auto'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', subwin, mask)
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', mask, subwin)
