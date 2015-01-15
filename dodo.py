@@ -2,6 +2,7 @@
 
 import glob
 import os
+from os.path import dirname
 
 from doit import get_var
 #from doit.tools import Interactive
@@ -89,26 +90,24 @@ def task_fit():
                     }
 
 def task_find_roi():
-    """Find ROIs."""
+    """Find a cancer ROI automatically."""
     for sample in SAMPLES:
         case = sample['case']
         for scan in sample['scans']:
             d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
-            d['outdir_mask'] = 'masks_auto'
-            d['outdir_fig'] = 'find_roi_images'
-            d['outpath_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
-            d['outpath_fig'] = '{outdir_fig}/{c}_{s}.png'.format(**d)
+            outpath_mask = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
+            outpath_fig = 'find_roi_images/{c}_{s}.png'.format(**d)
             file_deps = [SAMPLELIST_FILE]
             file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
             file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
             cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
             yield {
                     'name': '{c}_{s}'.format(**d),
-                    'actions': [(create_folder, [d['outdir_mask']]),
-                                (create_folder, [d['outdir_fig']]),
+                    'actions': [(create_folder, [dirname(outpath_mask)]),
+                                (create_folder, [dirname(outpath_fig)]),
                             cmd],
                     'file_dep': file_deps,
-                    'targets': [d['outpath_mask'], d['outpath_fig']],
+                    'targets': [outpath_mask, outpath_fig],
                     'clean': True,
                     }
 
