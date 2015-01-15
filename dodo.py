@@ -123,7 +123,7 @@ def task_compare_masks():
         #file1 = 'masks/{c}_{s}_ca.mask'.format(**d)
         file1 = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
         file2 = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
-        outfile = os.path.join('roi_comparison', '{c}_{s}.txt'.format(**d))
+        outfile = 'roi_comparison/{c}_{s}.txt'.format(**d)
         d['f1'] = file1
         d['f2'] = file2
         d['o'] = outfile
