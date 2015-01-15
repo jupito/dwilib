@@ -41,6 +41,8 @@ def parse_args():
             help='output mask file')
     p.add_argument('--outpic',
             help='output graphic file')
+    p.add_argument('--clip', action='store_true',
+            help='clip image intensity values on load')
     args = p.parse_args()
     return args
 
@@ -115,7 +117,7 @@ def read_image(case, scan, param):
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
     return image
 
-def clip_outliers(img):
+def clip_image(img):
     """Clip parameter-specific intensity outliers in-place."""
     for i in range(img.shape[-1]):
         if PARAMS[i].startswith('ADC'):
@@ -123,7 +125,7 @@ def clip_outliers(img):
         elif PARAMS[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, cases=[], scans=[]):
+def read_data(samplelist_file, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
@@ -153,7 +155,8 @@ def read_data(samplelist_file, cases=[], scans=[]):
             cropped_prostate_mask = prostate_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
             #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
-            clip_outliers(cropped_image)
+            if clip:
+                clip_image(cropped_image)
             d = dict(case=case, scan=scan, score=score,
                     subwindow=subwindow,
                     slice_index=slice_index,
@@ -270,7 +273,7 @@ def write_mask(d):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.cases, args.scans)
+data = read_data(args.samplelist, args.cases, args.scans, args.clip)
 
 for d in data:
     print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
