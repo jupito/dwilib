@@ -142,11 +142,9 @@ def task_compare_masks():
 
 def get_task_select_roi(case, scan, model, param, masktype, subwindow=None):
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype, sw=subwindow)
-    s = os.path.join('masks_{mt}', '{c}_{s}_{mt}.mask')
-    maskpath = s.format(**d)
-    s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
-            '{c}_*_{s}_{p}')
-    inpath = glob.glob(s.format(**d))[0]
+    maskpath = 'masks_{mt}/{c}_{s}_{mt}.mask'.format(**d)
+    s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
+    inpath = glob.glob(s)[0]
     outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     args = [SELECT_VOXELS]
     #args += ['-v']
