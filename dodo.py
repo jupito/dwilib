@@ -98,15 +98,15 @@ def task_find_roi():
             d['outdir_fig'] = 'find_roi_images'
             d['outfile_mask'] = '{outdir_mask}/{c}_{s}_auto.mask'.format(**d)
             d['outfile_fig'] = '{outdir_fig}/autoroi_{c}_{s}.png'.format(**d)
-            #infile = 'pmaps/pmap_{c}_{s}_MonoN.txt'.format(**d)
-            #inmask = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
+            file_deps = [SAMPLELIST_FILE]
+            #file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
             cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
             yield {
                     'name': '{c}_{s}'.format(**d),
                     'actions': [(create_folder, [d['outdir_mask']]),
                                 (create_folder, [d['outdir_fig']]),
                             cmd],
-                    #'file_dep': [infile],
+                    'file_dep': file_deps,
                     'targets': [d['outfile_mask'], d['outfile_fig']],
                     'clean': True,
                     }
