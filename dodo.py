@@ -123,8 +123,7 @@ def task_compare_masks():
         #file1 = 'masks/{c}_{s}_ca.mask'.format(**d)
         file1 = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
         file2 = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
-        outdir = 'roi_comparison'
-        outfile = os.path.join(outdir, '{c}_{s}.txt'.format(**d))
+        outfile = os.path.join('roi_comparison', '{c}_{s}.txt'.format(**d))
         d['f1'] = file1
         d['f2'] = file2
         d['o'] = outfile
@@ -134,7 +133,7 @@ def task_compare_masks():
             continue
         yield {
                 'name': '{c}_{s}'.format(**d),
-                'actions': [(create_folder, [outdir]),
+                'actions': [(create_folder, [dirname(outfile)]),
                         cmd],
                 'file_dep': [file1, file2],
                 'targets': [outfile],
