@@ -94,19 +94,19 @@ def task_find_roi():
         case = sample['case']
         for scan in sample['scans']:
             d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
-            outpath_mask = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
-            outpath_fig = 'find_roi_images/{c}_{s}.png'.format(**d)
+            maskpath = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
+            figpath = 'find_roi_images/{c}_{s}.png'.format(**d)
             file_deps = [SAMPLELIST_FILE]
             file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
             file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
             cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
             yield {
                     'name': '{c}_{s}'.format(**d),
-                    'actions': [(create_folder, [dirname(outpath_mask)]),
-                                (create_folder, [dirname(outpath_fig)]),
+                    'actions': [(create_folder, [dirname(maskpath)]),
+                                (create_folder, [dirname(figpath)]),
                             cmd],
                     'file_dep': file_deps,
-                    'targets': [outpath_mask, outpath_fig],
+                    'targets': [maskpath, figpath],
                     'clean': True,
                     }
 
