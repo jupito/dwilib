@@ -201,6 +201,9 @@ def draw(data):
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
     slice_index = data['roi_corner'][0]
+    pmap = data['image'][slice_index].copy()
+    clip_image(pmap)
+    pmap = pmap[...,0]
     cancer_pos = (-1, -1)
     normal_pos = (-1, -1)
     distance = -1
@@ -213,27 +216,23 @@ def draw(data):
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title('Slice %i %s' % (slice_index, PARAMS[0]))
-    iview = data['image'][slice_index,:,:,0]
-    plt.imshow(iview)
+    plt.imshow(pmap)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    iview = data['image'][slice_index,:,:,0]
     pview = data['sum_scoremaps'][slice_index,:,:,0]
     pview /= pview.max()
-    imgray = plt.imshow(iview, alpha=1)
+    imgray = plt.imshow(pmap, alpha=1)
     imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
             distance))
-    iview = data['image'][slice_index,:,:,0]
-    #plt.imshow(iview)
-    view = np.zeros(iview.shape + (3,), dtype=float)
-    view[...,0] = iview / iview.max()
-    view[...,1] = iview / iview.max()
-    view[...,2] = iview / iview.max()
-    for i, a in enumerate(iview):
+    view = np.zeros(pmap.shape + (3,), dtype=float)
+    view[...,0] = pmap / pmap.max()
+    view[...,1] = pmap / pmap.max()
+    view[...,2] = pmap / pmap.max()
+    for i, a in enumerate(pmap):
         for j, v in enumerate(a):
             if v < dwi.autoroi.ADCM_MIN:
                 view[i,j,:] = [0.5, 0, 0]
@@ -241,10 +240,10 @@ def draw(data):
                 view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
     if 'cancer_mask' in data:
-        plt.imshow(get_roi_layer(iview, cancer_pos, CANCER_COLOR), alpha=0.7)
+        plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
     if 'normal_mask' in data:
-        plt.imshow(get_roi_layer(iview, normal_pos, NORMAL_COLOR), alpha=0.7)
-    plt.imshow(get_roi_layer(iview, auto_pos, AUTO_COLOR), alpha=0.7)
+        plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(pmap, auto_pos, AUTO_COLOR), alpha=0.7)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
