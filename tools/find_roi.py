@@ -221,10 +221,10 @@ def draw(data):
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    pview = data['sum_scoremaps'][slice_index,:,:,0]
-    pview /= pview.max()
+    scoremap = data['sum_scoremaps'][slice_index,:,:,0]
+    scoremap /= scoremap.max()
     imgray = plt.imshow(pmap, alpha=1)
-    imjet = plt.imshow(pview, alpha=0.8, cmap='jet')
+    imjet = plt.imshow(scoremap, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
     ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
