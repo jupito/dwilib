@@ -11,7 +11,8 @@ def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
         #r = 1-np.mean(img)
-        r = 1./(np.mean(img)-0.0008)
+        #r = 1./(np.mean(img)-0.0008)
+        r = 1./np.mean(img)
         #if np.min(img) < 0.0002:
         #    r = 0
         #if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
