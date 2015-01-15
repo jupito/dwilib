@@ -221,7 +221,7 @@ def draw(data):
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('Calculated score map')
-    scoremap = data['sum_scoremaps'][slice_index,:,:,0]
+    scoremap = data['scoremap'][slice_index]
     scoremap /= scoremap.max()
     imgray = plt.imshow(pmap, alpha=1)
     imjet = plt.imshow(scoremap, alpha=0.8, cmap='jet')
