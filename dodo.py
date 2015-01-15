@@ -145,8 +145,7 @@ def get_task_select_roi(case, scan, model, param, subwindow, mask):
     # TODO: Cannot depend on mask files, as they are named irregularly.
     d = dict(c=case, s=scan, m=model, p=param, subwindow=subwindow, mask=mask)
     outdir = 'rois_{mask}'.format(**d)
-    s = os.path.join('masks_{mask}', '{c}_{s}_*.mask')
-    #maskpath = glob.glob(s.format(**d))[0]
+    s = os.path.join('masks_{mask}', '{c}_{s}_{mask}.mask')
     maskpath = s.format(**d)
     s = os.path.join('results_{m}_combinedDICOM', '{c}_*_{s}',
             '{c}_*_{s}_{p}')
@@ -165,8 +164,7 @@ def get_task_select_roi(case, scan, model, param, subwindow, mask):
             'name': '{c}_{s}'.format(**d),
             'actions': [(create_folder, [outdir]),
                     cmd],
-            #'file_dep': [maskpath],
-            'file_dep': [],
+            'file_dep': [maskpath],
             'targets': [outpath],
             'clean': True,
             }
