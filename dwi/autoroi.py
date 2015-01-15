@@ -42,14 +42,12 @@ def get_roi_scores(img, d, params):
     scores_shape = tuple([img.shape[i]-d[i]+1 for i in range(3)])
     scores = np.zeros(scores_shape)
     scores.fill(np.nan)
-    for i in range(scores.shape[0]):
-        for j in range(scores.shape[1]):
-            for k in range(scores.shape[2]):
-                z = (i, i+d[0])
-                y = (j, j+d[1])
-                x = (k, k+d[2])
-                roi = img[z[0]:z[1], y[0]:y[1], x[0]:x[1], :]
-                scores[i,j,k] = get_score(roi, params)
+    for i, j, k in np.ndindex(scores.shape):
+        z = (i, i+d[0])
+        y = (j, j+d[1])
+        x = (k, k+d[2])
+        roi = img[z[0]:z[1], y[0]:y[1], x[0]:x[1], :]
+        scores[i,j,k] = get_score(roi, params)
     return scores
 
 def get_scoremap(img, d, params, n_rois):
