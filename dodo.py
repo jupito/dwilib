@@ -100,6 +100,7 @@ def task_find_roi():
             d['outfile_fig'] = '{outdir_fig}/{c}_{s}.png'.format(**d)
             file_deps = [SAMPLELIST_FILE]
             file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
+            file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
             cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
             yield {
                     'name': '{c}_{s}'.format(**d),
