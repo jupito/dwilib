@@ -145,7 +145,7 @@ def task_find_roi():
 #                'clean': True,
 #                }
 
-def get_task_select_roi(case, scan, model, param, masktype, nrois=1000, subwindow=None):
+def get_task_select_roi(case, scan, model, param, masktype, nrois='default', subwindow=None):
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype, nr=nrois, sw=subwindow)
     maskpath = 'masks_{mt}_{nr}/{c}_{s}_{mt}.mask'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
