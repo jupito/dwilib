@@ -33,14 +33,16 @@ def parse_args():
             help='sample list file')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
+    p.add_argument('--nrois', metavar='I', type=int, default=1000,
+            help='number of ROIs per shape')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
             help='scan identifiers')
     p.add_argument('--outmask',
             help='output mask file')
-    p.add_argument('--outpic',
-            help='output graphic file')
+    p.add_argument('--outfig',
+            help='output figure file')
     p.add_argument('--clip', action='store_true',
             help='clip image intensity values on load')
     args = p.parse_args()
@@ -186,7 +188,7 @@ def get_roi_layer(img, pos, color):
     draw_roi(layer, pos, color)
     return layer
 
-def draw(data):
+def draw(data, filename):
     import matplotlib
     import matplotlib.pyplot as plt
     import pylab as pl
@@ -251,12 +253,11 @@ def draw(data):
     fig.colorbar(imgray, ax=ax3, shrink=0.65)
 
     plt.tight_layout()
-    filename = OUT_IMAGE_DIR + '/{case}_{scan}.png'.format(**data)
     print 'Writing figure:', filename
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
 
-def write_mask(d):
+def write_mask(d, filename):
     """Write mask. XXX: Here only single-slice ones."""
     slice_index = d['roi_corner'][0]
     a = np.zeros((d['original_shape'][1:3]), dtype=int)
@@ -266,7 +267,6 @@ def write_mask(d):
     x = (x[0]+x_offset, x[1]+x_offset)
     a[y[0]:y[1], x[0]:x[1]] = 1
     mask = dwi.mask.Mask(slice_index+1, a)
-    filename = OUT_MASK_DIR + '/{case}_{scan}_auto.mask'.format(**d)
     print 'Writing mask:', filename
     mask.write(filename)
 
@@ -282,10 +282,10 @@ for d in data:
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
-            prostate_mask=d['prostate_mask']))
+            prostate_mask=d['prostate_mask'], n_rois=args.nrois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
-    draw(d)
-    write_mask(d)
+    draw(d, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
+    write_mask(d, args.outmask or OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
 
 #if args.verbose:
 #    for i, p in enumerate(params):
