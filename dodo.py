@@ -161,7 +161,7 @@ def get_task_select_roi(case, scan, model, param, masktype, nrois='default',
     args += ['-i "%s"' % inpath]
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
-    yield {
+    return {
             'name': '{c}_{s}_{nr}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
