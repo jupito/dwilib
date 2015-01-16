@@ -38,6 +38,8 @@ SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
 SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
+NROIS = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+
 # Common functions
 
 def subwindow_to_str(subwindow):
@@ -93,22 +95,25 @@ def task_find_roi():
     for sample in SAMPLES:
         case = sample['case']
         for scan in sample['scans']:
-            d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan)
-            maskpath = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
-            figpath = 'find_roi_images/{c}_{s}.png'.format(**d)
-            file_deps = [SAMPLELIST_FILE]
-            file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
-            file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-            cmd = '{prg} --samplelist {sl} --cases {c} --scans {s}'.format(**d)
-            yield {
-                    'name': '{c}_{s}'.format(**d),
-                    'actions': [(create_folder, [dirname(maskpath)]),
-                                (create_folder, [dirname(figpath)]),
-                            cmd],
-                    'file_dep': file_deps,
-                    'targets': [maskpath, figpath],
-                    'clean': True,
-                    }
+            for nrois in NROIS:
+                d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan, nr=nrois)
+                maskpath = 'masks_auto_{nr}/{c}_{s}_auto.mask'.format(**d)
+                figpath = 'find_roi_images_{nr}/{c}_{s}.png'.format(**d)
+                d.update(mp=maskpath, fp=figpath)
+                file_deps = [SAMPLELIST_FILE]
+                file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
+                file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+                cmd = '{prg} --samplelist {sl} --cases {c} --scans {s} '\
+                        '--nrois {nr} --outmask {mp} --outfig {fp}'.format(**d)
+                yield {
+                        'name': '{c}_{s}_{nr}'.format(**d),
+                        'actions': [(create_folder, [dirname(maskpath)]),
+                                    (create_folder, [dirname(figpath)]),
+                                cmd],
+                        'file_dep': file_deps,
+                        'targets': [maskpath, figpath],
+                        'clean': True,
+                        }
 
 ## Deprecated.
 #def task_compare_masks():
@@ -140,12 +145,12 @@ def task_find_roi():
 #                'clean': True,
 #                }
 
-def get_task_select_roi(case, scan, model, param, masktype, subwindow=None):
-    d = dict(c=case, s=scan, m=model, p=param, mt=masktype, sw=subwindow)
-    maskpath = 'masks_{mt}/{c}_{s}_{mt}.mask'.format(**d)
+def get_task_select_roi(case, scan, model, param, masktype, nrois=None, subwindow=None):
+    d = dict(c=case, s=scan, m=model, p=param, mt=masktype, nr=nrois, sw=subwindow)
+    maskpath = 'masks_{mt}_{nr}/{c}_{s}_{mt}.mask'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
-    outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    outpath = 'rois_{mt}_{nr}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     args = [SELECT_VOXELS]
     #args += ['-v']
     if subwindow:
@@ -154,8 +159,8 @@ def get_task_select_roi(case, scan, model, param, masktype, subwindow=None):
     args += ['-i "%s"' % inpath]
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
-    return {
-            'name': '{c}_{s}'.format(**d),
+    yield {
+            'name': '{c}_{s}_{nr}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             'file_dep': [maskpath],
@@ -175,6 +180,7 @@ def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for sample in SAMPLES:
         for scan in sample['scans']:
-            case = sample['case']
-            masktype = 'auto'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype)
+            for nrois in NROIS:
+                case = sample['case']
+                masktype = 'auto'
+                yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype, nrois)
