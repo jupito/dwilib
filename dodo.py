@@ -145,8 +145,10 @@ def task_find_roi():
 #                'clean': True,
 #                }
 
-def get_task_select_roi(case, scan, model, param, masktype, nrois='default', subwindow=None):
-    d = dict(c=case, s=scan, m=model, p=param, mt=masktype, nr=nrois, sw=subwindow)
+def get_task_select_roi(case, scan, model, param, masktype, nrois='default',
+        subwindow=None):
+    d = dict(c=case, s=scan, m=model, p=param, mt=masktype, nr=nrois,
+            sw=subwindow)
     maskpath = 'masks_{mt}_{nr}/{c}_{s}_{mt}.mask'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
@@ -183,4 +185,5 @@ def task_select_roi_auto():
             for nrois in NROIS:
                 case = sample['case']
                 masktype = 'auto'
-                yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype, nrois)
+                yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
+                        nrois)
