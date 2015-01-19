@@ -92,7 +92,7 @@ elif args.labeltype == 'score':
     groups = [map(patient.GleasonScore, args.negatives)]
     Y = np.array(util.group_labels(groups, Y))
 
-if args.verbose:
+if args.verbose > 1:
     print 'Samples: %i, features: %i, labels: %i, type: %s'\
             % (X.shape[0], X.shape[1], len(set(labels)), args.labeltype)
     print 'Labels: %s' % sorted(list(set(labels)))
@@ -110,7 +110,10 @@ for x, param, row in zip(X.T, params, range(len(params))):
     if param in skipped_params:
         continue
     fpr, tpr, auc = util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
-    print '%s:\tAUC: %f' % (param, auc)
+    if args.verbose:
+        print '%s:\tAUC: %f' % (param, auc)
+    else:
+        print '%f' % auc
     if args.outfile:
         pl.subplot2grid((n_rows, n_cols), (row, 0))
         pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc)
