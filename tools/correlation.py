@@ -62,7 +62,7 @@ nums = [n for n, s in numsscans]
 labels = patient.load_labels(patients, nums, args.labeltype)
 different_labels = sorted(list(set(labels)))
 
-if args.verbose:
+if args.verbose > 1:
     print 'Samples: %i, features: %i, labels: %i, type: %s'\
             % (X.shape[0], X.shape[1], len(set(labels)), args.labeltype)
     print 'Labels: %s' % different_labels
@@ -70,7 +70,7 @@ if args.verbose:
 # Group samples.
 if args.labeltype == 'score':
     group_labels = args.groups or different_labels
-    if args.verbose:
+    if args.verbose > 1:
         print 'Groups: %s' % group_labels
     groups = [[patient.GleasonScore(x)] for x in group_labels]
     labels = util.group_labels(groups, labels)
@@ -94,7 +94,7 @@ except ValueError, e:
     pass # Parameters not found.
 
 # Print coefficients for each parameter.
-if args.verbose:
+if args.verbose > 1:
     print '# param   \tr\tp\tlower\tupper'
 skipped_params = ['SI0N', 'C', 'RMSE']
 for x, param in zip(X.T, params):
@@ -102,4 +102,8 @@ for x, param in zip(X.T, params):
         continue
     d = dict(param=param)
     d.update(correlation(x, labels))
-    print '{param:10}\t{r:+.3f}\t{p:.3f}\t{lower:+.3f}\t{upper:+.3f}'.format(**d)
+    if args.verbose:
+        s = '{param:10}\t{r:+.3f}\t{p:.3f}\t{lower:+.3f}\t{upper:+.3f}'
+    else:
+        s = '{r:+.3f}'
+    print s.format(**d)
