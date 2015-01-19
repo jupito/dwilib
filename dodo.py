@@ -31,6 +31,8 @@ ANON = DWILIB+'/anonymize_dicom.py'
 FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
+CALC_AUC = DWILIB+'/draw_roc.py'
+
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 
@@ -199,3 +201,23 @@ def task_select_roi_auto():
                 masktype = 'auto'
                 yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
                         map(str, algparams))
+
+def task_calculate_auc():
+    """Calculate ROC AUC for auto-ROI cancer prediction ability."""
+    outfile = 'roc_auc.txt'
+    d = dict(prg=CALC_AUC, o=outfile)
+    cmds = ['echo > {o}'.format(**d)]
+    for algparams in itertools.product(*FIND_ROI_PARAMS):
+        indir = 'rois_auto_%s' % algparams_
+        d.update(i=indir, algparams_='_'.join(algparams))
+        s = 'echo {algparams_} >> {o}'
+        cmds.append(s.format(**d))
+        s = '{prg} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip >> {o}'
+        cmds.append(s.format(**d))
+    return {
+            'name': 'calc_auc',
+            'actions': cmds,
+            'task_dep': ['select_roi_auto'],
+            'targets': [outfile],
+            'clean': True,
+            }
