@@ -38,7 +38,11 @@ SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
 SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
-NROIS = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+FIND_ROI_PARAMS = [
+        ('nrois', range(500, 5000, 500)),
+]
+#NROIS = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
+NROIS = FIND_ROI_PARAMS[0][1]
 
 # Common functions
 
@@ -90,30 +94,33 @@ def task_fit():
                     'clean': True,
                     }
 
+def get_task_find_roi(case, scan, nrois):
+    d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan, nr=nrois)
+    maskpath = 'masks_auto_{nr}/{c}_{s}_auto.mask'.format(**d)
+    figpath = 'find_roi_images_{nr}/{c}_{s}.png'.format(**d)
+    d.update(mp=maskpath, fp=figpath)
+    file_deps = [SAMPLELIST_FILE]
+    file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
+    file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+    cmd = '{prg} --samplelist {sl} --cases {c} --scans {s} '\
+            '--nrois {nr} --outmask {mp} --outfig {fp}'.format(**d)
+    return {
+            'name': '{c}_{s}_{nr}'.format(**d),
+            'actions': [(create_folder, [dirname(maskpath)]),
+                        (create_folder, [dirname(figpath)]),
+                    cmd],
+            'file_dep': file_deps,
+            'targets': [maskpath, figpath],
+            'clean': True,
+            }
+
 def task_find_roi():
     """Find a cancer ROI automatically."""
     for sample in SAMPLES:
         case = sample['case']
         for scan in sample['scans']:
             for nrois in NROIS:
-                d = dict(prg=FIND_ROI, sl=SAMPLELIST_FILE, c=case, s=scan, nr=nrois)
-                maskpath = 'masks_auto_{nr}/{c}_{s}_auto.mask'.format(**d)
-                figpath = 'find_roi_images_{nr}/{c}_{s}.png'.format(**d)
-                d.update(mp=maskpath, fp=figpath)
-                file_deps = [SAMPLELIST_FILE]
-                file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
-                file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-                cmd = '{prg} --samplelist {sl} --cases {c} --scans {s} '\
-                        '--nrois {nr} --outmask {mp} --outfig {fp}'.format(**d)
-                yield {
-                        'name': '{c}_{s}_{nr}'.format(**d),
-                        'actions': [(create_folder, [dirname(maskpath)]),
-                                    (create_folder, [dirname(figpath)]),
-                                cmd],
-                        'file_dep': file_deps,
-                        'targets': [maskpath, figpath],
-                        'clean': True,
-                        }
+                yield get_task_find_roi(case, scan, nrois)
 
 ## Deprecated.
 #def task_compare_masks():
