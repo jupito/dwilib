@@ -275,8 +275,7 @@ def write_mask(d, filename):
 args = parse_args()
 print 'Reading data...'
 data = read_data(args.samplelist, args.cases, args.scans, args.clip)
-siderange = args.algparams[0:2]
-n_rois = args.algparams[2]
+sidemin, sidemax, n_rois = args.algparams
 
 for d in data:
     print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
@@ -285,7 +284,7 @@ for d in data:
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
-            prostate_mask=d['prostate_mask'], siderange=siderange,
+            prostate_mask=d['prostate_mask'], sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
     draw(d, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
