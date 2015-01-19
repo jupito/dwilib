@@ -103,7 +103,7 @@ def get_task_find_roi(case, scan, nrois):
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = '{prg} --samplelist {sl} --cases {c} --scans {s} '\
-            '--nrois {nr} --outmask {mp} --outfig {fp}'.format(**d)
+            '--algparams 5 10 {nr} --outmask {mp} --outfig {fp}'.format(**d)
     return {
             'name': '{c}_{s}_{nr}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),

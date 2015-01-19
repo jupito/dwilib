@@ -33,8 +33,9 @@ def parse_args():
             help='sample list file')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
-    p.add_argument('--nrois', metavar='I', type=int, default=1000,
-            help='number of ROIs per shape')
+    p.add_argument('--algparams', metavar='I', nargs=3, type=int,
+            default=[5,10,1000],
+            help='algorithm parameters (ROI side min, max, number of ROIs)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
@@ -274,6 +275,8 @@ def write_mask(d, filename):
 args = parse_args()
 print 'Reading data...'
 data = read_data(args.samplelist, args.cases, args.scans, args.clip)
+siderange = args.algparams[0:2]
+n_rois = args.algparams[2]
 
 for d in data:
     print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
@@ -282,7 +285,8 @@ for d in data:
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
-            prostate_mask=d['prostate_mask'], n_rois=args.nrois))
+            prostate_mask=d['prostate_mask'], siderange=siderange,
+            n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
     draw(d, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
     write_mask(d, args.outmask or OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
