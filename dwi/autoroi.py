@@ -58,11 +58,12 @@ def get_scoremap(img, d, params, n_rois):
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
-def find_roi(img, roidim, params, prostate_mask=None, n_rois=1000):
+def find_roi(img, roidim, params, prostate_mask=None, n_rois=1000,
+        siderange=(5, 10)):
     #dims = [(1,1,1)]
-    dims = [(2,i,i) for i in range(5, 10)]
-    dims += [(3,i,i) for i in range(5, 10)]
-    #dims = dwi.util.combinations([range(2, 4), range(5, 10), range(5, 10)])
+    dims = [(2,i,i) for i in range(*siderange)]
+    dims += [(3,i,i) for i in range(*siderange)]
+    #dims = dwi.util.combinations([range(2, 4), range(*siderange), range(*siderange)])
     #print dims
     if prostate_mask:
         # Add mask to image as an extra parameter.
