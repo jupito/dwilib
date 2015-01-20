@@ -207,7 +207,7 @@ def task_calculate_auc():
     """Calculate ROC AUC for auto-ROI cancer prediction ability."""
     outfile = 'roc_auc.txt'
     d = dict(prg=CALC_AUC, o=outfile)
-    cmds = ['echo -n > {o}'.format(**d)]
+    cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
         d['algparams_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{algparams_}'.format(**d)
@@ -226,7 +226,7 @@ def task_calculate_correlation():
     """Calculate auto-ROI value correlation with Gleason score."""
     outfile = 'correlation.txt'
     d = dict(prg=CORRELATION, o=outfile)
-    cmds = ['echo -n > {o}'.format(**d)]
+    cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
         d['algparams_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{algparams_}'.format(**d)
