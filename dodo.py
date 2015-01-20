@@ -208,14 +208,13 @@ def task_calculate_auc():
     d = dict(prg=CALC_AUC, o=outfile)
     cmds = ['echo > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
-        indir = 'rois_auto_%s' % algparams_
-        d.update(i=indir, algparams_='_'.join(algparams))
+        d['algparams_'] = '_'.join(map(str, algparams))
+        d['i'] = 'rois_auto_{algparams_}'.format(**d)
         s = 'echo {algparams_} >> {o}'
         cmds.append(s.format(**d))
         s = '{prg} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip >> {o}'
         cmds.append(s.format(**d))
     return {
-            'name': 'calc_auc',
             'actions': cmds,
             'task_dep': ['select_roi_auto'],
             'targets': [outfile],
