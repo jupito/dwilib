@@ -216,7 +216,9 @@ def task_evaluate_autoroi():
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
         cmds.append(s.format(**d))
-        s = r'echo \\t`{prg_corr} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*` >> {o}'
+        s = r'echo -n \\t`{prg_corr} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*` >> {o}'
+        cmds.append(s.format(**d))
+        s = r'echo \\t`{prg_corr} -s patients.txt -l score -a -m {i}/*` >> {o}'
         cmds.append(s.format(**d))
     return {
             'actions': cmds,
