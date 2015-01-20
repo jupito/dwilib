@@ -203,36 +203,20 @@ def task_select_roi_auto():
                 yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
                         map(str, algparams))
 
-def task_calculate_auc():
-    """Calculate ROC AUC for auto-ROI cancer prediction ability."""
-    outfile = 'roc_auc.txt'
-    d = dict(prg=CALC_AUC, o=outfile)
+def task_evaluate_autoroi():
+    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
+    Gleason score."""
+    outfile = 'autoroi_evaluation.txt'
+    d = dict(prg_auc=CALC_AUC, prg_corr=CORRELATION, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
         d['algparams_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{algparams_}'.format(**d)
-        s = 'echo -n "{algparams_}\t" >> {o}'
+        s = 'echo -n {algparams_} >> {o}'
         cmds.append(s.format(**d))
-        s = '{prg} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip >> {o}'
+        s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
         cmds.append(s.format(**d))
-    return {
-            'actions': cmds,
-            'task_dep': ['select_roi_auto'],
-            'targets': [outfile],
-            'clean': True,
-            }
-
-def task_calculate_correlation():
-    """Calculate auto-ROI value correlation with Gleason score."""
-    outfile = 'correlation.txt'
-    d = dict(prg=CORRELATION, o=outfile)
-    cmds = ['echo `date` > {o}'.format(**d)]
-    for algparams in itertools.product(*FIND_ROI_PARAMS):
-        d['algparams_'] = '_'.join(map(str, algparams))
-        d['i'] = 'rois_auto_{algparams_}'.format(**d)
-        s = 'echo -n "{algparams_}\t" >> {o}'
-        cmds.append(s.format(**d))
-        s = '{prg} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*  >> {o}'
+        s = r'echo \\t`{prg_corr} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*` >> {o}'
         cmds.append(s.format(**d))
     return {
             'actions': cmds,
