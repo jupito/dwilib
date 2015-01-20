@@ -32,6 +32,7 @@ FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/draw_roc.py'
+CORRELATION = DWILIB+'/correlation.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
@@ -44,7 +45,7 @@ SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 FIND_ROI_PARAMS = [
         [5], # ROI side min
         [10, 15], # ROI side max
-        range(500, 5500, 500), # Number of ROIs
+        range(500, 6000, 500), # Number of ROIs
 ]
 #NROIS = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
 #NROIS = FIND_ROI_PARAMS[-1]
@@ -213,6 +214,25 @@ def task_calculate_auc():
         s = 'echo -n "{algparams_}\t" >> {o}'
         cmds.append(s.format(**d))
         s = '{prg} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip >> {o}'
+        cmds.append(s.format(**d))
+    return {
+            'actions': cmds,
+            'task_dep': ['select_roi_auto'],
+            'targets': [outfile],
+            'clean': True,
+            }
+
+def task_calculate_correlation():
+    """Calculate auto-ROI value correlation with Gleason score."""
+    outfile = 'correlation.txt'
+    d = dict(prg=CORRELATION, o=outfile)
+    cmds = ['echo -n > {o}'.format(**d)]
+    for algparams in itertools.product(*FIND_ROI_PARAMS):
+        d['algparams_'] = '_'.join(map(str, algparams))
+        d['i'] = 'rois_auto_{algparams_}'.format(**d)
+        s = 'echo -n "{algparams_}\t" >> {o}'
+        cmds.append(s.format(**d))
+        s = '{prg} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*  >> {o}'
         cmds.append(s.format(**d))
     return {
             'actions': cmds,
