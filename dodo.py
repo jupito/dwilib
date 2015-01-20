@@ -49,8 +49,6 @@ FIND_ROI_PARAMS = [
         #[10], # ROI side max
         range(500, 6000, 500), # Number of ROIs
 ]
-#NROIS = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500]
-#NROIS = FIND_ROI_PARAMS[-1]
 
 # Common functions
 
