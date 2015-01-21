@@ -128,6 +128,8 @@ def task_find_roi():
         case = sample['case']
         for scan in sample['scans']:
             for algparams in itertools.product(*FIND_ROI_PARAMS):
+                if algparams[0] > algparams[1]:
+                    continue
                 yield get_task_find_roi(case, scan, map(str, algparams))
 
 ## Deprecated.
@@ -199,6 +201,8 @@ def task_select_roi_auto():
     for sample in SAMPLES:
         for scan in sample['scans']:
             for algparams in itertools.product(*FIND_ROI_PARAMS):
+                if algparams[0] > algparams[1]:
+                    continue
                 case = sample['case']
                 masktype = 'auto'
                 yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
@@ -211,6 +215,8 @@ def task_evaluate_autoroi():
     d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
+        if algparams[0] > algparams[1]:
+            continue
         d['algparams_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{sl}_{algparams_}'.format(**d)
         s = 'echo -n {algparams_} >> {o}'
