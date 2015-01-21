@@ -43,10 +43,8 @@ SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        [5], # ROI side min
-        #[3, 5], # ROI side min
+        [5], # ROI side min (3 was not good)
         [10, 15], # ROI side max
-        #[10], # ROI side max
         range(500, 6000, 500), # Number of ROIs
 ]
 
