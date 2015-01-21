@@ -204,7 +204,7 @@ def task_select_roi_auto():
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
-    outfile = 'autoroi_evaluation.txt'
+    outfile = 'autoroi_evaluation_%s.txt' % SAMPLELIST
     d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
