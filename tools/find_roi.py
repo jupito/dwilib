@@ -276,6 +276,8 @@ args = parse_args()
 print 'Reading data...'
 data = read_data(args.samplelist, args.cases, args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
+if sidemin > sidemax:
+    raise Exception('Invalid ROI size limits')
 
 for d in data:
     print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
