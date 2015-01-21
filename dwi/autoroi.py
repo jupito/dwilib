@@ -60,7 +60,6 @@ def get_scoremap(img, d, params, n_rois):
 
 def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
         n_rois=1000):
-    #dims = [(1,1,1)]
     dims = [(2,i,i) for i in range(sidemin, sidemax+1)]
     dims += [(3,i,i) for i in range(sidemin, sidemax+1)]
     #dims = dwi.util.combinations([range(2, 4), range(*siderange), range(*siderange)])
