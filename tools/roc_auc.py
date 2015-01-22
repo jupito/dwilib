@@ -90,49 +90,25 @@ for d in data:
         Y.append(d['label'])
 X = np.asarray(X)
 Y = np.asarray(Y)
-#pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
-#pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
-#
-#nums = [n for n, s in numsscans]
-#if args.average:
-#    pmaps1, pmaps2 = np.mean(pmaps, axis=1, keepdims=True), []
-#else:
-#    pmaps1, pmaps2 = util.split_roi(pmaps)
-#
-#labels = patient.load_labels(patients, nums, args.labeltype)
-#labels_nocancer = [0] * len(labels)
-#X1, Y1, G1 = load_data(pmaps1, labels, numsscans)
-#if len(pmaps2):
-#    X2, Y2, G2 = load_data(pmaps2, labels_nocancer, numsscans)
-#
-#if args.roi2:
-#    X = np.concatenate((X1, X2))
-#    Y = np.concatenate((Y1, Y2))
-#    G = G1 + G2
-#else:
-#    X = X1
-#    Y = Y1
-#    G = G1
-#
-## Group samples as negatives and positives.
-#if args.labeltype == 'ord':
-#    groups = [range(args.threshold)]
-#    Y = np.array(util.group_labels(groups, Y))
-#elif args.labeltype == 'score':
-#    groups = [map(patient.GleasonScore, args.negatives)]
-#    Y = np.array(util.group_labels(groups, Y))
-#
-#if args.verbose > 1:
-#    print 'Samples: %i, features: %i, labels: %i, type: %s'\
-#            % (X.shape[0], X.shape[1], len(set(labels)), args.labeltype)
-#    print 'Labels: %s' % sorted(list(set(labels)))
-#    print 'Positives: %d' % sum(Y)
 
-#dwi.util.negate_for_roc(X.T, params)
+if args.verbose > 1:
+    labels = set(d['score'] for d in data)
+    d = dict(ns=X.shape[0], np=X.shape[1], nl=len(labels), l=sorted(labels),
+            npos=sum(Y))
+    print 'Samples: {ns}, parameters: {np}'.format(**d)
+    print 'Labels: {nl}: {l}'.format(**d)
+    print 'Positives: {npos}'.format(**d)
 
 for param, x in zip(params, X.T):
     fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
     print auc
+    import scipy as sp
+    import scipy.stats
+    r, p = sp.stats.spearmanr(x, Y)
+    print r, p
+
+if args.figure:
+    plot(args.figure)
 
 
 # Plot ROCs.
