@@ -38,18 +38,18 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def read_data(samplelist_file, patients_file, pmapdir, threshold='3+3',
+def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         average=False):
     """Read data."""
     # TODO Support for selecting measurements over scan pairs
-    threshold = dwi.patient.GleasonScore(threshold)
+    thresholds = map(dwi.patient.GleasonScore, thresholds)
     samples = dwi.util.read_sample_list(samplelist_file)
     patientsinfo = dwi.patient.read_patients_file(patients_file)
     data = []
     for sample in samples:
         case = sample['case']
         score = dwi.patient.get_patient(patientsinfo, case).score
-        label = 1 if score > threshold else 0
+        label = sum(score > t for t in thresholds)
         for scan in sample['scans']:
             pmap, params, pathname = read_pmapfile(pmapdir, case, scan, average)
             d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
@@ -80,7 +80,7 @@ def read_pmapfile(dirname, case, scan, average):
 
 
 args = parse_args()
-data = read_data(args.samplelist, args.patients, args.pmapdir, args.threshold,
+data = read_data(args.samplelist, args.patients, args.pmapdir, [args.threshold],
         args.average)
 params = data[0]['params']
 X, Y = [], []
