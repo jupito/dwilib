@@ -40,7 +40,7 @@ def parse_args():
 
 def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         average=False):
-    """Read data."""
+    """Read data. Thresholds are maximum scores of each group."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(dwi.patient.GleasonScore, thresholds)
     samples = dwi.util.read_sample_list(samplelist_file)
