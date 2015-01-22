@@ -101,11 +101,10 @@ if args.verbose > 1:
 
 for param, x in zip(params, X.T):
     fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
-    print auc
     import scipy as sp
     import scipy.stats
     r, p = sp.stats.spearmanr(x, Y)
-    print r, p
+    print auc, r, p
 
 if args.figure:
     plot(args.figure)
