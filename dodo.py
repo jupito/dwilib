@@ -163,12 +163,15 @@ def task_find_roi():
 #                'clean': True,
 #                }
 
-def get_task_select_roi(case, scan, model, param, masktype, algparams,
+def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
         subwindow=None):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             algparams_='_'.join(algparams), sw=subwindow)
-    maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
+    if algparams:
+        maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
+    else:
+        maskpath = 'masks_{mt}/{c}_{s}_{mt}.mask'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     outpath = 'rois_{mt}_{sl}_{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
@@ -195,8 +198,7 @@ def task_select_roi_cancer():
         for scan in sample['scans']:
             case = sample['case']
             masktype = 'cancer'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
-                    ['default'])
+            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
@@ -208,7 +210,7 @@ def task_select_roi_auto():
                 case = sample['case']
                 masktype = 'auto'
                 yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
-                        map(str, algparams))
+                        algparams=map(str, algparams))
 
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
