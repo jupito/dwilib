@@ -165,6 +165,7 @@ def task_find_roi():
 
 def get_task_select_roi(case, scan, model, param, masktype, algparams,
         subwindow=None):
+    """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             algparams_='_'.join(algparams), sw=subwindow)
     maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
