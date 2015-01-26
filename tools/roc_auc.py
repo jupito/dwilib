@@ -64,8 +64,8 @@ def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
 def read_pmapfile(dirname, case, scan, average):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
-    s = '{d}/{c}_*_{s}_*.txt'
-    paths = glob.glob(s.format(**d))
+    s = '{d}/{c}_*_{s}_*.txt'.format(**d)
+    paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Ambiguous pmap: %s' % s)
     af = dwi.asciifile.AsciiFile(paths[0])
