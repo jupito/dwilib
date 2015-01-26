@@ -163,18 +163,15 @@ def task_find_roi():
 #                'clean': True,
 #                }
 
-def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
+def get_task_select_roi_dicom_mask(case, scan, model, param, masktype,
         subwindow=None):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
-            algparams_='_'.join(algparams), sw=subwindow)
-    if algparams:
-        maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
-    else:
-        maskpath = 'masks_{mt}/{c}_{s}_{mt}.mask'.format(**d)
+            sw=subwindow)
+    maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
+    outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
-    outpath = 'rois_{mt}_{sl}_{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     args = [SELECT_VOXELS]
     #args += ['-v']
     if subwindow:
@@ -184,7 +181,40 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            'name': '{c}_{s}_{algparams_}'.format(**d),
+            'name': '{c}_{s}'.format(**d),
+            'actions': [(create_folder, [dirname(outpath)]),
+                    cmd],
+            #'file_dep': [maskpath],
+            'targets': [outpath],
+            'clean': True,
+            }
+
+def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
+        subwindow=None):
+    """Select ROIs from the pmap DICOMs based on masks."""
+    d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
+            algparams_='_'.join(algparams), sw=subwindow)
+    if masktype == 'auto':
+        name = '{c}_{s}_{algparams_}'.format(**d)
+        maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
+        outpath = 'rois_{mt}_{sl}_{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    else:
+        name = '{c}_{s}'.format(**d)
+        maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
+        outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
+    inpath = glob.glob(s)[0]
+    args = [SELECT_VOXELS]
+    #args += ['-v']
+    if subwindow:
+        args += ['-s %s' % subwindow_to_str(subwindow)]
+    args += ['-m %s' % maskpath]
+    args += ['-i "%s"' % inpath]
+    args += ['-o "%s"' % outpath]
+    cmd = ' '.join(args)
+    return {
+            #'name': '{c}_{s}_{algparams_}'.format(**d),
+            'name': name,
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             'file_dep': [maskpath],
@@ -197,8 +227,9 @@ def task_select_roi_cancer():
     for sample in SAMPLES:
         for scan in sample['scans']:
             case = sample['case']
-            masktype = 'cancer'
-            yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype)
+            masktype = 'CA'
+            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm',
+                    masktype)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
