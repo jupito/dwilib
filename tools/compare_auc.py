@@ -3,8 +3,6 @@
 import sys
 import argparse
 import numpy as np
-import scipy as sp
-import scipy.stats
 
 from dwi import patient
 from dwi import util
@@ -51,14 +49,6 @@ def load_data(pmaps, labels, group_ids):
     X = np.array(X)
     Y = np.array(Y)
     return X, Y, G
-
-def compare_aucs(aucs1, aucs2):
-    """Compare two arrays of (bootstrapped) ROC AUC values, with the method
-    described in pROC software."""
-    D = aucs1 - aucs2
-    z = np.mean(D) / np.std(D)
-    p = 1 - sp.stats.norm.cdf(abs(z))
-    return np.mean(D), z, p
 
 
 # Handle arguments.
@@ -158,5 +148,5 @@ for i, param_i in enumerate(params_all):
         if (i, j) in done or (j, i) in done:
             continue
         done.append((i,j))
-        d, z, p = compare_aucs(aucs_bs[i], aucs_bs[j])
+        d, z, p = util.compare_aucs(aucs_bs[i], aucs_bs[j])
         print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)

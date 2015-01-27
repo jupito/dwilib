@@ -193,6 +193,15 @@ def bootstrap_aucs(y, x, n=2000):
         aucs[i] = auc
     return aucs
 
+def compare_aucs(aucs1, aucs2):
+    """Compare two arrays of (bootstrapped) ROC AUC values, with the method
+    described in pROC software."""
+    import scipy.stats
+    D = aucs1 - aucs2
+    z = np.mean(D) / np.std(D)
+    p = 1.0 - scipy.stats.norm.cdf(abs(z))
+    return np.mean(D), z, p
+
 def ci(x, p=0.05):
     """Confidence interval of a normally distributed array."""
     x = sorted(x)
