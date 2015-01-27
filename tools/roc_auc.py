@@ -29,6 +29,8 @@ def parse_args():
             help='measurement baselines')
     p.add_argument('--threshold', default='3+3',
             help='classification threshold (maximum negative)')
+    p.add_argument('--nboot', type=int, default=2000,
+            help='number of bootstraps')
     p.add_argument('--average', action='store_true',
             help='average input voxels into one')
     p.add_argument('--autoflip', action='store_true',
@@ -100,11 +102,14 @@ if args.verbose > 1:
     print 'Positives: {npos}'.format(**d)
 
 for param, x in zip(params, X.T):
-    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
-    import scipy as sp
-    import scipy.stats
-    r, p = sp.stats.spearmanr(x, Y)
-    print auc, r, p
+    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x)
+    if args.autoflip and auc < 0.5:
+        x = -x
+        fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x)
+    auc_bs = dwi.util.bootstrap_aucs(Y, x, args.nboot)
+    avg = np.mean(auc_bs)
+    ci1, ci2 = dwi.util.ci(auc_bs)
+    print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
 
 if args.figure:
     plot(args.figure)
