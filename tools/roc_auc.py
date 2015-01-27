@@ -82,7 +82,6 @@ def read_pmapfile(dirname, case, scan, average):
 
 
 args = parse_args()
-
 X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
