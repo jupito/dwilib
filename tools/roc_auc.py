@@ -85,6 +85,7 @@ args = parse_args()
 data = read_data(args.samplelist, args.patients, args.pmapdir, [args.threshold],
         args.average)
 params = data[0]['params']
+labels = set(d['score'] for d in data)
 X, Y = [], []
 for d in data:
     for v in d['pmap']:
@@ -94,7 +95,6 @@ X = np.asarray(X)
 Y = np.asarray(Y)
 
 if args.verbose > 1:
-    labels = set(d['score'] for d in data)
     d = dict(ns=X.shape[0], np=X.shape[1], nl=len(labels), l=sorted(labels),
             npos=sum(Y))
     print 'Samples: {ns}, parameters: {np}'.format(**d)
