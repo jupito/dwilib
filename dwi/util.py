@@ -197,6 +197,8 @@ def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
     described in pROC software."""
     import scipy.stats
+    aucs1 = np.asarray(aucs1)
+    aucs2 = np.asarray(aucs2)
     D = aucs1 - aucs2
     z = np.mean(D) / np.std(D)
     p = 1.0 - scipy.stats.norm.cdf(abs(z))
