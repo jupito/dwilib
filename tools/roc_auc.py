@@ -96,10 +96,8 @@ for i, pmapdir in enumerate(args.pmapdir):
             for v in d['pmap']:
                 x.append(v[j])
                 y.append(d['label'])
-        x = np.asarray(x)
-        y = np.asarray(y)
-        X.append(x)
-        Y.append(y)
+        X.append(np.asarray(x))
+        Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
 for x, y, param in zip(X, Y, Params):
