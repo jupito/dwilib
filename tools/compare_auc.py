@@ -3,7 +3,6 @@
 import sys
 import argparse
 import numpy as np
-from numpy import mean, std
 import scipy as sp
 import scipy.stats
 
@@ -68,9 +67,9 @@ def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
     described in pROC software."""
     D = aucs1 - aucs2
-    z = mean(D) / std(D)
+    z = np.mean(D) / np.std(D)
     p = 1 - sp.stats.norm.cdf(abs(z))
-    return mean(D), z, p
+    return np.mean(D), z, p
 
 
 # Handle arguments.
@@ -155,7 +154,7 @@ for x, y in zip(X_all, Y_all):
 if args.verbose:
     print '# param\tAUC\tAUCbs\tlower\tupper'
 for param, auc, auc_bs in zip(params_all, aucs, aucs_bs):
-    avg = mean(auc_bs)
+    avg = np.mean(auc_bs)
     ci1, ci2 = util.ci(auc_bs)
     print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
 
