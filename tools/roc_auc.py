@@ -101,12 +101,12 @@ if args.verbose > 1:
     print 'Labels: {nl}: {l}'.format(**d)
     print 'Positives: {npos}'.format(**d)
 
-for param, x in zip(params, X.T):
-    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x)
+for param, xp in zip(params, X.T):
+    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, xp)
     if args.autoflip and auc < 0.5:
-        x = -x
-        fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x)
-    auc_bs = dwi.util.bootstrap_aucs(Y, x, args.nboot)
+        xp = -xp
+        fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, xp)
+    auc_bs = dwi.util.bootstrap_aucs(Y, xp, args.nboot)
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
     print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
