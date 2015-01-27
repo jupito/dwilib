@@ -86,27 +86,27 @@ data = read_data(args.samplelist, args.patients, args.pmapdir, [args.threshold],
         args.average)
 params = data[0]['params']
 labels = set(d['score'] for d in data)
-X, Y = [], []
+x, y = [], []
 for d in data:
     for v in d['pmap']:
-        X.append(v)
-        Y.append(d['label'])
-X = np.asarray(X)
-Y = np.asarray(Y)
+        x.append(v)
+        y.append(d['label'])
+x = np.asarray(x)
+y = np.asarray(y)
 
 if args.verbose > 1:
-    d = dict(ns=X.shape[0], np=X.shape[1], nl=len(labels), l=sorted(labels),
-            npos=sum(Y))
+    d = dict(ns=x.shape[0], np=x.shape[1], nl=len(labels), l=sorted(labels),
+            npos=sum(y))
     print 'Samples: {ns}, parameters: {np}'.format(**d)
     print 'Labels: {nl}: {l}'.format(**d)
     print 'Positives: {npos}'.format(**d)
 
-for param, xp in zip(params, X.T):
-    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, xp)
+for param, xp in zip(params, x.T):
+    fpr, tpr, auc = dwi.util.calculate_roc_auc(y, xp)
     if args.autoflip and auc < 0.5:
         xp = -xp
-        fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, xp)
-    auc_bs = dwi.util.bootstrap_aucs(Y, xp, args.nboot)
+        fpr, tpr, auc = dwi.util.calculate_roc_auc(y, xp)
+    auc_bs = dwi.util.bootstrap_aucs(y, xp, args.nboot)
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
     print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
