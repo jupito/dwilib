@@ -99,6 +99,7 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
+Auc_bs = []
 for x, y, param in zip(X, Y, Params):
     if args.verbose > 1:
         d = dict(ns=len(x), nl=len(labels), l=sorted(labels), npos=sum(y))
@@ -114,6 +115,19 @@ for x, y, param in zip(X, Y, Params):
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
     print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
+    Auc_bs.append(auc_bs)
+
+# Print bootstrapped AUC comparisons.
+if args.verbose:
+    print '# param1\tparam2\tdiff\tZ\tp'
+done = []
+for i, param_i in enumerate(Params):
+    for j, param_j in enumerate(Params):
+        if i == j or (i, j) in done or (j, i) in done:
+            continue
+        done.append((i,j))
+        d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
+        print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)
 
 if args.figure:
     plot(args.figure)
