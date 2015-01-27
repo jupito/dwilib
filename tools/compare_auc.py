@@ -52,17 +52,6 @@ def load_data(pmaps, labels, group_ids):
     Y = np.array(Y)
     return X, Y, G
 
-def bootstrap_aucs(y, x, n=2000):
-    """Produce an array of bootstrapped ROC AUCs."""
-    aucs = np.zeros((n))
-    for i in range(n):
-        yb, xb = util.resample_bootstrap_stratified(y, x)
-        #fpr, tpr, _ = util.roc(yb, xb)
-        #auc = util.roc_auc(fpr, tpr)
-        _, _, auc = util.calculate_roc_auc(yb, xb)
-        aucs[i] = auc
-    return aucs
-
 def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
     described in pROC software."""
@@ -147,7 +136,7 @@ for x, y in zip(X_all, Y_all):
     #auc = util.roc_auc(fpr, tpr)
     _, _, auc = util.calculate_roc_auc(y, x)
     aucs.append(auc)
-    bs = bootstrap_aucs(y, x, args.nboot)
+    bs = util.bootstrap_aucs(y, x, args.nboot)
     aucs_bs.append(bs)
 
 # Print AUC's and mean bootstrapped AUC's.

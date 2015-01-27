@@ -182,6 +182,17 @@ def negate_for_roc(X, params):
                 param.startswith('Df')):
             X[i] = -X[i]
 
+def bootstrap_aucs(y, x, n=2000):
+    """Produce an array of bootstrapped ROC AUCs."""
+    aucs = np.zeros((n))
+    for i in range(n):
+        yb, xb = resample_bootstrap_stratified(y, x)
+        #fpr, tpr, _ = roc(yb, xb)
+        #auc = roc_auc(fpr, tpr)
+        _, _, auc = calculate_roc_auc(yb, xb)
+        aucs[i] = auc
+    return aucs
+
 def ci(x, p=0.05):
     """Confidence interval of a normally distributed array."""
     x = sorted(x)
