@@ -20,7 +20,7 @@ def parse_args():
             help='patients file')
     p.add_argument('--samplelist', default='samples_all.txt',
             help='sample list file')
-    p.add_argument('--pmapdir', required=True,
+    p.add_argument('--pmapdir', nargs='+', required=True,
             help='input pmap directory')
     p.add_argument('--roi2', action='store_true',
             help='use ROI2')
@@ -82,23 +82,25 @@ def read_pmapfile(dirname, case, scan, average):
 
 
 args = parse_args()
-data = read_data(args.samplelist, args.patients, args.pmapdir, [args.threshold],
-        args.average)
-params = data[0]['params']
-labels = set(d['score'] for d in data)
+
 X, Y = [], []
 Params = []
-for i, param in enumerate(params):
-    x, y = [], []
-    for d in data:
-        for v in d['pmap']:
-            x.append(v[i])
-            y.append(d['label'])
-    x = np.asarray(x)
-    y = np.asarray(y)
-X.append(x)
-Y.append(y)
-Params.append(param)
+for i, pmapdir in enumerate(args.pmapdir):
+    data = read_data(args.samplelist, args.patients, pmapdir, [args.threshold],
+            args.average)
+    params = data[0]['params']
+    labels = set(d['score'] for d in data)
+    for j, param in enumerate(params):
+        x, y = [], []
+        for d in data:
+            for v in d['pmap']:
+                x.append(v[j])
+                y.append(d['label'])
+        x = np.asarray(x)
+        y = np.asarray(y)
+        X.append(x)
+        Y.append(y)
+        Params.append('%i:%s' % (i, param))
 
 for x, y, param in zip(X, Y, Params):
     if args.verbose > 1:
