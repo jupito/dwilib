@@ -87,8 +87,8 @@ data = read_data(args.samplelist, args.patients, args.pmapdir, [args.threshold],
 params = data[0]['params']
 X, Y = [], []
 for d in data:
-    for x in d['pmap']:
-        X.append(x)
+    for v in d['pmap']:
+        X.append(v)
         Y.append(d['label'])
 X = np.asarray(X)
 Y = np.asarray(Y)
