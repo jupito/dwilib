@@ -177,13 +177,15 @@ class DWImage(object):
         """Return time consumed by previous operation."""
         return self.end_time - self.start_time
 
-    def fit(self, model):
+    def fit(self, model, average=False):
         """Fit model to whole image.
 
         Parameters
         ----------
         model : fit.Model
             Model used for fitting.
+        average : bool, optional
+            Fit just the mean of all voxels.
 
         Returns
         -------
@@ -193,6 +195,8 @@ class DWImage(object):
         self.start_execution()
         xdata = self.bset
         ydatas = self.sis
+        if average:
+            ydatas = np.mean(ydatas, axis=0, keepdims=True)
         pmap = model.fit(xdata, ydatas)
         self.end_execution()
         return pmap
