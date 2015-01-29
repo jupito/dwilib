@@ -176,6 +176,10 @@ if args.total:
     data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
     data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
     data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
+    import scipy
+    import scipy.stats
+    for i in range(len(dwi.texture.PROPNAMES)):
+        print scipy.stats.spearmanr(data['cancer_coprops'][i], data['normal_coprops'][i])
     aucs = get_texture_aucs(data)
     for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
         print propname, auc
