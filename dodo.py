@@ -181,7 +181,7 @@ def get_task_select_roi_dicom_mask(case, scan, model, param, masktype,
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            'name': '{c}_{s}'.format(**d),
+            'name': '{c}_{s}_{mt}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             #'file_dep': [maskpath],
@@ -225,11 +225,10 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
 def task_select_roi_cancer():
     """Select cancer ROIs from the pmap DICOMs."""
     for sample in SAMPLES:
+        case = sample['case']
         for scan in sample['scans']:
-            case = sample['case']
-            masktype = 'CA'
-            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm',
-                    masktype)
+            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm', 'CA')
+            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm', 'N')
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
