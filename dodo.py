@@ -197,7 +197,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     if masktype == 'auto':
         name = '{c}_{s}_{algparams_}'.format(**d)
         maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
-        outpath = 'rois_{mt}_{sl}_{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+        outpath = 'rois_{mt}_{sl}/{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     else:
         name = '{c}_{s}'.format(**d)
         maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
@@ -253,7 +253,7 @@ def task_evaluate_autoroi():
         if algparams[0] > algparams[1]:
             continue
         d['algparams_'] = '_'.join(map(str, algparams))
-        d['i'] = 'rois_auto_{sl}_{algparams_}'.format(**d)
+        d['i'] = 'rois_auto_{sl}/{algparams_}'.format(**d)
         s = 'echo -n {algparams_} >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
