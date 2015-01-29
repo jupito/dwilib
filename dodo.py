@@ -222,7 +222,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
             'clean': True,
             }
 
-def task_select_roi_cancer():
+def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
     for sample in SAMPLES:
         case = sample['case']
