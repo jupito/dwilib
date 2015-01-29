@@ -105,7 +105,7 @@ def task_fit():
 def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, c=case, s=scan,
             algparams=' '.join(algparams), algparams_='_'.join(algparams))
-    maskpath = 'masks_auto_{sl}_{algparams_}/{c}_{s}_auto.mask'.format(**d)
+    maskpath = 'masks_auto_{sl}/{algparams_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{sl}/{algparams_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
@@ -196,7 +196,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
             algparams_='_'.join(algparams), sw=subwindow)
     if masktype == 'auto':
         name = '{c}_{s}_{algparams_}'.format(**d)
-        maskpath = 'masks_{mt}_{sl}_{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
+        maskpath = 'masks_{mt}_{sl}/{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
         outpath = 'rois_{mt}_{sl}/{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     else:
         name = '{c}_{s}'.format(**d)
