@@ -55,21 +55,3 @@ for infile in args.input:
         print 'Writing (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), outfile)
     with open(outfile, 'w') as f:
         f.write(' '.join(map(str, props)) + '\n')
-
-#if args.total:
-#    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
-#    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
-#    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
-#    import scipy
-#    import scipy.stats
-#    for i in range(len(dwi.texture.PROPNAMES)):
-#        print scipy.stats.spearmanr(data['cancer_coprops'][i], data['normal_coprops'][i])
-#    aucs = get_texture_aucs(data)
-#    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
-#        print propname, auc
-#
-#tuples = zip(data['images'], data['cases'], data['scans'])
-#for img, case, scan in tuples:
-#    if case in args.cases:
-#        title = '%s %s' % (case, scan)
-#        draw_props(img, title, args.step)
