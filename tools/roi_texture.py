@@ -8,11 +8,11 @@ import re
 import numpy as np
 import skimage
 
-from dwi import util
-from dwi import patient
-from dwi import dwimage
-from dwi import mask
-from dwi import texture
+import dwi.util
+import dwi.patient
+import dwi.dwimage
+import dwi.mask
+import dwi.texture
 
 def parse_args():
     """Parse command-line arguments."""
@@ -35,7 +35,7 @@ def read_image(dir, case, scan, model):
     s = '{d}/{c}_*_{s}/{c}_*_{s}_{m}'.format(**d)
     paths = glob.glob(s)
     if paths:
-        return dwimage.load_dicom(paths)[0]
+        return dwi.dwimage.load_dicom(paths)[0]
     else:
         raise Exception('Image not found: %s' % s)
 
@@ -44,7 +44,7 @@ def read_mask(dir, case, scan):
     s = '{d}/{c}_{s}_*.mask'.format(**d)
     paths = glob.glob(s)
     if paths:
-        return mask.load_ascii(paths[0])
+        return dwi.mask.load_ascii(paths[0])
     else:
         raise Exception('Mask not found: %s' % s)
 
@@ -55,16 +55,16 @@ def normalize_pmap(pmap):
     return pmap
 
 def read_data(imagedir, patientsfile, subwindowsfile, samplesfile):
-    patients = patient.read_patients_file(patientsfile)
-    subwindows = util.read_subwindows(subwindowsfile)
-    samples_all = util.read_sample_list(samplesfile)
+    patients = dwi.patient.read_patients_file(patientsfile)
+    subwindows = dwi.util.read_subwindows(subwindowsfile)
+    samples_all = dwi.util.read_sample_list(samplesfile)
     
     data = dict(cases=[], scans=[], scores=[], images=[], cancer_masks=[],
             normal_masks=[])
     for sample in samples_all:
         case, scans = sample['case'], sample['scans']
         scan = scans[0]
-        score = patient.get_patient(patients, case).score
+        score = dwi.patient.get_patient(patients, case).score
         subwindow = subwindows[(case, scan)]
         dwimage = read_image(imagedir, case, scan, 'ADCm')
         cancer_mask = read_mask('masks_cancer', case, scan)
@@ -110,7 +110,7 @@ def get_other_rois(data, win_step):
     data['other_rois'] = l
 
 def draw_props(img, title, win_step):
-    pmap = texture.get_texture_pmap(img, win_step)
+    pmap = dwi.texture.get_texture_pmap(img, win_step)
 
     import matplotlib
     import matplotlib.pyplot as plt
@@ -118,10 +118,10 @@ def draw_props(img, title, win_step):
     plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.aspect'] = 'equal'
     plt.rcParams['image.interpolation'] = 'none'
-    n_cols, n_rows = len(texture.PROPNAMES)+1, 1
+    n_cols, n_rows = len(dwi.texture.PROPNAMES)+1, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
     plt.title(title)
-    for i, name in enumerate(['original']+texture.PROPNAMES):
+    for i, name in enumerate(['original']+dwi.texture.PROPNAMES):
         ax = fig.add_subplot(1, n_cols, i+1)
         ax.set_title(name)
         plt.imshow(pmap[i])
@@ -132,19 +132,19 @@ def draw_props(img, title, win_step):
 
 def get_texture_aucs(data):
     aucs = []
-    for i, propname in enumerate(texture.PROPNAMES):
+    for i, propname in enumerate(dwi.texture.PROPNAMES):
         c = data['cancer_coprops'][:,i]
         n = data['normal_coprops'][:,i]
         o = data['other_coprops'][:,i]
-        #print np.mean(c), util.fivenum(c)
-        #print np.mean(n), util.fivenum(n)
-        #print np.mean(o), util.fivenum(o)
+        #print np.mean(c), dwi.util.fivenum(c)
+        #print np.mean(n), dwi.util.fivenum(n)
+        #print np.mean(o), dwi.util.fivenum(o)
         yc = np.ones_like(c, dtype=int)
         yn = np.ones_like(n, dtype=int)
         yo = np.zeros_like(o, dtype=int)
         y = np.concatenate((yc, yn, yo))
         x = np.concatenate((c, n, o))
-        _, _, auc = util.calculate_roc_auc(y, x, autoflip=True)
+        _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
         aucs.append(auc)
     return aucs
 
@@ -157,9 +157,9 @@ print 'Window step size: %s' % args.step
 print len(data['other_rois'])
 
 #print
-#print util.fivenum(data['cancer_rois'])
-#print util.fivenum(data['normal_rois'])
-#print util.fivenum(data['other_rois'])
+#print dwi.util.fivenum(data['cancer_rois'])
+#print dwi.util.fivenum(data['normal_rois'])
+#print dwi.util.fivenum(data['other_rois'])
 
 #c = np.array(data['cancer_rois']).ravel()
 #n = np.array(data['normal_rois']).ravel()
@@ -169,15 +169,15 @@ print len(data['other_rois'])
 ##yo = np.zeros_like(o, dtype=int)
 #y = np.concatenate((yc, yn))
 #x = np.concatenate((c, n))
-#_, _, auc = util.calculate_roc_auc(y, x, autoflip=True)
+#_, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
 #print auc
 
 if args.total:
-    data['cancer_coprops'] = texture.get_coprops(data['cancer_rois'])
-    data['normal_coprops'] = texture.get_coprops(data['normal_rois'])
-    data['other_coprops'] = texture.get_coprops(data['other_rois'])
+    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
+    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
+    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
     aucs = get_texture_aucs(data)
-    for propname, auc in zip(texture.PROPNAMES, aucs):
+    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
         print propname, auc
 
 tuples = zip(data['images'], data['cases'], data['scans'])
