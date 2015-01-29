@@ -109,6 +109,24 @@ def get_other_rois(data, win_step):
                 l.append(win)
     data['other_rois'] = l
 
+def get_texture_aucs(data):
+    aucs = []
+    for i, propname in enumerate(dwi.texture.PROPNAMES):
+        c = data['cancer_coprops'][:,i]
+        n = data['normal_coprops'][:,i]
+        o = data['other_coprops'][:,i]
+        #print np.mean(c), dwi.util.fivenum(c)
+        #print np.mean(n), dwi.util.fivenum(n)
+        #print np.mean(o), dwi.util.fivenum(o)
+        yc = np.ones_like(c, dtype=int)
+        yn = np.ones_like(n, dtype=int)
+        yo = np.zeros_like(o, dtype=int)
+        y = np.concatenate((yc, yn, yo))
+        x = np.concatenate((c, n, o))
+        _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+        aucs.append(auc)
+    return aucs
+
 def draw_props(img, title, win_step):
     pmap = dwi.texture.get_texture_pmap(img, win_step)
 
@@ -129,24 +147,6 @@ def draw_props(img, title, win_step):
     outfile = title+'.png'
     print 'Writing %s' % outfile
     plt.savefig(outfile, bbox_inches='tight')
-
-def get_texture_aucs(data):
-    aucs = []
-    for i, propname in enumerate(dwi.texture.PROPNAMES):
-        c = data['cancer_coprops'][:,i]
-        n = data['normal_coprops'][:,i]
-        o = data['other_coprops'][:,i]
-        #print np.mean(c), dwi.util.fivenum(c)
-        #print np.mean(n), dwi.util.fivenum(n)
-        #print np.mean(o), dwi.util.fivenum(o)
-        yc = np.ones_like(c, dtype=int)
-        yn = np.ones_like(n, dtype=int)
-        yo = np.zeros_like(o, dtype=int)
-        y = np.concatenate((yc, yn, yo))
-        x = np.concatenate((c, n, o))
-        _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
-        aucs.append(auc)
-    return aucs
 
 
 args = parse_args()
