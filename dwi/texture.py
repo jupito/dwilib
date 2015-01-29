@@ -1,19 +1,29 @@
 """Texture analysis."""
 
 import numpy as np
+import skimage
 from skimage.feature import greycomatrix, greycoprops
 from skimage.util import view_as_windows
 
 PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
         'correlation', 'ASM']
 
+def get_coprops_img(img):
+    """Get co-occurrence matrix texture properties ower an image."""
+    distances = [1]
+    angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
+    glcm = greycomatrix(img, distances, angles, 256, symmetric=True,
+            normed=True)
+    props = [np.mean(greycoprops(glcm, p)) for p in PROPNAMES]
+    return props
+
 def get_coprops(windows):
     props = np.zeros((len(windows), len(PROPNAMES)))
     for i, win in enumerate(windows):
         #win = skimage.img_as_ubyte(win)
-        if win.min() == 0:
-            props[i].fill(0)
-            continue
+        #if win.min() == 0:
+        #    props[i].fill(0)
+        #    continue
         distances = [1]
         angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
         glcm = greycomatrix(win, distances, angles, 256, symmetric=True,
