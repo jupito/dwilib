@@ -41,18 +41,20 @@ def plot(img):
 
 
 args = parse_args()
-af = dwi.asciifile.AsciiFile(args.input)
-img = af.a.reshape((5,5))
-if args.verbose:
-    print img.shape
-
-img = normalize(img)
-props = dwi.texture.get_coprops_img(img)
-
-if args.verbose:
-    print 'Writing (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), args.output)
-with open(args.output, 'w') as f:
-    f.write(' '.join(map(str, props)))
+for infile in args.input:
+    af = dwi.asciifile.AsciiFile(infile)
+    img = af.a.reshape((5,5))
+    if args.verbose:
+        print 'Image shape: %s' % (img.shape,)
+    
+    img = normalize(img)
+    props = dwi.texture.get_coprops_img(img)
+    
+    outfile = args.output or 'props_%s' % af.basename
+    if args.verbose:
+        print 'Writing (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), outfile)
+    with open(outfile, 'w') as f:
+        f.write(' '.join(map(str, props)) + '\n')
 
 #if args.total:
 #    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
