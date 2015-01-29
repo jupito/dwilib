@@ -106,7 +106,7 @@ def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, c=case, s=scan,
             algparams=' '.join(algparams), algparams_='_'.join(algparams))
     maskpath = 'masks_auto_{sl}_{algparams_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{sl}_{algparams_}/{c}_{s}.png'.format(**d)
+    figpath = 'find_roi_images_{sl}/{algparams_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
