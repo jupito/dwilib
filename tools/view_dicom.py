@@ -18,7 +18,8 @@ def parse_args():
     p.add_argument('--files', '-f', metavar='PATH', nargs='+', default=[],
             required=True,
             help='DICOM directory or files')
-    p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[], type=int,
+    p.add_argument('--subwindow', '-s', metavar='i', nargs=6, default=[],
+            type=int,
             help='ROI (6 integers)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
