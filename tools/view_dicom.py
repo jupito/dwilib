@@ -15,8 +15,9 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--files', '-f', nargs='+', default=[], required=True,
-            help='DICOM files')
+    p.add_argument('--files', '-f', metavar='PATH', nargs='+', default=[],
+            required=True,
+            help='DICOM directory or files')
     p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[], type=int,
             help='ROI (6 integers)')
     p.add_argument('--verbose', '-v', action='count',
