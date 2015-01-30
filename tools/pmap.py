@@ -79,7 +79,10 @@ def fit_dwi(model, dwi):
         print dwi
     logger = log if args.verbose > 1 else None
     if not model.params:
-        model.params = ['SI%dN' % b for b in dwi.bset]
+        if model.name == 'Si':
+            model.params = ['SI%d' % b for b in dwi.bset]
+        elif model.name == 'SiN':
+            model.params = ['SI%dN' % b for b in dwi.bset]
     params = model.params + ['RMSE']
     #pmap = dwi.fit_whole(model, log=logger, mean=args.average)
     pmap = dwi.fit(model, average=args.average)
