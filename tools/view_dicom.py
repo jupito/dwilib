@@ -46,10 +46,10 @@ class Gui(object):
 
     def show_help(self):
         print 'Usage:'
-        print '    Click: toggle update mode'
+        print '    Click: toggle update mode on/off'
         print '    Move left/right: change slice (in update mode)'
         print '    Move up/down: change b-value (in update mode)'
-        print '    b/g/j: select colormap'
+        print '    b/g/j: select colormap (blue/gray/jet)'
         print '    q: quit'
 
     def on_key(self, event):
