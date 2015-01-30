@@ -20,7 +20,7 @@ def parse_args():
             help='DICOM directory or files')
     p.add_argument('--subwindow', '-s', metavar='i',
             nargs=6, default=[], type=int,
-            help='ROI (6 integers)')
+            help='ROI (6 integers, one-based)')
     p.add_argument('--verbose', '-v', action='count',
             help='be more verbose')
     p.add_argument('--normalize', '-n', action='store_true',
@@ -92,8 +92,8 @@ class Gui(object):
 args = parse_args()
 
 dwimage = dwi.dwimage.load_dicom(args.files)[0]
-if args.roi:
-    dwimage = dwimage.get_roi(args.roi, onebased=True)
+if args.subwindow:
+    dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
 if args.normalize:
     for si in dwimage.sis:
