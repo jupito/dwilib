@@ -14,8 +14,7 @@ import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(
-            description='View DWI DICOM images.')
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--files', '-f', nargs='+', default=[], required=True,
             help='DICOM files')
     p.add_argument('--roi', '-r', metavar='i', nargs=6, default=[], type=int,
