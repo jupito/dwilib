@@ -111,8 +111,8 @@ def read_prostate_mask(case, scan):
     raise Exception('Multi-slice prostate mask not found: %s' % s)
 
 def read_image(imagedir, case, scan, param):
-    d = dict(c=case, s=scan, p=param)
-    s = imagedir + '/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
+    d = dict(d=imagedir, c=case, s=scan, p=param)
+    s = '{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Image path confusion: %s' % s)
