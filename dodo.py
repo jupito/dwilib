@@ -107,18 +107,17 @@ def task_fit():
 
 def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM,
-            c=case, s=scan, algparams=' '.join(algparams),
-            algparams_='_'.join(algparams))
-    maskpath = 'masks_auto_{sl}/{algparams_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{sl}/{algparams_}/{c}_{s}.png'.format(**d)
+            c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
+    maskpath = 'masks_auto_{sl}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    figpath = 'find_roi_images_{sl}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --cases {c} --scans {s} '\
-            '--algparams {algparams} --outmask {mp} --outfig {fp}'.format(**d)
+            '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
     return {
-            'name': '{c}_{s}_{algparams_}'.format(**d),
+            'name': '{c}_{s}_{ap_}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),
                         (create_folder, [dirname(figpath)]),
                     cmd],
@@ -197,10 +196,10 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
         subwindow=None):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
-            algparams_='_'.join(algparams), sw=subwindow)
-    name = '{c}_{s}_{algparams_}'.format(**d)
-    maskpath = 'masks_{mt}_{sl}/{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
-    outpath = 'rois_{mt}_{sl}/{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+            ap_='_'.join(algparams), sw=subwindow)
+    name = '{c}_{s}_{ap_}'.format(**d)
+    maskpath = 'masks_{mt}_{sl}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    outpath = 'rois_{mt}_{sl}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     args = [SELECT_VOXELS]
@@ -212,7 +211,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            #'name': '{c}_{s}_{algparams_}'.format(**d),
+            #'name': '{c}_{s}_{ap_}'.format(**d),
             'name': name,
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
@@ -250,9 +249,9 @@ def task_evaluate_autoroi():
     for algparams in itertools.product(*FIND_ROI_PARAMS):
         if algparams[0] > algparams[1]:
             continue
-        d['algparams_'] = '_'.join(map(str, algparams))
-        d['i'] = 'rois_auto_{sl}/{algparams_}'.format(**d)
-        s = 'echo -n {algparams_} >> {o}'
+        d['ap_'] = '_'.join(map(str, algparams))
+        d['i'] = 'rois_auto_{sl}/{ap_}'.format(**d)
+        s = 'echo -n {ap_} >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
         cmds.append(s.format(**d))
