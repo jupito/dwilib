@@ -28,8 +28,8 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--samplelist', default='samples_all.txt',
             help='sample list file')
-    p.add_argument('--imagedir', default='results_Mono_combinedDICOM',
-            help='input DICOM image directory')
+    p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
+            help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
@@ -275,7 +275,7 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.imagedir, args.param, args.cases,
+data = read_data(args.samplelist, args.pmapdir, args.param, args.cases,
         args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
