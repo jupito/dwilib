@@ -107,9 +107,9 @@ def task_fit():
 
 def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM,
-            c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
-    maskpath = 'masks_auto_{sl}/{ap_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{sl}/{ap_}/{c}_{s}.png'.format(**d)
+            m=MODEL, c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
+    maskpath = 'masks_auto_{m}_{sl}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    figpath = 'find_roi_images_{m}_{sl}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
@@ -172,7 +172,7 @@ def get_task_select_roi_dicom_mask(case, scan, model, param, masktype,
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             sw=subwindow)
     maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
-    outpath = 'rois_{mt}_{sl}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    outpath = 'rois_{mt}_{m}_{sl}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     args = [SELECT_VOXELS]
@@ -198,8 +198,8 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams), sw=subwindow)
     name = '{c}_{s}_{ap_}'.format(**d)
-    maskpath = 'masks_{mt}_{sl}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
-    outpath = 'rois_{mt}_{sl}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    maskpath = 'masks_{mt}_{m}_{sl}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    outpath = 'rois_{mt}_{m}_{sl}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     args = [SELECT_VOXELS]
@@ -244,13 +244,13 @@ def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
     outfile = 'autoroi_evaluation_%s.txt' % SAMPLELIST
-    d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, o=outfile)
+    d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
         if algparams[0] > algparams[1]:
             continue
         d['ap_'] = '_'.join(map(str, algparams))
-        d['i'] = 'rois_auto_{sl}/{ap_}'.format(**d)
+        d['i'] = 'rois_auto_{m}_{sl}/{ap_}'.format(**d)
         s = 'echo -n {ap_} >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
