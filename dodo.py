@@ -36,6 +36,8 @@ CORRELATION = DWILIB+'/correlation.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
+MODEL = get_var('model', 'Mono')
+PARAM = get_var('param', 'ADCm')
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
@@ -227,8 +229,8 @@ def task_select_roi_manual():
     for sample in SAMPLES:
         case = sample['case']
         for scan in sample['scans']:
-            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm', 'CA')
-            yield get_task_select_roi_dicom_mask(case, scan, 'Mono', 'ADCm', 'N')
+            yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'CA')
+            yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'N')
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
@@ -239,7 +241,7 @@ def task_select_roi_auto():
                     continue
                 case = sample['case']
                 masktype = 'auto'
-                yield get_task_select_roi(case, scan, 'Mono', 'ADCm', masktype,
+                yield get_task_select_roi(case, scan, MODEL, PARAM, masktype,
                         algparams=map(str, algparams))
 
 def task_evaluate_autoroi():
