@@ -291,7 +291,7 @@ for d in data:
             prostate_mask=d['prostate_mask'], sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
-    draw(d, args.param, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
+    draw(d, args.param, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**d))
     write_mask(d, args.outmask or OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
 
 #if args.verbose:
