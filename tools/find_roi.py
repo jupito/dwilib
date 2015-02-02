@@ -16,7 +16,6 @@ PARAMS = ['ADCm']
 
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_MASK_DIR = 'masks_rois'
-IN_IMAGE_DIR = 'results_Mono_combinedDICOM'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
 
@@ -31,6 +30,8 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--samplelist', default='samples_all.txt',
             help='sample list file')
+    p.add_argument('--imagedir', default='results_Mono_combinedDICOM',
+            help='input DICOM image directory')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--algparams', metavar='I', nargs=3, type=int,
@@ -109,9 +110,9 @@ def read_prostate_mask(case, scan):
             return mask
     raise Exception('Multi-slice prostate mask not found: %s' % s)
 
-def read_image(case, scan, param):
+def read_image(imagedir, case, scan, param):
     d = dict(c=case, s=scan, p=param)
-    s = IN_IMAGE_DIR + '/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
+    s = imagedir + '/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Image path confusion: %s' % s)
@@ -128,7 +129,7 @@ def clip_image(img):
         elif PARAMS[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, cases=[], scans=[], clip=False):
+def read_data(samplelist_file, imagedir, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
@@ -152,7 +153,7 @@ def read_data(samplelist_file, cases=[], scans=[], clip=False):
             masks = read_roi_masks(case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = read_prostate_mask(case, scan)
-            image = read_image(case, scan, PARAMS[0])
+            image = read_image(imagedir, case, scan, PARAMS[0])
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
             cropped_prostate_mask = prostate_mask.crop(subregion)
@@ -274,7 +275,8 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.cases, args.scans, args.clip)
+data = read_data(args.samplelist, args.imagedir, args.cases, args.scans,
+        args.clip)
 sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
