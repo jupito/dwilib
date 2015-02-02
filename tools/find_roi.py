@@ -12,8 +12,6 @@ import dwi.mask
 import dwi.patient
 import dwi.util
 
-PARAMS = ['ADCm']
-
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_MASK_DIR = 'masks_rois'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
@@ -32,6 +30,8 @@ def parse_args():
             help='sample list file')
     p.add_argument('--imagedir', default='results_Mono_combinedDICOM',
             help='input DICOM image directory')
+    p.add_argument('--param', default='ADCm',
+            help='image parameter to use')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
     p.add_argument('--algparams', metavar='I', nargs=3, type=int,
@@ -121,15 +121,15 @@ def read_image(imagedir, case, scan, param):
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
     return image
 
-def clip_image(img):
+def clip_image(img, params):
     """Clip parameter-specific intensity outliers in-place."""
     for i in range(img.shape[-1]):
-        if PARAMS[i].startswith('ADC'):
+        if params[i].startswith('ADC'):
             img[...,i].clip(0, 0.002, out=img[...,i])
-        elif PARAMS[i].startswith('K'):
+        elif params[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, imagedir, cases=[], scans=[], clip=False):
+def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
     subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
@@ -153,14 +153,14 @@ def read_data(samplelist_file, imagedir, cases=[], scans=[], clip=False):
             masks = read_roi_masks(case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = read_prostate_mask(case, scan)
-            image = read_image(imagedir, case, scan, PARAMS[0])
+            image = read_image(imagedir, case, scan, param)
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
             cropped_prostate_mask = prostate_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
             #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
             if clip:
-                clip_image(cropped_image)
+                clip_image(cropped_image, [param])
             d = dict(case=case, scan=scan, score=score,
                     subwindow=subwindow,
                     slice_index=slice_index,
@@ -190,7 +190,7 @@ def get_roi_layer(img, pos, color):
     draw_roi(layer, pos, color)
     return layer
 
-def draw(data, filename):
+def draw(data, param, filename):
     import matplotlib
     import matplotlib.pyplot as plt
     import pylab as pl
@@ -206,7 +206,7 @@ def draw(data, filename):
 
     slice_index = data['roi_corner'][0]
     pmap = data['image'][slice_index].copy()
-    clip_image(pmap)
+    clip_image(pmap, [param])
     pmap = pmap[...,0]
 
     cancer_pos = (-1, -1)
@@ -220,7 +220,7 @@ def draw(data, filename):
         normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title('Slice %i %s' % (slice_index, PARAMS[0]))
+    ax1.set_title('Slice %i %s' % (slice_index, param))
     plt.imshow(pmap)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
@@ -275,8 +275,8 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.imagedir, args.cases, args.scans,
-        args.clip)
+data = read_data(args.samplelist, args.imagedir, args.param, args.cases,
+        args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
@@ -287,11 +287,11 @@ for d in data:
         print d['image'].shape
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
-    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, PARAMS,
+    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, [args.param],
             prostate_mask=d['prostate_mask'], sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
-    draw(d, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
+    draw(d, args.param, args.outfig or OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**data))
     write_mask(d, args.outmask or OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
 
 #if args.verbose:
