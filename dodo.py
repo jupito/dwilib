@@ -38,6 +38,7 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', 'ADCm')
+PMAPDIR_DICOM = 'results_{m}_combinedDICOM'.format(m=MODEL)
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
@@ -105,15 +106,16 @@ def task_fit():
                     }
 
 def get_task_find_roi(case, scan, algparams):
-    d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, c=case, s=scan,
-            algparams=' '.join(algparams), algparams_='_'.join(algparams))
+    d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM,
+            c=case, s=scan, algparams=' '.join(algparams),
+            algparams_='_'.join(algparams))
     maskpath = 'masks_auto_{sl}/{algparams_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{sl}/{algparams_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    cmd = '{prg} --samplelist {slf} --cases {c} --scans {s} '\
+    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --cases {c} --scans {s} '\
             '--algparams {algparams} --outmask {mp} --outfig {fp}'.format(**d)
     return {
             'name': '{c}_{s}_{algparams_}'.format(**d),
