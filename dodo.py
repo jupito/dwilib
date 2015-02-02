@@ -107,14 +107,15 @@ def task_fit():
 
 def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM,
-            m=MODEL, c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
+            m=MODEL, p=PARAM, c=case, s=scan, ap=' '.join(algparams),
+            ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{sl}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{sl}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --cases {c} --scans {s} '\
+    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
             '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
     return {
             'name': '{c}_{s}_{ap_}'.format(**d),
