@@ -198,14 +198,9 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             algparams_='_'.join(algparams), sw=subwindow)
-    if masktype == 'auto':
-        name = '{c}_{s}_{algparams_}'.format(**d)
-        maskpath = 'masks_{mt}_{sl}/{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
-        outpath = 'rois_{mt}_{sl}/{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    else:
-        name = '{c}_{s}'.format(**d)
-        maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
-        outpath = 'rois_{mt}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    name = '{c}_{s}_{algparams_}'.format(**d)
+    maskpath = 'masks_{mt}_{sl}/{algparams_}/{c}_{s}_{mt}.mask'.format(**d)
+    outpath = 'rois_{mt}_{sl}/{algparams_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     args = [SELECT_VOXELS]
