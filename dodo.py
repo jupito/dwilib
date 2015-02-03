@@ -125,12 +125,12 @@ def get_task_find_roi(case, scan, algparams):
 
 def task_find_roi():
     """Find a cancer ROI automatically."""
-    for sample in SAMPLES:
-        case = sample['case']
-        for scan in sample['scans']:
-            for algparams in itertools.product(*FIND_ROI_PARAMS):
-                if algparams[0] > algparams[1]:
-                    continue
+    for algparams in itertools.product(*FIND_ROI_PARAMS):
+        if algparams[0] > algparams[1]:
+            continue
+        for sample in SAMPLES:
+            case = sample['case']
+            for scan in sample['scans']:
                 yield get_task_find_roi(case, scan, map(str, algparams))
 
 ## Deprecated.
