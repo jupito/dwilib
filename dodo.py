@@ -48,7 +48,7 @@ SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 FIND_ROI_PARAMS = [
         [8, 10], # ROI side min (3 was not good)
         [8, 10], # ROI side max
-        range(250, 1000, 250), # Number of ROIs
+        range(250, 2000, 250), # Number of ROIs
 ]
 
 # Common functions
@@ -114,7 +114,7 @@ def get_task_find_roi(case, scan, algparams):
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
             '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
     return {
-            'name': '{c}_{s}_{ap_}'.format(**d),
+            'name': '{c}_{s}_{ap_}'.format(**d), # TODO: Rename algparams-first
             'actions': [(create_folder, [dirname(maskpath)]),
                         (create_folder, [dirname(figpath)]),
                     cmd],
