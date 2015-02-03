@@ -46,12 +46,8 @@ SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        #[5, 7, 10], # ROI side min (3 was not good)
         [7, 8, 9, 10, 11], # ROI side min (3 was not good)
-        #[10, 15], # ROI side max
         [7, 8, 9, 10, 11], # ROI side max
-        #range(500, 6000, 500), # Number of ROIs
-        #range(500, 3000, 500) + [250, 750], # Number of ROIs
         range(250, 3000, 250), # Number of ROIs
 ]
 
@@ -244,7 +240,7 @@ def task_select_roi_auto():
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
-    outfile = 'autoroi_evaluation_%s.txt' % SAMPLELIST
+    outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
     d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in itertools.product(*FIND_ROI_PARAMS):
