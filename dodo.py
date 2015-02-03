@@ -194,7 +194,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams), sw=subwindow)
-    name = '{c}_{s}_{ap_}'.format(**d)
+    name = '{ap_}_{c}_{s}'.format(**d)
     maskpath = 'masks_{mt}_{m}_{sl}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{sl}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
@@ -227,11 +227,11 @@ def task_select_roi_manual():
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
-    for sample in SAMPLES:
-        for scan in sample['scans']:
-            for algparams in itertools.product(*FIND_ROI_PARAMS):
-                if algparams[0] > algparams[1]:
-                    continue
+    for algparams in itertools.product(*FIND_ROI_PARAMS):
+        if algparams[0] > algparams[1]:
+            continue
+        for sample in SAMPLES:
+            for scan in sample['scans']:
                 case = sample['case']
                 masktype = 'auto'
                 yield get_task_select_roi(case, scan, MODEL, PARAM, masktype,
