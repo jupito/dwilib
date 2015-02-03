@@ -231,8 +231,8 @@ def task_select_roi_auto():
         if algparams[0] > algparams[1]:
             continue
         for sample in SAMPLES:
+            case = sample['case']
             for scan in sample['scans']:
-                case = sample['case']
                 masktype = 'auto'
                 yield get_task_select_roi(case, scan, MODEL, PARAM, masktype,
                         algparams=map(str, algparams))
