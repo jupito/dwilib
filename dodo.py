@@ -233,8 +233,7 @@ def task_select_roi_auto():
         for sample in SAMPLES:
             case = sample['case']
             for scan in sample['scans']:
-                masktype = 'auto'
-                yield get_task_select_roi(case, scan, MODEL, PARAM, masktype,
+                yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
                         algparams=map(str, algparams))
 
 def task_evaluate_autoroi():
