@@ -36,8 +36,9 @@ CORRELATION = DWILIB+'/correlation.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
+DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN', Kurt='ADCk', KurtN='ADCkN')
 MODEL = get_var('model', 'Mono')
-PARAM = get_var('param', 'ADCm')
+PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 PMAPDIR_DICOM = 'results_{m}_combinedDICOM'.format(m=MODEL)
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
