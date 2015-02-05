@@ -22,7 +22,7 @@ sqlite3: (experimental) very slow implementation, support concurrent access.
 DOIT_CONFIG = {
     'backend': 'sqlite3',
     'default_tasks': [],
-    'verbosity': 2,
+    'verbosity': 1,
     }
 
 DWILIB = '~/src/dwilib/tools'
@@ -47,9 +47,9 @@ SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        [7, 8, 9, 10, 11], # ROI side min (3 was not good)
-        [7, 8, 9, 10, 11], # ROI side max
-        range(250, 2500, 250), # Number of ROIs
+        [6, 7, 8, 9, 10], # ROI side min (3 was not good)
+        [6, 7, 8, 9, 10], # ROI side max
+        range(250, 2000, 250), # Number of ROIs
 ]
 
 # Common functions
