@@ -52,6 +52,11 @@ FIND_ROI_PARAMS = [
         range(250, 2000, 250), # Number of ROIs
 ]
 
+def find_roi_param_combinations():
+    for params in itertools.product(*FIND_ROI_PARAMS):
+        if params[0] <= params[1]:
+            yield params
+
 # Common functions
 
 def subwindow_to_str(subwindow):
@@ -126,9 +131,7 @@ def get_task_find_roi(case, scan, algparams):
 
 def task_find_roi():
     """Find a cancer ROI automatically."""
-    for algparams in itertools.product(*FIND_ROI_PARAMS):
-        if algparams[0] > algparams[1]:
-            continue
+    for algparams in find_roi_param_combinations():
         for sample in SAMPLES:
             case = sample['case']
             for scan in sample['scans']:
@@ -228,9 +231,7 @@ def task_select_roi_manual():
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
-    for algparams in itertools.product(*FIND_ROI_PARAMS):
-        if algparams[0] > algparams[1]:
-            continue
+    for algparams in find_roi_param_combinations():
         for sample in SAMPLES:
             case = sample['case']
             for scan in sample['scans']:
@@ -243,9 +244,7 @@ def task_evaluate_autoroi():
     outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
     d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
-    for algparams in itertools.product(*FIND_ROI_PARAMS):
-        if algparams[0] > algparams[1]:
-            continue
+    for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{m}_{sl}/{ap_}'.format(**d)
         s = 'echo -n {ap_} >> {o}'
