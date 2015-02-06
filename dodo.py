@@ -47,14 +47,15 @@ SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        [6, 7, 8, 9, 10], # ROI side min (3 was not good)
-        [6, 7, 8, 9, 10], # ROI side max
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], # ROI side min (3 was not good)
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], # ROI side max
         range(250, 2000, 250), # Number of ROIs
 ]
 
 def find_roi_param_combinations():
     for params in itertools.product(*FIND_ROI_PARAMS):
-        if params[0] <= params[1]:
+        #if params[0] <= params[1]:
+        if params[0] == params[1]:
             yield params
 
 # Common functions
