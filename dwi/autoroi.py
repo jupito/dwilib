@@ -12,7 +12,10 @@ def get_score_param(img, param):
     if param.startswith('ADC'):
         #r = 1-np.mean(img)
         #r = 1./(np.mean(img)-0.0008)
-        r = 1./np.mean(img)
+        if np.mean(img) > 0:
+            r = 1./np.mean(img)
+        else:
+            r = 0
         # NOTE The following min/max limit seems to make things worse.
         #if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
         #    r = 0
