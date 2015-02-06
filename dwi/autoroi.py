@@ -49,8 +49,8 @@ def get_roi_scores(img, d, params):
 def get_scoremap(img, d, params, n_rois):
     """Return array like original image, with scores of n_rois best ROI's."""
     scores = get_roi_scores(img, d, params)
-    indices = scores.ravel().argsort()[::-1] # Sort ROI's by descending score.
-    indices = indices[0:n_rois] # Select best ones.
+    indices = scores.ravel().argsort() # Sort ROI's by score.
+    indices = indices[-n_rois:] # Select best ones.
     indices = [np.unravel_index(i, scores.shape) for i in indices]
     scoremap = np.zeros(img.shape[0:3] + (1,))
     for z, y, x in indices:
