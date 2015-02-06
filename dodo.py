@@ -121,7 +121,7 @@ def get_task_find_roi(case, scan, algparams):
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
             '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
     return {
-            'name': '{c}_{s}_{ap_}'.format(**d), # TODO: Rename algparams-first
+            'name': '{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),
                         (create_folder, [dirname(figpath)]),
                     cmd],
