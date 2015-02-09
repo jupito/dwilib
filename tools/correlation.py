@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-'''Inspect correlation of parameters and Gleason score.'''
+"""Inspect correlation of parameters and Gleason score."""
 
 import argparse
 import math
@@ -15,10 +15,12 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--pmaps', '-m', nargs='+', required=True,
-            help='pmap files')
+    p.add_argument('--verbose', '-v', action='count',
+            help='be more verbose')
     p.add_argument('--scans', '-s', default='scans.txt',
             help='scans file')
+    p.add_argument('--pmaps', '-m', nargs='+', required=True,
+            help='pmap files')
     p.add_argument('--labeltype', '-l', choices=['score', 'bin', 'ord'],
             default='score', help='label type')
     p.add_argument('--groups', '-g', nargs='+', default=[],
@@ -27,8 +29,6 @@ def parse_args():
             default='all', help='measurement baselines')
     p.add_argument('--average', '-a', action='store_true',
             help='average input voxels into one (otherwise use only first)')
-    p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
     args = p.parse_args()
     return args
 
