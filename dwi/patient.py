@@ -110,9 +110,9 @@ def get_gleason_scores(patients):
             scores.append(p.score)
     return sorted(scores)
 
-def score_ord(sorted_scores, score):
+def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
-    return sorted_scores.index(score)
+    return sorted(scores).index(score)
 
 def read_exclude_file(filename):
     """Load a list scans to exclude."""
