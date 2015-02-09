@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-# Test correlation by gleason score.
+'''Inspect correlation of parameters and Gleason score.'''
 
 import argparse
 import math
@@ -14,8 +14,7 @@ import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description =
-            'Inspect correlation of parameters and Gleason score.')
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
             help='pmap files')
     p.add_argument('--scans', '-s', default='scans.txt',
