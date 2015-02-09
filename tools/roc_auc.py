@@ -53,7 +53,7 @@ def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         score = dwi.patient.get_patient(patientsinfo, case).score
         label = sum(score > t for t in thresholds)
         for scan in sample['scans']:
-            pmap, params, pathname = read_pmapfile(pmapdir, case, scan, average)
+            pmap, params, pathname = read_pmap(pmapdir, case, scan, average)
             d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
                     params=params, pathname=pathname)
             data.append(d)
@@ -63,7 +63,7 @@ def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
                 raise Exception('Irregular params: %s' % pathname)
     return data
 
-def read_pmapfile(dirname, case, scan, average):
+def read_pmap(dirname, case, scan, average):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
     s = '{d}/{c}_*_{s}_*.txt'.format(**d)
