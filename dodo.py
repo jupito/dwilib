@@ -32,7 +32,7 @@ FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/draw_roc.py'
-CORRELATION = DWILIB+'/correlation.py'
+CORRELATION = DWILIB+'/correlation_old.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
