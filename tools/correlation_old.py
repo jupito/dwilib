@@ -6,7 +6,6 @@
 
 import argparse
 import math
-import sys
 
 import numpy as np
 import scipy.stats
