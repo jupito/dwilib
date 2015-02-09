@@ -2,6 +2,8 @@
 
 """Inspect correlation of parameters and Gleason score."""
 
+# NOTE: Obsolete code.
+
 import argparse
 import math
 import sys
