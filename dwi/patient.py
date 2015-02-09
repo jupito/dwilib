@@ -198,7 +198,10 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     for sample in samples:
         case = sample['case']
         score = get_patient(patientsinfo, case).score
-        label = sum(score > t for t in thresholds)
+        if thresholds:
+            label = sum(score > t for t in thresholds)
+        else:
+            label = score_ord(get_gleason_scores(patientsinfo), score)
         for scan in sample['scans']:
             pmap, params, pathname = read_pmap(pmapdir, case, scan, average)
             d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
