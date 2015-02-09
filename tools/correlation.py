@@ -11,8 +11,8 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 
-from dwi import patient
-from dwi import util
+import dwi.patient
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -50,16 +50,16 @@ def correlation(x, y):
 
 
 args = parse_args()
-patients = patient.read_patients_file(args.scans)
-pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
-pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
+patients = dwi.patient.read_patients_file(args.scans)
+pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
+pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans, args.measurements)
 
 if args.average:
     X = np.mean(pmaps, axis=1)
 else:
     X = pmaps[:,0,:] # Use ROI1 only.
 nums = [n for n, s in numsscans]
-labels = patient.load_labels(patients, nums, args.labeltype)
+labels = dwi.patient.load_labels(patients, nums, args.labeltype)
 different_labels = sorted(list(set(labels)))
 
 if args.verbose > 1:
@@ -72,13 +72,13 @@ if args.labeltype == 'score':
     group_labels = args.groups or different_labels
     if args.verbose > 1:
         print 'Groups: %s' % group_labels
-    groups = [[patient.GleasonScore(x)] for x in group_labels]
-    labels = util.group_labels(groups, labels)
+    groups = [[dwi.patient.GleasonScore(x)] for x in group_labels]
+    labels = dwi.util.group_labels(groups, labels)
 
 # Add parameter ADCk/K if possible.
 try:
     i, j = params.index('ADCk'), params.index('K')
-    X = util.add_dummy_feature(X)
+    X = dwi.util.add_dummy_feature(X)
     X[:,-1] = X[:,i] / X[:,j]
     params += ('ADCk/K',)
 except ValueError, e:
@@ -87,7 +87,7 @@ except ValueError, e:
 # Add parameter ADCkN/KN if possible.
 try:
     i, j = params.index('ADCkN'), params.index('KN')
-    X = util.add_dummy_feature(X)
+    X = dwi.util.add_dummy_feature(X)
     X[:,-1] = X[:,i] / X[:,j]
     params += ('ADCkN/KN',)
 except ValueError, e:
