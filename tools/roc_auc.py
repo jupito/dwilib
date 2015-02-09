@@ -40,7 +40,7 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def read_data(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
+def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         average=False):
     """Read data. Thresholds are maximum scores of each group."""
     # TODO Support for selecting measurements over scan pairs
@@ -85,7 +85,7 @@ args = parse_args()
 X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
-    data = read_data(args.samplelist, args.patients, pmapdir, [args.threshold],
+    data = read_pmaps(args.samplelist, args.patients, pmapdir, [args.threshold],
             args.average)
     params = data[0]['params']
     labels = set(d['score'] for d in data)
