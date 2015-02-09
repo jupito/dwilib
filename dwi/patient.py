@@ -188,8 +188,10 @@ def load_labels(patients, nums, labeltype='score'):
 
 def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         average=False):
-    """Read pmaps labeled by their Gleason score. Label thresholds are maximum
-    scores of each label group."""
+    """Read pmaps labeled by their Gleason score.
+    
+    Label thresholds are maximum scores of each label group. Labels are ordinal
+    of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
     samples = util.read_sample_list(samplelist_file)
