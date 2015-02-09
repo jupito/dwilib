@@ -4,10 +4,8 @@
 ROC curves into a file."""
 
 import argparse
-import glob
 import numpy as np
 
-import dwi.asciifile
 import dwi.patient
 import dwi.util
 
@@ -40,54 +38,13 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
-        average=False):
-    """Read pmaps labeled by their Gleason score. Label thresholds are maximum
-    scores of each label group."""
-    # TODO Support for selecting measurements over scan pairs
-    thresholds = map(dwi.patient.GleasonScore, thresholds)
-    samples = dwi.util.read_sample_list(samplelist_file)
-    patientsinfo = dwi.patient.read_patients_file(patients_file)
-    data = []
-    for sample in samples:
-        case = sample['case']
-        score = dwi.patient.get_patient(patientsinfo, case).score
-        label = sum(score > t for t in thresholds)
-        for scan in sample['scans']:
-            pmap, params, pathname = read_pmap(pmapdir, case, scan, average)
-            d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
-                    params=params, pathname=pathname)
-            data.append(d)
-            if pmap.shape != data[0]['pmap'].shape:
-                raise Exception('Irregular shape: %s' % pathname)
-            if params != data[0]['params']:
-                raise Exception('Irregular params: %s' % pathname)
-    return data
-
-def read_pmap(dirname, case, scan, average):
-    """Read single pmap."""
-    d = dict(d=dirname, c=case, s=scan)
-    s = '{d}/{c}_*_{s}_*.txt'.format(**d)
-    paths = glob.glob(s)
-    if len(paths) != 1:
-        raise Exception('Ambiguous pmap: %s' % s)
-    af = dwi.asciifile.AsciiFile(paths[0])
-    pmap = af.a
-    params = af.params()
-    if pmap.shape[-1] != len(params):
-        # TODO Move to Asciifile initializer?
-        raise Exception('Number of parameters mismatch: %s' % af.filename)
-    if average:
-        pmap = np.mean(pmap, axis=0, keepdims=True)
-    return pmap, params, af.filename
-
 
 args = parse_args()
 X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
-    data = read_pmaps(args.samplelist, args.patients, pmapdir, [args.threshold],
-            args.average)
+    data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
+            [args.threshold], args.average)
     params = data[0]['params']
     labels = set(d['score'] for d in data)
     for j, param in enumerate(params):
