@@ -104,10 +104,7 @@ def get_patient(patients, num):
 
 def get_gleason_scores(patients):
     """Get all separate Gleason scores, sorted."""
-    scores = []
-    for p in patients:
-        if not p.score in scores:
-            scores.append(p.score)
+    scores = {p.score for p in patients}
     return sorted(scores)
 
 def score_ord(scores, score):
