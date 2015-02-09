@@ -2,13 +2,11 @@
 
 # Test correlation by gleason score.
 
-import os.path
-import sys
 import argparse
 import math
+import sys
 
 import numpy as np
-import scipy as sp
 import scipy.stats
 
 import dwi.patient
@@ -38,9 +36,9 @@ def parse_args():
 def correlation(x, y):
     """Calculate correlation with p-value and confidence interval."""
     assert len(x) == len(y)
-    #r, p = sp.stats.pearsonr(x, y)
-    #r, p = sp.stats.kendalltau(x, y)
-    r, p = sp.stats.spearmanr(x, y)
+    #r, p = scipy.stats.pearsonr(x, y)
+    #r, p = scipy.stats.kendalltau(x, y)
+    r, p = scipy.stats.spearmanr(x, y)
     n = len(x)
     stderr = 1.0 / math.sqrt(n-3)
     delta = 1.96 * stderr
