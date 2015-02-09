@@ -51,8 +51,10 @@ def correlation(x, y):
 
 args = parse_args()
 patients = dwi.patient.read_patients_file(args.scans)
-pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
-pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans, args.measurements)
+pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
+        pairs=True)
+pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans,
+        args.measurements)
 
 if args.average:
     X = np.mean(pmaps, axis=1)
