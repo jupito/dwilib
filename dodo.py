@@ -198,7 +198,6 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams), sw=subwindow)
-    name = '{ap_}_{c}_{s}'.format(**d)
     maskpath = 'masks_{mt}_{m}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
@@ -212,8 +211,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            #'name': '{c}_{s}_{ap_}'.format(**d),
-            'name': name,
+            'name': '{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             'file_dep': [maskpath],
