@@ -40,6 +40,8 @@ def parse_args():
 
 
 args = parse_args()
+
+# Collect all parameters.
 X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
@@ -66,6 +68,7 @@ if args.verbose > 2:
         print 'Labels: {nl}: {l}'.format(**d)
         print 'Positives: {npos}'.format(**d)
 
+# Print AUCs and bootstrapped AUCs.
 if args.verbose > 1:
     print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
 Auc_bs = []
@@ -95,12 +98,13 @@ for i, param_i in enumerate(Params):
         d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
         print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)
 
+# Plot the ROCs.
 if args.figure:
     plot(args.figure)
 
 
-# Plot ROCs.
 def plot(X, Y, params, filename):
+    """Plot ROCs."""
     import pylab as pl
     n_rows, n_cols = len(params), 1
     pl.figure(figsize=(n_cols*6, n_rows*6))
