@@ -200,7 +200,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
             ap_='_'.join(algparams), sw=subwindow)
     name = '{ap_}_{c}_{s}'.format(**d)
     maskpath = 'masks_{mt}_{m}_{sl}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
-    outpath = 'rois_{mt}_{m}_{sl}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    outpath = 'rois_{mt}_{m}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
     args = [SELECT_VOXELS]
@@ -242,11 +242,11 @@ def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
     outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
-    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
+    d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(map(str, algparams))
-        d['i'] = 'rois_auto_{m}_{sl}/{ap_}'.format(**d)
+        d['i'] = 'rois_auto_{m}/{ap_}'.format(**d)
         s = 'echo -n {ap_} >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
