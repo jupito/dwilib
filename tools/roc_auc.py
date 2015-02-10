@@ -57,16 +57,19 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
-if args.verbose > 1:
-    print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
-Auc_bs = []
-for x, y, param in zip(X, Y, Params):
-    if args.verbose > 2:
+# Print info on each parameter.
+if args.verbose > 2:
+    for x, y, param in zip(X, Y, Params):
         d = dict(ns=len(x), nl=len(labels), l=sorted(labels), npos=sum(y))
         print param
         print 'Samples: {ns}'.format(**d)
         print 'Labels: {nl}: {l}'.format(**d)
         print 'Positives: {npos}'.format(**d)
+
+if args.verbose > 1:
+    print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
+Auc_bs = []
+for x, y, param in zip(X, Y, Params):
     fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x)
     if args.autoflip and auc < 0.5:
         x = -x
