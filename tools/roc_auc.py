@@ -57,9 +57,11 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
+if args.verbose > 1:
+    print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
 Auc_bs = []
 for x, y, param in zip(X, Y, Params):
-    if args.verbose > 1:
+    if args.verbose > 2:
         d = dict(ns=len(x), nl=len(labels), l=sorted(labels), npos=sum(y))
         print param
         print 'Samples: {ns}'.format(**d)
@@ -72,7 +74,10 @@ for x, y, param in zip(X, Y, Params):
     auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
-    print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
+    if args.verbose:
+        print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
+    else:
+        print '%f' % auc
     Auc_bs.append(auc_bs)
 
 # Print bootstrapped AUC comparisons.
