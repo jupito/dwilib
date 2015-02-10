@@ -31,7 +31,7 @@ ANON = DWILIB+'/anonymize_dicom.py'
 FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
-CALC_AUC = DWILIB+'/draw_roc.py'
+CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
@@ -250,7 +250,7 @@ def task_evaluate_autoroi():
         d['i'] = 'rois_auto_{m}_{sl}/{ap_}'.format(**d)
         s = 'echo -n {ap_} >> {o}'
         cmds.append(s.format(**d))
-        s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
+        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
