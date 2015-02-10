@@ -196,7 +196,7 @@ def get_task_select_roi_dicom_mask(case, scan, model, param, masktype,
 def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
         subwindow=None):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(sl=SAMPLELIST, c=case, s=scan, m=model, p=param, mt=masktype,
+    d = dict(c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams), sw=subwindow)
     name = '{ap_}_{c}_{s}'.format(**d)
     maskpath = 'masks_{mt}_{m}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
