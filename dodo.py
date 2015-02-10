@@ -32,7 +32,7 @@ FIND_ROI = DWILIB+'/find_roi.py'
 COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/draw_roc.py'
-CORRELATION = DWILIB+'/correlation_old.py'
+CORRELATION = DWILIB+'/correlation.py'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
@@ -243,7 +243,7 @@ def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
     outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
-    d = dict(sl=SAMPLELIST, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
+    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(map(str, algparams))
@@ -252,9 +252,9 @@ def task_evaluate_autoroi():
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} -s patients.txt -l score -g 3+3 -m {i}/* -a --autoflip` >> {o}'
         cmds.append(s.format(**d))
-        s = r'echo -n \\t`{prg_corr} -s patients.txt -l score -g 3+3 3+4 -a -m {i}/*` >> {o}'
+        s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
-        s = r'echo \\t`{prg_corr} -s patients.txt -l score -a -m {i}/*` >> {o}'
+        s = r'echo \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds --average --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
     return {
             'actions': cmds,
