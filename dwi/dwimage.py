@@ -195,8 +195,12 @@ class DWImage(object):
         self.start_execution()
         xdata = self.bset
         ydatas = self.sis
-        if average:
+        if average == 'mean' or average == True:
             ydatas = np.mean(ydatas, axis=0, keepdims=True)
+        elif average == 'median':
+            ydatas = util.median(ydatas, axis=0, keepdims=True)
+        elif average:
+            raise Exception('Invalid averaging method: {}'.format(average))
         pmap = model.fit(xdata, ydatas)
         self.end_execution()
         return pmap
