@@ -90,6 +90,5 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
     # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
 
-    d = dict(scoremap=scoremap[...,0], roi_corner=corner,
-            roi_coords=coords)
+    d = dict(scoremap=scoremap[...,0], roi_corner=corner, roi_coords=coords)
     return d
