@@ -250,9 +250,10 @@ def task_evaluate_autoroi():
     d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
     cmds = ['echo `date` > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
+        d['ap'] = ' '.join(map(str, algparams))
         d['ap_'] = '_'.join(map(str, algparams))
         d['i'] = 'rois_auto_{m}/{ap_}'.format(**d)
-        s = 'echo -n {ap_} >> {o}'
+        s = 'echo -n {ap} >> {o}'
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
