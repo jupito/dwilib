@@ -60,6 +60,13 @@ def get_scoremap(img, d, params, n_rois):
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z,y,x]
     return scoremap
 
+def add_mask(img, mask):
+    """Add mask to image as an extra parameter."""
+    m = mask.array.view()
+    m.shape += (1,)
+    img = np.concatenate((img, m), axis=3)
+    return img
+
 def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
         n_rois=1000):
     assert sidemin <= sidemax
@@ -68,10 +75,7 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
     #dims = dwi.util.combinations([range(2, 4), range(*siderange), range(*siderange)])
     #print dims
     if prostate_mask:
-        # Add mask to image as an extra parameter.
-        mask = prostate_mask.array.view()
-        mask.shape += (1,)
-        img = np.concatenate((img, mask), axis=3)
+        img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     sum_scoremaps = sum(scoremaps)
