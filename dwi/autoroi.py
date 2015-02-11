@@ -29,6 +29,12 @@ def get_score_param(img, param):
             r = 0
         else:
             r = -np.inf
+    elif param == 'prostate_mask_strict':
+        # Ban areas even partly outside of prostate.
+        if img.all():
+            r = 0
+        else:
+            r = -np.inf
     else:
         r = 0 # Unknown parameter
     return r
@@ -83,7 +89,11 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
     scoremap = sum(scoremaps)
 
     # Find optimal ROI.
-    roimap = get_scoremap(scoremap, roidim, ['score'], 1)
+    scoremap_params = ['score']
+    if prostate_mask:
+        scoremap = add_mask(scoremap, prostate_mask)
+        scoremap_params += ['prostate_mask_strict']
+    roimap = get_scoremap(scoremap, roidim, scoremap_params, 1)
 
     # Get first nonzero position at each axis.
     corner = [axis[0] for axis in roimap[...,0].nonzero()]
