@@ -80,16 +80,16 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
         img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
-    sum_scoremaps = sum(scoremaps)
+    scoremap = sum(scoremaps)
 
     # Find optimal ROI.
-    roimap = get_scoremap(sum_scoremaps, roidim, ['score'], 1)
+    roimap = get_scoremap(scoremap, roidim, ['score'], 1)
 
     # Get first nonzero position at each axis.
     corner = [axis[0] for axis in roimap[...,0].nonzero()]
     # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
 
-    d = dict(scoremap=sum_scoremaps[...,0], roi_corner=corner,
+    d = dict(scoremap=scoremap[...,0], roi_corner=corner,
             roi_coords=coords)
     return d
