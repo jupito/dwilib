@@ -84,6 +84,7 @@ def median(a, axis=None, keepdims=False):
     if keepdims:
         shape = list(a.shape)
         if axis == None:
+            r = np.array(r, dtype=a.dtype)
             shape = [1 for _ in shape]
         else:
             shape[axis] = 1
