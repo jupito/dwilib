@@ -256,6 +256,8 @@ def task_evaluate_autoroi():
         cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
+        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+4 --average --autoflip --pmapdir {i}` >> {o}'
+        cmds.append(s.format(**d))
         s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
         cmds.append(s.format(**d))
         s = r'echo \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds --average --pmapdir {i}` >> {o}'
