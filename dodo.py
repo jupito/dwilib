@@ -248,7 +248,7 @@ def task_evaluate_autoroi():
     Gleason score."""
     outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
     d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION, m=MODEL, o=outfile)
-    cmds = ['echo `date` > {o}'.format(**d)]
+    cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
         d['ap'] = ' '.join(map(str, algparams))
         d['ap_'] = '_'.join(map(str, algparams))
