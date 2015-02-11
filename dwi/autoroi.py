@@ -70,6 +70,8 @@ def add_mask(img, mask):
 def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
         n_rois=1000):
     assert sidemin <= sidemax
+
+    # Draw score map.
     dims = [(2,i,i) for i in range(sidemin, sidemax+1)]
     dims += [(3,i,i) for i in range(sidemin, sidemax+1)]
     #dims = dwi.util.combinations([range(2, 4), range(*siderange), range(*siderange)])
@@ -79,11 +81,15 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
         params = params + ['prostate_mask']
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     sum_scoremaps = sum(scoremaps)
+
+    # Find optimal ROI.
     roimap = get_scoremap(sum_scoremaps, roidim, ['score'], 1)
+
     # Get first nonzero position at each axis.
     corner = [axis[0] for axis in roimap[...,0].nonzero()]
     # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
+
     d = dict(scoremap=sum_scoremaps[...,0], roi_corner=corner,
             roi_coords=coords)
     return d
