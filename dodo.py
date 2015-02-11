@@ -53,10 +53,17 @@ FIND_ROI_PARAMS = [
 ]
 
 def find_roi_param_combinations():
-    for params in itertools.product(*FIND_ROI_PARAMS):
-        #if params[0] <= params[1]:
-        if params[0] == params[1]:
-            yield params
+    if SAMPLELIST == 'test':
+        if MODEL == 'Mono':
+            yield (7,7,50)
+            yield (10,10,500)
+        else:
+            yield (2,2,250)
+    else:
+        for params in itertools.product(*FIND_ROI_PARAMS):
+            #if params[0] <= params[1]:
+            if params[0] == params[1]:
+                yield params
 
 # Common functions
 
