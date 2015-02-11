@@ -24,13 +24,13 @@ Features
 Requirements
 ------------
 - Python 2.7
-- NumPy
-- SciPy
+- NumPy 1.8
+- SciPy 0.14
 - [Scikit-Learn](http://scikit-learn.org/)
 - [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if
   fitting)
 - [Matplotlib](http://matplotlib.org/) (if plotting)
-- [Pydicom](https://code.google.com/p/pydicom/) (if handling DICOM files)
+- [Pydicom](https://code.google.com/p/pydicom/) 0.9.8 (if handling DICOM files)
 - [scikit-image](http://scikit-image.org/) (if doing texture analysis)
 - [DoIt](http://pydoit.org/) (if using the build tool)
 
