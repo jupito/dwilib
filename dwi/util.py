@@ -77,6 +77,19 @@ def crop_image(image, subwindow, onebased=False):
 
 
 
+def median(a, axis=None, keepdims=False):
+    """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
+    a = np.asanyarray(a)
+    r = np.median(a, axis=axis)
+    if keepdims:
+        shape = list(a.shape)
+        if axis == None:
+            shape = [1 for _ in shape]
+        else:
+            shape[axis] = 1
+        r.shape = shape
+    return r
+
 def resample_bootstrap_single(a):
     """Get a bootstrap resampled group for single array."""
     indices = [random.randint(0, len(a)-1) for _ in a]
