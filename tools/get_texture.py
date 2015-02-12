@@ -19,8 +19,6 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--input', '-i', metavar='FILENAME', required=True,
             nargs='+', default=[], help='input ASCII file')
-    p.add_argument('--output', '-o', metavar='FILENAME',
-            help='output ASCII file')
     args = p.parse_args()
     return args
 
@@ -50,8 +48,19 @@ for infile in args.input:
     img = normalize(img)
     props = dwi.texture.get_coprops_img(img)
     
-    outfile = args.output or 'props_%s' % af.basename
+    outfile = 'props_%s' % af.basename
     if args.verbose:
-        print 'Writing (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), outfile)
+        print 'Writing GLCM (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), outfile)
     with open(outfile, 'w') as f:
         f.write(' '.join(map(str, props)) + '\n')
+
+    import dwi.lbp
+    lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
+    lbp_freq_data.shape = (-1, n_patterns)
+    
+    outfile = 'lbpf_%s' % af.basename
+    if args.verbose:
+        print 'Writing LBP frequencies to %s' % outfile
+    with open(outfile, 'w') as f:
+        for patterns in lbp_freq_data:
+            f.write(' '.join(map(str, patterns)) + '\n')
