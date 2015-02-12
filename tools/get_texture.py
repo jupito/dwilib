@@ -45,14 +45,22 @@ for infile in args.input:
     if args.verbose:
         print 'Image shape: %s' % (img.shape,)
     
-    img = normalize(img)
-    props = dwi.texture.get_coprops_img(img)
+    img_normalized = normalize(img)
+
+    # Write basic properties.
+
+    propnames = ['median', 'mean', 'stddev']
+    props = [np.median(img), np.mean(img), np.std(img)]
+    propnames += dwi.texture.PROPNAMES
+    props += dwi.texture.get_coprops_img(img_normalized)
     
     outfile = 'props_%s' % af.basename
     if args.verbose:
-        print 'Writing GLCM (%s) to %s' % (', '.join(dwi.texture.PROPNAMES), outfile)
+        print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
     with open(outfile, 'w') as f:
         f.write(' '.join(map(str, props)) + '\n')
+
+    # Write LBP properties.
 
     import dwi.lbp
     lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
