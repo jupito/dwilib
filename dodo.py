@@ -47,8 +47,8 @@ SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], # ROI side min (3 was not good)
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], # ROI side max
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], # ROI side min (3 was not good)
+        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], # ROI side max
         range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
 ]
 
@@ -125,7 +125,7 @@ def get_task_find_roi(case, scan, algparams):
             m=MODEL, p=PARAM, c=case, s=scan, ap=' '.join(algparams),
             ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{m}_{sl}/{ap_}/{c}_{s}.png'.format(**d)
+    figpath = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
