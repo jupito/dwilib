@@ -121,8 +121,8 @@ def task_fit():
                     }
 
 def get_task_find_roi(case, scan, algparams):
-    d = dict(prg=FIND_ROI, sl=SAMPLELIST, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM,
-            m=MODEL, p=PARAM, c=case, s=scan, ap=' '.join(algparams),
+    d = dict(prg=FIND_ROI, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM, m=MODEL,
+            p=PARAM, c=case, s=scan, ap=' '.join(algparams),
             ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(**d)
