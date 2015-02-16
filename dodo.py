@@ -124,8 +124,8 @@ def get_task_find_roi(case, scan, algparams):
     d = dict(prg=FIND_ROI, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM, m=MODEL,
             p=PARAM, c=case, s=scan, ap=' '.join(algparams),
             ap_='_'.join(algparams))
-    maskpath = 'masks_auto_{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(**d)
+    maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = [SAMPLELIST_FILE]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
@@ -210,7 +210,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams), sw=subwindow)
-    maskpath = 'masks_{mt}_{m}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     inpath = glob.glob(s)[0]
