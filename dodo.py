@@ -251,7 +251,7 @@ def task_select_roi_auto():
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
-    outfile = 'autoroi_evaluation_%s_%s.txt' % (MODEL, SAMPLELIST)
+    outfile = 'autoroi_evaluation_%s_%s_%s.txt' % (MODEL, PARAM, SAMPLELIST)
     d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION,
             m=MODEL, p=PARAM, o=outfile)
     cmds = ['echo -n > {o}'.format(**d)]
