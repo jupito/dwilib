@@ -1,5 +1,33 @@
 """Parametric model definitions used for signal decay curve fitting."""
 
+"""
+Im Matlab, we are using lsqnonlin and following initializations:
+1. Mono-exponential model:
+   ADCm from 0.1 um2/ms to 3.0 um2/ms with step size of 0.01 um2/ms.
+2. Stretched exponential model:
+   ADCs from 0.1 um2/ms to 3.0 um2/ms with step size of 0.02 um2/ms;
+   alpha from 0.1 to 1.0 with step size of 0.05
+3. Kurtosis model:
+   ADCk from 0.1 um2/ms to 3.0 um2/ms with step size of 0.02 um2/ms;
+   K from 0.0 to 2.0 with step size of 0.1.
+4. Bi-exponential model:
+   Df from 1.0 um2/ms to 9.0 um2/ms with step size of 0.2 um2/ms;
+   Ds from 0.0 um2/ms to 4.0 um2/ms with step size of 0.02 um2/ms;
+   f from 0.2 to 1.0 with step size of (0.1).
+
+ADCm    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00001 mm2/ms.
+
+ADCk    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00002 mm2/ms;
+K       0.0 to 2.0 with step size of 0.1.
+
+ADCs    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00002 mm2/ms;
+Alpha   0.1 to 1.0 with step size of 0.05
+
+f       0.2 to 1.0 with step size of (0.1).
+Df      0.001 mm2/ms to 0.009 mm2/ms with step size of 0.0002 mm2/ms;
+Ds      0.000 mm2/ms to 0.004 mm2/ms with step size of 0.00002 mm2/ms;
+"""
+
 import numpy as np
 
 from fit import Parameter, Model
@@ -130,31 +158,3 @@ Models.append(Model('BiexpN',
         ],
         preproc=util.normalize_si_curve,
         postproc=biexp_flip))
-
-"""
-Im Matlab, we are using lsqnonlin and following initializations:
-1. Mono-exponential model:
-   ADCm from 0.1 um2/ms to 3.0 um2/ms with step size of 0.01 um2/ms.
-2. Stretched exponential model:
-   ADCs from 0.1 um2/ms to 3.0 um2/ms with step size of 0.02 um2/ms;
-   alpha from 0.1 to 1.0 with step size of 0.05
-3. Kurtosis model:
-   ADCk from 0.1 um2/ms to 3.0 um2/ms with step size of 0.02 um2/ms;
-   K from 0.0 to 2.0 with step size of 0.1.
-4. Bi-exponential model:
-   Df from 1.0 um2/ms to 9.0 um2/ms with step size of 0.2 um2/ms;
-   Ds from 0.0 um2/ms to 4.0 um2/ms with step size of 0.02 um2/ms;
-   f from 0.2 to 1.0 with step size of (0.1).
-
-ADCm    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00001 mm2/ms.
-
-ADCk    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00002 mm2/ms;
-K       0.0 to 2.0 with step size of 0.1.
-
-ADCs    0.0001 mm2/ms to 0.003 mm2/ms with step size of 0.00002 mm2/ms;
-Alpha   0.1 to 1.0 with step size of 0.05
-
-f       0.2 to 1.0 with step size of (0.1).
-Df      0.001 mm2/ms to 0.009 mm2/ms with step size of 0.0002 mm2/ms;
-Ds      0.000 mm2/ms to 0.004 mm2/ms with step size of 0.00002 mm2/ms;
-"""
