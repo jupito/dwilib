@@ -37,7 +37,10 @@ class AsciiFile(object):
         return tuple((b-a for a, b in util.chunks(self.subwindow(), 2)))
 
     def bset(self):
+        """Return the b-value set. Fabricate if not present."""
         a = re.findall(r'[\d.]+', self.d.get('bset', ''))
+        if not a:
+            a = range(len(self.a[0]))
         return tuple(map(float, a))
 
     def params(self):
