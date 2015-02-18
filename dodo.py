@@ -248,7 +248,7 @@ def task_select_roi_auto():
                 yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
                         algparams=map(str, algparams))
 
-def task_evaluate_autoroi():
+def task_evaluate_autoroi_OLD():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
     Gleason score."""
     outfile = 'autoroi_evaluation_%s_%s_%s.txt' % (MODEL, PARAM, SAMPLELIST)
@@ -275,3 +275,49 @@ def task_evaluate_autoroi():
             'targets': [outfile],
             'clean': True,
             }
+
+def get_task_autoroi_auc(threshold):
+    """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
+    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg=CALC_AUC, m=MODEL, p=PARAM,
+            t=threshold)
+    d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
+    cmds = ['echo -n > {o}'.format(**d)]
+    for algparams in find_roi_param_combinations():
+        d['ap_'] = '_'.join(map(str, algparams))
+        d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
+        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --average --autoflip --pmapdir {i}` {ap_} >> {o}'
+        cmds.append(s.format(**d))
+    return {
+            'name': 'autoroi_auc_{t}'.format(**d),
+            'actions': cmds,
+            'task_dep': ['select_roi_auto'],
+            'targets': [d['o']],
+            'clean': True,
+            }
+
+def get_task_autoroi_correlation(thresholds):
+    """Evaluate auto-ROI prediction ability by correlation with Gleason
+    score."""
+    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg=CORRELATION, m=MODEL,
+            p=PARAM, t=thresholds, t_=thresholds.replace(' ', ','))
+    d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
+    cmds = ['echo -n > {o}'.format(**d)]
+    for algparams in find_roi_param_combinations():
+        d['ap_'] = '_'.join(map(str, algparams))
+        d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
+        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --average --pmapdir {i}` {ap_} >> {o}'
+        cmds.append(s.format(**d))
+    return {
+            'name': 'autoroi_correlation_{t_}'.format(**d),
+            'actions': cmds,
+            'task_dep': ['select_roi_auto'],
+            'targets': [d['o']],
+            'clean': True,
+            }
+
+def task_evaluate_autoroi():
+    """Evaluate auto-ROI prediction ability."""
+    yield get_task_autoroi_auc('3+3')
+    yield get_task_autoroi_auc('3+4')
+    yield get_task_autoroi_correlation('3+3 3+4')
+    yield get_task_autoroi_correlation('')
