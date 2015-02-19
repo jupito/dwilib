@@ -8,9 +8,9 @@ import re
 import numpy as np
 import skimage
 
-import dwi.asciifile
 import dwi.texture
 import dwi.util
+import dwi.dwimage
 
 def parse_args():
     """Parse command-line arguments."""
@@ -25,6 +25,17 @@ def parse_args():
             help='get local binary patterns')
     args = p.parse_args()
     return args
+
+def make2d(size, height=None):
+    """Turn 1d size into 2d shape."""
+    if height:
+        width = size / height
+        if height * width == size:
+            return (height, width)
+        else:
+            return make2d(size, height + 1)
+    else:
+        return make2d(size, int(np.sqrt(size)))
 
 def normalize(pmap):
     """Normalize images within given range and convert to byte maps."""
@@ -44,9 +55,11 @@ def plot(img):
 
 args = parse_args()
 for infile in args.input:
-    af = dwi.asciifile.AsciiFile(infile)
-    basename = af.basename
-    img = af.a.reshape((5,5))
+    dwimage = dwi.dwimage.load(infile)[0]
+    img = dwimage.image[0,:,:,0]
+    basename = dwimage.basename
+    if 1 in img.shape:
+        img.shape = make2d(img.size)
     if args.verbose > 1:
         print 'Image shape: %s' % (img.shape,)
 
