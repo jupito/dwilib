@@ -33,11 +33,20 @@ def normalize(pmap):
     pmap = skimage.img_as_ubyte(pmap)
     return pmap
 
-def plot(img):
+def plot(Imgs):
+    """Show a grid of images. Imgs is an array of columns of rows of images."""
     import pylab as pl
     pl.rcParams['image.cmap'] = 'gray'
     pl.rcParams['image.aspect'] = 'equal'
     pl.rcParams['image.interpolation'] = 'none'
+    ncols, nrows = max(len(imgs) for imgs in Imgs), len(Imgs)
+    fig = pl.figure(figsize=(ncols*6, nrows*6))
+    for i, imgs in enumerate(Imgs):
+        for j, img in enumerate(imgs):
+            ax = fig.add_subplot(nrows, ncols, i*ncols+j+1)
+            ax.set_title('%i, %i' % (i, j))
+            pl.imshow(img)
+    pl.tight_layout()
     pl.imshow(img)
     pl.show()
 
@@ -77,3 +86,8 @@ for infile in args.input:
         with open(outfile, 'w') as f:
             for patterns in lbp_freq_data:
                 f.write(' '.join(map(str, patterns)) + '\n')
+
+    #img = img[50:150, 50:150]
+    #lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
+    #freqs = np.rollaxis(lbp_freq_data, 2)
+    #plot([[img, lbp_data], freqs[:5], freqs[5:]])
