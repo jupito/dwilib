@@ -45,6 +45,7 @@ def plot(img):
 args = parse_args()
 for infile in args.input:
     af = dwi.asciifile.AsciiFile(infile)
+    basename = af.basename
     img = af.a.reshape((5,5))
     if args.verbose > 1:
         print 'Image shape: %s' % (img.shape,)
@@ -57,7 +58,7 @@ for infile in args.input:
         propnames += dwi.texture.PROPNAMES
         props += dwi.texture.get_coprops_img(img_normalized)
 
-        outfile = 'props_%s' % af.basename
+        outfile = 'props_%s' % basename
         if args.verbose:
             print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
         with open(outfile, 'w') as f:
@@ -68,7 +69,7 @@ for infile in args.input:
         lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
         lbp_freq_data.shape = (-1, n_patterns)
 
-        outfile = 'lbpf_%s' % af.basename
+        outfile = 'lbpf_%s' % basename
         if args.verbose:
             print 'Writing LBP frequencies to %s' % outfile
         with open(outfile, 'w') as f:
