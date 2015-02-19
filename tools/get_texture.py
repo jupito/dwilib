@@ -44,7 +44,7 @@ for infile in args.input:
     img = af.a.reshape((5,5))
     if args.verbose:
         print 'Image shape: %s' % (img.shape,)
-    
+
     img_normalized = normalize(img)
 
     # Write basic properties.
@@ -53,7 +53,7 @@ for infile in args.input:
     props = [np.median(img), np.mean(img), np.std(img)]
     propnames += dwi.texture.PROPNAMES
     props += dwi.texture.get_coprops_img(img_normalized)
-    
+
     outfile = 'props_%s' % af.basename
     if args.verbose:
         print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
@@ -64,7 +64,7 @@ for infile in args.input:
 
     lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
     lbp_freq_data.shape = (-1, n_patterns)
-    
+
     outfile = 'lbpf_%s' % af.basename
     if args.verbose:
         print 'Writing LBP frequencies to %s' % outfile
