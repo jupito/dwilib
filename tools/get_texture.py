@@ -19,6 +19,10 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--input', '-i', metavar='FILENAME', required=True,
             nargs='+', default=[], help='input ASCII file')
+    p.add_argument('--basic', action='store_true',
+            help='get basic texture properties')
+    p.add_argument('--lbp', action='store_true',
+            help='get local binary patterns')
     args = p.parse_args()
     return args
 
@@ -45,29 +49,28 @@ for infile in args.input:
     if args.verbose:
         print 'Image shape: %s' % (img.shape,)
 
-    img_normalized = normalize(img)
-
     # Write basic properties.
+    if args.basic:
+        img_normalized = normalize(img)
+        propnames = ['median', 'mean', 'stddev']
+        props = [np.median(img), np.mean(img), np.std(img)]
+        propnames += dwi.texture.PROPNAMES
+        props += dwi.texture.get_coprops_img(img_normalized)
 
-    propnames = ['median', 'mean', 'stddev']
-    props = [np.median(img), np.mean(img), np.std(img)]
-    propnames += dwi.texture.PROPNAMES
-    props += dwi.texture.get_coprops_img(img_normalized)
-
-    outfile = 'props_%s' % af.basename
-    if args.verbose:
-        print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
-    with open(outfile, 'w') as f:
-        f.write(' '.join(map(str, props)) + '\n')
+        outfile = 'props_%s' % af.basename
+        if args.verbose:
+            print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
+        with open(outfile, 'w') as f:
+            f.write(' '.join(map(str, props)) + '\n')
 
     # Write LBP properties.
+    if args.lbp:
+        lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
+        lbp_freq_data.shape = (-1, n_patterns)
 
-    lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
-    lbp_freq_data.shape = (-1, n_patterns)
-
-    outfile = 'lbpf_%s' % af.basename
-    if args.verbose:
-        print 'Writing LBP frequencies to %s' % outfile
-    with open(outfile, 'w') as f:
-        for patterns in lbp_freq_data:
-            f.write(' '.join(map(str, patterns)) + '\n')
+        outfile = 'lbpf_%s' % af.basename
+        if args.verbose:
+            print 'Writing LBP frequencies to %s' % outfile
+        with open(outfile, 'w') as f:
+            for patterns in lbp_freq_data:
+                f.write(' '.join(map(str, patterns)) + '\n')
