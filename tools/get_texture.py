@@ -26,17 +26,6 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def make2d(size, height=None):
-    """Turn 1d size into 2d shape."""
-    if height:
-        width = size / height
-        if height * width == size:
-            return (height, width)
-        else:
-            return make2d(size, height + 1)
-    else:
-        return make2d(size, int(np.sqrt(size)))
-
 def normalize(pmap):
     """Normalize images within given range and convert to byte maps."""
     in_range = (0, 0.03)
@@ -59,7 +48,7 @@ for infile in args.input:
     img = dwimage.image[0,:,:,0]
     basename = dwimage.basename
     if 1 in img.shape:
-        img.shape = make2d(img.size)
+        img.shape = dwi.util.make2d(img.size)
     if args.verbose > 1:
         print 'Image shape: %s' % (img.shape,)
 

@@ -31,6 +31,17 @@ def resize(array, min_size):
     while len(array) < min_size:
         array.append([])
 
+def make2d(size, height=None):
+    """Turn 1d size into 2d shape."""
+    if height:
+        width = size / height
+        if height * width == size:
+            return (height, width)
+        else:
+            return make2d(size, height + 1)
+    else:
+        return make2d(size, int(np.sqrt(size)))
+
 def fabricate_subwindow(size, height=None):
     """Fabricate a subwindow specification."""
     if height:
