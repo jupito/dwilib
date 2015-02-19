@@ -46,7 +46,7 @@ args = parse_args()
 for infile in args.input:
     af = dwi.asciifile.AsciiFile(infile)
     img = af.a.reshape((5,5))
-    if args.verbose:
+    if args.verbose > 1:
         print 'Image shape: %s' % (img.shape,)
 
     # Write basic properties.
