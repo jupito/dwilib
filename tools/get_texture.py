@@ -62,7 +62,6 @@ for infile in args.input:
 
     # Write LBP properties.
 
-    import dwi.lbp
     lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
     lbp_freq_data.shape = (-1, n_patterns)
     
