@@ -4,6 +4,7 @@
 file. Multiple same-size images may be combined by overlaying the parameters."""
 
 import argparse
+import os
 import numpy as np
 
 import dwi.dwimage
@@ -30,7 +31,6 @@ def parse_args():
     p.add_argument('--subwindow-mask', action='store_true',
             help='apply subwindow on mask, too')
     p.add_argument('--output', '-o', metavar='OUTFILE',
-            required=True,
             help='output parametric map file')
     args = p.parse_args()
     return args
@@ -100,12 +100,13 @@ if args.mask:
 else:
     voxels = image.reshape((-1,image.shape[-1]))
 
-# Output voxels.
+# Write output voxels. Unless output filename is specified, one will be
+# constructed from (first) input filename.
+outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
     print 'Writing %i voxels with %i values to %s' % (voxels.shape[0],
-            voxels.shape[1], args.output)
-
-with open(args.output, 'w') as f:
+            voxels.shape[1], outfile)
+with open(outfile, 'w') as f:
     model = 'selection'
     params = range(voxels.shape[1])
     write_pmap_ascii_head(dwimage, model, params, f)
