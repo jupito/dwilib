@@ -15,7 +15,6 @@ import dwi.util
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_ROI_MASK_DIR = 'masks_rois'
 IN_PROSTATE_MASK_DIR = 'masks_prostate'
-IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
 
 OUT_MASK_DIR = 'masks_auto'
@@ -61,7 +60,6 @@ def clip_image(img, params):
 
 def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
-    subwindows = dwi.util.read_subwindows(IN_SUBWINDOWS_FILE)
     patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
     data = []
     for sample in samples:
@@ -72,13 +70,6 @@ def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
         for scan in sample['scans']:
             if scans and not scan in scans:
                 continue
-            try:
-                subwindow = subwindows[(case, scan)]
-                slice_index = subwindow[0] # Make it zero-based.
-            except KeyError:
-                # No subwindow defined.
-                subwindow = None
-                slice_index = None
             subregion = dwi.files.read_subregion(IN_SUBREGION_DIR, case, scan)
             masks = dwi.files.read_roi_masks(IN_ROI_MASK_DIR, case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
@@ -89,12 +80,9 @@ def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
             cropped_normal_mask = normal_mask.crop(subregion)
             cropped_prostate_mask = prostate_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
-            #cropped_image = cropped_image[[slice_index],...] # TODO: one slice
             if clip:
                 clip_image(cropped_image, [param])
             d = dict(case=case, scan=scan, score=score,
-                    subwindow=subwindow,
-                    slice_index=slice_index,
                     subregion=subregion,
                     cancer_mask=cropped_cancer_mask,
                     normal_mask=cropped_normal_mask,
@@ -213,7 +201,7 @@ if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
 
 for d in data:
-    print '{case} {scan}: {score} {subwindow} {subregion}'.format(**d)
+    print '{case} {scan}: {score} {subregion}'.format(**d)
     if args.verbose:
         print d['image'].shape
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
