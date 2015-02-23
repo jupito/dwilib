@@ -80,21 +80,6 @@ def read_roi_masks(case, scan, keys=['ca', 'n', 'ca2']):
         raise Exception('Mask for cancer or normal ROI was not found: %s' % s)
     return masks
 
-#def read_roi_mask(case, scan, typ):
-#    """Read a ROI mask of given type.
-#    
-#    Mask pathname ends with ROI type, which can be 'ca' for cancer ROI, 'n' for
-#    normal ROI, or 'ca2' for an optional second cancer ROI.
-#    """
-#    ending = '_' + typ.lower()
-#    d = dict(c=case, s=scan)
-#    s = IN_MASK_DIR + '/{c}_*_{s}_[Dd]_*'.format(**d)
-#    paths = glob.iglob(s)
-#    for path in paths:
-#        if path.lower().endswith(ending)
-#            return dwi.mask.read_mask(path)
-#    raise Exception('ROI mask of type "{t}" not found in {s}'.format(t=t, s=s))
-
 def read_prostate_mask(case, scan):
     """Read 3D prostate mask in DICOM format.
     
