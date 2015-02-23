@@ -58,7 +58,7 @@ def clip_image(img, params):
         elif params[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, patients_file, imagedir, subregion_dir,
+def read_data(samplelist_file, patients_file, image_dir, subregion_dir,
         roi_mask_dir, prostate_mask_dir, param, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
     patientsinfo = dwi.patient.read_patients_file(patients_file)
@@ -76,7 +76,7 @@ def read_data(samplelist_file, patients_file, imagedir, subregion_dir,
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = dwi.files.read_prostate_mask(prostate_mask_dir,
                     case, scan)
-            image = dwi.files.read_dicom_pmap(imagedir, case, scan, param)
+            image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
             cropped_prostate_mask = prostate_mask.crop(subregion)
