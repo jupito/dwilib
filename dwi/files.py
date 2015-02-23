@@ -3,6 +3,8 @@
 import glob
 
 import dwi.dicomfile
+import dwi.mask
+import dwi.util
 
 def read_subregion(directory, case, scan):
     """Read subregion definition."""
@@ -49,6 +51,7 @@ def read_prostate_mask(directory, case, scan):
     raise Exception('Multi-slice prostate mask not found: %s' % s)
 
 def read_dicom_pmap(directory, case, scan, param):
+    """Read a single-parameter pmap in DICOM format."""
     d = dict(d=directory, c=case, s=scan, p=param)
     s = '{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
     paths = glob.glob(s)
