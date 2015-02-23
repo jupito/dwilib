@@ -8,6 +8,8 @@ import numpy as np
 import dwi.dwimage
 import dwi.util
 
+EPSILON = 0.000001
+
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = __doc__)
@@ -33,12 +35,12 @@ def distance_hist(img1, img2):
 def distance_log(img1, img2):
     """Log-likelihood distance measure."""
     img = np.array([img1, img2]).T
-    return -sum(a*np.log(max(b, 0.001)) for a, b in img)
+    return -sum(a*np.log(max(b, EPSILON)) for a, b in img)
 
 def distance_chi(img1, img2):
     """Chi-squared distance measure."""
     img = np.array([img1, img2]).T
-    return sum((a-b)**2/(max(a+b, 0.001)) for a, b in img)
+    return sum((a-b)**2/(max(a+b, EPSILON)) for a, b in img)
 
 
 args = parse_args()
@@ -57,10 +59,10 @@ print dwi.util.fivenum(distances)
 distances = [distance_chi(*t) for t in zip(imgs1, imgs2)]
 print dwi.util.fivenum(distances)
 
-import matplotlib.pyplot as pl
-pl.bar(np.arange(0, 10), imgs[0], width=0.4, color='r')
-pl.bar(np.arange(0, 10)+0.4, imgs[1], width=0.4, color='g')
-pl.show()
-pl.plot(np.arange(0, 10), imgs[0], color='r')
-pl.plot(np.arange(0, 10), imgs[1], color='g')
-pl.show()
+#import matplotlib.pyplot as pl
+#pl.bar(np.arange(0, 10), imgs[0], width=0.4, color='r')
+#pl.bar(np.arange(0, 10)+0.4, imgs[1], width=0.4, color='g')
+#pl.show()
+#pl.plot(np.arange(0, 10), imgs[0], color='r')
+#pl.plot(np.arange(0, 10), imgs[1], color='g')
+#pl.show()
