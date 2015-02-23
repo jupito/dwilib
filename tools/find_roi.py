@@ -14,6 +14,7 @@ import dwi.util
 
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_MASK_DIR = 'masks_rois'
+IN_PROSTATE_MASK_DIR = 'masks_prostate'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
 
@@ -50,17 +51,17 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def read_subregion(case, scan):
+def read_subregion(directory, case, scan):
     """Read subregion definition."""
-    d = dict(c=case, s=scan)
-    s = IN_SUBREGION_DIR + '/{c}_*_{s}_*.txt'.format(**d)
+    d = dict(d=directory, c=case, s=scan)
+    s = '{d}/{c}_*_{s}_*.txt'.format(**d)
     paths = glob.glob(s)
     if len(paths) != 1:
         raise Exception('Subregion file confusion: %s' % s)
     subregion = dwi.util.read_subregion_file(paths[0])
     return subregion
 
-def read_roi_masks(case, scan, keys=['ca', 'n', 'ca2']):
+def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
     """Read cancer and normal ROI masks.
     
     Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2' for
@@ -68,8 +69,8 @@ def read_roi_masks(case, scan, keys=['ca', 'n', 'ca2']):
 
     A dictionary is returned, with the ending as key and mask as value.
     """
-    d = dict(c=case, s=scan)
-    s = IN_MASK_DIR + '/{c}_*_{s}_[Dd]_*'.format(**d)
+    d = dict(d=directory, c=case, s=scan)
+    s = '{d}/{c}_*_{s}_[Dd]_*'.format(**d)
     masks = {}
     paths = glob.iglob(s)
     for path in paths:
@@ -80,14 +81,13 @@ def read_roi_masks(case, scan, keys=['ca', 'n', 'ca2']):
         raise Exception('Mask for cancer or normal ROI was not found: %s' % s)
     return masks
 
-def read_prostate_mask(case, scan):
+def read_prostate_mask(directory, case, scan):
     """Read 3D prostate mask in DICOM format.
     
     The first multi-slice mask with proper pathname is used.
     """
-    d = dict(c=case, s=scan)
-    IN_PROSTATE_MASK_DIR = 'masks_prostate'
-    s = IN_PROSTATE_MASK_DIR + '/{c}_*_{s}_*'.format(**d)
+    d = dict(d=directory, c=case, s=scan)
+    s = '{d}/{c}_*_{s}_*'.format(**d)
     paths = sorted(glob.glob(s))
     for path in paths:
         mask = dwi.mask.read_mask(path)
@@ -134,10 +134,10 @@ def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
                 # No subwindow defined.
                 subwindow = None
                 slice_index = None
-            subregion = read_subregion(case, scan)
-            masks = read_roi_masks(case, scan)
+            subregion = read_subregion(IN_SUBREGION_DIR, case, scan)
+            masks = read_roi_masks(IN_MASK_DIR, case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
-            prostate_mask = read_prostate_mask(case, scan)
+            prostate_mask = read_prostate_mask(IN_PROSTATE_MASK_DIR, case, scan)
             image = read_image(imagedir, case, scan, param)
             cropped_cancer_mask = cancer_mask.crop(subregion)
             cropped_normal_mask = normal_mask.crop(subregion)
