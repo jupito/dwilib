@@ -58,9 +58,11 @@ def clip_image(img, params):
         elif params[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
-def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
+def read_data(samplelist_file, patients_file, imagedir, subregion_dir,
+        param, cases=[],
+        scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
-    patientsinfo = dwi.patient.read_patients_file(IN_PATIENTS_FILE)
+    patientsinfo = dwi.patient.read_patients_file(patients_file)
     data = []
     for sample in samples:
         case = sample['case']
@@ -70,7 +72,7 @@ def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
         for scan in sample['scans']:
             if scans and not scan in scans:
                 continue
-            subregion = dwi.files.read_subregion(IN_SUBREGION_DIR, case, scan)
+            subregion = dwi.files.read_subregion(subregion_dir, case, scan)
             masks = dwi.files.read_roi_masks(IN_ROI_MASK_DIR, case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = dwi.files.read_prostate_mask(IN_PROSTATE_MASK_DIR,
@@ -194,8 +196,8 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = read_data(args.samplelist, args.pmapdir, args.param, args.cases,
-        args.scans, args.clip)
+data = read_data(args.samplelist, IN_PATIENTS_FILE, args.pmapdir,
+        IN_SUBREGION_DIR, args.param, args.cases, args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
