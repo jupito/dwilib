@@ -13,7 +13,7 @@ import dwi.patient
 import dwi.util
 
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
-IN_MASK_DIR = 'masks_rois'
+IN_ROI_MASK_DIR = 'masks_rois'
 IN_PROSTATE_MASK_DIR = 'masks_prostate'
 IN_SUBWINDOWS_FILE = 'subwindows.txt'
 IN_PATIENTS_FILE = 'patients.txt'
@@ -135,7 +135,7 @@ def read_data(samplelist_file, imagedir, param, cases=[], scans=[], clip=False):
                 subwindow = None
                 slice_index = None
             subregion = read_subregion(IN_SUBREGION_DIR, case, scan)
-            masks = read_roi_masks(IN_MASK_DIR, case, scan)
+            masks = read_roi_masks(IN_ROI_MASK_DIR, case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = read_prostate_mask(IN_PROSTATE_MASK_DIR, case, scan)
             image = read_image(imagedir, case, scan, param)
