@@ -8,6 +8,7 @@ import re
 import numpy as np
 import skimage
 
+import dwi.plot
 import dwi.texture
 import dwi.util
 import dwi.dwimage
@@ -73,4 +74,4 @@ for infile in args.input:
     img = img[50:150, 50:150]
     lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
     freqs = np.rollaxis(lbp_freq_data, 2)
-    dwi.util.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
+    dwi.plot.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
