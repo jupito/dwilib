@@ -9,11 +9,8 @@ import dwi.util
 def read_subregion(directory, case, scan):
     """Read subregion definition."""
     d = dict(d=directory, c=case, s=scan)
-    s = '{d}/{c}_*_{s}_*.txt'.format(**d)
-    paths = glob.glob(s)
-    if len(paths) != 1:
-        raise Exception('Subregion file confusion: %s' % s)
-    subregion = dwi.util.read_subregion_file(paths[0])
+    path = dwi.util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
+    subregion = dwi.util.read_subregion_file(path)
     return subregion
 
 def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
@@ -53,11 +50,8 @@ def read_prostate_mask(directory, case, scan):
 def read_dicom_pmap(directory, case, scan, param):
     """Read a single-parameter pmap in DICOM format."""
     d = dict(d=directory, c=case, s=scan, p=param)
-    s = '{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d)
-    paths = glob.glob(s)
-    if len(paths) != 1:
-        raise Exception('Image path confusion: %s' % s)
-    d = dwi.dicomfile.read_dir(paths[0])
+    path = dwi.util.sglob('{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
+    d = dwi.dicomfile.read_dir(path)
     image = d['image']
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
     return image
