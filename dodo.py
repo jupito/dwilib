@@ -130,7 +130,7 @@ def get_task_find_roi(case, scan, algparams):
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
             '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
     return {
-            'name': '{ap_}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),
                         (create_folder, [dirname(figpath)]),
                     cmd],
@@ -145,7 +145,7 @@ def task_find_roi():
         for case, scan in cases_scans():
             yield get_task_find_roi(case, scan, algparams)
 
-def get_task_select_roi_dicom_mask(case, scan, model, param, masktype):
+def get_task_select_roi_manual(case, scan, model, param, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype)
     maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
@@ -158,7 +158,7 @@ def get_task_select_roi_dicom_mask(case, scan, model, param, masktype):
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            'name': '{c}_{s}_{mt}'.format(**d),
+            'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             #'file_dep': [maskpath],
@@ -166,7 +166,7 @@ def get_task_select_roi_dicom_mask(case, scan, model, param, masktype):
             'clean': True,
             }
 
-def get_task_select_roi(case, scan, model, param, masktype, algparams=[]):
+def get_task_select_roi_auto(case, scan, model, param, masktype, algparams=[]):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype,
             ap_='_'.join(algparams))
@@ -180,7 +180,7 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[]):
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-            'name': '{ap_}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
             'file_dep': [maskpath],
@@ -191,43 +191,43 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[]):
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
     for case, scan in cases_scans():
-        yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'CA')
-        yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'N')
+        yield get_task_select_roi_manual(case, scan, MODEL, PARAM, 'CA')
+        yield get_task_select_roi_manual(case, scan, MODEL, PARAM, 'N')
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
+            yield get_task_select_roi_auto(case, scan, MODEL, PARAM, 'auto',
                     algparams=algparams)
 
-def task_evaluate_autoroi_OLD():
-    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
-    Gleason score."""
-    outfile = 'autoroi_evaluation_%s_%s_%s.txt' % (MODEL, PARAM, SAMPLELIST)
-    d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION,
-            m=MODEL, p=PARAM, o=outfile)
-    cmds = ['echo -n > {o}'.format(**d)]
-    for algparams in find_roi_param_combinations():
-        d['ap'] = ' '.join(algparams)
-        d['ap_'] = '_'.join(algparams)
-        d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-        s = 'echo -n {ap} >> {o}'
-        cmds.append(s.format(**d))
-        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
-        cmds.append(s.format(**d))
-        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+4 --average --autoflip --pmapdir {i}` >> {o}'
-        cmds.append(s.format(**d))
-        s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
-        cmds.append(s.format(**d))
-        s = r'echo \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds --average --pmapdir {i}` >> {o}'
-        cmds.append(s.format(**d))
-    return {
-            'actions': cmds,
-            'task_dep': ['select_roi_auto'],
-            'targets': [outfile],
-            'clean': True,
-            }
+#def task_evaluate_autoroi_OLD():
+#    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
+#    Gleason score."""
+#    outfile = 'autoroi_evaluation_%s_%s_%s.txt' % (MODEL, PARAM, SAMPLELIST)
+#    d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION,
+#            m=MODEL, p=PARAM, o=outfile)
+#    cmds = ['echo -n > {o}'.format(**d)]
+#    for algparams in find_roi_param_combinations():
+#        d['ap'] = ' '.join(algparams)
+#        d['ap_'] = '_'.join(algparams)
+#        d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
+#        s = 'echo -n {ap} >> {o}'
+#        cmds.append(s.format(**d))
+#        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
+#        cmds.append(s.format(**d))
+#        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+4 --average --autoflip --pmapdir {i}` >> {o}'
+#        cmds.append(s.format(**d))
+#        s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
+#        cmds.append(s.format(**d))
+#        s = r'echo \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds --average --pmapdir {i}` >> {o}'
+#        cmds.append(s.format(**d))
+#    return {
+#            'actions': cmds,
+#            'task_dep': ['select_roi_auto'],
+#            'targets': [outfile],
+#            'clean': True,
+#            }
 
 def get_task_autoroi_auc(threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
@@ -241,7 +241,7 @@ def get_task_autoroi_auc(threshold):
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --average --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-            'name': 'autoroi_auc_{t}'.format(**d),
+            'name': 'autoroi_auc_{t}_{m}_{p}_{sl}'.format(**d),
             'actions': cmds,
             'task_dep': ['select_roi_auto'],
             'targets': [d['o']],
@@ -261,7 +261,7 @@ def get_task_autoroi_correlation(thresholds):
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --average --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-            'name': 'autoroi_correlation_{t_}'.format(**d),
+            'name': 'autoroi_correlation_{t_}_{m}_{p}_{sl}'.format(**d),
             'actions': cmds,
             'task_dep': ['select_roi_auto'],
             'targets': [d['o']],
