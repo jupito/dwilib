@@ -3,8 +3,8 @@ import re
 from functools import total_ordering
 import numpy as np
 
-import asciifile
-import util
+import dwi.asciifile
+import dwi.util
 
 @total_ordering
 class GleasonScore(object):
@@ -136,7 +136,7 @@ def exclude_files(pmapfiles, patients, exclusions=[]):
     """Return filenames without those that are to be excluded."""
     r = []
     for f in pmapfiles:
-        num, name, scan = util.parse_filename(os.path.basename(f))
+        num, name, scan = dwi.util.parse_filename(os.path.basename(f))
         p = get_patient(patients, num)
         if not p:
             continue # Patient not mentioned in patients file: exclude.
@@ -150,10 +150,10 @@ def exclude_files(pmapfiles, patients, exclusions=[]):
 def load_files(patients, filenames, pairs=False):
     """Load pmap files."""
     pmapfiles = exclude_files(filenames, patients)
-    afs = map(asciifile.AsciiFile, pmapfiles)
+    afs = map(dwi.asciifile.AsciiFile, pmapfiles)
     if pairs:
-        util.scan_pairs(afs)
-    ids = [util.parse_num_scan(af.basename) for af in afs]
+        dwi.util.scan_pairs(afs)
+    ids = [dwi.util.parse_num_scan(af.basename) for af in afs]
     pmaps = [af.a for af in afs]
     pmaps = np.array(pmaps)
     params = afs[0].params()
@@ -190,7 +190,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
-    samples = util.read_sample_list(samplelist_file)
+    samples = dwi.util.read_sample_list(samplelist_file)
     patientsinfo = read_patients_file(patients_file)
     data = []
     for sample in samples:
@@ -214,8 +214,8 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
 def read_pmap(dirname, case, scan, average):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
-    path = util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
-    af = asciifile.AsciiFile(path)
+    path = dwi.util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
+    af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
     if pmap.shape[-1] != len(params):
