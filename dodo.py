@@ -202,6 +202,13 @@ def task_select_roi_auto():
         for case, scan in cases_scans():
             yield get_task_select_roi_auto(case, scan, MODEL, PARAM, algparams)
 
+def task_select_roi():
+    """Select all ROIs task group."""
+    return {
+            'actions': None,
+            'task_dep': ['select_roi_manual', 'select_roi_auto'],
+            }
+
 #def task_evaluate_autoroi_OLD():
 #    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
 #    Gleason score."""
