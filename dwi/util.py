@@ -316,8 +316,8 @@ def get_args(n=1):
         sys.exit(1)
     return sys.argv[1:1+n], sys.argv[1+n:]
 
-def glob_single(path):
-    """Glob exactly one file."""
+def sglob(path):
+    """Single glob: glob exactly one file."""
     import glob
     l = glob.glob(path)
     if len(l) < 1:
