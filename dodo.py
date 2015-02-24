@@ -167,8 +167,8 @@ def get_task_select_roi_manual(case, scan, model, param, masktype):
                     cmd],
             #'file_dep': [maskpath],
             'targets': [outpath],
-            'uptodate': [check_timestamp_unchanged(maskpath),
-                    check_timestamp_unchanged(inpath)],
+            'uptodate': [check_timestamp_unchanged(inpath),
+                    check_timestamp_unchanged(maskpath)],
             'clean': True,
             }
 
@@ -190,6 +190,7 @@ def get_task_select_roi_auto(case, scan, model, param, algparams):
                     cmd],
             'file_dep': [maskpath],
             'targets': [outpath],
+            'uptodate': [check_timestamp_unchanged(inpath)],
             'clean': True,
             }
 
