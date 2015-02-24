@@ -70,6 +70,10 @@ def find_roi_param_combinations():
 def pmapdir_dicom(model):
     return 'results_{m}_combinedDICOM'.format(m=model)
 
+def pmap_dicom(**d):
+    s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'
+    return dwi.util.sglob(s.format(**d))
+
 def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
 
@@ -157,7 +161,7 @@ def get_task_select_roi_manual(case, scan, model, param, masktype):
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype)
     maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    inpath = dwi.util.sglob('results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
+    inpath = pmap_dicom(**d)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
     args += ['-i "%s"' % inpath]
@@ -180,7 +184,7 @@ def get_task_select_roi_auto(case, scan, model, param, algparams):
             ap_='_'.join(algparams))
     maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    inpath = dwi.util.sglob('results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
+    inpath = pmap_dicom(**d)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
     args += ['-i "%s"' % inpath]
