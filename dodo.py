@@ -54,21 +54,19 @@ FIND_ROI_PARAMS = [
 
 def find_roi_param_combinations():
     if SAMPLELIST == 'test':
-        #if MODEL == 'Mono':
-        #    yield (10,10,500) # Mono: corr, auc
-        #elif MODEL == 'Kurt':
-        #    yield (9,9,1000) # Kurt: corr
-        #    yield (2,2,250) # Kurt: auc
-        yield (10,10,500) # Mono: auc
-        yield (11,11,750) # Mono: corr
-        yield (2,2,250) # Kurt: auc
-        #yield (9,9,1000) # Kurt: corr
-        yield (12,12,1750) # Kurt: corr
+        params = [
+                (10,10,500), # Mono: auc
+                (11,11,750), # Mono: corr
+                (2,2,250), # Kurt: auc
+                #(9,9,1000), # Kurt: corr
+                (12,12,1750), # Kurt: corr
+                ]
     else:
-        for params in itertools.product(*FIND_ROI_PARAMS):
-            #if params[0] <= params[1]:
-            if params[0] == params[1]:
-                yield params
+        params = itertools.product(*FIND_ROI_PARAMS)
+    for t in params:
+        #if t[0] <= t[1]:
+        if t[0] == t[1]:
+            yield map(str, t)
 
 # Common functions
 
@@ -148,7 +146,7 @@ def task_find_roi():
         for sample in SAMPLES:
             case = sample['case']
             for scan in sample['scans']:
-                yield get_task_find_roi(case, scan, map(str, algparams))
+                yield get_task_find_roi(case, scan, algparams)
 
 ## Deprecated.
 #def task_compare_masks():
@@ -246,7 +244,7 @@ def task_select_roi_auto():
             case = sample['case']
             for scan in sample['scans']:
                 yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
-                        algparams=map(str, algparams))
+                        algparams=algparams)
 
 def task_evaluate_autoroi_OLD():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
@@ -256,8 +254,8 @@ def task_evaluate_autoroi_OLD():
             m=MODEL, p=PARAM, o=outfile)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
-        d['ap'] = ' '.join(map(str, algparams))
-        d['ap_'] = '_'.join(map(str, algparams))
+        d['ap'] = ' '.join(algparams)
+        d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
         s = 'echo -n {ap} >> {o}'
         cmds.append(s.format(**d))
@@ -283,7 +281,7 @@ def get_task_autoroi_auc(threshold):
     d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
-        d['ap_'] = '_'.join(map(str, algparams))
+        d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --average --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
@@ -303,7 +301,7 @@ def get_task_autoroi_correlation(thresholds):
     d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
-        d['ap_'] = '_'.join(map(str, algparams))
+        d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --average --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
