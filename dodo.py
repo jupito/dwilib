@@ -53,6 +53,7 @@ FIND_ROI_PARAMS = [
 ]
 
 def find_roi_param_combinations():
+    """Generate all find_roi.py parameter combinations."""
     if SAMPLELIST == 'test':
         params = [
                 (10,10,500), # Mono: auc
@@ -68,7 +69,12 @@ def find_roi_param_combinations():
         if t[0] == t[1]:
             yield map(str, t)
 
-# Common functions
+def cases_scans():
+    """Generate all case, scan pairs."""
+    for sample in SAMPLES:
+        case = sample['case']
+        for scan in sample['scans']:
+            yield case, scan
 
 def subwindow_to_str(subwindow):
     return ' '.join(map(str, subwindow))
@@ -143,10 +149,8 @@ def get_task_find_roi(case, scan, algparams):
 def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
-        for sample in SAMPLES:
-            case = sample['case']
-            for scan in sample['scans']:
-                yield get_task_find_roi(case, scan, algparams)
+        for case, scan in cases_scans():
+            yield get_task_find_roi(case, scan, algparams)
 
 ## Deprecated.
 #def task_compare_masks():
@@ -231,20 +235,16 @@ def get_task_select_roi(case, scan, model, param, masktype, algparams=[],
 
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
-    for sample in SAMPLES:
-        case = sample['case']
-        for scan in sample['scans']:
-            yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'CA')
-            yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'N')
+    for case, scan in cases_scans():
+        yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'CA')
+        yield get_task_select_roi_dicom_mask(case, scan, MODEL, PARAM, 'N')
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for algparams in find_roi_param_combinations():
-        for sample in SAMPLES:
-            case = sample['case']
-            for scan in sample['scans']:
-                yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
-                        algparams=algparams)
+        for case, scan in cases_scans():
+            yield get_task_select_roi(case, scan, MODEL, PARAM, 'auto',
+                    algparams=algparams)
 
 def task_evaluate_autoroi_OLD():
     """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
