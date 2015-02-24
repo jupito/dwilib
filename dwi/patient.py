@@ -213,13 +213,9 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
 
 def read_pmap(dirname, case, scan, average):
     """Read single pmap."""
-    import glob
     d = dict(d=dirname, c=case, s=scan)
-    s = '{d}/{c}_*_{s}_*.txt'.format(**d)
-    paths = glob.glob(s)
-    if len(paths) != 1:
-        raise Exception('Ambiguous pmap: %s' % s)
-    af = asciifile.AsciiFile(paths[0])
+    path = util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
+    af = asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
     if pmap.shape[-1] != len(params):
