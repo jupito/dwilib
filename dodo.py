@@ -7,6 +7,7 @@ from os.path import dirname
 
 from doit import get_var
 #from doit.tools import Interactive
+from doit.tools import check_timestamp_unchanged
 from doit.tools import create_folder
 #from doit.tools import result_dep
 
@@ -166,6 +167,8 @@ def get_task_select_roi_manual(case, scan, model, param, masktype):
                     cmd],
             #'file_dep': [maskpath],
             'targets': [outpath],
+            'uptodate': [check_timestamp_unchanged(maskpath),
+                    check_timestamp_unchanged(inpath)],
             'clean': True,
             }
 
