@@ -194,9 +194,9 @@ def get_task_select_roi_auto(case, scan, model, param, algparams):
 
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
-    for case, scan in cases_scans():
-        yield get_task_select_roi_manual(case, scan, MODEL, PARAM, 'CA')
-        yield get_task_select_roi_manual(case, scan, MODEL, PARAM, 'N')
+    for masktype in ['CA', 'N']:
+        for case, scan in cases_scans():
+            yield get_task_select_roi_manual(case, scan, MODEL, PARAM, masktype)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
