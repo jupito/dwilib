@@ -120,9 +120,9 @@ def task_fit():
                     'clean': True,
                     }
 
-def get_task_find_roi(case, scan, model, param, algparams):
-    d = dict(prg=FIND_ROI, slf=samplelist_file(SAMPLELIST), pd=PMAPDIR_DICOM,
-            m=model, p=param, c=case, s=scan, ap=' '.join(algparams),
+def get_task_find_roi(pmapdir, samplelist, case, scan, model, param, algparams):
+    d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist), pd=pmapdir, m=model,
+            p=param, c=case, s=scan, ap=' '.join(algparams),
             ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
@@ -146,7 +146,8 @@ def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_find_roi(case, scan, MODEL, PARAM, algparams)
+            yield get_task_find_roi(PMAPDIR_DICOM, SAMPLELIST, case, scan,
+                    MODEL, PARAM, algparams)
 
 def get_task_select_roi_manual(case, scan, model, param, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
