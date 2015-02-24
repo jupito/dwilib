@@ -42,8 +42,6 @@ PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 PMAPDIR_DICOM = 'results_{m}_combinedDICOM'.format(m=MODEL)
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
-SAMPLELIST_FILE = 'samples_%s.txt' % SAMPLELIST
-SAMPLES = dwi.util.read_sample_list(SAMPLELIST_FILE)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
@@ -71,6 +69,8 @@ def find_roi_param_combinations():
 
 def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
+
+SAMPLES = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
 
 def cases_scans():
     """Generate all case, scan pairs."""
@@ -121,13 +121,13 @@ def task_fit():
                     }
 
 def get_task_find_roi(case, scan, model, param, algparams):
-    d = dict(prg=FIND_ROI, slf=SAMPLELIST_FILE, pd=PMAPDIR_DICOM, m=model,
-            p=param, c=case, s=scan, ap=' '.join(algparams),
+    d = dict(prg=FIND_ROI, slf=samplelist_file(SAMPLELIST), pd=PMAPDIR_DICOM,
+            m=model, p=param, c=case, s=scan, ap=' '.join(algparams),
             ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
-    file_deps = [SAMPLELIST_FILE]
+    file_deps = [d['slf']]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
