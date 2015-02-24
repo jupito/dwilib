@@ -170,9 +170,9 @@ def get_task_select_roi_manual(case, scan, model, param, masktype):
             'clean': True,
             }
 
-def get_task_select_roi_auto(case, scan, model, param, masktype, algparams=[]):
+def get_task_select_roi_auto(case, scan, model, param, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(c=case, s=scan, m=model, p=param, mt=masktype,
+    d = dict(c=case, s=scan, m=model, p=param, mt='auto',
             ap_='_'.join(algparams))
     maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
@@ -202,8 +202,7 @@ def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_select_roi_auto(case, scan, MODEL, PARAM, 'auto',
-                    algparams=algparams)
+            yield get_task_select_roi_auto(case, scan, MODEL, PARAM, algparams)
 
 #def task_evaluate_autoroi_OLD():
 #    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
