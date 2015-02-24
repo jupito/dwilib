@@ -2,7 +2,6 @@ import os.path
 import re
 from functools import total_ordering
 import numpy as np
-import glob
 
 import asciifile
 import util
@@ -214,6 +213,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
 
 def read_pmap(dirname, case, scan, average):
     """Read single pmap."""
+    import glob
     d = dict(d=dirname, c=case, s=scan)
     s = '{d}/{c}_*_{s}_*.txt'.format(**d)
     paths = glob.glob(s)
