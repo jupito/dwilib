@@ -316,6 +316,16 @@ def get_args(n=1):
         sys.exit(1)
     return sys.argv[1:1+n], sys.argv[1+n:]
 
+def glob_single(path):
+    """Glob exactly one file."""
+    import glob
+    l = glob.glob(path)
+    if len(l) < 1:
+        raise Exception('Path not found: %s' % path)
+    elif len(l) > 1:
+        raise Exception('More than one path found: %s' % path)
+    return l[0]
+
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
     m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
