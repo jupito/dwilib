@@ -32,21 +32,13 @@ def parse_args():
 
 def read_image(dir, case, scan, model):
     d = dict(d=dir, c=case, s=scan, m=model)
-    s = '{d}/{c}_*_{s}/{c}_*_{s}_{m}'.format(**d)
-    paths = glob.glob(s)
-    if paths:
-        return dwi.dwimage.load_dicom(paths)[0]
-    else:
-        raise Exception('Image not found: %s' % s)
+    path = dwi.util.sglob('{d}/{c}_*_{s}/{c}_*_{s}_{m}'.format(**d))
+    return dwi.dwimage.load_dicom([path])[0]
 
 def read_mask(dir, case, scan):
     d = dict(d=dir, c=case, s=scan)
-    s = '{d}/{c}_{s}_*.mask'.format(**d)
-    paths = glob.glob(s)
-    if paths:
-        return dwi.mask.load_ascii(paths[0])
-    else:
-        raise Exception('Mask not found: %s' % s)
+    path = dwi.util.sglob('{d}/{c}_{s}_*.mask'.format(**d))
+    return dwi.mask.load_ascii(path)
 
 def normalize_pmap(pmap):
     in_range = (0, 0.025)
