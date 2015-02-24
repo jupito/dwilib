@@ -152,36 +152,6 @@ def task_find_roi():
         for case, scan in cases_scans():
             yield get_task_find_roi(case, scan, algparams)
 
-## Deprecated.
-#def task_compare_masks():
-#    """Compare ROI masks."""
-#    for case, scan in SUBWINDOWS.keys():
-#        subwindow = SUBWINDOWS[(case, scan)]
-#        d = dict(prg=COMPARE_MASKS,
-#                c=case,
-#                s=scan,
-#                w=subwindow_to_str(subwindow),
-#                )
-#        #file1 = 'masks/{c}_{s}_ca.mask'.format(**d)
-#        file1 = glob.glob('masks/{c}_{s}_1_*.mask'.format(**d))[0]
-#        file2 = 'masks_auto/{c}_{s}_auto.mask'.format(**d)
-#        outfile = 'roi_comparison/{c}_{s}.txt'.format(**d)
-#        d['f1'] = file1
-#        d['f2'] = file2
-#        d['o'] = outfile
-#        cmd = '{prg} -s {w} {f1} {f2} > {o}'.format(**d)
-#        if not os.path.exists(file1):
-#            print 'Missing mask file %s' % file1
-#            continue
-#        yield {
-#                'name': '{c}_{s}'.format(**d),
-#                'actions': [(create_folder, [dirname(outfile)]),
-#                        cmd],
-#                'file_dep': [file1, file2],
-#                'targets': [outfile],
-#                'clean': True,
-#                }
-
 def get_task_select_roi_dicom_mask(case, scan, model, param, masktype,
         subwindow=None):
     """Select ROIs from the pmap DICOMs based on masks."""
