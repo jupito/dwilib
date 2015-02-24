@@ -80,12 +80,8 @@ def subwindow_to_str(subwindow):
     return ' '.join(map(str, subwindow))
 
 def fit_cmd(model, subwindow, infiles, outfile):
-    d = dict(prg=PMAP,
-            m=model,
-            sw=subwindow_to_str(subwindow),
-            i=' '.join(infiles),
-            o=outfile,
-            )
+    d = dict(prg=PMAP, m=model, sw=subwindow_to_str(subwindow),
+            i=' '.join(infiles), o=outfile)
     s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
     return s
 
