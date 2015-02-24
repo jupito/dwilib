@@ -40,7 +40,6 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN', Kurt='ADCk', KurtN='ADCkN')
 MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
-PMAPDIR_DICOM = 'results_{m}_combinedDICOM'.format(m=MODEL)
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
@@ -67,6 +66,9 @@ def find_roi_param_combinations():
         #if t[0] <= t[1]:
         if t[0] == t[1]:
             yield map(str, t)
+
+def pmapdir_dicom(model):
+    return 'results_{m}_combinedDICOM'.format(m=model)
 
 def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
@@ -121,10 +123,10 @@ def task_fit():
                     'clean': True,
                     }
 
-def get_task_find_roi(pmapdir, samplelist, case, scan, model, param, algparams):
-    d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist), pd=pmapdir, m=model,
-            p=param, c=case, s=scan, ap=' '.join(algparams),
-            ap_='_'.join(algparams))
+def get_task_find_roi(samplelist, case, scan, model, param, algparams):
+    d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist),
+            pd=pmapdir_dicom(model), m=model, p=param, c=case, s=scan,
+            ap=' '.join(algparams), ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
@@ -147,8 +149,8 @@ def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_find_roi(PMAPDIR_DICOM, SAMPLELIST, case, scan,
-                    MODEL, PARAM, algparams)
+            yield get_task_find_roi(SAMPLELIST, case, scan, MODEL, PARAM,
+                    algparams)
 
 def get_task_select_roi_manual(case, scan, model, param, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
