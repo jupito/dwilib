@@ -69,6 +69,9 @@ def find_roi_param_combinations():
         if t[0] == t[1]:
             yield map(str, t)
 
+def samplelist_file(samplelist):
+    return 'samples_%s.txt' % samplelist
+
 def cases_scans():
     """Generate all case, scan pairs."""
     for sample in SAMPLES:
@@ -229,10 +232,10 @@ def task_select_roi_auto():
 #            'clean': True,
 #            }
 
-def get_task_autoroi_auc(model, param, threshold):
+def get_task_autoroi_auc(samplelist, model, param, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
-    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg=CALC_AUC, m=model, p=param,
-            t=threshold)
+    d = dict(sl=samplelist, slf=samplelist_file(samplelist), prg=CALC_AUC,
+            m=model, p=param, t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
@@ -241,18 +244,18 @@ def get_task_autoroi_auc(model, param, threshold):
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --average --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-            'name': 'autoroi_auc_{t}_{m}_{p}_{sl}'.format(**d),
+            'name': 'autoroi_auc_{sl}_{m}_{p}_{t}'.format(**d),
             'actions': cmds,
             'task_dep': ['select_roi_auto'],
             'targets': [d['o']],
             'clean': True,
             }
 
-def get_task_autoroi_correlation(model, param, thresholds):
+def get_task_autoroi_correlation(samplelist, model, param, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
-    d = dict(sl=SAMPLELIST, slf=SAMPLELIST_FILE, prg=CORRELATION, m=model,
-            p=param, t=thresholds, t_=thresholds.replace(' ', ','))
+    d = dict(sl=samplelist, slf=samplelist_file(samplelist), prg=CORRELATION,
+            m=model, p=param, t=thresholds, t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
@@ -261,7 +264,7 @@ def get_task_autoroi_correlation(model, param, thresholds):
         s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --average --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-            'name': 'autoroi_correlation_{t_}_{m}_{p}_{sl}'.format(**d),
+            'name': 'autoroi_correlation_{sl}_{m}_{p}_{t_}'.format(**d),
             'actions': cmds,
             'task_dep': ['select_roi_auto'],
             'targets': [d['o']],
@@ -270,7 +273,7 @@ def get_task_autoroi_correlation(model, param, thresholds):
 
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability."""
-    yield get_task_autoroi_auc(MODEL, PARAM, '3+3')
-    yield get_task_autoroi_auc(MODEL, PARAM, '3+4')
-    yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
-    yield get_task_autoroi_correlation(MODEL, PARAM, '')
+    yield get_task_autoroi_auc(SAMPLELIST, MODEL, PARAM, '3+3')
+    yield get_task_autoroi_auc(SAMPLELIST, MODEL, PARAM, '3+4')
+    yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '3+3 3+4')
+    yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '')
