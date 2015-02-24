@@ -152,7 +152,7 @@ def task_find_roi():
 def get_task_select_roi_manual(case, scan, model, param, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(c=case, s=scan, m=model, p=param, mt=masktype)
-    maskpath = 'masks_rois/{c}_*_{s}_D_{mt}'.format(**d)
+    maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     inpath = dwi.util.sglob('results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
     args = [SELECT_VOXELS]
