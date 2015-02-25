@@ -56,7 +56,7 @@ def read_dicom_pmap(directory, case, scan, param):
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
     return image
 
-def read_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
+def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
         roi_mask_dir, prostate_mask_dir, param, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
     patientsinfo = dwi.patient.read_patients_file(patients_file)
