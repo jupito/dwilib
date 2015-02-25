@@ -12,10 +12,6 @@ import dwi.mask
 import dwi.patient
 import dwi.util
 
-IN_SUBREGION_DIR = 'bounding_box_100_10pad'
-IN_ROI_MASK_DIR = 'masks_rois'
-IN_PROSTATE_MASK_DIR = 'masks_prostate'
-
 OUT_MASK_DIR = 'masks_auto'
 OUT_IMAGE_DIR = 'find_roi_images'
 
@@ -31,6 +27,12 @@ def parse_args():
             help='sample list file')
     p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
             help='input parametric map directory')
+    p.add_argument('--subregiondir', default='bounding_box_100_10pad',
+            help='subregion bounding box directory')
+    p.add_argument('--prostatemaskdir', default='masks_prostate',
+            help='ROI mask directory')
+    p.add_argument('--roimaskdir', default='masks_rois',
+            help='ROI mask directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
@@ -147,9 +149,9 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients,
-        args.pmapdir, IN_SUBREGION_DIR, IN_ROI_MASK_DIR, IN_PROSTATE_MASK_DIR,
-        args.param, args.cases, args.scans, args.clip)
+data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients, args.pmapdir,
+        args.subregiondir, args.roimaskdir, args.prostatemaskdir, args.param,
+        args.cases, args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
