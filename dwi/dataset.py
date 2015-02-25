@@ -145,7 +145,7 @@ def dataset_read_prostate_masks(data, prostate_mask_dir):
         roi = mask.get_masked(d['image'])
         d.update(prostate_mask=mask, prostate_roi=roi)
 
-def dataset_read_roi_masks(data, roi_mask_dir):
+def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
     """Add ROI masks to dataset (after pmaps)."""
     for d in data:
         masks = read_roi_masks(roi_mask_dir, d['case'], d['scan'])
@@ -156,5 +156,8 @@ def dataset_read_roi_masks(data, roi_mask_dir):
         assert d['image'].shape[0:3] == cmask.array.shape == nmask.array.shape
         croi = cmask.get_masked(d['image'])
         nroi = nmask.get_masked(d['image'])
+        if shape:
+            croi.shape = shape
+            nroi.shape = shape
         d.update(cancer_mask=cmask, normal_mask=nmask, cancer_roi=croi,
                 normal_roi=nroi)
