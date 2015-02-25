@@ -148,13 +148,13 @@ def write_mask(d, filename):
 
 
 args = parse_args()
+sidemin, sidemax, n_rois = args.algparams
+if sidemin > sidemax:
+    raise Exception('Invalid ROI size limits')
 print 'Reading data...'
 data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients, args.pmapdir,
         args.subregiondir, args.roimaskdir, args.prostatemaskdir, args.param,
         args.cases, args.scans, args.clip)
-sidemin, sidemax, n_rois = args.algparams
-if sidemin > sidemax:
-    raise Exception('Invalid ROI size limits')
 
 for d in data:
     print '{case} {scan}: {score} {subregion}'.format(**d)
