@@ -50,8 +50,6 @@ def parse_args():
     args = p.parse_args()
     return args
 
-###
-
 def draw_roi(img, pos, color):
     """Draw a rectangle ROI on a layer."""
     y, x = pos
