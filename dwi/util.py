@@ -252,6 +252,14 @@ def normalize_si_curve(si):
     for i in range(len(si)):
         si[i] /= unit
 
+def clip_pmap(img, params):
+    """Clip pmap's parameter-specific intensity outliers in-place."""
+    for i in range(img.shape[-1]):
+        if params[i].startswith('ADC'):
+            img[...,i].clip(0, 0.002, out=img[...,i])
+        elif params[i].startswith('K'):
+            img[...,i].clip(0, 2, out=img[...,i])
+
 def add_dummy_feature(X):
     """Add an extra dummy feature to an array of samples."""
     r = np.ones((X.shape[0], X.shape[1]+1), dtype=X.dtype)

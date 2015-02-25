@@ -50,14 +50,6 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def clip_image(img, params):
-    """Clip parameter-specific intensity outliers in-place."""
-    for i in range(img.shape[-1]):
-        if params[i].startswith('ADC'):
-            img[...,i].clip(0, 0.002, out=img[...,i])
-        elif params[i].startswith('K'):
-            img[...,i].clip(0, 2, out=img[...,i])
-
 def read_data(samplelist_file, patients_file, image_dir, subregion_dir,
         roi_mask_dir, prostate_mask_dir, param, cases=[], scans=[], clip=False):
     samples = dwi.util.read_sample_list(samplelist_file)
@@ -82,7 +74,7 @@ def read_data(samplelist_file, patients_file, image_dir, subregion_dir,
             cropped_prostate_mask = prostate_mask.crop(subregion)
             cropped_image = dwi.util.crop_image(image, subregion).copy()
             if clip:
-                clip_image(cropped_image, [param])
+                dwi.util.clip_pmap(cropped_image, [param])
             d = dict(case=case, scan=scan, score=score,
                     subregion=subregion,
                     cancer_mask=cropped_cancer_mask,
@@ -126,7 +118,7 @@ def draw(data, param, filename):
 
     slice_index = data['roi_corner'][0]
     pmap = data['image'][slice_index].copy()
-    clip_image(pmap, [param])
+    dwi.util.clip_pmap(pmap, [param])
     pmap = pmap[...,0]
 
     cancer_pos = (-1, -1)
