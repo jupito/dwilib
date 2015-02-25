@@ -1,4 +1,4 @@
-"""Directory and file structures."""
+"""Dataset, directory and file structures."""
 
 import glob
 
@@ -58,6 +58,7 @@ def read_dicom_pmap(directory, case, scan, param):
 
 def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
         prostate_mask_dir, roi_mask_dir, param, cases=[], scans=[], clip=False):
+    """Read pmaps in DICOM format and other data."""
     samples = dwi.util.read_sample_list(samplelist_file)
     patientsinfo = dwi.patient.read_patients_file(patients_file)
     data = []
@@ -69,15 +70,14 @@ def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
         for scan in sample['scans']:
             if scans and not scan in scans:
                 continue
-            image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
+            image = read_dicom_pmap(image_dir, case, scan, param)
             original_shape = image.shape
-            prostate_mask = dwi.files.read_prostate_mask(prostate_mask_dir,
-                    case, scan)
-            roi_masks = dwi.files.read_roi_masks(roi_mask_dir, case, scan)
+            prostate_mask = read_prostate_mask(prostate_mask_dir, case, scan)
+            roi_masks = read_roi_masks(roi_mask_dir, case, scan)
             cancer_mask, normal_mask = roi_masks['ca'], roi_masks['n']
             subregion = None
             if subregion_dir:
-                subregion = dwi.files.read_subregion(subregion_dir, case, scan)
+                subregion = read_subregion(subregion_dir, case, scan)
                 image = dwi.util.crop_image(image, subregion).copy()
                 prostate_mask = prostate_mask.crop(subregion)
                 cancer_mask = cancer_mask.crop(subregion)

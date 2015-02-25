@@ -7,7 +7,7 @@ import glob
 import numpy as np
 
 import dwi.autoroi
-import dwi.files
+import dwi.dataset
 import dwi.mask
 import dwi.patient
 import dwi.util
@@ -152,9 +152,9 @@ sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
-data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients, args.pmapdir,
-        args.subregiondir, args.prostatemaskdir, args.roimaskdir, args.param,
-        args.cases, args.scans, args.clip)
+data = dwi.dataset.read_dicom_pmaps(args.samplelist, args.patients,
+        args.pmapdir, args.subregiondir, args.prostatemaskdir, args.roimaskdir,
+        args.param, args.cases, args.scans, args.clip)
 
 for d in data:
     print '{case} {scan}: {score} {subregion}'.format(**d)
