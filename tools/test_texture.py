@@ -8,6 +8,7 @@ import re
 import numpy as np
 import skimage
 
+import dwi.dataset
 import dwi.util
 import dwi.patient
 import dwi.dwimage
@@ -56,6 +57,8 @@ def read_data(imagedir, patientsfile, subwindowsfile, samplesfile):
     for sample in samples_all:
         case, scans = sample['case'], sample['scans']
         scan = scans[0]
+        if case not in args.cases:
+            continue
         score = dwi.patient.get_patient(patients, case).score
         subwindow = subwindows[(case, scan)]
         dwimage = read_image(imagedir, case, scan, 'ADCm')
@@ -148,36 +151,66 @@ get_other_rois(data, args.step)
 print 'Window step size: %s' % args.step
 print len(data['other_rois'])
 
-#print
-#print dwi.util.fivenum(data['cancer_rois'])
-#print dwi.util.fivenum(data['normal_rois'])
-#print dwi.util.fivenum(data['other_rois'])
+print
+print dwi.util.fivenum(data['cancer_rois'])
+print dwi.util.fivenum(data['normal_rois'])
+print dwi.util.fivenum(data['other_rois'])
 
-#c = np.array(data['cancer_rois']).ravel()
-#n = np.array(data['normal_rois']).ravel()
-##o = np.array(data['other_rois']).ravel()
-#yc = np.ones_like(c, dtype=int)
-#yn = np.zeros_like(n, dtype=int)
-##yo = np.zeros_like(o, dtype=int)
-#y = np.concatenate((yc, yn))
-#x = np.concatenate((c, n))
-#_, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
-#print auc
+c = np.array(data['cancer_rois']).ravel()
+n = np.array(data['normal_rois']).ravel()
+print c.shape, n.shape
+#o = np.array(data['other_rois']).ravel()
+yc = np.ones_like(c, dtype=int)
+yn = np.zeros_like(n, dtype=int)
+#yo = np.zeros_like(o, dtype=int)
+y = np.concatenate((yc, yn))
+x = np.concatenate((c, n))
+_, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+print auc
 
-if args.total:
-    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
-    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
-    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
-    import scipy
-    import scipy.stats
-    for i in range(len(dwi.texture.PROPNAMES)):
-        print scipy.stats.spearmanr(data['cancer_coprops'][i], data['normal_coprops'][i])
-    aucs = get_texture_aucs(data)
-    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
-        print propname, auc
+#if args.total:
+#    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
+#    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
+#    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
+#    import scipy
+#    import scipy.stats
+#    for i in range(len(dwi.texture.PROPNAMES)):
+#        print scipy.stats.spearmanr(data['cancer_coprops'][i], data['normal_coprops'][i])
+#    aucs = get_texture_aucs(data)
+#    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
+#        print propname, auc
+#
+#tuples = zip(data['images'], data['cases'], data['scans'])
+#for img, case, scan in tuples:
+#    if case in args.cases:
+#        title = '%s %s' % (case, scan)
+#        draw_props(img, title, args.step)
 
-tuples = zip(data['images'], data['cases'], data['scans'])
-for img, case, scan in tuples:
-    if case in args.cases:
-        title = '%s %s' % (case, scan)
-        draw_props(img, title, args.step)
+print '---'
+
+data = dwi.dataset.dataset_read_samplelist('samples_train.txt', range(10), ['1a', '2a'])
+dwi.dataset.dataset_read_patientinfo(data, 'patients.txt')
+dwi.dataset.dataset_read_subregions(data, 'bounding_box_100_10pad')
+dwi.dataset.dataset_read_pmaps(data, 'results_Mono_combinedDICOM', 'ADCm')
+for d in data:
+    d['image'] = normalize_pmap(d['image'])
+dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')
+dwi.dataset.dataset_read_roi_masks(data, 'masks_rois', shape=(5,5))
+
+for d in data:
+    print d['case'], d['scan'], d['score'], d['image'].shape
+    #print d['subregion'], dwi.util.subwindow_shape(d['subregion'])
+
+c = np.array([d['cancer_roi'] for d in data]).ravel()
+n = np.array([d['normal_roi'] for d in data]).ravel()
+print c.shape, n.shape
+print dwi.util.fivenum(c)
+print dwi.util.fivenum(n)
+
+yc = np.ones_like(c, dtype=int)
+yn = np.zeros_like(n, dtype=int)
+#yo = np.zeros_like(o, dtype=int)
+y = np.concatenate((yc, yn))
+x = np.concatenate((c, n))
+_, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+print auc
