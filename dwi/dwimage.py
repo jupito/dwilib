@@ -132,7 +132,7 @@ class DWImage(object):
         return s
 
     def subwindow_shape(self):
-        return tuple((b-a for a, b in util.chunks(self.subwindow, 2)))
+        return util.subwindow_shape(self.subwindow)
 
     def shape(self):
         """Return image height and width."""
