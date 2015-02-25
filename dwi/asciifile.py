@@ -34,7 +34,7 @@ class AsciiFile(object):
         return tuple(r)
 
     def subwindow_shape(self):
-        return tuple((b-a for a, b in util.chunks(self.subwindow(), 2)))
+        return util.subwindow_shape(self.subwindow())
 
     def bset(self):
         """Return the b-value set. Fabricate if not present."""

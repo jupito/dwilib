@@ -86,6 +86,10 @@ def crop_image(image, subwindow, onebased=False):
     view = image[z1:z2, y1:y2, x1:x2]
     return view
 
+def subwindow_shape(subwindow):
+    """Return subwindow shape."""
+    return tuple(b-a for a, b in chunks(subwindow, 2))
+
 
 
 def median(a, axis=None, keepdims=False):
