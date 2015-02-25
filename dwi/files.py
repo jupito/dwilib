@@ -55,3 +55,42 @@ def read_dicom_pmap(directory, case, scan, param):
     image = d['image']
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
     return image
+
+def read_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
+        roi_mask_dir, prostate_mask_dir, param, cases=[], scans=[], clip=False):
+    samples = dwi.util.read_sample_list(samplelist_file)
+    patientsinfo = dwi.patient.read_patients_file(patients_file)
+    data = []
+    for sample in samples:
+        case = sample['case']
+        if cases and not case in cases:
+            continue
+        score = dwi.patient.get_patient(patientsinfo, case).score
+        for scan in sample['scans']:
+            if scans and not scan in scans:
+                continue
+            subregion = dwi.files.read_subregion(subregion_dir, case, scan)
+            masks = dwi.files.read_roi_masks(roi_mask_dir, case, scan)
+            cancer_mask, normal_mask = masks['ca'], masks['n']
+            prostate_mask = dwi.files.read_prostate_mask(prostate_mask_dir,
+                    case, scan)
+            image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
+            cropped_cancer_mask = cancer_mask.crop(subregion)
+            cropped_normal_mask = normal_mask.crop(subregion)
+            cropped_prostate_mask = prostate_mask.crop(subregion)
+            cropped_image = dwi.util.crop_image(image, subregion).copy()
+            if clip:
+                dwi.util.clip_pmap(cropped_image, [param])
+            d = dict(case=case, scan=scan, score=score,
+                    subregion=subregion,
+                    cancer_mask=cropped_cancer_mask,
+                    normal_mask=cropped_normal_mask,
+                    prostate_mask=cropped_prostate_mask,
+                    original_shape=image.shape,
+                    image=cropped_image)
+            data.append(d)
+            assert d['cancer_mask'].array.shape ==\
+                    d['normal_mask'].array.shape ==\
+                    d['prostate_mask'].array.shape ==\
+                    d['image'].shape[0:3]
+    return data
