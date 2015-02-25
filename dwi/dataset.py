@@ -148,12 +148,10 @@ def dataset_read_roi_masks(data, roi_mask_dir):
     """Add ROI masks to dataset (after pmaps)."""
     for d in data:
         masks = read_roi_masks(roi_mask_dir, d['case'], d['scan'])
-        cancer_mask, normal_mask = masks['ca'], masks['n']
+        cmask, nmask = masks['ca'], masks['n']
         if 'subregion' in d:
-            cancer_mask = cancer_mask.crop(d['subregion'])
-            normal_mask = normal_mask.crop(d['subregion'])
-        assert d['image'].shape[0:3] ==\
-                cancer_mask.array.shape ==\
-                normal_mask.array.shape
-        d['cancer_mask'] = cancer_mask
-        d['normal_mask'] = normal_mask
+            cmask = cmask.crop(d['subregion'])
+            nmask = nmask.crop(d['subregion'])
+        assert d['image'].shape[0:3] == cmask.array.shape == nmask.array.shape
+        d['cancer_mask'] = cmask
+        d['normal_mask'] = nmask
