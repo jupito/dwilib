@@ -153,7 +153,7 @@ if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
 data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients, args.pmapdir,
-        args.subregiondir, args.roimaskdir, args.prostatemaskdir, args.param,
+        args.subregiondir, args.prostatemaskdir, args.roimaskdir, args.param,
         args.cases, args.scans, args.clip)
 
 for d in data:
