@@ -15,7 +15,6 @@ import dwi.util
 IN_SUBREGION_DIR = 'bounding_box_100_10pad'
 IN_ROI_MASK_DIR = 'masks_rois'
 IN_PROSTATE_MASK_DIR = 'masks_prostate'
-IN_PATIENTS_FILE = 'patients.txt'
 
 OUT_MASK_DIR = 'masks_auto'
 OUT_IMAGE_DIR = 'find_roi_images'
@@ -26,6 +25,8 @@ def parse_args():
     p.add_argument('--verbose', '-v',
             action='count',
             help='increase verbosity')
+    p.add_argument('--patients', default='patients.txt',
+            help='patients file')
     p.add_argument('--samplelist', default='samples_all.txt',
             help='sample list file')
     p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
@@ -146,7 +147,7 @@ def write_mask(d, filename):
 
 args = parse_args()
 print 'Reading data...'
-data = dwi.files.read_dicom_pmaps(args.samplelist, IN_PATIENTS_FILE,
+data = dwi.files.read_dicom_pmaps(args.samplelist, args.patients,
         args.pmapdir, IN_SUBREGION_DIR, IN_ROI_MASK_DIR, IN_PROSTATE_MASK_DIR,
         args.param, args.cases, args.scans, args.clip)
 sidemin, sidemax, n_rois = args.algparams
