@@ -127,7 +127,7 @@ def dataset_read_subregions(data, subregion_dir):
         d['subregion'] = read_subregion(subregion_dir, d['case'], d['scan'])
 
 def dataset_read_pmaps(data, image_dir, param):
-    """Add pmaps to dataset."""
+    """Add pmaps to dataset (after optional subregions)."""
     for d in data:
         image = read_dicom_pmap(image_dir, d['case'], d['scan'], param)
         if 'subregion' in d:
@@ -136,20 +136,24 @@ def dataset_read_pmaps(data, image_dir, param):
         d['image'] = image
 
 def dataset_read_prostate_masks(data, prostate_mask_dir):
-    """Add prostate masks to dataset."""
+    """Add prostate masks to dataset (after pmaps)."""
     for d in data:
         mask = read_prostate_mask(prostate_mask_dir, d['case'], d['scan'])
         if 'subregion' in d:
             mask = mask.crop(d['subregion'])
+        assert d['image'].shape[0:3] == mask.array.shape
         d['prostate_mask'] = mask
 
 def dataset_read_roi_masks(data, roi_mask_dir):
-    """Add ROI masks to dataset."""
+    """Add ROI masks to dataset (after pmaps)."""
     for d in data:
         masks = read_roi_masks(roi_mask_dir, d['case'], d['scan'])
         cancer_mask, normal_mask = masks['ca'], masks['n']
         if 'subregion' in d:
             cancer_mask = cancer_mask.crop(d['subregion'])
             normal_mask = normal_mask.crop(d['subregion'])
+        assert d['image'].shape[0:3] ==\
+                cancer_mask.array.shape ==\
+                normal_mask.array.shape
         d['cancer_mask'] = cancer_mask
         d['normal_mask'] = normal_mask
