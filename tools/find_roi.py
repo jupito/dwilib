@@ -152,9 +152,18 @@ sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
-data = dwi.dataset.read_dicom_pmaps(args.samplelist, args.patients,
-        args.pmapdir, args.subregiondir, args.prostatemaskdir, args.roimaskdir,
-        args.param, args.cases, args.scans, args.clip)
+#data = dwi.dataset.read_dicom_pmaps(args.samplelist, args.patients,
+#        args.pmapdir, args.subregiondir, args.prostatemaskdir, args.roimaskdir,
+#        args.param, args.cases, args.scans, args.clip)
+data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
+dwi.dataset.dataset_read_patientinfo(data, args.patients)
+dwi.dataset.dataset_read_subregions(data, args.subregiondir)
+dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.param)
+dwi.dataset.dataset_read_prostate_masks(data, args.prostatemaskdir)
+dwi.dataset.dataset_read_roi_masks(data, args.roimaskdir)
+if args.clip:
+    for d in data:
+        dwi.util.clip_pmap(d['image'], [param])
 
 for d in data:
     print '{case} {scan}: {score} {subregion}'.format(**d)
