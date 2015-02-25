@@ -76,19 +76,19 @@ def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
                     case, scan)
             image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
             original_shape = image.shape
-            cropped_cancer_mask = cancer_mask.crop(subregion)
-            cropped_normal_mask = normal_mask.crop(subregion)
-            cropped_prostate_mask = prostate_mask.crop(subregion)
-            cropped_image = dwi.util.crop_image(image, subregion).copy()
+            cancer_mask = cancer_mask.crop(subregion)
+            normal_mask = normal_mask.crop(subregion)
+            prostate_mask = prostate_mask.crop(subregion)
+            image = dwi.util.crop_image(image, subregion).copy()
             if clip:
-                dwi.util.clip_pmap(cropped_image, [param])
+                dwi.util.clip_pmap(image, [param])
             d = dict(case=case, scan=scan, score=score,
                     subregion=subregion,
-                    cancer_mask=cropped_cancer_mask,
-                    normal_mask=cropped_normal_mask,
-                    prostate_mask=cropped_prostate_mask,
+                    cancer_mask=cancer_mask,
+                    normal_mask=normal_mask,
+                    prostate_mask=prostate_mask,
                     original_shape=original_shape,
-                    image=cropped_image)
+                    image=image)
             data.append(d)
             assert d['cancer_mask'].array.shape ==\
                     d['normal_mask'].array.shape ==\
