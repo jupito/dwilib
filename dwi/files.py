@@ -69,26 +69,29 @@ def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
         for scan in sample['scans']:
             if scans and not scan in scans:
                 continue
-            subregion = dwi.files.read_subregion(subregion_dir, case, scan)
+            image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
+            original_shape = image.shape
             masks = dwi.files.read_roi_masks(roi_mask_dir, case, scan)
             cancer_mask, normal_mask = masks['ca'], masks['n']
             prostate_mask = dwi.files.read_prostate_mask(prostate_mask_dir,
                     case, scan)
-            image = dwi.files.read_dicom_pmap(image_dir, case, scan, param)
-            original_shape = image.shape
-            cancer_mask = cancer_mask.crop(subregion)
-            normal_mask = normal_mask.crop(subregion)
-            prostate_mask = prostate_mask.crop(subregion)
-            image = dwi.util.crop_image(image, subregion).copy()
+            subregion = None
+            if subregion_dir:
+                subregion = dwi.files.read_subregion(subregion_dir, case, scan)
+                image = dwi.util.crop_image(image, subregion).copy()
+                cancer_mask = cancer_mask.crop(subregion)
+                normal_mask = normal_mask.crop(subregion)
+                prostate_mask = prostate_mask.crop(subregion)
             if clip:
                 dwi.util.clip_pmap(image, [param])
             d = dict(case=case, scan=scan, score=score,
+                    image=image,
+                    original_shape=original_shape,
                     subregion=subregion,
                     cancer_mask=cancer_mask,
                     normal_mask=normal_mask,
                     prostate_mask=prostate_mask,
-                    original_shape=original_shape,
-                    image=image)
+                    )
             data.append(d)
             assert d['cancer_mask'].array.shape ==\
                     d['normal_mask'].array.shape ==\
