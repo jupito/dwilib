@@ -12,8 +12,8 @@ import dwi.mask
 import dwi.patient
 import dwi.util
 
-OUT_MASK_DIR = 'masks_auto'
-OUT_IMAGE_DIR = 'find_roi_images'
+DEFAULT_OUT_MASK_DIR = 'masks_auto'
+DEFAULT_OUT_IMAGE_DIR = 'find_roi_images'
 
 def parse_args():
     """Parse command-line arguments."""
@@ -167,9 +167,9 @@ for d in data:
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
     draw(d, args.param, args.outfig or
-            OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**d))
+            DEFAULT_OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**d))
     write_mask(d, args.outmask or
-            OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
+            DEFAULT_OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
 
 #if args.verbose:
 #    for i, p in enumerate(params):
