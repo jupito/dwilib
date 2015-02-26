@@ -2,7 +2,7 @@
 
 import pylab as pl
 
-def show_images(Imgs, outfile=None):
+def show_images(Imgs, ylabels=[], xlabels=[], outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
     pl.rcParams['image.cmap'] = 'gray'
     pl.rcParams['image.aspect'] = 'equal'
@@ -13,6 +13,10 @@ def show_images(Imgs, outfile=None):
         for j, img in enumerate(imgs):
             ax = fig.add_subplot(nrows, ncols, i*ncols+j+1)
             ax.set_title('%i, %i' % (i, j))
+            if ylabels:
+                ax.set_ylabel(ylabels[i])
+            if xlabels:
+                ax.set_xlabel(xlabels[j])
             pl.imshow(img)
     pl.tight_layout()
     if outfile:
