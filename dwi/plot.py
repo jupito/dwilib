@@ -24,3 +24,4 @@ def show_images(Imgs, ylabels=[], xlabels=[], outfile=None):
     else:
         pl.imshow(img)
         pl.show()
+    pl.close()
