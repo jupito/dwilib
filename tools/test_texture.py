@@ -168,18 +168,18 @@ x = np.concatenate((c, n))
 _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
 print auc
 
-#if args.total:
-#    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
-#    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
-#    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
-#    import scipy
-#    import scipy.stats
-#    for i in range(len(dwi.texture.PROPNAMES)):
-#        print scipy.stats.spearmanr(data['cancer_coprops'][i], data['normal_coprops'][i])
-#    aucs = get_texture_aucs(data)
-#    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
-#        print propname, auc
-#
+if args.total:
+    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
+    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
+    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
+    import scipy
+    import scipy.stats
+    for i in range(len(dwi.texture.PROPNAMES)):
+        print scipy.stats.spearmanr(data['cancer_coprops'][:,i], data['normal_coprops'][:,i])
+    aucs = get_texture_aucs(data)
+    for propname, auc in zip(dwi.texture.PROPNAMES, aucs):
+        print propname, auc
+
 #tuples = zip(data['images'], data['cases'], data['scans'])
 #for img, case, scan in tuples:
 #    if case in args.cases:
@@ -196,10 +196,15 @@ for d in data:
     d['image'] = normalize_pmap(d['image'])
 dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')
 dwi.dataset.dataset_read_roi_masks(data, 'masks_rois', shape=(5,5))
+for d in data:
+    d['cancer_coprops'] = dwi.texture.get_coprops([d['cancer_roi']])
+    d['normal_coprops'] = dwi.texture.get_coprops([d['normal_roi']])
 
 for d in data:
     print d['case'], d['scan'], d['score'], d['image'].shape
     #print d['subregion'], dwi.util.subwindow_shape(d['subregion'])
+    print d['cancer_coprops']
+    print d['normal_coprops']
 
 c = np.array([d['cancer_roi'] for d in data]).ravel()
 n = np.array([d['normal_roi'] for d in data]).ravel()
@@ -209,8 +214,7 @@ print dwi.util.fivenum(n)
 
 yc = np.ones_like(c, dtype=int)
 yn = np.zeros_like(n, dtype=int)
-#yo = np.zeros_like(o, dtype=int)
-y = np.concatenate((yc, yn))
 x = np.concatenate((c, n))
+y = np.concatenate((yc, yn))
 _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
 print auc
