@@ -32,6 +32,7 @@ args = parse_args()
 imgs1 = [read_img(f) for f in args.input1]
 imgs2 = [read_img(f) for f in args.input2]
 imgs = np.array([imgs1, imgs2])
+print imgs.shape
 imgs = np.mean(imgs, axis=1) # Average over patients.
 print imgs.shape
 
