@@ -83,8 +83,9 @@ def draw(data, param, filename):
     NORMAL_COLOR = (0.0, 1.0, 0.0, 1.0)
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
-    pmap = data['cancer_slice'][...,0].copy()
+    pmap = data['cancer_slice'].copy()
     dwi.util.clip_pmap(pmap, [param])
+    pmap = pmap[...,0]
 
     cancer_pos = data['cancer_mask'].where()[0][1:3]
     normal_pos = data['normal_mask'].where()[0][1:3]
