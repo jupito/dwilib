@@ -67,9 +67,9 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
     """Measure the distance of two LBP frequency histograms.
     
     Method can be one of the following:
-    intersection: histogram intersection distance measure
-    log-likelihood: log-likelihood distance measure
-    chi-squared: distance measure
+    intersection: histogram intersection
+    log-likelihood: log-likelihood
+    chi-squared: chi-squared
     """
     pairs = np.array([hist1, hist2]).T
     if method == 'intersection':
