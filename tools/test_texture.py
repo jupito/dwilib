@@ -69,6 +69,17 @@ def get_distances(data, model):
                     method='log-likelihood')
         d['distance_map'] = dist
 
+def draw_roi(img, pos, color):
+    """Draw a rectangle ROI on a layer."""
+    y, x = pos
+    img[y:y+5, x:x+5] = color
+
+def get_roi_layer(img, pos, color):
+    """Get a layer with a rectangle ROI for drawing."""
+    layer = np.zeros(img.shape + (4,))
+    draw_roi(layer, pos, color)
+    return layer
+
 def draw(data, param, filename):
     import matplotlib
     import matplotlib.pyplot as plt
@@ -81,34 +92,35 @@ def draw(data, param, filename):
 
     CANCER_COLOR = (1.0, 0.0, 0.0, 1.0)
     NORMAL_COLOR = (0.0, 1.0, 0.0, 1.0)
-    AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
+
+    cancer_pos = data['cancer_mask'].where()[0][1:3]
+    normal_pos = data['normal_mask'].where()[0][1:3]
 
     pmap = data['cancer_slice'].copy()
     dwi.util.clip_pmap(pmap, [param])
     pmap = pmap[...,0]
 
-    cancer_pos = data['cancer_mask'].where()[0][1:3]
-    normal_pos = data['normal_mask'].where()[0][1:3]
+    dmap = data['distance_map'].copy()
 
     ax1 = fig.add_subplot(1, n_cols, 1)
     ax1.set_title(param)
     plt.imshow(pmap)
 
-    ax3 = fig.add_subplot(1, n_cols, 2)
-    ax3.set_title('LBP freq dist')
-    view = np.zeros(pmap.shape + (3,), dtype=float)
-    view[...,0] = pmap / pmap.max()
-    view[...,1] = pmap / pmap.max()
-    view[...,2] = pmap / pmap.max()
-    #for i, a in enumerate(pmap):
+    ax2 = fig.add_subplot(1, n_cols, 2)
+    ax2.set_title('LBP freq dist')
+    view = np.zeros(dmap.shape + (3,), dtype=float)
+    view[...,0] = dmap / dmap.max()
+    view[...,1] = dmap / dmap.max()
+    view[...,2] = dmap / dmap.max()
+    #for i, a in enumerate(dmap):
     #    for j, v in enumerate(a):
     #        if v < dwi.autoroi.ADCM_MIN:
     #            view[i,j,:] = [0.5, 0, 0]
     #        elif v > dwi.autoroi.ADCM_MAX:
     #            view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
-    plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
-    plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(dmap, cancer_pos, CANCER_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(dmap, normal_pos, NORMAL_COLOR), alpha=0.7)
 
     plt.tight_layout()
     print 'Writing figure:', filename
