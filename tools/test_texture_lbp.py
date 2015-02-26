@@ -6,9 +6,8 @@ import argparse
 import numpy as np
 
 import dwi.dwimage
+import dwi.texture
 import dwi.util
-
-EPSILON = 1e-6
 
 def parse_args():
     """Parse command-line arguments."""
@@ -27,25 +26,6 @@ def read_img(filename):
     img = np.sum(img, axis=0)
     return img
 
-def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
-    """Measure the distance of two LBP frequency histograms.
-    
-    Method can be one of the following:
-    intersection: histogram intersection distance measure
-    log-likelihood: log-likelihood distance measure
-    chi-squared: distance measure
-    """
-    pairs = np.array([hist1, hist2]).T
-    if method == 'intersection':
-        r = sum(min(pair) for pair in pairs)
-    elif method == 'log-likelihood':
-        r = -sum(a*np.log(max(b, eps)) for a, b in pairs)
-    elif method == 'chi-squared':
-        r = sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
-    else:
-        raise Exception('Unknown distance measure: %s' % method)
-    return r
-
 
 args = parse_args()
 imgs1 = [read_img(f) for f in args.input1]
@@ -54,9 +34,9 @@ imgs = np.array([imgs1, imgs2])
 imgs = np.sum(imgs, axis=1)
 print imgs.shape
 
-for method in 'intersection log-likelihood chi-squared'.split():
-    print method
-    distances = [lbpf_dist(a, b, method) for a, b in zip(imgs1, imgs2)]
+for m in 'intersection log-likelihood chi-squared'.split():
+    print m
+    distances = [dwi.texture.lbpf_dist(a, b, m) for a, b in zip(imgs1, imgs2)]
     print dwi.util.fivenum(distances)
 
 #import matplotlib.pyplot as pl

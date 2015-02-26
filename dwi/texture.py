@@ -7,6 +7,7 @@ from skimage.util import view_as_windows
 
 PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
         'correlation', 'ASM']
+EPSILON = 1e-6
 
 def get_coprops_img(img):
     """Get co-occurrence matrix texture properties ower an image."""
@@ -61,3 +62,22 @@ def get_lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
     lbp_freq_data, n_patterns = lbp.get_freqs(lbp_data, winsize, neighbours,
             roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
+
+def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
+    """Measure the distance of two LBP frequency histograms.
+    
+    Method can be one of the following:
+    intersection: histogram intersection distance measure
+    log-likelihood: log-likelihood distance measure
+    chi-squared: distance measure
+    """
+    pairs = np.array([hist1, hist2]).T
+    if method == 'intersection':
+        r = sum(min(pair) for pair in pairs)
+    elif method == 'log-likelihood':
+        r = -sum(a*np.log(max(b, eps)) for a, b in pairs)
+    elif method == 'chi-squared':
+        r = sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
+    else:
+        raise Exception('Unknown distance measure: %s' % method)
+    return r
