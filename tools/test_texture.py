@@ -77,62 +77,38 @@ def draw(data, param, filename):
 
     plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.interpolation'] = 'nearest'
-    n_cols, n_rows = 3, 1
+    n_cols, n_rows = 2, 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
     CANCER_COLOR = (1.0, 0.0, 0.0, 1.0)
     NORMAL_COLOR = (0.0, 1.0, 0.0, 1.0)
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
-    slice_index = data['roi_corner'][0]
-    pmap = data['image'][slice_index].copy()
-    dwi.util.clip_pmap(pmap, [param])
-    pmap = pmap[...,0]
+    pmap = data['cancer_slice'][...,0].copy()
+    dwi.util.clip_pmap(pmap, ['ADCm'])
 
-    cancer_pos = (-1, -1)
-    normal_pos = (-1, -1)
-    distance = -1
-    auto_pos = (data['roi_coords'][1][0], data['roi_coords'][2][0])
-    if 'cancer_mask' in data:
-        cancer_pos = data['cancer_mask'].where()[0][1:3]
-        distance = dwi.util.distance(cancer_pos, auto_pos)
-    if 'normal_mask' in data:
-        normal_pos = data['normal_mask'].where()[0][1:3]
+    cancer_pos = data['cancer_mask'].where()[0][1:3]
+    normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title('Slice %i %s' % (slice_index, param))
+    ax1.set_title('ADCm')
     plt.imshow(pmap)
 
-    ax2 = fig.add_subplot(1, n_cols, 2)
-    ax2.set_title('Calculated score map')
-    scoremap = data['scoremap'][slice_index]
-    scoremap /= scoremap.max()
-    imgray = plt.imshow(pmap, alpha=1)
-    imjet = plt.imshow(scoremap, alpha=0.8, cmap='jet')
-
-    ax3 = fig.add_subplot(1, n_cols, 3)
-    ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
-            distance))
+    ax3 = fig.add_subplot(1, n_cols, 2)
+    ax3.set_title('LBP freq dist')
     view = np.zeros(pmap.shape + (3,), dtype=float)
     view[...,0] = pmap / pmap.max()
     view[...,1] = pmap / pmap.max()
     view[...,2] = pmap / pmap.max()
-    for i, a in enumerate(pmap):
-        for j, v in enumerate(a):
-            if v < dwi.autoroi.ADCM_MIN:
-                view[i,j,:] = [0.5, 0, 0]
-            elif v > dwi.autoroi.ADCM_MAX:
-                view[i,j,:] = [0, 0.5, 0]
+    #for i, a in enumerate(pmap):
+    #    for j, v in enumerate(a):
+    #        if v < dwi.autoroi.ADCM_MIN:
+    #            view[i,j,:] = [0.5, 0, 0]
+    #        elif v > dwi.autoroi.ADCM_MAX:
+    #            view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
-    if 'cancer_mask' in data:
-        plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
-    if 'normal_mask' in data:
-        plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
-    plt.imshow(get_roi_layer(pmap, auto_pos, AUTO_COLOR), alpha=0.7)
-
-    fig.colorbar(imgray, ax=ax1, shrink=0.65)
-    fig.colorbar(imjet, ax=ax2, shrink=0.65)
-    fig.colorbar(imgray, ax=ax3, shrink=0.65)
+    plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
 
     plt.tight_layout()
     print 'Writing figure:', filename
@@ -160,11 +136,13 @@ model = avg_lbpf_map([d['cancer_lbpf_avg'] for d in data])
 get_distances(data, model)
 
 print 'Plotting...'
-#l = []
-#for d in data:
-#    imgs = [d['cancer_slice'][...,0], d['distance_map']]
-#    l.append(imgs)
-#imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
-#ylabels=[d['case'] for d in data]
-#xlabels=['adc', 'dist']
-#dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
+l = []
+for d in data:
+    imgs = [d['cancer_slice'][...,0], d['distance_map']]
+    l.append(imgs)
+imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
+ylabels=[d['case'] for d in data]
+xlabels=['adc', 'dist']
+dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
+for d in data:
+    draw(d, 'dist_fig/dist_%s.png' % (d['case'], d['scan']))
