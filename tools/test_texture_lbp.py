@@ -27,20 +27,24 @@ def read_img(filename):
     img = np.sum(img, axis=0)
     return img
 
-def lbpf_dist_int(hist1, hist2):
-    """Histogram intersection distance measure."""
+def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
+    """Measure the distance of two LBP frequency histograms.
+    
+    Method can be one of the following:
+    intersection: histogram intersection distance measure
+    log-likelihood: log-likelihood distance measure
+    chi-squared: distance measure
+    """
     pairs = np.array([hist1, hist2]).T
-    return sum(min(pair) for pair in pairs)
-
-def lbpf_dist_log(hist1, hist2, eps=EPSILON):
-    """Log-likelihood distance measure."""
-    pairs = np.array([hist1, hist2]).T
-    return -sum(a*np.log(max(b, eps)) for a, b in pairs)
-
-def lbpf_dist_chi(hist1, hist2, eps=EPSILON):
-    """Chi-squared distance measure."""
-    pairs = np.array([hist1, hist2]).T
-    return sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
+    if method == 'intersection':
+        r = sum(min(pair) for pair in pairs)
+    elif method == 'log-likelihood':
+        r = -sum(a*np.log(max(b, eps)) for a, b in pairs)
+    elif method == 'chi-squared':
+        r = sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
+    else:
+        raise Exception('Unknown distance measure: %s' % method)
+    return r
 
 
 args = parse_args()
@@ -50,14 +54,10 @@ imgs = np.array([imgs1, imgs2])
 imgs = np.sum(imgs, axis=1)
 print imgs.shape
 
-distances = [lbpf_dist_int(*t) for t in zip(imgs1, imgs2)]
-print dwi.util.fivenum(distances)
-
-distances = [lbpf_dist_log(*t) for t in zip(imgs1, imgs2)]
-print dwi.util.fivenum(distances)
-
-distances = [lbpf_dist_chi(*t) for t in zip(imgs1, imgs2)]
-print dwi.util.fivenum(distances)
+for method in 'intersection log-likelihood chi-squared'.split():
+    print method
+    distances = [lbpf_dist(a, b, method) for a, b in zip(imgs1, imgs2)]
+    print dwi.util.fivenum(distances)
 
 #import matplotlib.pyplot as pl
 #pl.bar(np.arange(0, 10), imgs[0], width=0.4, color='r')
