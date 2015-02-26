@@ -24,6 +24,7 @@ DOIT_CONFIG = {
     'backend': 'sqlite3',
     'default_tasks': [],
     'verbosity': 1,
+    'num_process': 7,
     }
 
 DWILIB = '~/src/dwilib/tools'
@@ -45,10 +46,9 @@ SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        range(8, 13), # ROI side min (3 was not good)
+        range(5, 13), # ROI side min (3 was not good)
         range(1, 13), # ROI side max
-        #range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
-        range(250, 1500, 250), # Number of ROIs
+        range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
 ]
 
 def find_roi_param_combinations():
