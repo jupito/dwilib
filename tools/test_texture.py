@@ -107,7 +107,7 @@ def draw(data, param, filename):
     plt.imshow(pmap)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
-    ax2.set_title('LBP freq dist')
+    ax2.set_title('LBP freq distance')
     view = np.zeros(dmap.shape + (3,), dtype=float)
     view[...,0] = dmap / dmap.max()
     view[...,1] = dmap / dmap.max()
@@ -119,8 +119,8 @@ def draw(data, param, filename):
     #        elif v > dwi.autoroi.ADCM_MAX:
     #            view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
-    plt.imshow(get_roi_layer(dmap, cancer_pos, CANCER_COLOR), alpha=0.7)
-    plt.imshow(get_roi_layer(dmap, normal_pos, NORMAL_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(dmap, cancer_pos, CANCER_COLOR), alpha=0.4)
+    plt.imshow(get_roi_layer(dmap, normal_pos, NORMAL_COLOR), alpha=0.4)
 
     plt.tight_layout()
     print 'Writing figure:', filename
