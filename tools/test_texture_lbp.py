@@ -27,17 +27,17 @@ def read_img(filename):
     img = np.sum(img, axis=0)
     return img
 
-def distance_hist(hist1, hist2):
+def lbpf_dist_int(hist1, hist2):
     """Histogram intersection distance measure."""
     pairs = np.array([hist1, hist2]).T
     return sum(min(pair) for pair in pairs)
 
-def distance_log(hist1, hist2, eps=EPSILON):
+def lbpf_dist_log(hist1, hist2, eps=EPSILON):
     """Log-likelihood distance measure."""
     pairs = np.array([hist1, hist2]).T
     return -sum(a*np.log(max(b, eps)) for a, b in pairs)
 
-def distance_chi(hist1, hist2, eps=EPSILON):
+def lbpf_dist_chi(hist1, hist2, eps=EPSILON):
     """Chi-squared distance measure."""
     pairs = np.array([hist1, hist2]).T
     return sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
@@ -50,13 +50,13 @@ imgs = np.array([imgs1, imgs2])
 imgs = np.sum(imgs, axis=1)
 print imgs.shape
 
-distances = [distance_hist(*t) for t in zip(imgs1, imgs2)]
+distances = [lbpf_dist_int(*t) for t in zip(imgs1, imgs2)]
 print dwi.util.fivenum(distances)
 
-distances = [distance_log(*t) for t in zip(imgs1, imgs2)]
+distances = [lbpf_dist_log(*t) for t in zip(imgs1, imgs2)]
 print dwi.util.fivenum(distances)
 
-distances = [distance_chi(*t) for t in zip(imgs1, imgs2)]
+distances = [lbpf_dist_chi(*t) for t in zip(imgs1, imgs2)]
 print dwi.util.fivenum(distances)
 
 #import matplotlib.pyplot as pl
