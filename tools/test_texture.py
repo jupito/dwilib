@@ -84,13 +84,13 @@ def draw(data, param, filename):
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
     pmap = data['cancer_slice'][...,0].copy()
-    dwi.util.clip_pmap(pmap, ['ADCm'])
+    dwi.util.clip_pmap(pmap, [param])
 
     cancer_pos = data['cancer_mask'].where()[0][1:3]
     normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title('ADCm')
+    ax1.set_title(param)
     plt.imshow(pmap)
 
     ax3 = fig.add_subplot(1, n_cols, 2)
@@ -144,4 +144,4 @@ ylabels=[d['case'] for d in data]
 xlabels=['adc', 'dist']
 dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
 for d in data:
-    draw(d, 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
+    draw(d, 'ADCm', 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
