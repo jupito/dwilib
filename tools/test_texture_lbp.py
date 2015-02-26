@@ -22,8 +22,9 @@ def parse_args():
     return args
 
 def read_img(filename):
+    """Return LBP frequnce histogram averaged over ROI."""
     img = dwi.dwimage.load(filename)[0].sis
-    img = np.sum(img, axis=0)
+    img = np.mean(img, axis=0)
     return img
 
 
@@ -31,7 +32,7 @@ args = parse_args()
 imgs1 = [read_img(f) for f in args.input1]
 imgs2 = [read_img(f) for f in args.input2]
 imgs = np.array([imgs1, imgs2])
-imgs = np.sum(imgs, axis=1)
+imgs = np.mean(imgs, axis=1) # Average over patients.
 print imgs.shape
 
 for m in 'intersection log-likelihood chi-squared'.split():
