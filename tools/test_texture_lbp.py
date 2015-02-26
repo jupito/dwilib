@@ -40,6 +40,8 @@ for m in 'intersection log-likelihood chi-squared'.split():
     print m
     distances = [dwi.texture.lbpf_dist(a, b, m) for a, b in zip(imgs1, imgs2)]
     print dwi.util.fivenum(distances)
+    print dwi.texture.lbpf_dist(imgs[0], imgs[1], m)
+
 
 #import matplotlib.pyplot as pl
 #pl.bar(np.arange(0, 10), imgs[0], width=0.4, color='r')
