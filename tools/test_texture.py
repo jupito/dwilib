@@ -63,7 +63,6 @@ def get_distances(data, model):
     for d in data:
         sample = d['cancer_slice_lbpf']
         #model = d['cancer_lbpf_avg']
-        print sample.shape
         dist = np.zeros_like(sample[...,0])
         for y, x in np.ndindex(dist.shape):
             dist[y,x] = dwi.texture.lbpf_dist(sample[y,x], model,
@@ -145,4 +144,4 @@ ylabels=[d['case'] for d in data]
 xlabels=['adc', 'dist']
 dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
 for d in data:
-    draw(d, 'dist_fig/dist_%s.png' % (d['case'], d['scan']))
+    draw(d, 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
