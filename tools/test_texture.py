@@ -147,14 +147,14 @@ get_lbpfs(data)
 model = avg_lbpf_map([d['cancer_lbpf_avg'] for d in data])
 get_distances(data, model)
 
-print 'Plotting...'
-l = []
-for d in data:
-    imgs = [d['cancer_slice'][...,0], d['distance_map']]
-    l.append(imgs)
-imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
-ylabels=[d['case'] for d in data]
-xlabels=['adc', 'dist']
-dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
+#print 'Plotting...'
+#l = []
+#for d in data:
+#    imgs = [d['cancer_slice'][...,0], d['distance_map']]
+#    l.append(imgs)
+#imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
+#ylabels=[d['case'] for d in data]
+#xlabels=['adc', 'dist']
+#dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
 for d in data:
     draw(d, 'ADCm', 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
