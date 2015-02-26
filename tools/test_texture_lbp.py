@@ -8,7 +8,7 @@ import numpy as np
 import dwi.dwimage
 import dwi.util
 
-EPSILON = 0.000001
+EPSILON = 1e-6
 
 def parse_args():
     """Parse command-line arguments."""
@@ -27,20 +27,20 @@ def read_img(filename):
     img = np.sum(img, axis=0)
     return img
 
-def distance_hist(img1, img2):
+def distance_hist(hist1, hist2):
     """Histogram intersection distance measure."""
-    img = np.array([img1, img2]).T
-    return sum(min(pair) for pair in img)
+    pairs = np.array([hist1, hist2]).T
+    return sum(min(pair) for pair in pairs)
 
-def distance_log(img1, img2):
+def distance_log(hist1, hist2, eps=EPSILON):
     """Log-likelihood distance measure."""
-    img = np.array([img1, img2]).T
-    return -sum(a*np.log(max(b, EPSILON)) for a, b in img)
+    pairs = np.array([hist1, hist2]).T
+    return -sum(a*np.log(max(b, eps)) for a, b in pairs)
 
-def distance_chi(img1, img2):
+def distance_chi(hist1, hist2, eps=EPSILON):
     """Chi-squared distance measure."""
-    img = np.array([img1, img2]).T
-    return sum((a-b)**2/(max(a+b, EPSILON)) for a, b in img)
+    pairs = np.array([hist1, hist2]).T
+    return sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
 
 
 args = parse_args()
