@@ -102,6 +102,13 @@ class Mask3D(object):
         """Return masked voxels."""
         return a[self.array]
 
+    def get_masked_slice(self, a):
+        """Return the masked slice."""
+        indices = self.selected_slices()
+        if len(indices) != 1:
+            raise Exception('Exactly one slice not masked.')
+        return a[indices[0]]
+
     def apply_mask(self, a, value=0):
         """Cover masked voxels by zero or other value."""
         copy = a.copy()
