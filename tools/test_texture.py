@@ -21,8 +21,10 @@ def parse_args():
     p = argparse.ArgumentParser(description = __doc__)
     p.add_argument('--verbose', '-v', action='count',
             help='increase verbosity')
-    p.add_argument('--dir', '-d', required=True,
-            help='image directory')
+    p.add_argument('--pmapdir', required=True,
+            help='pmap directory')
+    p.add_argument('--param', required=True,
+            help='pmap parameter')
     p.add_argument('--cases', '-c', nargs='+', type=int, default=[],
             help='case numbers to draw')
     p.add_argument('--total', '-t', action='store_true',
@@ -134,7 +136,7 @@ print 'Reading dataset...'
 data = dwi.dataset.dataset_read_samplelist('samples_train.txt', cases=args.cases, scans=['1a', '2a'])
 dwi.dataset.dataset_read_patientinfo(data, 'patients.txt')
 dwi.dataset.dataset_read_subregions(data, 'bounding_box_100_10pad')
-dwi.dataset.dataset_read_pmaps(data, 'results_Mono_combinedDICOM', 'ADCm')
+dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.param)
 #dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')
 dwi.dataset.dataset_read_roi_masks(data, 'masks_rois', shape=(5,5))
 get_roi_slices(data)
@@ -154,7 +156,7 @@ get_distances(data, model)
 #    l.append(imgs)
 #imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
 #ylabels=[d['case'] for d in data]
-#xlabels=['adc', 'dist']
+#xlabels=[args.param, 'dist']
 #dwi.plot.show_images(l, ylabels, xlabels, outfile='dist.png')
 for d in data:
-    draw(d, 'ADCm', 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
+    draw(d, args.param, 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
