@@ -41,34 +41,6 @@ class Mask(object):
             f.write('slice: %s\n' % self.slice)
             f.write(mask_to_text(self.array.astype(int)))
 
-def mask_to_text(mask):
-    return '\n'.join(map(line_to_text, mask))
-
-def line_to_text(line):
-    return ''.join(map(str, line))
-
-def load_ascii(filename):
-    """Read a ROI mask file."""
-    slice = 1
-    arrays = []
-    with open(filename, 'rU') as f:
-        p = re.compile(r'(\w+)\s*:\s*(.*)')
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            m = p.match(line)
-            if m:
-                if m.group(1) == 'slice':
-                    slice = int(m.group(2))
-            elif line[0] == '0' or line[0] == '1':
-                a = np.array(list(line), dtype=int)
-                arrays.append(a)
-    if arrays:
-        return Mask(slice, np.array(arrays))
-    else:
-        raise Exception('No mask found in %s' % filename)
-
 class Mask3D(object):
     """Image mask stored as a 3D array."""
     def __init__(self, a):
@@ -123,6 +95,34 @@ class Mask3D(object):
         """Return a copied subwindow."""
         a = dwi.util.crop_image(self.array, subwindow, onebased).copy()
         return Mask3D(a)
+
+def mask_to_text(mask):
+    return '\n'.join(map(line_to_text, mask))
+
+def line_to_text(line):
+    return ''.join(map(str, line))
+
+def load_ascii(filename):
+    """Read a ROI mask file."""
+    slice = 1
+    arrays = []
+    with open(filename, 'rU') as f:
+        p = re.compile(r'(\w+)\s*:\s*(.*)')
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            m = p.match(line)
+            if m:
+                if m.group(1) == 'slice':
+                    slice = int(m.group(2))
+            elif line[0] == '0' or line[0] == '1':
+                a = np.array(list(line), dtype=int)
+                arrays.append(a)
+    if arrays:
+        return Mask(slice, np.array(arrays))
+    else:
+        raise Exception('No mask found in %s' % filename)
 
 def read_dicom_mask(path):
     import dwi.dicomfile
