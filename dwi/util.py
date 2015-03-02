@@ -435,3 +435,16 @@ def read_subregion_file(filename):
     entries[3] += 1
     entries[5] += 1
     return tuple(entries)
+
+def write_subregion_file(filename, win):
+    """Write a subregion definition to file.
+
+    It's formatted as one voxel index per line, zero-based, in order of y_first,
+    y_last, x_first, x_last, z_first, z_last.
+    """
+    if len(win) != 6:
+        raise Exception('Invalid subregion: %s' % win)
+    entries = [win[2], win[3]-1, win[4], win[5]-1, win[0], win[1]-1]
+    with open(filename, 'w') as f:
+        for entry in entries:
+            f.write('%i\n' % entry)
