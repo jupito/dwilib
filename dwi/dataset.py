@@ -142,7 +142,7 @@ def dataset_read_prostate_masks(data, prostate_mask_dir):
         if 'subregion' in d:
             mask = mask.crop(d['subregion'])
         assert d['image'].shape[0:3] == mask.array.shape
-        roi = mask.get_masked(d['image'])
+        roi = mask.selected(d['image'])
         d.update(prostate_mask=mask, prostate_roi=roi)
 
 def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
@@ -154,8 +154,8 @@ def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
             cmask = cmask.crop(d['subregion'])
             nmask = nmask.crop(d['subregion'])
         assert d['image'].shape[0:3] == cmask.array.shape == nmask.array.shape
-        croi = cmask.get_masked(d['image'])
-        nroi = nmask.get_masked(d['image'])
+        croi = cmask.selected(d['image'])
+        nroi = nmask.selected(d['image'])
         if shape:
             croi.shape = shape
             nroi.shape = shape

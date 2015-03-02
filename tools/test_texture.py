@@ -37,8 +37,8 @@ def parse_args():
 def get_roi_slices(data):
     for d in data:
         img = d['image']
-        d['cancer_slice'] = d['cancer_mask'].get_masked_slice(img)
-        d['normal_slice'] = d['normal_mask'].get_masked_slice(img)
+        d['cancer_slice'] = d['cancer_mask'].selected_slice(img)
+        d['normal_slice'] = d['normal_mask'].selected_slice(img)
 
 def get_lbpf(img):
     lbp, lbp_freq, n_patterns = dwi.texture.get_lbp_freqs(img)

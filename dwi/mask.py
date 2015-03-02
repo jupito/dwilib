@@ -28,8 +28,8 @@ class Mask(object):
         array = self.array[y0:y1,x0:x1]
         return Mask(slice, array)
 
-    def get_masked(self, array):
-        """Get masked region as a flat array."""
+    def selected(self, array):
+        """Get selected region as a flat array."""
         if array.ndim == self.array.ndim:
             return array[self.array]
         else:
@@ -98,15 +98,15 @@ class Mask3D(object):
         array = self.array[z0:z1, y0:y1, x0:x1]
         return Mask3D(array)
 
-    def get_masked(self, a):
-        """Return masked voxels."""
+    def selected(self, a):
+        """Return selected voxels."""
         return a[self.array]
 
-    def get_masked_slice(self, a):
-        """Return the masked slice."""
+    def selected_slice(self, a):
+        """Return the selected slice."""
         indices = self.selected_slices()
         if len(indices) != 1:
-            raise Exception('Exactly one slice not masked.')
+            raise Exception('Exactly one slice not selected.')
         return a[indices[0]]
 
     def apply_mask(self, a, value=0):

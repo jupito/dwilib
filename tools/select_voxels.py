@@ -96,7 +96,7 @@ if args.mask:
     if args.keep_masked:
         voxels = mask.apply_mask(image).reshape((-1,image.shape[-1]))
     else:
-        voxels = mask.get_masked(image)
+        voxels = mask.selected(image)
 else:
     voxels = image.reshape((-1,image.shape[-1]))
 

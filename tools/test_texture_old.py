@@ -89,8 +89,8 @@ def get_masked_rois(data):
     data['normal_rois'] = []
     for img, cmask, nmask in zip(data['images'], data['cancer_masks'],
             data['normal_masks']):
-        cancer_roi = cmask.get_masked(img).reshape((5,5))
-        normal_roi = nmask.get_masked(img).reshape((5,5))
+        cancer_roi = cmask.selected(img).reshape((5,5))
+        normal_roi = nmask.selected(img).reshape((5,5))
         data['cancer_rois'].append(cancer_roi)
         data['normal_rois'].append(normal_roi)
 
