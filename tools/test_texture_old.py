@@ -84,7 +84,7 @@ def read_data(imagedir, patientsfile, subwindowsfile, samplesfile):
         data['images'].append(img)
     return data
 
-def get_masked_rois(data):
+def get_mask_rois(data):
     data['cancer_rois'] = []
     data['normal_rois'] = []
     for img, cmask, nmask in zip(data['images'], data['cancer_masks'],
@@ -146,7 +146,7 @@ def draw_props(img, title, win_step):
 
 args = parse_args()
 data = read_data(args.dir, 'patients.txt', 'subwindows.txt', 'samples_all.txt')
-get_masked_rois(data)
+get_mask_rois(data)
 get_other_rois(data, args.step)
 print 'Window step size: %s' % args.step
 print len(data['other_rois'])
