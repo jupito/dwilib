@@ -58,9 +58,20 @@ class Mask3D(object):
         """Return number of selected voxels."""
         return np.count_nonzero(mask)
 
+    def selected(self, a):
+        """Return selected voxels."""
+        return a[self.array]
+
     def selected_slices(self):
         """Return slice indices that have voxels selected."""
         return np.unique(self.array.nonzero()[0])
+
+    def selected_slice(self, a):
+        """Return the selected slice."""
+        indices = self.selected_slices()
+        if len(indices) != 1:
+            raise Exception('Exactly one slice not selected.')
+        return a[indices[0]]
 
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
@@ -69,17 +80,6 @@ class Mask3D(object):
         z0, z1, y0, y1, x0, x1 = coordinates
         array = self.array[z0:z1, y0:y1, x0:x1]
         return Mask3D(array)
-
-    def selected(self, a):
-        """Return selected voxels."""
-        return a[self.array]
-
-    def selected_slice(self, a):
-        """Return the selected slice."""
-        indices = self.selected_slices()
-        if len(indices) != 1:
-            raise Exception('Exactly one slice not selected.')
-        return a[indices[0]]
 
     def apply_mask(self, a, value=0):
         """Cover masked voxels by zero or other value."""
