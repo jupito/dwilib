@@ -56,7 +56,7 @@ class Mask3D(object):
 
     def n_selected(self):
         """Return number of selected voxels."""
-        return np.count_nonzero(mask)
+        return np.count_nonzero(self.array)
 
     def selected(self, a):
         """Return selected voxels."""
