@@ -96,6 +96,21 @@ class Mask3D(object):
         a = dwi.util.crop_image(self.array, subwindow, onebased).copy()
         return Mask3D(a)
 
+    def bounding_box(self, pad=0):
+        """Return the minimum bounding box with optional padding.
+        
+        Parameter pad can be a tuple of each dimension or a single number. It
+        can contain infinity for maximum padding.
+        """
+        if np.isscalar(pad):
+            pad = (pad,) * self.array.ndim
+        r = []
+        for a, l, p in zip(self.array.nonzero(), self.array.shape, pad):
+            x = max(min(a)-p, 0)
+            y = min(max(a)+1+p, l)
+            r += [x, y]
+        return tuple(map(int, r))
+
 def mask_to_text(mask):
     return '\n'.join(map(line_to_text, mask))
 
