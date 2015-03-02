@@ -88,7 +88,7 @@ class Mask3D(object):
         return copy
 
     def where(self):
-        """Return indices of masked voxels."""
+        """Return indices of selected voxels."""
         return np.argwhere(self.array)
 
     def crop(self, subwindow, onebased=False):
