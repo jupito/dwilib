@@ -25,6 +25,8 @@ def parse_args():
 
 def mean_squared_difference(a1, a2):
     """Return mean squared difference of two arrays."""
+    a1 = np.asanyarray(a1)
+    a2 = np.asanyarray(a2)
     assert len(a1) == len(a2)
     n = len(a1)
     ds = a1-a2
@@ -76,7 +78,7 @@ def bootstrap_icc(baselines, nboot=2000):
 
 
 args = parse_args()
-patients = patient.read_patients_file(args.scans)
+patients = patient.read_patients_file(args.patients)
 pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
 
 X = pmaps[:,0,:] # Use ROI1 only.
