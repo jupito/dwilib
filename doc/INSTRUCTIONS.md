@@ -15,12 +15,12 @@ when calculating things for our research.
 * pmap.py -- Fit diffusion models to imaging data (see below).
 
 ### Statistical
-* roc_auc.py -- Calculate and compare diagnostic ROC AUCs.
 * compare_masks.py -- Compare ROI masks.
 * correlation.py -- Test parameter correlation with Gleason scores.
 * find_roi.py -- Automatic ROI search.
 * reproducibility.py -- Calculate reproducibility measures, like coefficient of
   repeatability (CR) and intraclass correlation coefficient (ICC(1,3)).
+* roc_auc.py -- Calculate and compare diagnostic ROC AUCs.
 
 ### Plotting
 * compare_boxplot.py
