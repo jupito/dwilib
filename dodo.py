@@ -36,6 +36,8 @@ SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
 
+SUBREGION_DIR = 'bounding_box_100_10pad'
+
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN', Kurt='ADCk', KurtN='ADCkN')
@@ -130,16 +132,17 @@ def task_fit():
 
 def get_task_find_roi(samplelist, case, scan, model, param, algparams):
     d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist),
-            pd=pmapdir_dicom(model), m=model, p=param, c=case, s=scan,
-            ap=' '.join(algparams), ap_='_'.join(algparams))
+            pd=pmapdir_dicom(model), srd=SUBREGION_DIR, m=model, p=param,
+            c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = []
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --param {p} --cases {c} --scans {s} '\
-            '--algparams {ap} --outmask {mp} --outfig {fp}'.format(**d)
+    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --subregiondir {srd} '\
+            '--param {p} --cases {c} --scans {s} --algparams {ap} '\
+            '--outmask {mp} --outfig {fp}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),
