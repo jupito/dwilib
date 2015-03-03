@@ -340,7 +340,8 @@ def sglob(path):
 
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
-    m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
+    #m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
+    m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
     if m:
         num, name, scan = m.groups()
         num = int(num)
