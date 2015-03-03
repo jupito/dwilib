@@ -97,9 +97,9 @@ if args.verbose > 1:
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print '# param\tavg[lower-upper]'\
-            '\tmsd/avg\tCI/avg\twCV\tCoR/avg'\
-            '\tICC\tbsICC[lower-upper]'
+    print '# param    avg[lower-upper]'\
+            '    msd/avg    CI/avg    wCV    CoR/avg'\
+            '    ICC    bsICC[lower-upper]'
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
@@ -114,7 +114,7 @@ for values, param in zip(X.T, params):
     d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = bootstrap_icc(baselines,
             nboot=args.nboot)
     s = '{param:7}'\
-            '\t{avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
-            '\t{msdr:.4f}\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
-            '\t{icc:.4f}\t{icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
+            '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
+            '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'\
+            '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
     print s.format(**d)
