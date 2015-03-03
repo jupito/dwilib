@@ -129,6 +129,9 @@ Gleason scores to three groups, or no groups at all. In first variation,
 parameter `--thresholds 3+3 3+4` sets the score groups to those smaller than
 equal to 3+3, 3+4, and those greater than 3+4.
 
+Parametric map filenames should have the form `{c}_*_{s}_*.txt`, where `{c}` is
+case number and `{s}` is scan identifier.
+
 Use parameter `-v` to get also the p-value and confidence interval. Yet another
 `-v` add more information output, and `-h` gives help. Parameter `--average`
 averages all voxels in each file, otherwise it treats them separately.
@@ -164,6 +167,9 @@ An example:
 This calculates various numbers (see below), using the first voxel and 10000
 bootstraps. With parameter `--voxel`, you can set the voxel index or set it to
 `mean` or `median` of all voxels.
+
+Parametric map filenames should have the form `*{c}*{s}*`, where `{c}` is case
+number, and `{s}` is scan identifier.
 
 Measures:
 
