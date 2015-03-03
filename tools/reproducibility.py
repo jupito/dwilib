@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-# Test reproducibility by Bland-Altman analysis.
+"""Calculate reproducibility coefficients for parametric maps by Bland-Altman
+analysis."""
 
 import argparse
 import numpy as np
@@ -10,16 +11,15 @@ from dwi import util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description =
-            'Calculate reproducibility coefficients for parameter maps.')
-    p.add_argument('--pmaps', '-m', nargs='+', required=True,
-            help='pmap files')
-    p.add_argument('--scans', '-s', default='scans.txt',
-            help='scans file')
-    p.add_argument('--nboot', '-b', type=int, default=2000,
-            help='number of bootstraps')
-    p.add_argument('--verbose', '-v', action='count',
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('-v', '--verbose', action='count',
             help='be more verbose')
+    p.add_argument('-s', '--scans', default='patients.txt',
+            help='patients file')
+    p.add_argument('-b', '--nboot', type=int, default=2000,
+            help='number of bootstraps')
+    p.add_argument('-m', '--pmaps', nargs='+', required=True,
+            help='pmap files')
     args = p.parse_args()
     return args
 
