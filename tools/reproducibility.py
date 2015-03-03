@@ -77,7 +77,9 @@ def bootstrap_icc(baselines, nboot=2000):
     for i in xrange(nboot):
         sample = util.resample_bootstrap_single(data.T).T
         values[i] = icc(sample)
-    return values
+    mean = np.mean(values)
+    ci1, ci2 = util.ci(values)
+    return mean, ci1, ci2
 
 
 args = parse_args()
@@ -105,9 +107,8 @@ for values, param in zip(X.T, params):
     d['cir'] = d['ci']/d['avg']
     d['corr'] = d['cor']/d['avg']
     d['icc'] = icc(baselines)
-    icc_values = bootstrap_icc(baselines, nboot=args.nboot)
-    d['icc_bs'] = np.mean(icc_values)
-    d['icc_ci1'], d['icc_ci2'] = util.ci(icc_values)
+    d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = bootstrap_icc(baselines,
+            nboot=args.nboot)
     s = '{param:7}'\
             '\t{avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
             '\t{msdr:.4f}\t{cir:.4f}\t{wcv:.4f}\t{corr:.4f}'\
