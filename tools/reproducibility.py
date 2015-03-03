@@ -37,6 +37,9 @@ def mean_squared_difference(a1, a2):
 def coefficients(a1, a2, avgfun=np.mean):
     """Return average, average squared difference, confidence interval,
     within-patient coefficient of variance, coefficient of repeatability."""
+    a1 = np.asanyarray(a1)
+    a2 = np.asanyarray(a2)
+    assert len(a1) == len(a2)
     n = len(a1)
     a = np.concatenate((a1, a2))
     avg = avgfun(a)
