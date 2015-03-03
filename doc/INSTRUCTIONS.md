@@ -19,7 +19,7 @@ when calculating things for our research.
 * correlation.py -- Test parameter correlation with Gleason scores.
 * find_roi.py -- Automatic ROI search.
 * reproducibility.py -- Calculate reproducibility measures, like coefficient of
-  repeatability (CR) and intraclass correlation coefficient (ICC(1,3)).
+  repeatability (CR) and intraclass correlation coefficient (ICC(3,1)).
 * roc_auc.py -- Calculate and compare diagnostic ROC AUCs.
 
 ### Plotting
@@ -145,3 +145,34 @@ Bootstrapped AUCs are also calculated, here with 5000 bootsraps. Parameter
 --autoflip just flips the data when necessary to make the AUC always greater
 than 0.5. If you give more than one pmap directory, the statistical difference
 of AUCs is calculated for them.
+
+
+Reproducibility measures
+------------------------
+
+Program reproducibility.py can be used to calculate reproducibility measures,
+most importantly the coefficient of reproducibility (CR) and intra-class
+correlation (ICC(3,1)).
+
+This tool still uses the old interface, so the samples are given as a list of
+pmap files instead of a samplelist file and a directory.
+
+An example:
+
+    reproducibility.py -v --voxel 0 -b 10000 -m pmaps/*_MonoN.txt
+
+This calculates various numbers (see below), using the first voxel and 10000
+bootstraps. With parameter --voxel, you can set the voxel index or set it to
+"mean" or "median" of all voxels.
+
+Measures:
+
+* avg[lower-upper]: value mean with confidence interval
+* msd/avg: mean squared difference
+* CI/avg: confidence interval per mean
+* wCV: within-patient coefficient of variance
+* CoR/avg: coefficient of repeatability per mean
+* ICC: intra-class correlation, form ICC(3,1)
+* bsICC[lower-upper]: bootstrapped intra-class correlation with confidence
+interval
+
