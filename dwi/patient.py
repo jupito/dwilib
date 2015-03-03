@@ -136,7 +136,7 @@ def exclude_files(pmapfiles, patients, exclusions=[]):
     """Return filenames without those that are to be excluded."""
     r = []
     for f in pmapfiles:
-        num, name, scan = dwi.util.parse_filename(os.path.basename(f))
+        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
         p = get_patient(patients, num)
         if not p:
             continue # Patient not mentioned in patients file: exclude.

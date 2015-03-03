@@ -361,8 +361,8 @@ def scan_pairs(afs):
     baselines = pairs(afs)
     r = []
     for af1, af2 in zip(*baselines):
-        num1, _, scan1 = parse_filename(af1.basename)
-        num2, _, scan2 = parse_filename(af2.basename)
+        num1, scan1 = parse_num_scan(af1.basename)
+        num2, scan2 = parse_num_scan(af2.basename)
         if num1 != num2 or scan1[0] != scan2[0]:
             raise Exception('Not a pair: %s, %s' % (af1.basename, af2.basename))
         r.append((num1, scan1, scan2))
