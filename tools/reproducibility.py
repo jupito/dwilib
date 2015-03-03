@@ -73,7 +73,7 @@ def icc(baselines):
 def bootstrap_icc(baselines, nboot=2000):
     """Produce an array of ICC values bootstrapped target-wise."""
     data = np.array(baselines)
-    values = np.zeros((nboot))
+    values = np.zeros((nboot,))
     for i in xrange(nboot):
         sample = util.resample_bootstrap_single(data.T).T
         values[i] = icc(sample)
