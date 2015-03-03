@@ -123,26 +123,26 @@ Some examples:
     correlation.py -v --samplelist samples.txt --thresholds 3+3 3+4 --average --pmapdir pmaps
     correlation.py -v --samplelist samples.txt --thresholds --average --pmapdir pmaps
 
-These calculate Spearman correlations for samples mentioned in samplelist file
-samples.txt, with pmap files in directory pmaps, grouping Gleason scores to
-three groups, or no groups at all. In first variation, parameter "--thresholds
-3+3 3+4" sets the score groups to those smaller than equal to 3+3, 3+4, and
-those greater than 3+4.
+These calculate Spearman correlation coefficients for samples mentioned in
+samplelist file `samples.txt`, with pmap files in directory `pmaps`, grouping
+Gleason scores to three groups, or no groups at all. In first variation,
+parameter `--thresholds 3+3 3+4` sets the score groups to those smaller than
+equal to 3+3, 3+4, and those greater than 3+4.
 
-Use parameter -v to get also the p-value and confidence interval. Yet another
--v add more information output, and -h gives help. Parameter --average averages
-all voxels in each file, otherwise it treats them separately.
+Use parameter `-v` to get also the p-value and confidence interval. Yet another
+`-v` add more information output, and `-h` gives help. Parameter `--average`
+averages all voxels in each file, otherwise it treats them separately.
 
 In order to get ROC AUCs you can type something like:
 
     roc_auc.py -v --samplelist samples.txt --threshold 3+3 --nboot 5000 --average --autoflip --pmapdir pmaps
 
-This calculates ROC AUCs for samples mentioned in samplelist file samples.txt,
-with pmap files in directory pmaps, grouping Gleason scores to two groups,
-those less or equal to 3+3, and those greater than 3+3.
+This calculates ROC AUCs for samples mentioned in samplelist file
+`samples.txt`, with pmap files in directory `pmaps`, grouping Gleason scores to
+two groups, those less or equal to 3+3, and those greater than 3+3.
 
 Bootstrapped AUCs are also calculated, here with 5000 bootsraps. Parameter
---autoflip just flips the data when necessary to make the AUC always greater
+`--autoflip` just flips the data when necessary to make the AUC always greater
 than 0.5. If you give more than one pmap directory, the statistical difference
 of AUCs is calculated for them.
 
@@ -162,7 +162,7 @@ An example:
     reproducibility.py -v --voxel 0 -b 10000 -m pmaps/*_MonoN.txt
 
 This calculates various numbers (see below), using the first voxel and 10000
-bootstraps. With parameter --voxel, you can set the voxel index or set it to
+bootstraps. With parameter `--voxel`, you can set the voxel index or set it to
 "mean" or "median" of all voxels.
 
 Measures:
