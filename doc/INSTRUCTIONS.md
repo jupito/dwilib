@@ -42,6 +42,7 @@ when calculating things for our research.
 * dodo.py -- Build tool for [DoIt](http://pydoit.org/).
 * info.py -- Print information on columns of numbers.
 * make_ascii.py
+* masktool.py -- Inspect and manage masks.
 * print_all.py
 * test-rls.py
 
