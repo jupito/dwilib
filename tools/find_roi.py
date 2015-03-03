@@ -17,7 +17,7 @@ DEFAULT_OUT_IMAGE_DIR = 'find_roi_images'
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description = __doc__)
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v',
             action='count',
             help='increase verbosity')
