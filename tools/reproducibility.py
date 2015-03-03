@@ -18,6 +18,8 @@ def parse_args():
             help='patients file')
     p.add_argument('-b', '--nboot', type=int, default=2000,
             help='number of bootstraps')
+    p.add_argument('--voxel', default='0',
+            help='index of voxel to use, or mean or median')
     p.add_argument('-m', '--pmaps', nargs='+', required=True,
             help='pmap files')
     args = p.parse_args()
@@ -88,11 +90,18 @@ patients = dwi.patient.read_patients_file(args.patients)
 pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
         pairs=True)
 
-X = pmaps[:,0,:] # Use ROI1 only.
+# Select voxel to use.
+if args.voxel == 'mean':
+    X = np.mean(pmaps, axis=1) # Use mean voxel.
+elif args.voxel == 'median':
+    X = np.median(pmaps, axis=1) # Use median voxel.
+else:
+    i = int(args.voxel)
+    X = pmaps[:,i,:] # Use single voxel only.
 
 if args.verbose > 1:
-    print 'Samples: %i, features: %i'\
-            % (X.shape[0], X.shape[1])
+    print 'Samples: %i, features: %i, voxel: %s'\
+            % (X.shape[0], X.shape[1], args.voxel)
     print 'Number of bootstraps: %d' % args.nboot
 
 # Print coefficients for each parameter.
