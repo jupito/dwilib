@@ -6,8 +6,8 @@ analysis."""
 import argparse
 import numpy as np
 
-from dwi import patient
-from dwi import util
+import dwi.patient
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -43,7 +43,7 @@ def coefficients(a1, a2, avgfun=np.mean):
     n = len(a1)
     a = np.concatenate((a1, a2))
     avg = avgfun(a)
-    avg_ci1, avg_ci2 = util.ci(a)
+    avg_ci1, avg_ci2 = dwi.util.ci(a)
     msd = mean_squared_difference(a1, a2)
     ci = 1.96*msd / np.sqrt(n)
     wcv = (msd/np.sqrt(2)) / avg
@@ -76,16 +76,17 @@ def bootstrap_icc(baselines, nboot=2000):
     data = np.array(baselines)
     values = np.zeros((nboot,))
     for i in xrange(nboot):
-        sample = util.resample_bootstrap_single(data.T).T
+        sample = dwi.util.resample_bootstrap_single(data.T).T
         values[i] = icc(sample)
     mean = np.mean(values)
-    ci1, ci2 = util.ci(values)
+    ci1, ci2 = dwi.util.ci(values)
     return mean, ci1, ci2
 
 
 args = parse_args()
-patients = patient.read_patients_file(args.patients)
-pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
+patients = dwi.patient.read_patients_file(args.patients)
+pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
+        pairs=True)
 
 X = pmaps[:,0,:] # Use ROI1 only.
 
@@ -101,7 +102,7 @@ skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
         continue
-    baselines = util.pairs(values)
+    baselines = dwi.util.pairs(values)
     d = dict(param=param)
     d.update(coefficients(*baselines, avgfun=np.median))
     d['msdr'] = d['msd']/d['avg']
