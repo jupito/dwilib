@@ -27,7 +27,7 @@ def mean_squared_difference(a1, a2):
     """Return mean squared difference of two arrays."""
     a1 = np.asanyarray(a1)
     a2 = np.asanyarray(a2)
-    assert len(a1) == len(a2)
+    assert len(a1) == len(a2), 'Array length mismatch'
     n = len(a1)
     ds = a1-a2
     sds = ds**2
@@ -39,7 +39,7 @@ def coefficients(a1, a2, avgfun=np.mean):
     within-patient coefficient of variance, coefficient of repeatability."""
     a1 = np.asanyarray(a1)
     a2 = np.asanyarray(a2)
-    assert len(a1) == len(a2)
+    assert len(a1) == len(a2), 'Array length mismatch'
     n = len(a1)
     a = np.concatenate((a1, a2))
     avg = avgfun(a)
