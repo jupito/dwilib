@@ -53,9 +53,9 @@ when calculating things for our research.
 Fitting models to data
 ----------------------
 
-Program pmap.py is used for fitting the diffusion models to imaging data. It
-generates parametric maps, hence the name. Invoking "pmap.py --help" lists
-possible arguments for the program. Use -l to list all available models.
+Program `pmap.py` is used for fitting the diffusion models to imaging data. It
+generates parametric maps, hence the name. Invoking `pmap.py --help` lists
+possible arguments for the program. Use `-l` to list all available models.
 
     usage: pmap.py [-h] [-v] [-l] [-a] [-s I I I I I I] [-m MODEL [MODEL ...]]
                    [-i FILENAME [FILENAME ...]] [-d PATHNAME [PATHNAME ...]]
@@ -82,11 +82,11 @@ possible arguments for the program. Use -l to list all available models.
       -o FILENAME, --output FILENAME
                             output file (for single model only)
 
-Subwindow specification (-s) is a list of six one-based index numbers in the
+Subwindow specification (`-s`) is a list of six one-based index numbers in the
 following order: first included slice, next excluded slice, first included row,
 next excluded row, first included column, next excluded column. For example,
-subwindow "9 10 70 120 80 140" includes the 9th slice with an area of 50x60
-voxels starting from the 70th row and 80th column.
+`-s 9 10 70 120 80 140` includes the 9th slice with an area of 50x60 voxels
+starting from the 70th row and 80th column.
 
 Output files are in simple ASCII format. The header contains information about
 the subwindow, b-values, parameter names, etc. After that, each line represents
@@ -98,7 +98,7 @@ Examples:
     pmap.py -s 11 12 85 135 80 140 -m MonoN KurtN -d 10_1a/DICOM/
 
 fits the normalized Monoexponential ADC and Kurtosis models to a one-slice
-subwindow of a DICOM image from directory "10_1a/DICOM", outputting each
+subwindow of a DICOM image from directory `10_1a/DICOM`, outputting each
 parametric map to its on file.
 
     pmap.py -s 11 12 85 135 80 140 -m normalized -d 10_1a/DICOM/
@@ -108,15 +108,15 @@ fits all normalized models.
     pmap.py -m SiN -d 10_1a/DICOM/ -o out.txt
 
 generates the normalized signal intensity curves for the whole image into file
-out.txt.
+`out.txt`.
 
 
 Correlation and ROC AUC analysis
 --------------------------------
 
-Programs correlation.py and roc_auc.py can be used to calculate pmap correlation
-with Gleason scores and ROC AUC based on how well it discriminates Gleason score
-groups.
+Programs `correlation.py` and `roc_auc.py` can be used to calculate pmap
+correlation with Gleason scores and ROC AUC based on how well it discriminates
+Gleason score groups.
 
 Some examples:
 
@@ -150,7 +150,7 @@ of AUCs is calculated for them.
 Reproducibility measures
 ------------------------
 
-Program reproducibility.py can be used to calculate reproducibility measures,
+Program `reproducibility.py` can be used to calculate reproducibility measures,
 most importantly the coefficient of reproducibility (CR) and intra-class
 correlation (ICC(3,1)).
 
@@ -163,7 +163,7 @@ An example:
 
 This calculates various numbers (see below), using the first voxel and 10000
 bootstraps. With parameter `--voxel`, you can set the voxel index or set it to
-"mean" or "median" of all voxels.
+`mean` or `median` of all voxels.
 
 Measures:
 
