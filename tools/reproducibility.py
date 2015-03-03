@@ -97,7 +97,9 @@ if args.verbose > 1:
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print '# param\tavg[lower-upper]\tmsd/avg\tCI/avg\twCV\tCoR/avg\tICC\tbsICC[lower-upper]'
+    print '# param\tavg[lower-upper]'\
+            '\tmsd/avg\tCI/avg\twCV\tCoR/avg'\
+            '\tICC\tbsICC[lower-upper]'
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
