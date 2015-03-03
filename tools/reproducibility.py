@@ -14,7 +14,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
             help='be more verbose')
-    p.add_argument('-s', '--scans', default='patients.txt',
+    p.add_argument('-p', '--patients', default='patients.txt',
             help='patients file')
     p.add_argument('-b', '--nboot', type=int, default=2000,
             help='number of bootstraps')
