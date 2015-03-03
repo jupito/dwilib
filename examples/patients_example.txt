@@ -1,0 +1,7 @@
+# Example patient list file
+# case name scans score
+001 smith       1a,1b 3+3
+002 donner      1a,1b 4+3+5
+003 samsa       1a,1b 3+3
+007 limerick    2a,2b 3+4
+010 klatch      2a,2b 4+3

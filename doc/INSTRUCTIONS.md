@@ -118,6 +118,11 @@ Programs `correlation.py` and `roc_auc.py` can be used to calculate pmap
 correlation with Gleason scores and ROC AUC based on how well it discriminates
 Gleason score groups.
 
+These tools require a samplelist file, which contains the list of included
+samples as lines with the form `case name scan1,scan2`, and a patient list
+file, which contains lines like `case name scan1,scan2 score`. Example files
+are provided in the source tree.
+
 Some examples:
 
     correlation.py -v --samplelist samples.txt --thresholds 3+3 3+4 --average --pmapdir pmaps
@@ -134,7 +139,9 @@ case number and `{s}` is scan identifier.
 
 Use parameter `-v` to get also the p-value and confidence interval. Yet another
 `-v` add more information output, and `-h` gives help. Parameter `--average`
-averages all voxels in each file, otherwise it treats them separately.
+averages all voxels in each file, otherwise it treats them separately. Optional
+parameter `--patients` changes the patient list filename from its default
+`patients.txt`.
 
 In order to get ROC AUCs you can type something like:
 
