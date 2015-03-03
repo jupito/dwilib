@@ -71,7 +71,8 @@ def icc(baselines):
     return icc31
 
 def bootstrap_icc(baselines, nboot=2000):
-    """Produce an array of ICC values bootstrapped target-wise."""
+    """Calculate ICC bootstrapped target-wise. Return mean and confidence
+    intervals."""
     data = np.array(baselines)
     values = np.zeros((nboot,))
     for i in xrange(nboot):
