@@ -3,7 +3,6 @@
 """Mask tool."""
 
 import argparse
-import os.path
 
 import numpy as np
 
@@ -27,9 +26,9 @@ mask = dwi.mask.read_mask(args.input)
 
 selected_slices = list(mask.selected_slices())
 mbb = mask.bounding_box()
-d = dict(basename=os.path.basename(args.input), shape=mask.shape,
-        mbb=mbb, mbb_shape=dwi.util.subwindow_shape(mbb),
-        nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
+d = dict(basename=args.input, shape=mask.shape, mbb=mbb,
+        mbb_shape=dwi.util.subwindow_shape(mbb), nsel=mask.n_selected(),
+        nsl=len(selected_slices), sl=selected_slices)
 print 'mask: {basename}\n'\
         'minimum bounding box: {mbb_shape}: {mbb}\n'\
         'selected voxels: {nsel}\n'\
