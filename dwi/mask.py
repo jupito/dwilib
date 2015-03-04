@@ -54,6 +54,10 @@ class Mask3D(object):
     def __str__(self):
         return repr(self)
 
+    def shape(self):
+        """Return mask shape."""
+        return self.array.shape
+
     def n_selected(self):
         """Return number of selected voxels."""
         return np.count_nonzero(self.array)
