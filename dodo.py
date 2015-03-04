@@ -279,7 +279,7 @@ def get_task_autoroi_auc(samplelist, model, param, threshold):
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --average --autoflip --pmapdir {i}` {ap_} >> {o}'
+        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
             'name': 'autoroi_auc_{sl}_{m}_{p}_{t}'.format(**d),
@@ -299,7 +299,7 @@ def get_task_autoroi_correlation(samplelist, model, param, thresholds):
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --average --pmapdir {i}` {ap_} >> {o}'
+        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
             'name': 'autoroi_correlation_{sl}_{m}_{p}_{t_}'.format(**d),
