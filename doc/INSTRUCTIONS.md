@@ -125,8 +125,8 @@ score`. Example files are provided in the source tree.
 
 Some examples:
 
-    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds 3+3 3+4 --average --pmapdir pmaps
-    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds --average --pmapdir pmaps
+    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds 3+3 3+4 --voxel mean --pmapdir pmaps
+    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds --voxel mean --pmapdir pmaps
 
 These calculate Spearman correlation coefficients for samples mentioned in
 samplelist file `samples.txt`, with pmap files in directory `pmaps`, grouping
@@ -138,14 +138,16 @@ Parametric map filenames should have the form `{c}_*_{s}_*.txt`, where `{c}` is
 case number and `{s}` is scan identifier.
 
 Use parameter `-v` to get also the p-value and confidence interval. Yet another
-`-v` add more information output, and `-h` gives help. Parameter `--average`
-averages all voxels in each file, otherwise it treats them separately. Optional
+`-v` add more information output, and `-h` gives help. Parameter `--voxel`
+selects the voxel (number line in ASCII files) to use. It can be a zero-based
+voxel index number or a string: `mean` and `median` average all voxels in each
+file, the default value `all` takes all voxels independently. Optional
 parameter `--patients` changes the patient list filename from its default
 `patients.txt`.
 
 In order to get ROC AUCs you can type something like:
 
-    roc_auc.py -v --samplelist samples.txt --patients patients.txt --threshold 3+3 --nboot 5000 --average --autoflip --pmapdir pmaps
+    roc_auc.py -v --samplelist samples.txt --patients patients.txt --threshold 3+3 --nboot 5000 --voxel mean --autoflip --pmapdir pmaps
 
 This calculates ROC AUCs for samples mentioned in samplelist file
 `samples.txt`, with pmap files in directory `pmaps`, grouping Gleason scores to
