@@ -21,11 +21,6 @@ def parse_args():
             help='sample list file')
     p.add_argument('--pmapdir', nargs='+', required=True,
             help='input pmap directory')
-    p.add_argument('--roi2', action='store_true',
-            help='use ROI2')
-    p.add_argument('--measurements',
-            choices=['all', 'mean', 'a', 'b'], default='all',
-            help='measurement baselines')
     p.add_argument('--thresholds', nargs='*', default=[],
             help='classification thresholds (group maximums)')
     p.add_argument('--average', action='store_true',
