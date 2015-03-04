@@ -23,6 +23,8 @@ def parse_args():
             help='input pmap directory')
     p.add_argument('--thresholds', nargs='*', default=[],
             help='classification thresholds (group maximums)')
+    p.add_argument('--voxel', default='all',
+            help='index of voxel to use, or all, mean, median')
     p.add_argument('--average', action='store_true',
             help='average input voxels into one')
     args = p.parse_args()
@@ -47,7 +49,7 @@ X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
-            args.thresholds, args.average)
+            args.thresholds, args.average, voxel=args.voxel)
     params = data[0]['params']
     labels = set(d['score'] for d in data)
     for j, param in enumerate(params):
