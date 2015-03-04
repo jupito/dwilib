@@ -37,7 +37,7 @@ CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
 MASKTOOL = DWILIB+'/masktool.py'
 
-SUBREGION_DIR = 'bounding_box_100_10pad'
+SUBREGION_DIR = 'subregions'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
@@ -156,6 +156,7 @@ def get_task_find_roi(samplelist, case, scan, model, param, algparams):
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = []
+    file_deps += ['{srd}/{c}_{s}_subregion10.txt'.format(**d)]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = '{prg} --samplelist {slf} --pmapdir {pd} --subregiondir {srd} '\

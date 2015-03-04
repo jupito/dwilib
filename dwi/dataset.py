@@ -9,7 +9,7 @@ import dwi.util
 def read_subregion(directory, case, scan):
     """Read subregion definition."""
     d = dict(d=directory, c=case, s=scan)
-    path = dwi.util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
+    path = dwi.util.sglob('{d}/{c}_*{s}_*.txt'.format(**d))
     subregion = dwi.util.read_subregion_file(path)
     return subregion
 
