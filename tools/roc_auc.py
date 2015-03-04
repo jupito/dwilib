@@ -26,8 +26,6 @@ def parse_args():
             help='number of bootstraps')
     p.add_argument('--voxel', default='all',
             help='index of voxel to use, or all, mean, median')
-    p.add_argument('--average', action='store_true',
-            help='average input voxels into one')
     p.add_argument('--autoflip', action='store_true',
             help='flip data when AUC < .5')
     p.add_argument('--figure',
@@ -43,7 +41,7 @@ X, Y = [], []
 Params = []
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
-            [args.threshold], args.average, voxel=args.voxel)
+            [args.threshold], voxel=args.voxel)
     params = data[0]['params']
     labels = set(d['score'] for d in data)
     for j, param in enumerate(params):
