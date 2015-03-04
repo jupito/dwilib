@@ -35,6 +35,7 @@ COMPARE_MASKS = DWILIB+'/compare_masks.py'
 SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
+MASKTOOL = DWILIB+'/masktool.py'
 
 SUBREGION_DIR = 'bounding_box_100_10pad'
 
@@ -129,6 +130,23 @@ def task_fit():
                     'targets': [outfile],
                     'clean': True,
                     }
+
+def task_make_subregion():
+    """Make minimum bounding box + 10 voxel subregions from prostate masks."""
+    for case, scan in cases_scans():
+        d = dict(prg=MASKTOOL, c=case, s=scan)
+        d.update(i='masks_prostate/{c}_*_{s}_*'.format(**d),
+                o='subregions/{c}_{s}_subregion10.txt'.format(**d))
+        file_deps = glob.glob('{i}/*'.format(**d))
+        cmd = '{prg} -i {i} --pad 10 -s {o}'.format(**d)
+        yield {
+                'name': '{c}_{s}'.format(**d),
+                'actions': [(create_folder, [dirname(d['o'])]),
+                        cmd],
+                'file_dep': file_deps,
+                'targets': [d['o']],
+                'clean': True,
+                }
 
 def get_task_find_roi(samplelist, case, scan, model, param, algparams):
     d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist),
