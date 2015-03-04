@@ -120,13 +120,13 @@ Gleason score groups.
 
 These tools require a samplelist file, which contains the list of included
 samples as lines with the form `case name scan1,scan2`, and a patient list
-file, which contains lines like `case name scan1,scan2 score`. Example files
-are provided in the source tree.
+file, which contains also Gleason scores on lines like `case name scan1,scan2
+score`. Example files are provided in the source tree.
 
 Some examples:
 
-    correlation.py -v --samplelist samples.txt --thresholds 3+3 3+4 --average --pmapdir pmaps
-    correlation.py -v --samplelist samples.txt --thresholds --average --pmapdir pmaps
+    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds 3+3 3+4 --average --pmapdir pmaps
+    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds --average --pmapdir pmaps
 
 These calculate Spearman correlation coefficients for samples mentioned in
 samplelist file `samples.txt`, with pmap files in directory `pmaps`, grouping
@@ -145,7 +145,7 @@ parameter `--patients` changes the patient list filename from its default
 
 In order to get ROC AUCs you can type something like:
 
-    roc_auc.py -v --samplelist samples.txt --threshold 3+3 --nboot 5000 --average --autoflip --pmapdir pmaps
+    roc_auc.py -v --samplelist samples.txt --patients patients.txt --threshold 3+3 --nboot 5000 --average --autoflip --pmapdir pmaps
 
 This calculates ROC AUCs for samples mentioned in samplelist file
 `samples.txt`, with pmap files in directory `pmaps`, grouping Gleason scores to
