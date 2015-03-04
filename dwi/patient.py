@@ -228,7 +228,7 @@ def read_pmap(dirname, case, scan, average, voxel='all'):
         pass # Use all voxels.
     elif voxel == 'mean':
         pmap = np.mean(pmap, axis=0, keepdims=True) # Use mean voxel.
-    elif args.voxel == 'median':
+    elif voxel == 'median':
         pmap = dwi.util.median(pmap, axis=0, keepdims=True) # Use median voxel.
     else:
         pmap = pmap[[int(voxel)]] # Use single voxel only.
