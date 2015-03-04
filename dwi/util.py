@@ -437,7 +437,12 @@ def read_subregion_file(filename):
     entries[5] += 1
     return tuple(entries)
 
-def write_subregion_file(filename, win):
+def write_comment(f, text):
+    """Write zero or more lines to file with comment prefix."""
+    for line in text.splitlines():
+        f.write('{p} {s}\n'.format(p=COMMENT_PREFIX, s=line))
+
+def write_subregion_file(filename, win, comment=''):
     """Write a subregion definition to file.
 
     It's formatted as one voxel index per line, zero-based, in order of y_first,
@@ -447,5 +452,6 @@ def write_subregion_file(filename, win):
         raise Exception('Invalid subregion: %s' % win)
     entries = [win[2], win[3]-1, win[4], win[5]-1, win[0], win[1]-1]
     with open(filename, 'w') as f:
+        write_comment(f, comment)
         for entry in entries:
             f.write('%i\n' % entry)
