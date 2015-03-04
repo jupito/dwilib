@@ -230,8 +230,6 @@ def read_pmap(dirname, case, scan, average, voxel='all'):
         pmap = np.mean(pmap, axis=0, keepdims=True) # Use mean voxel.
     elif args.voxel == 'median':
         pmap = dwi.util.median(pmap, axis=0, keepdims=True) # Use median voxel.
-    elif isinstance(voxel, int):
-        pmap = pmap[[voxel]] # Use single voxel only.
     else:
-        raise Exception('Invalid voxel specified: %s' % voxel)
+        pmap = pmap[[int(voxel)]] # Use single voxel only.
     return pmap, params, af.filename
