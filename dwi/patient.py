@@ -183,7 +183,7 @@ def load_labels(patients, nums, labeltype='score'):
     return labels
 
 def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
-        average=False, voxel='all'):
+        voxel='all'):
     """Read pmaps labeled by their Gleason score.
     
     Label thresholds are maximum scores of each label group. Labels are ordinal
@@ -201,7 +201,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         else:
             label = score_ord(get_gleason_scores(patientsinfo), score)
         for scan in sample['scans']:
-            pmap, params, pathname = read_pmap(pmapdir, case, scan, average, voxel=voxel)
+            pmap, params, pathname = read_pmap(pmapdir, case, scan, voxel=voxel)
             d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
                     params=params, pathname=pathname)
             data.append(d)
@@ -211,7 +211,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
                 raise Exception('Irregular params: %s' % pathname)
     return data
 
-def read_pmap(dirname, case, scan, average, voxel='all'):
+def read_pmap(dirname, case, scan, voxel='all'):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
     path = dwi.util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
@@ -221,8 +221,6 @@ def read_pmap(dirname, case, scan, average, voxel='all'):
     if pmap.shape[-1] != len(params):
         # TODO Move to Asciifile initializer?
         raise Exception('Number of parameters mismatch: %s' % af.filename)
-    if average:
-        pmap = np.mean(pmap, axis=0, keepdims=True)
     # Select voxel to use.
     if voxel == 'all':
         pass # Use all voxels.
