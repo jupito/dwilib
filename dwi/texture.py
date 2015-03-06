@@ -81,3 +81,17 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
     else:
         raise Exception('Unknown distance measure: %s' % method)
     return r
+
+def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
+    thetas = [np.pi/4*i for i in range(4)]
+    shape = len(thetas), len(sigmas), len(freqs)
+    feats = np.zeros(shape + (2,), dtype=np.double)
+    for i, j, k in np.ndindex(shape):
+        t, s, f = thetas[i], sigmas[j], freqs[k]
+        kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
+        real, _ = skimage.filter.gabor_filter(img, **kwargs)
+        feats[i,j,k,0] = real.mean()
+        feats[i,j,k,1] = real.var()
+    #feats = feats.reshape((-1,2))
+    feats = np.mean(feats, axis=0) # Average directions.
+    return feats
