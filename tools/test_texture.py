@@ -149,16 +149,55 @@ get_lbpfs(data)
 model = avg_lbpf_map([d['cancer_lbpf_avg'] for d in data])
 get_distances(data, model)
 
-print 'Plotting...'
-l = []
-for d in data:
-    imgs = [d['cancer_slice'][...,0], d['distance_map']]
-    l.append(imgs)
-imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
-ylabels=[d['case'] for d in data]
-xlabels=[args.param, 'dist']
-outfile = None
-dwi.plot.show_images(l, ylabels, xlabels, outfile=outfile)
+#print 'Plotting...'
+#l = []
+#for d in data:
+#    imgs = [d['cancer_slice'][...,0], d['distance_map']]
+#    l.append(imgs)
+#imgs = [[d['cancer_slice'][...,0], d['distance_map']] for d in data]
+#ylabels=[d['case'] for d in data]
+#xlabels=[args.param, 'dist']
+#outfile = None
+#dwi.plot.show_images(l, ylabels, xlabels, outfile=outfile)
 
 #for d in data:
 #    draw(d, args.param, 'dist_fig/dist_%s_%s.png' % (d['case'], d['scan']))
+
+import skimage.filter
+import itertools
+rows = []
+for d in data:
+    #img = d['cancer_slice'].copy()
+    img = d['cancer_roi'].copy()
+    img.shape += (1,)
+    dwi.util.clip_pmap(img, [args.param])
+    #img = (img - img.mean()) / img.std()
+    img = img[...,0]
+    cols = [img]
+    #thetas = [0, np.pi/2]
+    thetas = [0]
+    sigmas = [1, 3]
+    #freqs = [0.05, 0.25, 0.4]
+    freqs = [0.25, 0.4]
+    for t, s, f in itertools.product(thetas, sigmas, freqs):
+        kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
+        real, imag = skimage.filter.gabor_filter(img, **kwargs)
+        cols.append(real)
+        #cols.append(np.sqrt(real**2+imag**2))
+    rows.append(cols)
+dwi.plot.show_images(rows)
+
+for d in data:
+    print '---\n\n'
+
+    img = d['cancer_roi'].copy().reshape((5,5,1))
+    dwi.util.clip_pmap(img, [args.param])
+    #img = (img - img.mean()) / img.std()
+    print dwi.texture.get_gabor_features(img[...,0])
+
+    print '    ...'
+
+    img = d['normal_roi'].copy().reshape((5,5,1))
+    dwi.util.clip_pmap(img, [args.param])
+    #img = (img - img.mean()) / img.std()
+    print dwi.texture.get_gabor_features(img[...,0])
