@@ -26,6 +26,8 @@ def parse_args():
             help='get local binary patterns')
     p.add_argument('--gabor', action='store_true',
             help='get Gabor filter properties')
+    p.add_argument('--output', '-o', metavar='FILENAME',
+            help='output ASCII file')
     args = p.parse_args()
     return args
 
@@ -55,7 +57,7 @@ for infile in args.input:
         propnames += dwi.texture.PROPNAMES
         props += dwi.texture.get_coprops_img(img_normalized)
 
-        outfile = 'props_%s' % basename
+        outfile = args.output or 'props_%s' % basename
         if args.verbose:
             print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
         with open(outfile, 'w') as f:
@@ -66,7 +68,7 @@ for infile in args.input:
         _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
         lbp_freq_data.shape = (-1, n_patterns)
 
-        outfile = 'lbpf_%s' % basename
+        outfile = args.output or 'lbpf_%s' % basename
         if args.verbose:
             print 'Writing LBP frequencies to %s' % outfile
         with open(outfile, 'w') as f:
@@ -82,7 +84,7 @@ for infile in args.input:
         #img = (img - img.mean()) / img.std()
         props = dwi.texture.get_gabor_features(img[...,0]).ravel()
 
-        outfile = 'gabor_%s' % basename
+        outfile = args.output or 'gabor_%s' % basename
         if args.verbose:
             print 'Writing Gabor properties to %s' % outfile
         with open(outfile, 'w') as f:
