@@ -294,7 +294,7 @@ def get_task_texture(masktype, model, param, case, scan):
     d = dict(prg=GET_TEXTURE, mt=masktype, m=model, p=param, c=case, s=scan)
     d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --basic -i {i} -o {o}'.format(**)
+    cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
     return {
             'name': '{mt}_{m}_{p}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
@@ -308,4 +308,4 @@ def task_texture():
     """Generate texture features."""
     for masktype in ['CA', 'N', 'auto']:
         for case, scan in cases_scans():
-            yield get_texture(masktype, MODEL, PARAM, case, scan)
+            yield get_task_texture(masktype, MODEL, PARAM, case, scan)
