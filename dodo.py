@@ -306,6 +306,7 @@ def get_task_texture(masktype, model, param, case, scan):
 
 def task_texture():
     """Generate texture features."""
-    for masktype in ['CA', 'N', 'auto']:
+    # TODO auto-ROIs
+    for masktype in ['CA', 'N']:
         for case, scan in cases_scans():
             yield get_task_texture(masktype, MODEL, PARAM, case, scan)
