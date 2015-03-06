@@ -24,6 +24,8 @@ def parse_args():
             help='get basic texture properties')
     p.add_argument('--lbp', action='store_true',
             help='get local binary patterns')
+    p.add_argument('--gabor', action='store_true',
+            help='get Gabor filter properties')
     args = p.parse_args()
     return args
 
@@ -70,6 +72,20 @@ for infile in args.input:
         with open(outfile, 'w') as f:
             for patterns in lbp_freq_data:
                 f.write(' '.join(map(str, patterns)) + '\n')
+
+    # Write Gabor properties.
+    if args.gabor:
+        img = img.copy()
+        img.shape += (1,)
+        dwi.util.clip_pmap(img, ['ADCm'])
+        #img = (img - img.mean()) / img.std()
+        props = dwi.texture.get_gabor_features(img[...,0]).ravel()
+
+        outfile = 'gabor_%s' % basename
+        if args.verbose:
+            print 'Writing Gabor properties to %s' % outfile
+        with open(outfile, 'w') as f:
+            f.write(' '.join(map(str, props)) + '\n')
 
     #img = img[50:150, 50:150]
     #lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
