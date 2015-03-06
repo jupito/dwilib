@@ -75,6 +75,7 @@ for infile in args.input:
 
     # Write Gabor properties.
     if args.gabor:
+        # TODO only for ADCm, clips them
         img = img.copy()
         img.shape += (1,)
         dwi.util.clip_pmap(img, ['ADCm'])
