@@ -242,34 +242,6 @@ def task_select_roi():
             'task_dep': ['select_roi_manual', 'select_roi_auto'],
             }
 
-#def task_evaluate_autoroi_OLD():
-#    """Evaluate auto-ROI prediction ability by ROC AUC and correlation with
-#    Gleason score."""
-#    outfile = 'autoroi_evaluation_%s_%s_%s.txt' % (MODEL, PARAM, SAMPLELIST)
-#    d = dict(slf=SAMPLELIST_FILE, prg_auc=CALC_AUC, prg_corr=CORRELATION,
-#            m=MODEL, p=PARAM, o=outfile)
-#    cmds = ['echo -n > {o}'.format(**d)]
-#    for algparams in find_roi_param_combinations():
-#        d['ap'] = ' '.join(algparams)
-#        d['ap_'] = '_'.join(algparams)
-#        d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-#        s = 'echo -n {ap} >> {o}'
-#        cmds.append(s.format(**d))
-#        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+3 --average --autoflip --pmapdir {i}` >> {o}'
-#        cmds.append(s.format(**d))
-#        s = r'echo -n \\t`{prg_auc} --patients patients.txt --samplelist {slf} --threshold 3+4 --average --autoflip --pmapdir {i}` >> {o}'
-#        cmds.append(s.format(**d))
-#        s = r'echo -n \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds 3+3 3+4 --average --pmapdir {i}` >> {o}'
-#        cmds.append(s.format(**d))
-#        s = r'echo \\t`{prg_corr} --patients patients.txt --samplelist {slf} --thresholds --average --pmapdir {i}` >> {o}'
-#        cmds.append(s.format(**d))
-#    return {
-#            'actions': cmds,
-#            'task_dep': ['select_roi_auto'],
-#            'targets': [outfile],
-#            'clean': True,
-#            }
-
 def get_task_autoroi_auc(samplelist, model, param, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
     d = dict(sl=samplelist, slf=samplelist_file(samplelist), prg=CALC_AUC,
