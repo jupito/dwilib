@@ -36,6 +36,7 @@ SELECT_VOXELS = DWILIB+'/select_voxels.py'
 CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
 MASKTOOL = DWILIB+'/masktool.py'
+GET_TEXTURE = DWILIB+'/get_texture.py'
 
 SUBREGION_DIR = 'subregions'
 
@@ -287,3 +288,24 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_auc(SAMPLELIST, MODEL, PARAM, '3+4')
     yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '3+3 3+4')
     yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '')
+
+def get_task_texture(masktype, model, param, case, scan):
+    """Generate texture features."""
+    d = dict(prg=GET_TEXTURE, mt=masktype, m=model, p=param, c=case, s=scan)
+    d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
+    cmd = '{prg} --basic -i {i} -o {o}'.format(**)
+    return {
+            'name': '{mt}_{m}_{p}_{c}_{s}'.format(**d),
+            'actions': [(create_folder, [dirname(d['o'])]),
+                    cmd],
+            'file_dep': [d['i']],
+            'targets': [d['o']],
+            'clean': True,
+            }
+
+def task_texture():
+    """Generate texture features."""
+    for masktype in ['CA', 'N', 'auto']:
+        for case, scan in cases_scans():
+            yield get_texture(masktype, MODEL, PARAM, case, scan)
