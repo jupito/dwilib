@@ -294,7 +294,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     d = dict(prg=GET_TEXTURE, m=model, p=param, mt=masktype, c=case, s=scan)
     d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
+    cmd = '{prg} -i {i} -o {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
@@ -310,7 +310,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             ap_='_'.join(algparams))
     d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
+    cmd = '{prg} -i {i} -o {o}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
