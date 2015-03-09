@@ -289,9 +289,9 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '3+3 3+4')
     yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '')
 
-def get_task_texture(masktype, model, param, case, scan):
+def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, mt=masktype, m=model, p=param, c=case, s=scan)
+    d = dict(prg=GET_TEXTURE, m=model, p=param, mt=masktype, c=case, s=scan)
     d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
@@ -304,9 +304,9 @@ def get_task_texture(masktype, model, param, case, scan):
             'clean': True,
             }
 
-def get_task_texture_auto(model, param, case, scan, algparams):
+def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, mt='auto', m=model, p=param, c=case, s=scan,
+    d = dict(prg=GET_TEXTURE, m=model, p=param, mt='auto', c=case, s=scan,
             ap_='_'.join(algparams))
     d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
@@ -324,6 +324,6 @@ def task_texture():
     """Generate texture features."""
     for case, scan in cases_scans():
         for masktype in ['CA', 'N']:
-            yield get_task_texture(masktype, MODEL, PARAM, case, scan)
+            yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
         for algparams in find_roi_param_combinations():
-            yield get_task_texture_auto(MODEL, PARAM, case, scan, algparams)
+            yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
