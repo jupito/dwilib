@@ -19,13 +19,11 @@ def parse_args():
     p.add_argument('--verbose', '-v', action='count',
             help='increase verbosity')
     p.add_argument('--input', '-i', metavar='FILENAME', required=True,
-            nargs='+', default=[], help='input ASCII file')
-    p.add_argument('--basic', action='store_true',
-            help='get basic texture properties')
-    p.add_argument('--lbp', action='store_true',
-            help='get local binary patterns')
-    p.add_argument('--gabor', action='store_true',
-            help='get Gabor filter properties')
+            nargs='+', default=[],
+            help='input ASCII file')
+    p.add_argument('--methods', '-m', metavar='METHOD', required=True,
+            nargs='+', default=[],
+            help='methods separated by comma: glcm, lbp, gabor, all')
     p.add_argument('--output', '-o', metavar='FILENAME',
             help='output ASCII file')
     args = p.parse_args()
@@ -49,8 +47,8 @@ for infile in args.input:
     if args.verbose > 1:
         print 'Image shape: %s' % (img.shape,)
 
-    # Write basic properties.
-    if args.basic:
+    # Write GLCM properties.
+    if 'glcm' in args.methods or 'all' in args.methods:
         img_normalized = normalize(img)
         propnames = ['median', 'mean', 'stddev']
         props = [np.median(img), np.mean(img), np.std(img)]
@@ -64,7 +62,7 @@ for infile in args.input:
             f.write(' '.join(map(str, props)) + '\n')
 
     # Write LBP properties.
-    if args.lbp:
+    if 'lbp' in args.methods or 'all' in args.methods:
         _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
         lbp_freq_data.shape = (-1, n_patterns)
 
@@ -76,7 +74,7 @@ for infile in args.input:
                 f.write(' '.join(map(str, patterns)) + '\n')
 
     # Write Gabor properties.
-    if args.gabor:
+    if 'gabor' in args.methods or 'all' in args.methods:
         # TODO only for ADCm, clips them
         img = img.copy()
         img.shape += (1,)
