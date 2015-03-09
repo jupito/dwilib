@@ -19,7 +19,6 @@ def parse_args():
     p.add_argument('--verbose', '-v', action='count',
             help='increase verbosity')
     p.add_argument('--input', '-i', metavar='FILENAME', required=True,
-            nargs='+', default=[],
             help='input ASCII file')
     p.add_argument('--methods', '-m', metavar='METHOD', required=True,
             nargs='+', default=['all'],
@@ -38,57 +37,56 @@ def normalize(pmap):
 
 
 args = parse_args()
-for infile in args.input:
-    dwimage = dwi.dwimage.load(infile)[0]
-    img = dwimage.image[0,:,:,0]
-    basename = dwimage.basename
-    if 1 in img.shape:
-        img.shape = dwi.util.make2d(img.size)
-    if args.verbose > 1:
-        print 'Image shape: %s' % (img.shape,)
+dwimage = dwi.dwimage.load(args.input)[0]
+img = dwimage.image[0,:,:,0]
+basename = dwimage.basename
+if 1 in img.shape:
+    img.shape = dwi.util.make2d(img.size)
+if args.verbose > 1:
+    print 'Image shape: %s' % (img.shape,)
 
-    # Write GLCM properties.
-    if 'glcm' in args.methods or 'all' in args.methods:
-        img_normalized = normalize(img)
-        propnames = ['median', 'mean', 'stddev']
-        props = [np.median(img), np.mean(img), np.std(img)]
-        propnames += dwi.texture.PROPNAMES
-        props += dwi.texture.get_coprops_img(img_normalized)
+# Write GLCM properties.
+if 'glcm' in args.methods or 'all' in args.methods:
+    img_normalized = normalize(img)
+    propnames = ['median', 'mean', 'stddev']
+    props = [np.median(img), np.mean(img), np.std(img)]
+    propnames += dwi.texture.PROPNAMES
+    props += dwi.texture.get_coprops_img(img_normalized)
 
-        outfile = args.output or 'props_%s' % basename
-        if args.verbose:
-            print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
-        with open(outfile, 'w') as f:
-            f.write(' '.join(map(str, props)) + '\n')
+    outfile = args.output or 'props_%s' % basename
+    if args.verbose:
+        print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
+    with open(outfile, 'w') as f:
+        f.write(' '.join(map(str, props)) + '\n')
 
-    # Write LBP properties.
-    if 'lbp' in args.methods or 'all' in args.methods:
-        _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
-        lbp_freq_data.shape = (-1, n_patterns)
-        props = lbp_freq_data.mean(axis=0)
+# Write LBP properties.
+if 'lbp' in args.methods or 'all' in args.methods:
+    _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
+    lbp_freq_data.shape = (-1, n_patterns)
+    props = lbp_freq_data.mean(axis=0)
 
-        outfile = args.output or 'lbpf_%s' % basename
-        if args.verbose:
-            print 'Writing LBP frequencies to %s' % outfile
-        with open(outfile, 'w') as f:
-            f.write(' '.join(map(str, props)) + '\n')
+    outfile = args.output or 'lbpf_%s' % basename
+    if args.verbose:
+        print 'Writing LBP frequencies to %s' % outfile
+    with open(outfile, 'w') as f:
+        f.write(' '.join(map(str, props)) + '\n')
 
-    # Write Gabor properties.
-    if 'gabor' in args.methods or 'all' in args.methods:
-        # TODO only for ADCm, clips them
-        img = img.copy()
-        img.shape += (1,)
-        dwi.util.clip_pmap(img, ['ADCm'])
-        #img = (img - img.mean()) / img.std()
-        props = dwi.texture.get_gabor_features(img[...,0]).ravel()
+# Write Gabor properties.
+if 'gabor' in args.methods or 'all' in args.methods:
+    # TODO only for ADCm, clips them
+    img = img.copy()
+    img.shape += (1,)
+    dwi.util.clip_pmap(img, ['ADCm'])
+    #img = (img - img.mean()) / img.std()
+    props = dwi.texture.get_gabor_features(img[...,0]).ravel()
 
-        outfile = args.output or 'gabor_%s' % basename
-        if args.verbose:
-            print 'Writing Gabor properties to %s' % outfile
-        with open(outfile, 'w') as f:
-            f.write(' '.join(map(str, props)) + '\n')
+    outfile = args.output or 'gabor_%s' % basename
+    if args.verbose:
+        print 'Writing Gabor properties to %s' % outfile
+    with open(outfile, 'w') as f:
+        f.write(' '.join(map(str, props)) + '\n')
 
-    #img = img[50:150, 50:150]
-    #lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
-    #freqs = np.rollaxis(lbp_freq_data, 2)
-    #dwi.plot.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
+#img = img[50:150, 50:150]
+#lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
+#freqs = np.rollaxis(lbp_freq_data, 2)
+#dwi.plot.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
