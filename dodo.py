@@ -296,7 +296,7 @@ def get_task_texture(masktype, model, param, case, scan):
     d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
     return {
-            'name': '{mt}_{m}_{p}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
             'file_dep': [d['i']],
