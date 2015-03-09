@@ -76,7 +76,7 @@ if 'gabor' in args.methods or 'all' in args.methods:
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
 with open(args.output, 'w') as f:
-    f.write('# {}\n'.format(', '.join(propnames)))
+    f.write('# {}\n'.format(' '.join(propnames)))
     f.write(' '.join(map(str, props)) + '\n')
 
 #img = img[50:150, 50:150]
