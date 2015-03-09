@@ -39,37 +39,28 @@ def normalize(pmap):
 args = parse_args()
 dwimage = dwi.dwimage.load(args.input)[0]
 img = dwimage.image[0,:,:,0]
-basename = dwimage.basename
 if 1 in img.shape:
     img.shape = dwi.util.make2d(img.size)
 if args.verbose > 1:
     print 'Image shape: %s' % (img.shape,)
 
+propnames = []
+props = []
+
 # Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(img)
-    propnames = ['median', 'mean', 'stddev']
-    props = [np.median(img), np.mean(img), np.std(img)]
+    propnames += ['median', 'mean', 'stddev']
+    props += [np.median(img), np.mean(img), np.std(img)]
     propnames += dwi.texture.PROPNAMES
     props += dwi.texture.get_coprops_img(img_normalized)
-
-    outfile = args.output or 'props_%s' % basename
-    if args.verbose:
-        print 'Writing (%s) to %s' % (', '.join(propnames), outfile)
-    with open(outfile, 'w') as f:
-        f.write(' '.join(map(str, props)) + '\n')
 
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
     lbp_freq_data.shape = (-1, n_patterns)
-    props = lbp_freq_data.mean(axis=0)
-
-    outfile = args.output or 'lbpf_%s' % basename
-    if args.verbose:
-        print 'Writing LBP frequencies to %s' % outfile
-    with open(outfile, 'w') as f:
-        f.write(' '.join(map(str, props)) + '\n')
+    propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
+    props += list(lbp_freq_data.mean(axis=0))
 
 # Write Gabor properties.
 if 'gabor' in args.methods or 'all' in args.methods:
@@ -78,13 +69,15 @@ if 'gabor' in args.methods or 'all' in args.methods:
     img.shape += (1,)
     dwi.util.clip_pmap(img, ['ADCm'])
     #img = (img - img.mean()) / img.std()
-    props = dwi.texture.get_gabor_features(img[...,0]).ravel()
+    gabor = dwi.texture.get_gabor_features(img[...,0]).ravel()
+    propnames += ['gabor{:d}'.format(i) for i in range(len(gabor))]
+    props += list(gabor)
 
-    outfile = args.output or 'gabor_%s' % basename
-    if args.verbose:
-        print 'Writing Gabor properties to %s' % outfile
-    with open(outfile, 'w') as f:
-        f.write(' '.join(map(str, props)) + '\n')
+if args.verbose:
+    print 'Writing %s features to %s' % (len(props), args.output)
+with open(args.output, 'w') as f:
+    f.write('# {}\n'.format(', '.join(propnames)))
+    f.write(' '.join(map(str, props)) + '\n')
 
 #img = img[50:150, 50:150]
 #lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
