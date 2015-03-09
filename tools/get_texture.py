@@ -22,7 +22,7 @@ def parse_args():
             nargs='+', default=[],
             help='input ASCII file')
     p.add_argument('--methods', '-m', metavar='METHOD', required=True,
-            nargs='+', default=[],
+            nargs='+', default=['all'],
             help='methods separated by comma: glcm, lbp, gabor, all')
     p.add_argument('--output', '-o', metavar='FILENAME',
             help='output ASCII file')
