@@ -293,7 +293,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, m=model, p=param, mt=masktype, c=case, s=scan)
     d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
+    d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
@@ -309,7 +309,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
     d = dict(prg=GET_TEXTURE, m=model, p=param, mt='auto', c=case, s=scan,
             ap_='_'.join(algparams))
     d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    d['o'] = 'textures_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
+    d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
@@ -327,3 +327,10 @@ def task_texture():
             yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
         for algparams in find_roi_param_combinations():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
+
+def task_all():
+    """Do all essential things."""
+    return {
+            'actions': None,
+            'task_dep': ['select_roi', 'evaluate_autoroi', 'texture'],
+            }
