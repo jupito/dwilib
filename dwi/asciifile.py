@@ -87,3 +87,10 @@ def read_ascii(f):
 def read_ascii_file(filename):
     with open(filename, 'rU') as f:
         return read_ascii(f)
+
+def write_ascii_file(filename, pmap, params):
+    """Write parametric map in ASCII format."""
+    with open(filename, 'w') as f:
+        f.write('parameters: %s\n' % ' '.join(map(str, params)))
+        for values in pmap:
+            f.write(' '.join(map(repr, values)) + '\n')

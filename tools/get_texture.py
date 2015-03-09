@@ -75,9 +75,7 @@ if 'gabor' in args.methods or 'all' in args.methods:
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
-with open(args.output, 'w') as f:
-    f.write('# {}\n'.format(' '.join(propnames)))
-    f.write(' '.join(map(str, props)) + '\n')
+dwi.asciifile.write_ascii_file(args.output, [props], propnames)
 
 #img = img[50:150, 50:150]
 #lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
