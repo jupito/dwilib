@@ -65,13 +65,13 @@ for infile in args.input:
     if 'lbp' in args.methods or 'all' in args.methods:
         _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
         lbp_freq_data.shape = (-1, n_patterns)
+        props = lbp_freq_data.mean(axis=0)
 
         outfile = args.output or 'lbpf_%s' % basename
         if args.verbose:
             print 'Writing LBP frequencies to %s' % outfile
         with open(outfile, 'w') as f:
-            for patterns in lbp_freq_data:
-                f.write(' '.join(map(str, patterns)) + '\n')
+            f.write(' '.join(map(str, props)) + '\n')
 
     # Write Gabor properties.
     if 'gabor' in args.methods or 'all' in args.methods:
