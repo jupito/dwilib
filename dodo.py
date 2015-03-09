@@ -304,9 +304,26 @@ def get_task_texture(masktype, model, param, case, scan):
             'clean': True,
             }
 
+def get_task_texture_auto(model, param, case, scan, algparams):
+    """Generate texture features."""
+    d = dict(prg=GET_TEXTURE, mt='auto', m=model, p=param, c=case, s=scan,
+            ap_='_'.join(algparams))
+    d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d['o'] = 'textures_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
+    cmd = '{prg} --basic -i {i} -o {o}'.format(**d)
+    return {
+            'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
+            'actions': [(create_folder, [dirname(d['o'])]),
+                    cmd],
+            'file_dep': [d['i']],
+            'targets': [d['o']],
+            'clean': True,
+            }
+
 def task_texture():
     """Generate texture features."""
-    # TODO auto-ROIs
-    for masktype in ['CA', 'N']:
-        for case, scan in cases_scans():
+    for case, scan in cases_scans():
+        for masktype in ['CA', 'N']:
             yield get_task_texture(masktype, MODEL, PARAM, case, scan)
+        for algparams in find_roi_param_combinations():
+            yield get_task_texture_auto(MODEL, PARAM, case, scan, algparams)
