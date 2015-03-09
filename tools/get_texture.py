@@ -20,8 +20,8 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--input', '-i', metavar='FILENAME', required=True,
             help='input ASCII file')
-    p.add_argument('--methods', '-m', metavar='METHOD', required=True,
-            nargs='+', default=['all'],
+    p.add_argument('--methods', '-m', metavar='METHOD', nargs='+',
+            default=['all'],
             help='methods separated by comma: glcm, lbp, gabor, all')
     p.add_argument('--output', '-o', metavar='FILENAME',
             help='output ASCII file')
