@@ -66,7 +66,7 @@ if args.verbose > 2:
         print 'Positives: {npos}'.format(**d)
 
 # Print AUCs and bootstrapped AUCs.
-if args.verbose > 1:
+if args.verbose:
     print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
 Auc_bs = []
 for x, y, param in zip(X, Y, Params):
