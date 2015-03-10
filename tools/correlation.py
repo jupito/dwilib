@@ -60,6 +60,7 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
+params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
     if args.verbose > 1:
         d = dict(ns=len(x), nl=len(labels), l=sorted(labels))
@@ -69,9 +70,9 @@ for x, y, param in zip(X, Y, Params):
     d = dict(param=param)
     d.update(correlation(x, y))
     if args.verbose > 1:
-        print '# param\tr\tp\tlower\tupper'
+        print '# param  r  p  lower  upper'
     if args.verbose:
-        s = '{param:10}\t{r:+.3f}\t{p:.3f}\t{lower:+.3f}\t{upper:+.3f}'
+        s = '{param:%i}  {r:+.3f}  {p:.3f}  {lower:+.3f}  {upper:+.3f}' % params_maxlen
     else:
         s = '{r:+.3f}'
     print s.format(**d)
