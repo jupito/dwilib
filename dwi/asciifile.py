@@ -46,7 +46,8 @@ class AsciiFile(object):
     def params(self):
         r = range(self.a.shape[1])
         r = map(str, r)
-        a = re.findall(r'\w+', self.d.get('parameters', ''))
+        a = re.findall(r'\S+', self.d.get('parameters', ''))
+        print a
         for i, s in enumerate(a):
             r[i] = s
         return tuple(r)
