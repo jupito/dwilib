@@ -214,7 +214,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
 def read_pmap(dirname, case, scan, voxel='all'):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
-    path = dwi.util.sglob('{d}/{c}_*_{s}_*.txt'.format(**d))
+    path = dwi.util.sglob('{d}/{c}_*{s}*.txt'.format(**d))
     af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
