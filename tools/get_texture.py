@@ -22,7 +22,7 @@ def parse_args():
             help='input ASCII file')
     p.add_argument('--methods', '-m', metavar='METHOD', nargs='+',
             default=['all'],
-            help='methods separated by comma: glcm, lbp, gabor, all')
+            help='methods separated by comma: basic, glcm, lbp, gabor, all')
     p.add_argument('--output', '-o', metavar='FILENAME',
             help='output ASCII file')
     args = p.parse_args()
@@ -47,18 +47,21 @@ if args.verbose > 1:
 propnames = []
 props = []
 
+# Write basic properties.
+if 'basic' in args.methods or 'all' in args.methods:
+    propnames += ['median', 'mean', 'stddev']
+    props += [np.median(img), np.mean(img), np.std(img)]
+
 # Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(img)
-    propnames += ['median', 'mean', 'stddev']
-    props += [np.median(img), np.mean(img), np.std(img)]
     propnames += dwi.texture.PROPNAMES
     props += dwi.texture.get_coprops_img(img_normalized)
 
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
-    lbp_freq_data.shape = (-1, n_patterns)
+    lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
     propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
     props += list(lbp_freq_data.mean(axis=0))
 
