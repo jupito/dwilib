@@ -72,9 +72,13 @@ if 'gabor' in args.methods or 'all' in args.methods:
     img.shape += (1,)
     dwi.util.clip_pmap(img, ['ADCm'])
     #img = (img - img.mean()) / img.std()
-    gabor = dwi.texture.get_gabor_features(img[...,0]).ravel()
-    propnames += ['gabor{:d}'.format(i) for i in range(len(gabor))]
-    props += list(gabor)
+    #gabor = dwi.texture.get_gabor_features(img[...,0]).ravel()
+    #propnames += ['gabor{:d}'.format(i) for i in range(len(gabor))]
+    #props += list(gabor)
+    d = dwi.texture.get_gabor_features_d(img[...,0])
+    for k, v in d.iteritems():
+        propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
+        props.append(v)
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
