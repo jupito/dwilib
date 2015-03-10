@@ -28,6 +28,8 @@ def parse_args():
             help='index of voxel to use, or all, mean, median')
     p.add_argument('--autoflip', action='store_true',
             help='flip data when AUC < .5')
+    p.add_argument('--compare', action='store_true',
+            help='do AUC comparison')
     p.add_argument('--figure',
             help='output figure file')
     args = p.parse_args()
@@ -82,16 +84,17 @@ for x, y, param in zip(X, Y, Params):
     Auc_bs.append(auc_bs)
 
 # Print bootstrapped AUC comparisons.
-if args.verbose:
-    print '# param1\tparam2\tdiff\tZ\tp'
-done = []
-for i, param_i in enumerate(Params):
-    for j, param_j in enumerate(Params):
-        if i == j or (i, j) in done or (j, i) in done:
-            continue
-        done.append((i,j))
-        d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
-        print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)
+if args.compare:
+    if args.verbose:
+        print '# param1\tparam2\tdiff\tZ\tp'
+    done = []
+    for i, param_i in enumerate(Params):
+        for j, param_j in enumerate(Params):
+            if i == j or (i, j) in done or (j, i) in done:
+                continue
+            done.append((i,j))
+            d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
+            print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)
 
 # Plot the ROCs.
 if args.figure:
