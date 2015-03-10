@@ -95,3 +95,20 @@ def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     #feats = feats.reshape((-1,2))
     feats = np.mean(feats, axis=0) # Average directions.
     return feats
+
+def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
+    import collections
+    thetas = [np.pi/4*i for i in range(4)]
+    shape = len(thetas), len(sigmas), len(freqs)
+    feats = np.zeros(shape + (2,), dtype=np.double)
+    d = collections.OrderedDict()
+    for i, j, k in np.ndindex(shape):
+        t, s, f = thetas[i], sigmas[j], freqs[k]
+        kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
+        real, _ = skimage.filter.gabor_filter(img, **kwargs)
+        feats[i,j,k,0] = real.mean()
+        feats[i,j,k,1] = real.var()
+        d[(t/np.pi,s,f,'mean')] = real.mean()
+        d[(t/np.pi,s,f,'var')] = real.var()
+    feats_distavg = np.mean(feats, axis=0) # Average directions.
+    return d
