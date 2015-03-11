@@ -96,7 +96,7 @@ def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     feats = np.mean(feats, axis=0) # Average directions.
     return feats
 
-def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
+def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
     import collections
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
