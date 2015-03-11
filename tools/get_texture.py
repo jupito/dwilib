@@ -62,8 +62,9 @@ if 'glcm' in args.methods or 'all' in args.methods:
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
     lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
+    lbp_freq_data = np.mean(lbp_freq_data, axis=0)
     propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
-    props += list(lbp_freq_data.mean(axis=0))
+    props += list(lbp_freq_data)
 
 # Write Gabor properties.
 if 'gabor' in args.methods or 'all' in args.methods:
