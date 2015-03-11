@@ -60,7 +60,8 @@ if 'glcm' in args.methods or 'all' in args.methods:
 
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
-    _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img)
+    _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img, winsize=5,
+            radius=1.5)
     lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
     lbp_freq_data = np.mean(lbp_freq_data, axis=0)
     propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
