@@ -26,8 +26,8 @@ def firstorder(img):
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
-def get_coprops_img(img, propnames=PROPNAMES):
-    """Get co-occurrence matrix texture properties ower an image."""
+def get_glcm_props(img, propnames=PROPNAMES):
+    """Get grey-level co-occurrence matrix texture properties over an image."""
     distances = [1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     glcm = greycomatrix(img, distances, angles, 256, symmetric=True,
