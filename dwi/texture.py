@@ -98,6 +98,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
     return r
 
 def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
+    # XXX: Obsolete
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=np.double)
