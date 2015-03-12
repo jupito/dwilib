@@ -41,8 +41,8 @@ def get_score_param(img, param):
 
 def get_roi_scores(img, d, params):
     """Return array of all scores for each possible ROI of given dimension."""
-    scores_shape = tuple([img.shape[i]-d[i]+1 for i in range(3)] + [len(params)])
-    scores = np.zeros(scores_shape)
+    shape = [img.shape[i]-d[i]+1 for i in range(3)] + [len(params)]
+    scores = np.zeros(shape)
     scores.fill(np.nan)
     for z, y, x, i in np.ndindex(scores.shape):
         roi = img[z:z+d[0], y:y+d[1], x:x+d[2], i]
