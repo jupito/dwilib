@@ -39,25 +39,20 @@ def get_score_param(img, param):
         r = 0 # Unknown parameter
     return r
 
-def get_score(img, params):
-    """Return total score of given ROI."""
-    scores = [get_score_param(img[...,i], p) for i, p in enumerate(params)]
-    r = sum(scores)
-    return r
-
 def get_roi_scores(img, d, params):
     """Return array of all scores for each possible ROI of given dimension."""
-    scores_shape = tuple([img.shape[i]-d[i]+1 for i in range(3)])
+    scores_shape = tuple([img.shape[i]-d[i]+1 for i in range(3)] + [len(params)])
     scores = np.zeros(scores_shape)
     scores.fill(np.nan)
-    for z, y, x in np.ndindex(scores.shape):
-        roi = img[z:z+d[0], y:y+d[1], x:x+d[2], :]
-        scores[z,y,x] = get_score(roi, params)
+    for z, y, x, i in np.ndindex(scores.shape):
+        roi = img[z:z+d[0], y:y+d[1], x:x+d[2], i]
+        scores[z,y,x,i] = get_score_param(roi, params[i])
     return scores
 
 def get_scoremap(img, d, params, n_rois):
     """Return array like original image, with scores of n_rois best ROI's."""
     scores = get_roi_scores(img, d, params)
+    scores = np.sum(scores, axis=-1) # Sum scores parameter-wise.
     indices = scores.ravel().argsort() # Sort ROI's by score.
     indices = indices[-n_rois:] # Select best ones.
     indices = [np.unravel_index(i, scores.shape) for i in indices]
