@@ -113,6 +113,7 @@ def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     return feats
 
 def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
+    """Get Gabor features."""
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=np.double)
