@@ -28,13 +28,13 @@ def get_score_param(img, param):
         if float(img.sum())/img.size > 0.20:
             r = 0
         else:
-            r = -np.inf
+            r = -1e20
     elif param == 'prostate_mask_strict':
         # Ban areas even partly outside of prostate.
         if img.all():
             r = 0
         else:
-            r = -np.inf
+            r = -1e20
     else:
         r = 0 # Unknown parameter
     return r
@@ -51,6 +51,8 @@ def get_roi_scores(img, d, params):
 def get_scoremap(img, d, params, n_rois):
     """Return array like original image, with scores of n_rois best ROI's."""
     scores = get_roi_scores(img, d, params)
+    #for i in range(len(params)):
+    #    scores[...,i] /= scores[...,i].max() # Scale it.
     scores = np.sum(scores, axis=-1) # Sum scores parameter-wise.
     indices = scores.ravel().argsort() # Sort ROI's by score.
     indices = indices[-n_rois:] # Select best ones.
