@@ -57,8 +57,10 @@ if 'basic' in args.methods or 'all' in args.methods:
 # Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(img)
-    propnames += dwi.texture.PROPNAMES
-    props += dwi.texture.get_coprops_img(img_normalized)
+    d = dwi.texture.get_coprops_img(img_normalized)
+    for k, v in d.iteritems():
+        propnames.append(k)
+        props.append(v)
 
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:

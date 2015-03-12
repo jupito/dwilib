@@ -28,8 +28,10 @@ def get_coprops_img(img):
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     glcm = greycomatrix(img, distances, angles, 256, symmetric=True,
             normed=True)
-    props = [np.mean(greycoprops(glcm, p)) for p in PROPNAMES]
-    return props
+    keys = PROPNAMES
+    values = [np.mean(greycoprops(glcm, p)) for p in PROPNAMES]
+    d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
+    return d
 
 def get_coprops(windows):
     props = np.zeros((len(windows), len(PROPNAMES)))
