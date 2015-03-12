@@ -13,6 +13,8 @@ PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
         'correlation', 'ASM']
 EPSILON = 1e-6
 
+# First-order features
+
 def firstorder(img):
     """Get first-order statistics."""
     d = collections.OrderedDict()
@@ -21,6 +23,8 @@ def firstorder(img):
     d['range'] = np.max(img) - np.min(img)
     d.update(dwi.util.fivenumd(img))
     return d
+
+# Grey-Level Co-Occurrence Matrix (GLCM) features
 
 def get_coprops_img(img, propnames=PROPNAMES):
     """Get co-occurrence matrix texture properties ower an image."""
@@ -65,6 +69,8 @@ def get_texture_pmap(img, win_step):
             pmap[1:,i,j] = v
     return pmap
 
+# Local Binary Pattern (LBP) features
+
 def get_lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
     """Calculate local binary pattern (LBP) frequency map."""
     import lbp
@@ -91,6 +97,8 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
     else:
         raise Exception('Unknown distance measure: %s' % method)
     return r
+
+# Gabor features
 
 def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     # XXX: Obsolete
