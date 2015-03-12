@@ -167,9 +167,9 @@ import skimage.filter
 import itertools
 rows = []
 for d in data:
-    #img = d['cancer_slice'].copy()
-    img = d['cancer_roi'].copy()
-    img.shape += (1,)
+    img = d['cancer_slice'].copy()
+    #img = d['cancer_roi'].copy()
+    #img.shape += (1,)
     dwi.util.clip_pmap(img, [args.param])
     #img = (img - img.mean()) / img.std()
     img = img[...,0]
@@ -184,6 +184,7 @@ for d in data:
         real, imag = skimage.filter.gabor_filter(img, **kwargs)
         cols.append(real)
         #cols.append(np.sqrt(real**2+imag**2))
+    cols.append(skimage.filter.sobel(img))
     rows.append(cols)
 dwi.plot.show_images(rows)
 
