@@ -49,8 +49,10 @@ props = []
 
 # Write basic properties.
 if 'basic' in args.methods or 'all' in args.methods:
-    propnames += ['median', 'mean', 'stddev']
-    props += [np.median(img), np.mean(img), np.std(img)]
+    d = dwi.texture.firstorder(img)
+    for k, v in d.iteritems():
+        propnames.append(k)
+        props.append(v)
 
 # Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
