@@ -1,9 +1,22 @@
 """Texture analysis."""
 
+import collections
+
 import numpy as np
 import skimage
 from skimage.feature import greycomatrix, greycoprops
 from skimage.util import view_as_windows
+
+import dwi.util
+
+def firstorder(img):
+    """Get first-order statistics."""
+    d = collections.OrderedDict()
+    d['mean'] = np.mean(img)
+    d['stddev'] = np.std(img)
+    d['range'] = np.max(img) - np.min(img)
+    d.update(dwi.util.fivenumd(img))
+    return d
 
 PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
         'correlation', 'ASM']
@@ -97,7 +110,6 @@ def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     return feats
 
 def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
-    import collections
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=np.double)
