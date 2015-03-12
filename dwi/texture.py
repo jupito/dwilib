@@ -65,11 +65,6 @@ def get_texture_pmap(img, win_step):
             pmap[1:,i,j] = v
     return pmap
 
-def get_lbp(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
-    """Calculate local binary patterns (LBP)."""
-    import lbp
-    return lbp.lbp(img, neighbours, radius, roinv, uniform)
-
 def get_lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
     """Calculate local binary pattern (LBP) frequencies."""
     import lbp
