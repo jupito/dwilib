@@ -9,6 +9,10 @@ from skimage.util import view_as_windows
 
 import dwi.util
 
+PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
+        'correlation', 'ASM']
+EPSILON = 1e-6
+
 def firstorder(img):
     """Get first-order statistics."""
     d = collections.OrderedDict()
@@ -18,18 +22,14 @@ def firstorder(img):
     d.update(dwi.util.fivenumd(img))
     return d
 
-PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
-        'correlation', 'ASM']
-EPSILON = 1e-6
-
-def get_coprops_img(img):
+def get_coprops_img(img, propnames=PROPNAMES):
     """Get co-occurrence matrix texture properties ower an image."""
     distances = [1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     glcm = greycomatrix(img, distances, angles, 256, symmetric=True,
             normed=True)
-    keys = PROPNAMES
-    values = [np.mean(greycoprops(glcm, p)) for p in PROPNAMES]
+    keys = propnames
+    values = [np.mean(greycoprops(glcm, p)) for p in propnames]
     d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
     return d
 
