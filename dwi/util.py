@@ -1,7 +1,9 @@
-import sys
+import collections
 import itertools
-import re
 import random
+import re
+import sys
+
 import numpy as np
 
 COMMENT_PREFIX = '#'
@@ -140,8 +142,10 @@ def fivenum(a):
 
 def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
-    v = fivenum(a)
-    return dict(min=v[0], q1=v[1], median=v[2], q3=v[3], max=v[4])
+    keys = 'min q1 median q3 max'.split()
+    values = fivenum(a)
+    d = collections.OrderedDict(zip(keys, values))
+    return d
 
 def stem_and_leaf(values):
     # XXX: only first and second decimal places
