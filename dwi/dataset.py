@@ -2,6 +2,8 @@
 
 import glob
 
+import numpy as np
+
 import dwi.dicomfile
 import dwi.mask
 import dwi.util
@@ -126,14 +128,17 @@ def dataset_read_subregions(data, subregion_dir):
     for d in data:
         d['subregion'] = read_subregion(subregion_dir, d['case'], d['scan'])
 
-def dataset_read_pmaps(data, image_dir, param):
+def dataset_read_pmaps(data, image_dir, params):
     """Add pmaps to dataset (after optional subregions)."""
     for d in data:
-        image = read_dicom_pmap(image_dir, d['case'], d['scan'], param)
-        if 'subregion' in d:
-            d['original_shape'] = image.shape
-            image = dwi.util.crop_image(image, d['subregion']).copy()
-        d['image'] = image
+        images = []
+        for param in params:
+            image = read_dicom_pmap(image_dir, d['case'], d['scan'], param)
+            if 'subregion' in d:
+                d['original_shape'] = image.shape
+                image = dwi.util.crop_image(image, d['subregion']).copy()
+            images.append(image)
+        d['image'] = np.concatenate(images, axis=-1)
 
 def dataset_read_prostate_masks(data, prostate_mask_dir):
     """Add prostate masks to dataset (after pmaps)."""

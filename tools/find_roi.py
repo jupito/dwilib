@@ -155,7 +155,7 @@ print 'Reading data...'
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
 dwi.dataset.dataset_read_patientinfo(data, args.patients)
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
-dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.param)
+dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 dwi.dataset.dataset_read_prostate_masks(data, args.prostatemaskdir)
 dwi.dataset.dataset_read_roi_masks(data, args.roimaskdir)
 if args.clip:
