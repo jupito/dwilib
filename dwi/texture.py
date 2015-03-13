@@ -132,3 +132,9 @@ def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
         d[(t/np.pi,s,f,'var')] = real.var()
     feats_distavg = np.mean(feats, axis=0) # Average directions.
     return d
+
+# Histogram of Oriented Gradients (HOG)
+
+def hog(img):
+    return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
+            cells_per_block=(1,1), normalise=True)
