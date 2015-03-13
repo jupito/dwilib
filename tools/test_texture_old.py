@@ -191,7 +191,7 @@ print '---'
 data = dwi.dataset.dataset_read_samplelist('samples_train.txt', range(10), ['1a', '2a'])
 dwi.dataset.dataset_read_patientinfo(data, 'patients.txt')
 dwi.dataset.dataset_read_subregions(data, 'bounding_box_100_10pad')
-dwi.dataset.dataset_read_pmaps(data, 'results_Mono_combinedDICOM', 'ADCm')
+dwi.dataset.dataset_read_pmaps(data, 'results_Mono_combinedDICOM', ['ADCm'])
 for d in data:
     d['image'] = normalize_pmap(d['image'])
 dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')

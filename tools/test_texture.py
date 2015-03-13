@@ -136,7 +136,7 @@ print 'Reading dataset...'
 data = dwi.dataset.dataset_read_samplelist('samples_train.txt', cases=args.cases, scans=['1a', '2a'])
 dwi.dataset.dataset_read_patientinfo(data, 'patients.txt')
 dwi.dataset.dataset_read_subregions(data, 'bounding_box_100_10pad')
-dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.param)
+dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 #dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')
 dwi.dataset.dataset_read_roi_masks(data, 'masks_rois', shape=(5,5))
 get_roi_slices(data)
@@ -174,17 +174,26 @@ for d in data:
     #img = (img - img.mean()) / img.std()
     img = img[...,0]
     cols = [img]
-    #thetas = [0, np.pi/2]
-    thetas = [0]
-    sigmas = [1, 3]
-    #freqs = [0.05, 0.25, 0.4]
-    freqs = [0.25, 0.4]
-    for t, s, f in itertools.product(thetas, sigmas, freqs):
-        kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
-        real, imag = skimage.filter.gabor_filter(img, **kwargs)
-        cols.append(real)
-        #cols.append(np.sqrt(real**2+imag**2))
-    cols.append(skimage.filter.sobel(img))
+    #thetas = [0]
+    #sigmas = [1, 3]
+    #freqs = [0.25, 0.4]
+    #for t, s, f in itertools.product(thetas, sigmas, freqs):
+    #    kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
+    #    real, imag = skimage.filter.gabor_filter(img, **kwargs)
+    #    cols.append(real)
+    #cols.append(skimage.filter.sobel(img))
+    a, hog = skimage.feature.hog(img, visualise=True)
+    print a.shape
+    cols.append(hog)
+    a, hog = skimage.feature.hog(img, pixels_per_cell=(2, 2), visualise=True)
+    print a.shape
+    cols.append(hog)
+    a, hog = skimage.feature.hog(img, orientations=4, visualise=True)
+    print a.shape
+    cols.append(hog)
+    a, hog = skimage.feature.hog(img, orientations=3, visualise=True, normalise=True)
+    print a.shape
+    cols.append(hog)
     rows.append(cols)
 dwi.plot.show_images(rows)
 
@@ -202,3 +211,8 @@ for d in data:
     dwi.util.clip_pmap(img, [args.param])
     #img = (img - img.mean()) / img.std()
     print dwi.texture.get_gabor_features(img[...,0])
+
+    print '   ...'
+    #img = d['cancer_slice'][:,:,0]
+    img = d['cancer_roi'].copy().reshape((5,5))
+    print skimage.feature.hog(img, orientations=4, pixels_per_cell=(2,2), cells_per_block=(1,1)).shape
