@@ -79,7 +79,7 @@ def draw(data, param, filename):
     AUTO_COLOR = (1.0, 1.0, 0.0, 1.0)
 
     slice_index = data['roi_corner'][0]
-    pmap = data['image'][slice_index].copy()
+    pmap = data['image'][slice_index,:,:,0:1].copy()
     dwi.util.clip_pmap(pmap, [param])
     pmap = pmap[...,0]
 
@@ -152,15 +152,18 @@ sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
+params = [args.param]
+if args.param == 'ADCk':
+    params += ['K']
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
 dwi.dataset.dataset_read_patientinfo(data, args.patients)
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
-dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+dwi.dataset.dataset_read_pmaps(data, args.pmapdir, params)
 dwi.dataset.dataset_read_prostate_masks(data, args.prostatemaskdir)
 dwi.dataset.dataset_read_roi_masks(data, args.roimaskdir)
 if args.clip:
     for d in data:
-        dwi.util.clip_pmap(d['image'], [param])
+        dwi.util.clip_pmap(d['image'], params)
 
 for d in data:
     print '{case} {scan}: {score} {subregion}'.format(**d)
@@ -168,7 +171,7 @@ for d in data:
         print d['image'].shape
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
-    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, [args.param],
+    d.update(dwi.autoroi.find_roi(d['image'], args.roidim, params,
             prostate_mask=d['prostate_mask'], sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)

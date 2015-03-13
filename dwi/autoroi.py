@@ -61,8 +61,8 @@ def scale_scores(scores):
 def get_scoremap(img, d, params, n_rois):
     """Return array like original image, with scores of n_rois best ROI's."""
     scores = get_roi_scores(img, d, params)
-    #for i in range(len(params)):
-    #    scale_scores(scores[...,i])
+    for i in range(len(params)):
+        scale_scores(scores[...,i])
     scores = np.sum(scores, axis=-1) # Sum scores parameter-wise.
     indices = scores.ravel().argsort() # Sort ROI's by score.
     indices = indices[-n_rois:] # Select best ones.
@@ -91,6 +91,7 @@ def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
     if prostate_mask:
         img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']
+    print img.shape, params
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     scoremap = sum(scoremaps)
 
