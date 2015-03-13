@@ -26,13 +26,13 @@ def get_score_param(img, param):
     elif param == 'prostate_mask':
         # Ban areas more than a certain amount outside of prostate.
         if float(img.sum())/img.size > 0.20:
-            r = 0
+            r = 1
         else:
             r = -1e20
     elif param == 'prostate_mask_strict':
         # Ban areas even partly outside of prostate.
         if img.all():
-            r = 0
+            r = 1
         else:
             r = -1e20
     else:
@@ -48,11 +48,21 @@ def get_roi_scores(img, d, params):
         scores[z,y,x,i] = get_score_param(roi, params[i])
     return scores
 
+def scale_scores(scores):
+    """Scale scores in-place."""
+    scores[...] /= scores[...].max()
+    #import sklearn.preprocessing
+    #shape = scores.shape
+    #a = scores.ravel()
+    #sklearn.preprocessing.scale(a, copy=False)
+    #a.shape = shape
+    #scores[...] = a
+
 def get_scoremap(img, d, params, n_rois):
     """Return array like original image, with scores of n_rois best ROI's."""
     scores = get_roi_scores(img, d, params)
     #for i in range(len(params)):
-    #    scores[...,i] /= scores[...,i].max() # Scale it.
+    #    scale_scores(scores[...,i])
     scores = np.sum(scores, axis=-1) # Sum scores parameter-wise.
     indices = scores.ravel().argsort() # Sort ROI's by score.
     indices = indices[-n_rois:] # Select best ones.
