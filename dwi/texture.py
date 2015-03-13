@@ -137,4 +137,4 @@ def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
 
 def hog(img):
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
-            cells_per_block=(1,1), normalise=True)
+            cells_per_block=(2,2), normalise=True)
