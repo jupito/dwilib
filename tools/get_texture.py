@@ -71,6 +71,11 @@ if 'lbp' in args.methods or 'all' in args.methods:
     propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
     props += list(lbp_freq_data)
 
+if 'hog' in args.methods or 'all' in args.methods:
+    hog = dwi.texture.hog(img)
+    propnames += ['hog{:d}'.format(i) for i in range(len(hog))]
+    props += list(hog)
+
 # Write Gabor properties.
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
@@ -78,7 +83,8 @@ if 'gabor' in args.methods or 'all' in args.methods:
     img.shape += (1,)
     dwi.util.clip_pmap(img, ['ADCm'])
     #img = (img - img.mean()) / img.std()
-    d = dwi.texture.get_gabor_features_d(img[...,0])
+    d = dwi.texture.get_gabor_features_d(img[...,0], sigmas=[1, 2, 3],
+            freqs=[0.1, 0.2, 0.3, 0.4])
     for k, v in d.iteritems():
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
         props.append(v)
