@@ -70,8 +70,7 @@ def find_roi_param_combinations():
     else:
         params = itertools.product(*FIND_ROI_PARAMS)
     for t in params:
-        #if t[2] <= t[3]:
-        if t[2] == t[3]:
+        if t[0] <= t[1] and t[2] == t[3]:
             yield map(str, t)
 
 def pmapdir_dicom(model):
