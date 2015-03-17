@@ -81,6 +81,7 @@ def add_mask(img, mask):
 
 def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
         sidemin=10, sidemax=10, n_rois=500):
+    assert depthmin <= depthmax
     assert sidemin <= sidemax
 
     # Draw score map.
