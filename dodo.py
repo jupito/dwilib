@@ -50,7 +50,9 @@ SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
-        range(3, 13), # ROI side min (3 was not good)
+        [2], # ROI depth min
+        [3], # ROI depth max
+        range(7, 11), # ROI side min (3 was not good)
         range(3, 13), # ROI side max
         range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
 ]
@@ -68,8 +70,8 @@ def find_roi_param_combinations():
     else:
         params = itertools.product(*FIND_ROI_PARAMS)
     for t in params:
-        #if t[0] <= t[1]:
-        if t[0] == t[1]:
+        #if t[2] <= t[3]:
+        if t[2] == t[3]:
             yield map(str, t)
 
 def pmapdir_dicom(model):

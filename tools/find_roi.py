@@ -37,8 +37,8 @@ def parse_args():
             help='image parameter to use')
     p.add_argument('--roidim', metavar='I', nargs=3, type=int, default=[1,5,5],
             help='dimensions of wanted ROI (3 integers; default 1 5 5)')
-    p.add_argument('--algparams', metavar='I', nargs=3, type=int,
-            default=[5,10,1000],
+    p.add_argument('--algparams', metavar='I', nargs=5, type=int,
+            default=[2,3,10,10,500],
             help='algorithm parameters (ROI side min, max, number of ROIs)')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
@@ -148,7 +148,7 @@ def write_mask(d, filename):
 
 
 args = parse_args()
-depthmin, depthmax, sidemin, sidemax, n_rois = [2, 3] + args.algparams
+depthmin, depthmax, sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax or depthmin > depthmax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
