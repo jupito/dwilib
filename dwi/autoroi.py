@@ -79,15 +79,13 @@ def add_mask(img, mask):
     img = np.concatenate((img, m), axis=3)
     return img
 
-def find_roi(img, roidim, params, prostate_mask=None, sidemin=5, sidemax=10,
-        n_rois=1000):
+def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
+        sidemin=10, sidemax=10, n_rois=500):
     assert sidemin <= sidemax
 
     # Draw score map.
-    dims = [(2,i,i) for i in range(sidemin, sidemax+1)]
-    dims += [(3,i,i) for i in range(sidemin, sidemax+1)]
-    #dims = dwi.util.combinations([range(2, 4), range(*siderange), range(*siderange)])
-    #print dims
+    dims = [(j,i,i) for i in range(sidemin, sidemax+1)
+            for j in range(depthmin, depthmax+1)]
     if prostate_mask:
         img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']

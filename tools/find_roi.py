@@ -148,8 +148,8 @@ def write_mask(d, filename):
 
 
 args = parse_args()
-sidemin, sidemax, n_rois = args.algparams
-if sidemin > sidemax:
+depthmin, depthmax, sidemin, sidemax, n_rois = [2, 3] + args.algparams
+if sidemin > sidemax or depthmin > depthmax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
 params = [args.param]
@@ -172,7 +172,8 @@ for d in data:
         print map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
                 d['normal_mask'], d['prostate_mask']])
     d.update(dwi.autoroi.find_roi(d['image'], args.roidim, params,
-            prostate_mask=d['prostate_mask'], sidemin=sidemin, sidemax=sidemax,
+            prostate_mask=d['prostate_mask'], depthmin=depthmin,
+            depthmax=depthmax, sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
     draw(d, args.param, args.outfig or
