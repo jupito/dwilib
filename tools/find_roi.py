@@ -153,8 +153,8 @@ if sidemin > sidemax or depthmin > depthmax:
     raise Exception('Invalid ROI size limits')
 print 'Reading data...'
 params = [args.param]
-if args.param == 'ADCk':
-    params += ['K']
+#if args.param == 'ADCk':
+#    params += ['K']
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
 dwi.dataset.dataset_read_patientinfo(data, args.patients)
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
