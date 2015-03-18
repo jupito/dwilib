@@ -61,11 +61,13 @@ def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
     if SAMPLELIST == 'test':
         params = [
-                (2,3,10,10,500), # Mono: auc
+                (2,3,10,10,500), # Mono: corr, auc
+                (2,3,10,10,1750), # Mono: corr
                 (2,3,11,11,750), # Mono: corr
-                (2,3,2,2,250), # Kurt: auc
-                (2,3,9,9,1000), # Kurt: corr
-                (2,3,12,12,1750), # Kurt: corr
+                #(2,3,2,2,250), # Kurt: auc
+                #(2,3,9,9,1000), # Kurt: corr
+                #(2,3,12,12,1750), # Kurt: corr
+                #(2,3,5,5,500), # Kurt K: corr, auc
                 ]
     else:
         params = itertools.product(*FIND_ROI_PARAMS)
