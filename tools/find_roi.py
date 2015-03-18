@@ -151,10 +151,10 @@ args = parse_args()
 depthmin, depthmax, sidemin, sidemax, n_rois = args.algparams
 if sidemin > sidemax or depthmin > depthmax:
     raise Exception('Invalid ROI size limits')
+
 print 'Reading data...'
-params = [args.param]
-#if args.param == 'ADCk':
-#    params += ['K']
+params = args.param.split('+') # Can be like 'ADCk+K'.
+
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
 dwi.dataset.dataset_read_patientinfo(data, args.patients)
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
@@ -176,7 +176,7 @@ for d in data:
             depthmax=depthmax, sidemin=sidemin, sidemax=sidemax,
             n_rois=n_rois))
     print '{case} {scan}: Optimal ROI at {roi_corner}'.format(**d)
-    draw(d, args.param, args.outfig or
+    draw(d, params[0], args.outfig or
             DEFAULT_OUT_IMAGE_DIR+'/{case}_{scan}.png'.format(**d))
     write_mask(d, args.outmask or
             DEFAULT_OUT_MASK_DIR+'/{case}_{scan}_auto.mask'.format(**d))
