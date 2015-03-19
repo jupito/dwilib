@@ -1,5 +1,6 @@
 """Texture analysis."""
 
+from __future__ import division
 import collections
 
 import numpy as np
