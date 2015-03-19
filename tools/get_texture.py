@@ -89,6 +89,13 @@ if 'gabor' in args.methods or 'all' in args.methods:
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
+# Write moment properties.
+if 'moment' in args.methods or 'all' in args.methods:
+    d = dwi.texture.moments(img.squeeze(), max_sum=12)
+    for k, v in d.iteritems():
+        propnames.append('moment{}'.format(str(k)).translate(None, ' '))
+        props.append(v)
+
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
 dwi.asciifile.write_ascii_file(args.output, [props], propnames)
