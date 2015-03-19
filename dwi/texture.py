@@ -3,6 +3,7 @@
 import collections
 
 import numpy as np
+import scipy as sp
 import skimage
 from skimage.feature import greycomatrix, greycoprops
 from skimage.util import view_as_windows
@@ -22,6 +23,8 @@ def firstorder(img):
     d['stddev'] = np.std(img)
     d['range'] = np.max(img) - np.min(img)
     d.update(dwi.util.fivenumd(img))
+    d['kurtosis'] = sp.stats.kurtosis(img.ravel())
+    d['skewness'] = sp.stats.skew(img.ravel())
     return d
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
