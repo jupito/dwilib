@@ -153,8 +153,8 @@ def moment(img, p, q):
         raise Exception('Image not square: {}'.format(img.shape))
     width = img.shape[0]
     center = width//2
-    normalized = lambda pos: (pos-center)/(width/2) # Normalized coordinates
-    f = lambda m, n: img[m,n] * normalized(m)**p * normalized(n)**q
+    nc = lambda pos: (pos-center)/(width/2) # Normalized coordinates [-1,1]
+    f = lambda m, n: img[m,n] * nc(m)**p * nc(n)**q
     a = np.fromfunction(f, img.shape, dtype=np.int)
     moment = a.sum()
     return moment
