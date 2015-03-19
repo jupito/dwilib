@@ -2,6 +2,7 @@
 
 from __future__ import division
 import collections
+import itertools
 
 import numpy as np
 import scipy as sp
@@ -142,3 +143,25 @@ def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
 def hog(img):
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
+
+# Image moments
+
+def moment(img, p, q):
+    """Image moment. See Tuceryan 1994: Moment Based Texture Segmentation."""
+    img = np.asarray(img)
+    if img.ndim != 2 or img.shape[0] != img.shape[1]:
+        raise Exception('Image not square: {}'.format(img.shape))
+    width = img.shape[0]
+    center = width//2
+    normalized = lambda pos: (pos-center)/(width/2) # Normalized coordinates
+    f = lambda m, n: img[m,n] * normalized(m)**p * normalized(n)**q
+    a = np.fromfunction(f, img.shape, dtype=np.int)
+    moment = a.sum()
+    return moment
+
+def moments(img, max_sum=2):
+    """Image moments up to p+q <= max_sum."""
+    r = range(max_sum+1)
+    tuples = (t for t in itertools.product(r, r) if sum(t) <= max_sum)
+    d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
+    return d
