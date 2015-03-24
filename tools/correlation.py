@@ -31,14 +31,17 @@ def parse_args():
 def correlation(x, y):
     """Calculate correlation with p-value and confidence interval."""
     assert len(x) == len(y)
-    #r, p = scipy.stats.pearsonr(x, y)
-    #r, p = scipy.stats.kendalltau(x, y)
-    r, p = scipy.stats.spearmanr(x, y)
-    n = len(x)
-    stderr = 1.0 / math.sqrt(n-3)
-    delta = 1.96 * stderr
-    lower = math.tanh(math.atanh(r) - delta)
-    upper = math.tanh(math.atanh(r) + delta)
+    if dwi.util.all_equal(x):
+        r = p = lower = upper = np.nan
+    else:
+        #r, p = scipy.stats.pearsonr(x, y)
+        #r, p = scipy.stats.kendalltau(x, y)
+        r, p = scipy.stats.spearmanr(x, y)
+        n = len(x)
+        stderr = 1.0 / math.sqrt(n-3)
+        delta = 1.96 * stderr
+        lower = math.tanh(math.atanh(r) - delta)
+        upper = math.tanh(math.atanh(r) + delta)
     return dict(r=r, p=p, lower=lower, upper=upper)
 
 
