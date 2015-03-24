@@ -8,6 +8,11 @@ import numpy as np
 
 COMMENT_PREFIX = '#'
 
+def all_equal(a):
+    """Tell whether all members of (multidimensional) array are equal."""
+    a = np.asarray(a)
+    return min(a.flat) == max(a.flat)
+
 def finites(a):
     """Return finite elements as a flat array."""
     return np.array(filter(np.isfinite, a.flat))
