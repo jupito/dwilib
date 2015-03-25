@@ -98,8 +98,9 @@ if 'moment' in args.methods or 'all' in args.methods:
 
 # Write Haar properties.
 if 'haar' in args.methods or 'all' in args.methods:
-    l = [0,1,3,4] # Exclude middle row and column.
-    d = dwi.texture.haar_features(img.squeeze()[l][:,l])
+    #l = [0,1,3,4] # Exclude middle row and column.
+    win = img.squeeze()[l][:,l]
+    d = dwi.texture.haar_features(win)
     for k, v in d.iteritems():
         propnames.append('haar{}'.format(str(k)).translate(None, " '"))
         props.append(v)
