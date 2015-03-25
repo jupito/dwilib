@@ -174,6 +174,7 @@ for d in data:
     #img = (img - img.mean()) / img.std()
     img = img[...,0]
     cols = [img]
+
     #thetas = [0]
     #sigmas = [1, 3]
     #freqs = [0.25, 0.4]
@@ -182,18 +183,20 @@ for d in data:
     #    real, imag = skimage.filter.gabor_filter(img, **kwargs)
     #    cols.append(real)
     #cols.append(skimage.filter.sobel(img))
-    a, hog = skimage.feature.hog(img, visualise=True)
-    print a.shape
-    cols.append(hog)
-    a, hog = skimage.feature.hog(img, pixels_per_cell=(2, 2), visualise=True)
-    print a.shape
-    cols.append(hog)
-    a, hog = skimage.feature.hog(img, orientations=4, visualise=True)
-    print a.shape
-    cols.append(hog)
-    a, hog = skimage.feature.hog(img, orientations=3, visualise=True, normalise=True)
-    print a.shape
-    cols.append(hog)
+
+    #a, hog = skimage.feature.hog(img, visualise=True)
+    #cols.append(hog)
+    #a, hog = skimage.feature.hog(img, pixels_per_cell=(2, 2), visualise=True)
+    #cols.append(hog)
+    #a, hog = skimage.feature.hog(img, orientations=4, visualise=True)
+    #cols.append(hog)
+    #a, hog = skimage.feature.hog(img, orientations=3, visualise=True, normalise=True)
+    #cols.append(hog)
+
+    #cols += [img[20:25,20:25]]
+    #cols += dwi.texture.haar(img[20:25,20:25])
+    cols += dwi.texture.haar(img)
+    print [a.shape for a in cols]
     rows.append(cols)
 dwi.plot.show_images(rows)
 
