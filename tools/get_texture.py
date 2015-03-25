@@ -93,7 +93,15 @@ if 'gabor' in args.methods or 'all' in args.methods:
 if 'moment' in args.methods or 'all' in args.methods:
     d = dwi.texture.moments(img.squeeze(), max_sum=12)
     for k, v in d.iteritems():
-        propnames.append('moment{}'.format(str(k)).translate(None, ' '))
+        propnames.append('moment{}'.format(str(k)).translate(None, " '"))
+        props.append(v)
+
+# Write Haar properties.
+if 'haar' in args.methods or 'all' in args.methods:
+    l = [0,1,3,4] # Exclude middle row and column.
+    d = dwi.texture.haar_features(img.squeeze()[l][:,l])
+    for k, v in d.iteritems():
+        propnames.append('haar{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
 if args.verbose:
