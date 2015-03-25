@@ -165,3 +165,36 @@ def moments(img, max_sum=2):
     tuples = (t for t in itertools.product(r, r) if sum(t) <= max_sum)
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
+
+# Haar transformation
+
+def haar(img):
+    """Haar"""
+    import mahotas
+    assert img.ndim == 2
+    #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
+    # Prune possible odd borders.
+    newshape = [x-x%2 for x in img.shape]
+    img = img[:newshape[0], :newshape[1]]
+    a = mahotas.haar(img)
+    h, w = [x//2 for x in a.shape]
+    levels = [
+            a[:h,:w], a[:h,w:],
+            a[h:,:w], a[h:,w:],
+        ]
+    return levels
+
+def haar_features(img):
+    """Haar features."""
+    levels = haar(img)
+    d = collections.OrderedDict()
+    for i, l in enumerate(levels):
+        assert l.shape == (2, 2), 'TODO: Required shape for now'
+        a = l[0,:] - l[1,:]
+        d[(i, 'vert')] = np.mean(np.abs(a))
+        a = l[:,0] - l[:,1]
+        d[(i, 'horz')] = np.mean(np.abs(a))
+        a = [l[0,0]-l[1,1], l[0,1]-l[1,0]]
+        d[(i, 'diag')] = np.mean(np.abs(a))
+        d[(i, 'std')] = np.std(l)
+    return d
