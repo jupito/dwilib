@@ -32,6 +32,7 @@ Requirements
 - [Matplotlib](http://matplotlib.org/) (if plotting)
 - [Pydicom](https://code.google.com/p/pydicom/) 0.9.8 (if handling DICOM files)
 - [scikit-image](http://scikit-image.org/) (if doing texture analysis)
+- [Mahotas](http://luispedro.org/software/mahotas/) (if doing texture analysis)
 - [DoIt](http://pydoit.org/) (if using the build tool)
 
 Todo or In Progress
