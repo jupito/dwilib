@@ -190,11 +190,12 @@ def haar_features(img):
     d = collections.OrderedDict()
     for i, l in enumerate(levels):
         assert l.shape == (2, 2), 'TODO: Required shape for now'
+        d[(i, 'aav')] = np.mean(np.abs(l))
+        d[(i, 'std')] = np.std(l)
         a = l[0,:] - l[1,:]
         d[(i, 'vert')] = np.mean(np.abs(a))
         a = l[:,0] - l[:,1]
         d[(i, 'horz')] = np.mean(np.abs(a))
         a = [l[0,0]-l[1,1], l[0,1]-l[1,0]]
         d[(i, 'diag')] = np.mean(np.abs(a))
-        d[(i, 'std')] = np.std(l)
     return d
