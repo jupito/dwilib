@@ -37,6 +37,7 @@ CALC_AUC = DWILIB+'/roc_auc.py'
 CORRELATION = DWILIB+'/correlation.py'
 MASKTOOL = DWILIB+'/masktool.py'
 GET_TEXTURE = DWILIB+'/get_texture.py'
+MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
 
 SUBREGION_DIR = 'subregions'
 
@@ -330,6 +331,31 @@ def task_texture():
             yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
         for algparams in find_roi_param_combinations():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
+
+def get_task_mask_prostate(case, scan):
+    """Generate DICOM images with everything but prostate zeroed."""
+    d = dict(prg=MASK_OUT_DICOM, c=case, s=scan)
+    d['mask'] = dwi.util.sglob('masks_prostate/{c}_*_{s}_*'.format(**d))
+    d['img_src'] = dwi.util.sglob('dicoms/{c}_*_hB_{s}/DICOM'.format(**d))
+    d['img_dst'] = 'dicoms_masked/{c}_hB_{s}'.format(**d)
+    cmd_rm = 'rm -Rf {img_dst}'.format(**d)
+    cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
+    cmd_mask = '{prg} --mask {mask} --image {img_dst}'.format(**d)
+    return {
+            'name': '{c}_{s}'.format(**d),
+            'actions': [(create_folder, [dirname(d['img_dst'])]),
+                    cmd_rm, # Remove destination image dir
+                    cmd_cp, # Copy source image dir to destination
+                    cmd_mask], # Mask destination image
+            #'file_dep': # TODO
+            #'targets': # TODO
+            }
+
+
+def task_mask_prostate():
+    """Generate DICOM images with everything but prostate zeroed."""
+    for case, scan in cases_scans():
+        yield get_task_mask_prostate(case, scan)
 
 def task_all():
     """Do all essential things."""
