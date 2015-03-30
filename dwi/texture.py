@@ -25,6 +25,8 @@ def firstorder(img):
     d['stddev'] = np.std(img)
     d['range'] = np.max(img) - np.min(img)
     d.update(dwi.util.fivenumd(img))
+    for i in range(1, 10):
+        d['decile%i' % i] = sp.stats.scoreatpercentile(img, i*10)
     d['kurtosis'] = sp.stats.kurtosis(img.ravel())
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
