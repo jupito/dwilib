@@ -232,13 +232,20 @@ def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
     for masktype in ['CA', 'N']:
         for case, scan in cases_scans():
-            yield get_task_select_roi_manual(case, scan, MODEL, PARAM, masktype)
+            try:
+                yield get_task_select_roi_manual(case, scan, MODEL, PARAM,
+                        masktype)
+            except IOError, e:
+                print e
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_select_roi_auto(case, scan, MODEL, PARAM, algparams)
+            try:
+                yield get_task_select_roi_auto(case, scan, MODEL, PARAM, algparams)
+            except IOError, e:
+                print e
 
 def task_select_roi():
     """Select all ROIs task group."""
@@ -355,14 +362,20 @@ def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype):
 def task_mask_prostate():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans():
-        yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms',
-                'dicoms_masked', '_hB')
+        try:
+            yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms',
+                    'dicoms_masked', '_hB')
+        except IOError, e:
+            print e
 
 def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans():
-        yield get_task_mask_prostate(case, scan, 'masks_prostate_T2',
-                'dicoms_T2W_TSE_2.5m', 'dicoms_masked_T2', '')
+        try:
+            yield get_task_mask_prostate(case, scan, 'masks_prostate_T2',
+                    'dicoms_T2W_TSE_2.5m', 'dicoms_masked_T2', '')
+        except IOError, e:
+            print e
 
 def task_all():
     """Do all essential things."""
