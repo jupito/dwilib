@@ -332,12 +332,13 @@ def task_texture():
         for algparams in find_roi_param_combinations():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
 
-def get_task_mask_prostate(case, scan):
+def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype):
     """Generate DICOM images with everything but prostate zeroed."""
-    d = dict(prg=MASK_OUT_DICOM, c=case, s=scan)
-    d['mask'] = dwi.util.sglob('masks_prostate/{c}_*_{s}_*'.format(**d))
-    d['img_src'] = dwi.util.sglob('dicoms/{c}_*_hB_{s}/DICOM'.format(**d))
-    d['img_dst'] = 'dicoms_masked/{c}_hB_{s}'.format(**d)
+    d = dict(prg=MASK_OUT_DICOM, c=case, s=scan, md=maskdir, id=imagedir,
+            od=outdir, it=imagetype)
+    d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}_*'.format(**d))
+    d['img_src'] = dwi.util.sglob('{id}/{c}_*{it}_{s}/DICOM'.format(**d))
+    d['img_dst'] = '{od}/{c}{it}_{s}'.format(**d)
     cmd_rm = 'rm -Rf {img_dst}'.format(**d)
     cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
     cmd_mask = '{prg} --mask {mask} --image {img_dst}'.format(**d)
@@ -351,11 +352,17 @@ def get_task_mask_prostate(case, scan):
             #'targets': # TODO
             }
 
-
 def task_mask_prostate():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans():
-        yield get_task_mask_prostate(case, scan)
+        yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms',
+                'dicoms_masked', '_hB')
+
+def task_mask_prostate_T2():
+    """Generate DICOM images with everything but prostate zeroed."""
+    for case, scan in cases_scans():
+        yield get_task_mask_prostate(case, scan, 'masks_prostate_T2',
+                'dicoms_T2W_TSE_2.5m', 'dicoms_masked_T2', '')
 
 def task_all():
     """Do all essential things."""
