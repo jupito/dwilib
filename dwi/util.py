@@ -342,9 +342,9 @@ def sglob(path):
     import glob
     l = glob.glob(path)
     if len(l) < 1:
-        raise Exception('Path not found: %s' % path)
+        raise IOError('Path not found: %s' % path)
     if len(l) > 1:
-        raise Exception('More than one path found: %s' % path)
+        raise IOError('More than one path found: %s' % path)
     return l[0]
 
 def parse_filename(filename):
