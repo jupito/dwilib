@@ -348,7 +348,7 @@ def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype):
     d['img_dst'] = '{od}/{c}{it}_{s}'.format(**d)
     cmd_rm = 'rm -Rf {img_dst}'.format(**d)
     cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
-    cmd_mask = '{prg} --mask {mask} --image {img_dst}'.format(**d)
+    cmd_mask = '{prg} -v --mask {mask} --image {img_dst}'.format(**d)
     return {
             'name': '{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['img_dst'])]),
