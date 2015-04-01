@@ -77,6 +77,13 @@ def get_texture_pmap(img, win_step):
             pmap[1:,i,j] = v
     return pmap
 
+def haralick(img):
+    """Haralick texture features (14) averaged over directions."""
+    import mahotas
+    a = mahotas.features.texture.haralick(img, compute_14th_feature=True)
+    a = np.mean(a, axis=0)
+    return a, mahotas.features.texture.haralick_labels
+
 # Local Binary Pattern (LBP) features
 
 def get_lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
