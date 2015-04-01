@@ -62,6 +62,15 @@ if 'glcm' in args.methods or 'all' in args.methods:
         propnames.append(k)
         props.append(v)
 
+if 'haralick' in args.methods or 'all' in args.methods:
+    img_normalized = normalize(img)
+    feats, labels = dwi.texture.haralick(img_normalized)
+    for i, (feat, label) in enumerate(zip(feats, labels)):
+        if ' ' in label:
+            label = ''.join([word[0] for word in label.split()])
+        propnames.append('haralick-{:d}-{:s}'.format(i+1, label))
+        props.append(feat)
+
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img, winsize=5,
