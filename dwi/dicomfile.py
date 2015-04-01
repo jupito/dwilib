@@ -65,7 +65,7 @@ def construct_image(slices, positions, bvalues):
         j = bvalues.index(k[1])
         image[i,:,:,j] = v
     if np.isnan(np.min(image)):
-        raise Exception("Slices missing.")
+        raise Exception('Slices missing from shape {:s}.'.format(shape))
     return image
 
 def get_bvalue(d):
