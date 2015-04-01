@@ -68,7 +68,7 @@ if 'haralick' in args.methods or 'all' in args.methods:
     for i, (feat, label) in enumerate(zip(feats, labels)):
         if ' ' in label:
             label = ''.join([word[0] for word in label.split()])
-        propnames.append('haralick-{:d}-{:s}'.format(i+1, label))
+        propnames.append('haralick{:d}-{:s}'.format(i+1, label))
         props.append(feat)
 
 # Write LBP properties.
