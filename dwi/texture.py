@@ -7,8 +7,6 @@ import itertools
 import numpy as np
 import scipy as sp
 import skimage
-from skimage.feature import greycomatrix, greycoprops
-from skimage.util import view_as_windows
 
 import dwi.util
 
@@ -35,6 +33,7 @@ def firstorder(img):
 
 def get_glcm_props(img, propnames=PROPNAMES):
     """Get grey-level co-occurrence matrix texture properties over an image."""
+    from skimage.feature import greycomatrix, greycoprops
     distances = [1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     levels = 256
@@ -46,6 +45,7 @@ def get_glcm_props(img, propnames=PROPNAMES):
     return d
 
 def get_coprops(windows):
+    from skimage.feature import greycomatrix, greycoprops
     props = np.zeros((len(windows), len(PROPNAMES)))
     for i, win in enumerate(windows):
         #win = skimage.img_as_ubyte(win)
@@ -62,6 +62,7 @@ def get_coprops(windows):
     return props
 
 def get_texture_pmap(img, win_step):
+    from skimage.util import view_as_windows
     pmap = np.zeros((len(PROPNAMES)+1, img.shape[0]/win_step+1,
         img.shape[1]/win_step+1))
     windows = view_as_windows(img, (5,5), step=win_step)

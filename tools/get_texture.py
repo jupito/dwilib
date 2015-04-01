@@ -30,6 +30,7 @@ def parse_args():
 
 def normalize(pmap):
     """Normalize images within given range and convert to byte maps."""
+    import skimage.exposure
     in_range = (0, 0.03)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
