@@ -67,8 +67,9 @@ if args.verbose > 2:
 
 # Print AUCs and bootstrapped AUCs.
 if args.verbose:
-    print '# param\tAUC\tAUC_BS_mean\tlower\tupper'
+    print '# param  AUC  AUC_BS_mean  lower  upper'
 Auc_bs = []
+params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
     fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x)
     if args.autoflip and auc < 0.5:
@@ -77,10 +78,12 @@ for x, y, param in zip(X, Y, Params):
     auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
+    d = dict(param=param, auc=auc, avg=avg, ci1=ci1, ci2=ci2)
     if args.verbose:
-        print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
+        s = '{param:%i}  {auc:.6f}  {avg:.6f}  {ci1:.6f}  {ci2:.6f}' % params_maxlen
     else:
-        print '%f' % auc
+        s = '{auc:f}'
+    print s.format(**d)
     Auc_bs.append(auc_bs)
 
 # Print bootstrapped AUC comparisons.
