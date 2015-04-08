@@ -123,7 +123,7 @@ def get_texture_aucs(data):
     return aucs
 
 def draw_props(img, title, win_step):
-    pmap = dwi.texture.get_texture_pmap(img, win_step)
+    pmap = dwi.texture.texture_pmap(img, win_step)
 
     import matplotlib
     import matplotlib.pyplot as plt
@@ -169,9 +169,9 @@ _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
 print auc
 
 if args.total:
-    data['cancer_coprops'] = dwi.texture.get_coprops(data['cancer_rois'])
-    data['normal_coprops'] = dwi.texture.get_coprops(data['normal_rois'])
-    data['other_coprops'] = dwi.texture.get_coprops(data['other_rois'])
+    data['cancer_coprops'] = dwi.texture.coprops(data['cancer_rois'])
+    data['normal_coprops'] = dwi.texture.coprops(data['normal_rois'])
+    data['other_coprops'] = dwi.texture.coprops(data['other_rois'])
     import scipy
     import scipy.stats
     for i in range(len(dwi.texture.PROPNAMES)):
@@ -197,8 +197,8 @@ for d in data:
 dwi.dataset.dataset_read_prostate_masks(data, 'masks_prostate')
 dwi.dataset.dataset_read_roi_masks(data, 'masks_rois', shape=(5,5))
 for d in data:
-    d['cancer_coprops'] = dwi.texture.get_coprops([d['cancer_roi']])
-    d['normal_coprops'] = dwi.texture.get_coprops([d['normal_roi']])
+    d['cancer_coprops'] = dwi.texture.coprops([d['cancer_roi']])
+    d['normal_coprops'] = dwi.texture.coprops([d['normal_roi']])
 
 for d in data:
     print d['case'], d['scan'], d['score'], d['image'].shape

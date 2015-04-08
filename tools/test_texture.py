@@ -41,7 +41,7 @@ def get_roi_slices(data):
         d['normal_slice'] = d['normal_mask'].selected_slice(img)
 
 def get_lbpf(img):
-    lbp, lbp_freq, n_patterns = dwi.texture.get_lbp_freqs(img)
+    lbp, lbp_freq, n_patterns = dwi.texture.lbp_freqs(img)
     return lbp_freq
     #return lbp_freq[...,1:] # Drop non-uniform patterns
 
@@ -206,14 +206,14 @@ for d in data:
     img = d['cancer_roi'].copy().reshape((5,5,1))
     dwi.util.clip_pmap(img, [args.param])
     #img = (img - img.mean()) / img.std()
-    print dwi.texture.get_gabor_features(img[...,0])
+    print dwi.texture.gabor_features(img[...,0])
 
     print '    ...'
 
     img = d['normal_roi'].copy().reshape((5,5,1))
     dwi.util.clip_pmap(img, [args.param])
     #img = (img - img.mean()) / img.std()
-    print dwi.texture.get_gabor_features(img[...,0])
+    print dwi.texture.gabor_features(img[...,0])
 
     print '   ...'
     #img = d['cancer_slice'][:,:,0]

@@ -31,7 +31,7 @@ def firstorder(img):
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
-def get_glcm_props(img, propnames=PROPNAMES):
+def glcm_props(img, propnames=PROPNAMES):
     """Get grey-level co-occurrence matrix texture properties over an image."""
     from skimage.feature import greycomatrix, greycoprops
     distances = [1]
@@ -44,7 +44,7 @@ def get_glcm_props(img, propnames=PROPNAMES):
     d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
     return d
 
-def get_coprops(windows):
+def coprops(windows):
     from skimage.feature import greycomatrix, greycoprops
     props = np.zeros((len(windows), len(PROPNAMES)))
     for i, win in enumerate(windows):
@@ -61,17 +61,17 @@ def get_coprops(windows):
             props[i,j] = np.mean(a)
     return props
 
-def get_texture_pmap(img, win_step):
+def texture_pmap(img, win_step):
     from skimage.util import view_as_windows
     pmap = np.zeros((len(PROPNAMES)+1, img.shape[0]/win_step+1,
         img.shape[1]/win_step+1))
     windows = view_as_windows(img, (5,5), step=win_step)
-    #props = get_coprops(windows.reshape(-1,5,5))
+    #props = coprops(windows.reshape(-1,5,5))
     #props.shape = (windows.shape[0], windows.shape[1], len(PROPNAMES))
     for i, row in enumerate(windows):
         for j, win in enumerate(row):
             if win.min() > 0:
-                v = get_coprops([win])[0]
+                v = coprops([win])[0]
             else:
                 v = 0
             pmap[0,i,j] = np.median(win)
@@ -87,7 +87,7 @@ def haralick(img):
 
 # Local Binary Pattern (LBP) features
 
-def get_lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
+def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
     """Calculate local binary pattern (LBP) frequency map."""
     import lbp
     lbp_data = lbp.lbp(img, neighbours, radius, roinv, uniform)
@@ -116,7 +116,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
 
 # Gabor features
 
-def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
+def gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     # XXX: Obsolete
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
@@ -131,7 +131,7 @@ def get_gabor_features(img, sigmas=[1, 3], freqs=[0.25, 0.4]):
     feats = np.mean(feats, axis=0) # Average directions.
     return feats
 
-def get_gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
+def gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
     """Get Gabor features."""
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)

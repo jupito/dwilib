@@ -58,7 +58,7 @@ if 'basic' in args.methods or 'all' in args.methods:
 # Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(img)
-    d = dwi.texture.get_glcm_props(img_normalized)
+    d = dwi.texture.glcm_props(img_normalized)
     for k, v in d.iteritems():
         propnames.append(k)
         props.append(v)
@@ -74,7 +74,7 @@ if 'haralick' in args.methods or 'all' in args.methods:
 
 # Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
-    _, lbp_freq_data, n_patterns = dwi.texture.get_lbp_freqs(img, winsize=5,
+    _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(img, winsize=5,
             radius=1.5)
     lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
     lbp_freq_data = np.mean(lbp_freq_data, axis=0)
@@ -93,7 +93,7 @@ if 'gabor' in args.methods or 'all' in args.methods:
     img.shape += (1,)
     dwi.util.clip_pmap(img, ['ADCm'])
     #img = (img - img.mean()) / img.std()
-    d = dwi.texture.get_gabor_features_d(img[...,0], sigmas=[1, 2, 3],
+    d = dwi.texture.gabor_features_d(img[...,0], sigmas=[1, 2, 3],
             freqs=[0.1, 0.2, 0.3, 0.4])
     for k, v in d.iteritems():
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
@@ -120,6 +120,6 @@ if args.verbose:
 dwi.asciifile.write_ascii_file(args.output, [props], propnames)
 
 #img = img[50:150, 50:150]
-#lbp_data, lbp_freq_data, patterns = dwi.texture.get_lbp_freqs(img)
+#lbp_data, lbp_freq_data, patterns = dwi.texture.lbp_freqs(img)
 #freqs = np.rollaxis(lbp_freq_data, 2)
 #dwi.plot.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
