@@ -14,10 +14,10 @@ PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
         'correlation', 'ASM']
 EPSILON = 1e-6
 
-# First-order features
+# Basic statistical features
 
-def firstorder(img):
-    """Get first-order statistics."""
+def stats(img):
+    """Get basic statistical features."""
     d = collections.OrderedDict()
     d['mean'] = np.mean(img)
     d['stddev'] = np.std(img)

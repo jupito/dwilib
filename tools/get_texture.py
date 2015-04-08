@@ -50,7 +50,7 @@ props = []
 
 # Write basic properties.
 if 'basic' in args.methods or 'all' in args.methods:
-    d = dwi.texture.firstorder(img)
+    d = dwi.texture.stats(img)
     for k, v in d.iteritems():
         propnames.append(k)
         props.append(v)
