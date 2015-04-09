@@ -55,6 +55,7 @@ def glcm_props(img, propnames=PROPNAMES):
     return d
 
 def coprops(windows):
+    # XXX Obsolete
     from skimage.feature import greycomatrix, greycoprops
     props = np.zeros((len(windows), len(PROPNAMES)))
     for i, win in enumerate(windows):
@@ -72,6 +73,7 @@ def coprops(windows):
     return props
 
 def texture_pmap(img, win_step):
+    # XXX Obsolete
     from skimage.util import view_as_windows
     pmap = np.zeros((len(PROPNAMES)+1, img.shape[0]/win_step+1,
         img.shape[1]/win_step+1))
