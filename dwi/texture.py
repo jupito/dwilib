@@ -10,10 +10,6 @@ import skimage
 
 import dwi.util
 
-PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
-        'correlation', 'ASM']
-EPSILON = 1e-6
-
 # Basic statistical features
 
 def stats(img):
@@ -41,8 +37,10 @@ def stats_map(img, winsize, names=None, output=None):
             output[(i,) + pos] = d[name]
     return output, names
 
-
 # Grey-Level Co-Occurrence Matrix (GLCM) features
+
+PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
+        'correlation', 'ASM']
 
 def glcm_props(img, propnames=PROPNAMES):
     """Get grey-level co-occurrence matrix texture properties over an image."""
@@ -108,7 +106,7 @@ def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
             roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
-def lbpf_dist(hist1, hist2, method='chi-squared', eps=EPSILON):
+def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
     """Measure the distance of two LBP frequency histograms.
     
     Method can be one of the following:
