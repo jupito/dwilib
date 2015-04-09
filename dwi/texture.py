@@ -41,7 +41,7 @@ def stats_map(img, winsize, names=None, output=None):
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
-def glcm_props(img, propnames=PROPNAMES):
+def glcm_props(img, names=PROPNAMES):
     """Get grey-level co-occurrence matrix texture properties over an image."""
     from skimage.feature import greycomatrix, greycoprops
     distances = [1]
@@ -49,10 +49,20 @@ def glcm_props(img, propnames=PROPNAMES):
     levels = 256
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
             normed=True)
-    keys = propnames
-    values = [np.mean(greycoprops(glcm, p)) for p in propnames]
+    keys = names
+    values = [np.mean(greycoprops(glcm, p)) for p in names]
     d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
     return d
+
+def glcm_map(img, winsize, names=PROPNAMES, output=None):
+    """Grey-level co-occurrence matrix texture feature map."""
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        d = glcm_props(win, names)
+        if output is None:
+            output = np.zeros((len(names),) + img.shape)
+        for i, name in enumerate(names):
+            output[(i,) + pos] = d[name]
+    return output, names
 
 #def coprops(windows):
 #    # XXX Obsolete
