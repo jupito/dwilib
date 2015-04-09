@@ -107,6 +107,16 @@ def haralick(img):
     a = np.mean(a, axis=0)
     return a, mahotas.features.texture.haralick_labels
 
+def haralick_map(img, winsize, output=None):
+    """Haralick texture feature map."""
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        feats, names = haralick(win)
+        if output is None:
+            output = np.zeros((len(names),) + img.shape)
+        for i, v in enumerate(feats):
+            output[(i,) + pos] = v
+    return output, names
+
 # Local Binary Pattern (LBP) features
 
 def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
