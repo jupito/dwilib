@@ -39,8 +39,7 @@ def stats_map(img, winsize, names=None, output=None):
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
-PROPNAMES = ['contrast', 'dissimilarity', 'homogeneity', 'energy',
-        'correlation', 'ASM']
+PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
 def glcm_props(img, propnames=PROPNAMES):
     """Get grey-level co-occurrence matrix texture properties over an image."""
