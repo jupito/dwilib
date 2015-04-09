@@ -195,8 +195,10 @@ for d in data:
 
     #cols += [img[20:25,20:25]]
     #cols += dwi.texture.haar(img[20:25,20:25])
-    cols += dwi.texture.haar(img)
-    print [a.shape for a in cols]
+    #cols += dwi.texture.haar(img)
+    #print [a.shape for a in cols]
+    feats, _ = dwi.texture.stats_map(img, 3, names='min max median'.split())
+    cols += list(feats)
     rows.append(cols)
 dwi.plot.show_images(rows)
 

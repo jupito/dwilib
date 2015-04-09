@@ -29,6 +29,19 @@ def stats(img):
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
 
+def stats_map(img, winsize, names=None, output=None):
+    """Get basic statistical texture feature map."""
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        d = stats(win)
+        if names is None:
+            names = d.keys()
+        if output is None:
+            output = np.zeros((len(names),) + img.shape)
+        for i, name in enumerate(names):
+            output[(i,) + pos] = d[name]
+    return output, names
+
+
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
 def glcm_props(img, propnames=PROPNAMES):
