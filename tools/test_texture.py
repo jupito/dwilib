@@ -40,6 +40,14 @@ def get_roi_slices(data):
         d['cancer_slice'] = d['cancer_mask'].selected_slice(img)
         d['normal_slice'] = d['normal_mask'].selected_slice(img)
 
+def normalize(pmap):
+    """Normalize images within given range and convert to byte maps."""
+    import skimage.exposure
+    in_range = (0, 0.03)
+    pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
+    pmap = skimage.img_as_ubyte(pmap)
+    return pmap
+
 def get_lbpf(img):
     lbp, lbp_freq, n_patterns = dwi.texture.lbp_freqs(img)
     return lbp_freq
@@ -197,8 +205,10 @@ for d in data:
     #cols += dwi.texture.haar(img[20:25,20:25])
     #cols += dwi.texture.haar(img)
     #print [a.shape for a in cols]
-    feats, _ = dwi.texture.stats_map(img, 3, names='min max median'.split())
+    #feats, names = dwi.texture.stats_map(img, 3, names='min max median'.split())
+    feats, names = dwi.texture.glcm_map(normalize(img), 3)
     cols += list(feats)
+    print names
     rows.append(cols)
 dwi.plot.show_images(rows)
 
