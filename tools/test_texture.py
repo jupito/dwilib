@@ -44,6 +44,8 @@ def normalize(pmap):
     """Normalize images within given range and convert to byte maps."""
     import skimage.exposure
     in_range = (0, 0.03)
+    #in_range = (0, 0.01)
+    #in_range = (np.min(pmap), np.max(pmap))
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     return pmap
@@ -206,7 +208,9 @@ for d in data:
     #cols += dwi.texture.haar(img)
     #print [a.shape for a in cols]
     #feats, names = dwi.texture.stats_map(img, 3, names='min max median'.split())
-    feats, names = dwi.texture.glcm_map(normalize(img), 3)
+    #feats, names = dwi.texture.glcm_map(normalize(img), 3)
+    #feats, names = dwi.texture.haralick_map(normalize(img), 3)
+    feats, names = dwi.texture.lbp_freq_map(normalize(img), 3)
     cols += list(feats)
     print names
     rows.append(cols)
