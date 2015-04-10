@@ -127,6 +127,13 @@ def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
             roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
+def lbp_freq_map(img, winsize=3, neighbours=8, radius=1):
+    """Local binary pattern (LBP) frequency histogram map."""
+    _, freqs, n = lbp_freqs(img, winsize, neighbours, radius)
+    output = np.rollaxis(freqs, -1)
+    names = map(str, range(n))
+    return output, names
+
 def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
     """Measure the distance of two LBP frequency histograms.
     
