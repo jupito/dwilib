@@ -240,10 +240,10 @@ def haar(img):
     """Haar"""
     import mahotas
     assert img.ndim == 2
-    assert img.shape[0] % 2 == img.shape[1] % 2 == 0
-    ## Prune possible odd borders.
-    #newshape = [x-x%2 for x in img.shape]
-    #img = img[:newshape[0], :newshape[1]]
+    #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
+    # Prune possible odd borders.
+    newshape = [x-x%2 for x in img.shape]
+    img = img[:newshape[0], :newshape[1]]
     a = mahotas.haar(img)
     h, w = [x//2 for x in a.shape]
     levels = [
@@ -284,8 +284,8 @@ def haar_map(img, winsize, output=None):
         for pos, win in dwi.util.sliding_window(level, winsize):
             feats = haar_level_features(win)
             if output is None:
-                output = np.zeros((len(levels), len(feats)) + img.shape)
-            for j, v in enumerate(fets.values()):
-                output[(i, j) + pos] = v
+                output = np.zeros((len(levels)*len(feats),) + level.shape)
+            for j, v in enumerate(feats.values()):
+                output[(i*len(feats)+j,) + pos] = v
         names += ['%i,%s' % (i, k) for k in feats.keys()]
     return output, names
