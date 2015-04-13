@@ -212,7 +212,11 @@ for d in data:
     #feats, names = dwi.texture.glcm_map(normalize(img), winsize)
     #feats, names = dwi.texture.haralick_map(normalize(img), winsize)
     #feats, names = dwi.texture.lbp_freq_map(normalize(img), winsize)
-    feats, names = dwi.texture.gabor_map(img, winsize)
+    #feats, names = dwi.texture.gabor_map(img, winsize)
+    #feats, names = dwi.texture.hog_map(img, winsize)
+    #feats, names = dwi.texture.moment_map(img, winsize, 4)
+    feats, names = dwi.texture.haar_map(img, winsize)
+    print feats.shape
     sl = slice(winsize//2, -(winsize//2))
     cols += list(feats[:,sl,sl])
     print '; '.join(names)
