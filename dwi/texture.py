@@ -249,7 +249,7 @@ def haar(img):
     levels = [
             a[:h,:w], a[:h,w:],
             a[h:,:w], a[h:,w:],
-        ]
+            ]
     return levels
 
 def haar_features(img):
