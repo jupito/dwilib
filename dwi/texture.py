@@ -224,6 +224,16 @@ def moments(img, max_order=2):
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
 
+def moment_map(img, winsize, max_order=2, output=None):
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        feats = moments(win, max_order=max_order)
+        if output is None:
+            output = np.zeros((len(feats),) + img.shape)
+        for i, v in enumerate(feats.values()):
+            output[(i,) + pos] = v
+    names = map(str, feats.keys())
+    return output, names
+
 # Haar transformation
 
 def haar(img):
