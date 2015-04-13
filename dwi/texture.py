@@ -181,10 +181,10 @@ def gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
         real, _ = skimage.filter.gabor_filter(img, **kwargs)
         feats[i,j,k,0] = real.mean()
         feats[i,j,k,1] = real.var()
-    #feats = np.mean(feats, axis=0) # Average directions.
+    feats = np.mean(feats, axis=0) # Average over directions.
     d = collections.OrderedDict()
-    for (i, j, k, l), value in np.ndenumerate(feats):
-        key = thetas[i]/np.pi, sigmas[j], freqs[k], ('mean', 'var')[l]
+    for (i, j, k), value in np.ndenumerate(feats):
+        key = sigmas[i], freqs[j], ('mean', 'var')[k]
         d[key] = value
     return d
 
