@@ -240,10 +240,10 @@ def haar(img):
     """Haar"""
     import mahotas
     assert img.ndim == 2
-    #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
-    # Prune possible odd borders.
-    newshape = [x-x%2 for x in img.shape]
-    img = img[:newshape[0], :newshape[1]]
+    assert img.shape[0] % 2 == img.shape[1] % 2 == 0
+    ## Prune possible odd borders.
+    #newshape = [x-x%2 for x in img.shape]
+    #img = img[:newshape[0], :newshape[1]]
     a = mahotas.haar(img)
     h, w = [x//2 for x in a.shape]
     levels = [
@@ -257,7 +257,6 @@ def haar_features(img):
     levels = haar(img)
     d = collections.OrderedDict()
     for i, l in enumerate(levels):
-        assert l.shape == (2, 2), 'TODO: Required shape for now'
         d[(i, 'aav')] = np.mean(np.abs(l))
         d[(i, 'std')] = np.std(l)
         a = l[0,:] - l[1,:]
