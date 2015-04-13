@@ -252,18 +252,40 @@ def haar(img):
             ]
     return levels
 
+def haar_level_features(win):
+    """Haar features of a single level."""
+    d = collections.OrderedDict()
+    d['aav'] = np.mean(np.abs(win))
+    d['std'] = np.std(win)
+    # TODO: Uses only 4 corner pixels.
+    a = win[0,:] - win[-1,:]
+    d['vert'] = np.mean(np.abs(a))
+    a = win[:,0] - win[:,-1]
+    d['horz'] = np.mean(np.abs(a))
+    a = [win[0,0] - win[-1,-1], win[0,-1] - win[-1,0]]
+    d['diag'] = np.mean(np.abs(a))
+    return d
+
 def haar_features(img):
     """Haar features."""
     levels = haar(img)
     d = collections.OrderedDict()
-    for i, l in enumerate(levels):
-        d[(i, 'aav')] = np.mean(np.abs(l))
-        d[(i, 'std')] = np.std(l)
-        # TODO: Uses only 4 corner pixels.
-        a = l[0,:] - l[-1,:]
-        d[(i, 'vert')] = np.mean(np.abs(a))
-        a = l[:,0] - l[:,-1]
-        d[(i, 'horz')] = np.mean(np.abs(a))
-        a = [l[0,0] - l[-1,-1], l[0,-1] - l[-1,0]]
-        d[(i, 'diag')] = np.mean(np.abs(a))
+    for i, level in enumerate(levels):
+        feats = haar_level_features(level)
+        for k, v in feats.iteritems():
+            d[(i, k)] = v
     return d
+
+def haar_map(img, winsize, output=None):
+    """Haar texture feature map."""
+    levels = haar(img)
+    names = []
+    for i, level in enumerate(levels):
+        for pos, win in dwi.util.sliding_window(level, winsize):
+            feats = haar_level_features(win)
+            if output is None:
+                output = np.zeros((len(levels), len(feats)) + img.shape)
+            for j, v in enumerate(fets.values()):
+                output[(i, j) + pos] = v
+        names += ['%i,%s' % (i, k) for k in feats.keys()]
+    return output, names
