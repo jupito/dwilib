@@ -102,7 +102,7 @@ if 'gabor' in args.methods or 'all' in args.methods:
 
 # Write moment properties.
 if 'moment' in args.methods or 'all' in args.methods:
-    d = dwi.texture.moments(img.squeeze(), max_sum=12)
+    d = dwi.texture.moments(img.squeeze(), max_order=12)
     for k, v in d.iteritems():
         propnames.append('moment{}'.format(str(k)).translate(None, " '"))
         props.append(v)

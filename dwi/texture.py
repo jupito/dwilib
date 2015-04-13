@@ -217,10 +217,10 @@ def moment(img, p, q):
     moment = a.sum()
     return moment
 
-def moments(img, max_sum=2):
-    """Image moments up to p+q <= max_sum."""
-    r = range(max_sum+1)
-    tuples = (t for t in itertools.product(r, r) if sum(t) <= max_sum)
+def moments(img, max_order=2):
+    """Image moments up to p+q <= max_order."""
+    r = range(max_order+1)
+    tuples = (t for t in itertools.product(r, r) if sum(t) <= max_order)
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
 
