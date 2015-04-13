@@ -188,6 +188,7 @@ def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], output=None):
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
+    # TODO Average over directions
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
 
