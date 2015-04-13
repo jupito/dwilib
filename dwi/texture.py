@@ -155,7 +155,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 
 # Gabor features
 
-def gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
+def gabor(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
     """Gabor features averaged over directions."""
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
@@ -176,7 +176,7 @@ def gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
 def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize):
-        feats = gabor_features_d(win, sigmas, freqs)
+        feats = gabor(win, sigmas, freqs)
         if output is None:
             output = np.zeros((len(feats),) + img.shape)
         for i, v in enumerate(feats.values()):

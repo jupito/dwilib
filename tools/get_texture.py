@@ -94,7 +94,7 @@ if 'gabor' in args.methods or 'all' in args.methods:
     img.shape += (1,)
     dwi.util.clip_pmap(img, ['ADCm'])
     #img = (img - img.mean()) / img.std()
-    d = dwi.texture.gabor_features_d(img[...,0], sigmas=[1, 2, 3],
+    d = dwi.texture.gabor(img[...,0], sigmas=[1, 2, 3],
             freqs=[0.1, 0.2, 0.3, 0.4])
     for k, v in d.iteritems():
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
