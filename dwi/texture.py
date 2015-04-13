@@ -7,6 +7,7 @@ import itertools
 import numpy as np
 import scipy as sp
 import skimage
+import skimage.feature
 
 import dwi.util
 
@@ -189,6 +190,16 @@ def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], output=None):
 def hog(img):
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
+
+def hog_map(img, winsize, output=None):
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        feats = hog(win)
+        if output is None:
+            output = np.zeros((len(feats),) + img.shape)
+        for i, v in enumerate(feats):
+            output[(i,) + pos] = v
+    names = map(str, range(len(feats)))
+    return output, names
 
 # Image moments
 
