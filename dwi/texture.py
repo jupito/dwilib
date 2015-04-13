@@ -173,6 +173,17 @@ def gabor_features_d(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
         d[key] = value
     return d
 
+def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], output=None):
+    """Gabor texture feature map."""
+    for pos, win in dwi.util.sliding_window(img, winsize):
+        feats = gabor_features_d(win, sigmas, freqs)
+        if output is None:
+            output = np.zeros((len(feats),) + img.shape)
+        for i, v in enumerate(feats.values()):
+            output[(i,) + pos] = v
+    names = map(str, feats.keys())
+    return output, names
+
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
