@@ -215,23 +215,3 @@ for d in data:
     print names
     rows.append(cols)
 dwi.plot.show_images(rows)
-
-for d in data:
-    print '---\n\n'
-
-    img = d['cancer_roi'].copy().reshape((5,5,1))
-    dwi.util.clip_pmap(img, [args.param])
-    #img = (img - img.mean()) / img.std()
-    print dwi.texture.gabor_features(img[...,0])
-
-    print '    ...'
-
-    img = d['normal_roi'].copy().reshape((5,5,1))
-    dwi.util.clip_pmap(img, [args.param])
-    #img = (img - img.mean()) / img.std()
-    print dwi.texture.gabor_features(img[...,0])
-
-    print '   ...'
-    #img = d['cancer_slice'][:,:,0]
-    img = d['cancer_roi'].copy().reshape((5,5))
-    print skimage.feature.hog(img, orientations=4, pixels_per_cell=(2,2), cells_per_block=(1,1)).shape
