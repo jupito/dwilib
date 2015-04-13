@@ -259,10 +259,11 @@ def haar_features(img):
     for i, l in enumerate(levels):
         d[(i, 'aav')] = np.mean(np.abs(l))
         d[(i, 'std')] = np.std(l)
-        a = l[0,:] - l[1,:]
+        # TODO: Uses only 4 corner pixels.
+        a = l[0,:] - l[-1,:]
         d[(i, 'vert')] = np.mean(np.abs(a))
-        a = l[:,0] - l[:,1]
+        a = l[:,0] - l[:,-1]
         d[(i, 'horz')] = np.mean(np.abs(a))
-        a = [l[0,0]-l[1,1], l[0,1]-l[1,0]]
+        a = [l[0,0] - l[-1,-1], l[0,-1] - l[-1,0]]
         d[(i, 'diag')] = np.mean(np.abs(a))
     return d
