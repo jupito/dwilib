@@ -218,7 +218,7 @@ def moment(img, p, q):
     return moment
 
 def moments(img, max_order=2):
-    """Image moments up to p+q <= max_order."""
+    """Image moments of order up to p+q <= max_order."""
     r = range(max_order+1)
     tuples = (t for t in itertools.product(r, r) if sum(t) <= max_order)
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
