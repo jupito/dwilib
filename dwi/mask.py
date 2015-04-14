@@ -35,6 +35,17 @@ class Mask(object):
         else:
             return array[self.slice-1, self.array]
 
+    def selected_slice(self, a):
+        """Return the selected slice."""
+        indices = self.selected_slices()
+        if len(indices) != 1:
+            raise Exception('Exactly one slice not selected.')
+        return a[indices[0]]
+
+    def selected_slices(self):
+        """Return slice indices that have voxels selected."""
+        return [self.slice - 1]
+
     def write(self, filename):
         """Write mask as an ASCII file."""
         with open(filename, 'w') as f:
