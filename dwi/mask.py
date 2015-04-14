@@ -50,6 +50,12 @@ class Mask(object):
         """Return slice indices that have voxels selected."""
         return [self.slice - 1]
 
+    def convert_to_3d(self, n_slices):
+        """Convert a 2D mask to a 3D mask with given number of slices."""
+        a = np.zeros((n_slices,) + self.array.shape)
+        a[self.slice-1,:,:] = self.array
+        return Mask3D(a)
+
     def write(self, filename):
         """Write mask as an ASCII file."""
         with open(filename, 'w') as f:
