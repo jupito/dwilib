@@ -49,14 +49,12 @@ if args.verbose > 1:
 propnames = []
 props = []
 
-# Write basic properties.
 if 'basic' in args.methods or 'all' in args.methods:
     d = dwi.texture.stats(img)
     for k, v in d.iteritems():
         propnames.append(k)
         props.append(v)
 
-# Write GLCM properties.
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(img)
     d = dwi.texture.glcm_props(img_normalized)
@@ -73,7 +71,6 @@ if 'haralick' in args.methods or 'all' in args.methods:
         propnames.append('haralick{:d}-{:s}'.format(i+1, label))
         props.append(feat)
 
-# Write LBP properties.
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(img, winsize=5,
             radius=1.5)
@@ -87,7 +84,6 @@ if 'hog' in args.methods or 'all' in args.methods:
     propnames += ['hog{:d}'.format(i) for i in range(len(hog))]
     props += list(hog)
 
-# Write Gabor properties.
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
     img = img.copy()
@@ -100,14 +96,12 @@ if 'gabor' in args.methods or 'all' in args.methods:
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
-# Write moment properties.
 if 'moment' in args.methods or 'all' in args.methods:
     d = dwi.texture.moments(img.squeeze(), max_order=12)
     for k, v in d.iteritems():
         propnames.append('moment{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
-# Write Haar properties.
 if 'haar' in args.methods or 'all' in args.methods:
     l = [0,1,3,4] # Exclude middle row and column.
     win = img.squeeze()[l][:,l]
