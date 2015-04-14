@@ -93,9 +93,10 @@ if 'lbp' in args.methods or 'all' in args.methods:
         propnames.append('lbpf{:s}'.format(n))
 
 if 'hog' in args.methods or 'all' in args.methods:
-    hog = dwi.texture.hog(roi)
-    propnames += ['hog{:d}'.format(i) for i in range(len(hog))]
-    props += list(hog)
+    tmap, names = dwi.texture.hog_map(roi, winsize)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append('hog{:s}'.format(n))
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
