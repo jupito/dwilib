@@ -73,11 +73,10 @@ if 'basic' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'glcm' in args.methods or 'all' in args.methods:
-    img_normalized = normalize(roi)
-    d = dwi.texture.glcm_props(img_normalized)
-    for k, v in d.iteritems():
-        propnames.append(k)
-        props.append(v)
+    tmap, names = dwi.texture.glcm_map(normalize(roi), winsize)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append(n)
 
 if 'haralick' in args.methods or 'all' in args.methods:
     img_normalized = normalize(roi)
