@@ -166,7 +166,10 @@ def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
         assert d['image'].shape[0:3] == cmask.array.shape == nmask.array.shape
         croi = cmask.selected(d['image'])
         nroi = nmask.selected(d['image'])
-        if shape:
+        if shape == '2d':
+            croi.shape = dwi.util.make2d(croi.size)
+            nroi.shape = dwi.util.make2d(nroi.size)
+        elif shape:
             croi.shape = shape
             nroi.shape = shape
         d.update(cancer_mask=cmask, normal_mask=nmask, cancer_roi=croi,
