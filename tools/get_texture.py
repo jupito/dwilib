@@ -87,12 +87,10 @@ if 'haralick' in args.methods or 'all' in args.methods:
         propnames.append('haralick{:d}-{:s}'.format(i+1, n))
 
 if 'lbp' in args.methods or 'all' in args.methods:
-    _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(roi, winsize=5,
-            radius=1.5)
-    lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
-    lbp_freq_data = np.mean(lbp_freq_data, axis=0)
-    propnames += ['lbpf{:d}'.format(i) for i in range(n_patterns)]
-    props += list(lbp_freq_data)
+    tmap, names = dwi.texture.lbp_freq_map(roi, winsize, radius=1.5)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append('lbpf{:s}'.format(n))
 
 if 'hog' in args.methods or 'all' in args.methods:
     hog = dwi.texture.hog(roi)
