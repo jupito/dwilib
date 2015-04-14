@@ -55,29 +55,29 @@ dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 mask = dwi.mask.read_mask(args.mask)
 
 img = data[0]['image']
-img = mask.selected(img)
-img.shape = dwi.util.make2d(img.size)
+roi = mask.selected(img)
+roi.shape = dwi.util.make2d(roi.size)
 if args.verbose > 1:
-    print 'Image: %s, ROI: %s' % (data[0]['image'].shape, img.shape)
+    print 'Image: %s, ROI: %s' % (img.shape, roi.shape)
 
 propnames = []
 props = []
 
 if 'basic' in args.methods or 'all' in args.methods:
-    d = dwi.texture.stats(img)
+    d = dwi.texture.stats(roi)
     for k, v in d.iteritems():
         propnames.append(k)
         props.append(v)
 
 if 'glcm' in args.methods or 'all' in args.methods:
-    img_normalized = normalize(img)
+    img_normalized = normalize(roi)
     d = dwi.texture.glcm_props(img_normalized)
     for k, v in d.iteritems():
         propnames.append(k)
         props.append(v)
 
 if 'haralick' in args.methods or 'all' in args.methods:
-    img_normalized = normalize(img)
+    img_normalized = normalize(roi)
     feats, labels = dwi.texture.haralick(img_normalized)
     for i, (feat, label) in enumerate(zip(feats, labels)):
         if ' ' in label:
@@ -86,7 +86,7 @@ if 'haralick' in args.methods or 'all' in args.methods:
         props.append(feat)
 
 if 'lbp' in args.methods or 'all' in args.methods:
-    _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(img, winsize=5,
+    _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(roi, winsize=5,
             radius=1.5)
     lbp_freq_data = lbp_freq_data.reshape((-1, n_patterns))
     lbp_freq_data = np.mean(lbp_freq_data, axis=0)
@@ -94,31 +94,31 @@ if 'lbp' in args.methods or 'all' in args.methods:
     props += list(lbp_freq_data)
 
 if 'hog' in args.methods or 'all' in args.methods:
-    hog = dwi.texture.hog(img)
+    hog = dwi.texture.hog(roi)
     propnames += ['hog{:d}'.format(i) for i in range(len(hog))]
     props += list(hog)
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
-    img = img.copy()
-    img.shape += (1,)
-    dwi.util.clip_pmap(img, ['ADCm'])
-    #img = (img - img.mean()) / img.std()
-    d = dwi.texture.gabor(img[...,0], sigmas=[1, 2, 3],
+    roi = roi.copy()
+    roi.shape += (1,)
+    dwi.util.clip_pmap(roi, ['ADCm'])
+    #roi = (roi - roi.mean()) / roi.std()
+    d = dwi.texture.gabor(roi[...,0], sigmas=[1, 2, 3],
             freqs=[0.1, 0.2, 0.3, 0.4])
     for k, v in d.iteritems():
         propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
 if 'moment' in args.methods or 'all' in args.methods:
-    d = dwi.texture.moments(img.squeeze(), max_order=12)
+    d = dwi.texture.moments(roi.squeeze(), max_order=12)
     for k, v in d.iteritems():
         propnames.append('moment{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
 if 'haar' in args.methods or 'all' in args.methods:
     l = [0,1,3,4] # Exclude middle row and column.
-    win = img.squeeze()[l][:,l]
+    win = roi.squeeze()[l][:,l]
     d = dwi.texture.haar_features(win)
     for k, v in d.iteritems():
         propnames.append('haar{}'.format(str(k)).translate(None, " '"))
@@ -128,7 +128,7 @@ if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
 dwi.asciifile.write_ascii_file(args.output, [props], propnames)
 
-#img = img[50:150, 50:150]
-#lbp_data, lbp_freq_data, patterns = dwi.texture.lbp_freqs(img)
+#roi = roi[50:150, 50:150]
+#lbp_data, lbp_freq_data, patterns = dwi.texture.lbp_freqs(roi)
 #freqs = np.rollaxis(lbp_freq_data, 2)
-#dwi.plot.show_images([[img, lbp_data], freqs[:5], freqs[5:]])
+#dwi.plot.show_images([[roi, lbp_data], freqs[:5], freqs[5:]])
