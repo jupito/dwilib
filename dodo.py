@@ -302,31 +302,34 @@ def task_evaluate_autoroi():
 
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, m=model, p=param, mt=masktype, c=case, s=scan)
-    d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
+            mt=masktype, c=case, s=scan)
+    #d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} -i {i} -o {o}'.format(**d)
+    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
-            'file_dep': [d['i']],
+            #'file_dep': [d['i']],
             'targets': [d['o']],
             'clean': True,
             }
 
 def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, m=model, p=param, mt='auto', c=case, s=scan,
-            ap_='_'.join(algparams))
-    d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
+            mt='auto', c=case, s=scan, ap_='_'.join(algparams))
+    #d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} -i {i} -o {o}'.format(**d)
+    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
-            'file_dep': [d['i']],
+            'file_dep': [d['mask']],
             'targets': [d['o']],
             'clean': True,
             }
@@ -340,12 +343,12 @@ def task_texture():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
-        postfix):
+        postfix, param='DICOM'):
     """Generate DICOM images with everything but prostate zeroed."""
     d = dict(prg=MASK_OUT_DICOM, c=case, s=scan, md=maskdir, id=imagedir,
-            od=outdir, it=imagetype, pox=postfix)
-    d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}_*'.format(**d))
-    d['img_src'] = dwi.util.sglob('{id}/{c}_*{it}_{s}{pox}/DICOM'.format(**d))
+            od=outdir, it=imagetype, pox=postfix, p=param)
+    d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}*'.format(**d))
+    d['img_src'] = dwi.util.sglob('{id}/{c}_*{it}_{s}{pox}/{p}'.format(**d))
     d['img_dst'] = '{od}/{c}{it}_{s}'.format(**d)
     cmd_rm = 'rm -Rf {img_dst}'.format(**d)
     cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
@@ -364,8 +367,8 @@ def task_mask_prostate():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans():
         try:
-            yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms',
-                    'dicoms_masked', '_hB', '')
+            yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms', 'dicoms_masked_DWI', '_hB', '')
+            #yield get_task_mask_prostate(case, scan, 'masks_prostate', 'new/for_jussi_data_missing_04_01_2015/SPAIR_f_12b_highb', 'dicoms_masked_DWI_missing', '', '_all')
         except IOError, e:
             print e
 
@@ -373,9 +376,9 @@ def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans():
         try:
-            yield get_task_mask_prostate(case, scan, 'masks_prostate_T2',
-                    'dicoms_T2_data_for_72cases_03_05_2015_no65',
-                    'dicoms_masked_T2', '', '_T2')
+            yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65', 'dicoms_masked_T2', '', '_T2')
+            #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
+            #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2W', 'dicoms_T2W_TSE_2.5m', 'dicoms_masked_T2W', '', '*')
         except IOError, e:
             print e
 
