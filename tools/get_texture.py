@@ -111,10 +111,10 @@ if 'gabor' in args.methods or 'all' in args.methods:
         propnames.append('gabor{:s}'.format(n).translate(None, " '"))
 
 if 'moment' in args.methods or 'all' in args.methods:
-    d = dwi.texture.moments(roi, max_order=12)
-    for k, v in d.iteritems():
-        propnames.append('moment{}'.format(str(k)).translate(None, " '"))
-        props.append(v)
+    tmap, names = dwi.texture.moment_map(roi, winsize, max_order=12)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append('moment{:s}'.format(n).translate(None, " '"))
 
 if 'haar' in args.methods or 'all' in args.methods:
     l = [0,1,3,4] # Exclude middle row and column.
