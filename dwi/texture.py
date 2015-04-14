@@ -246,10 +246,10 @@ def haar(img):
     img = img[:newshape[0], :newshape[1]]
     a = mahotas.haar(img)
     h, w = [x//2 for x in a.shape]
-    levels = [
+    levels = np.array([
             a[:h,:w], a[:h,w:],
             a[h:,:w], a[h:,w:],
-            ]
+            ])
     return levels
 
 def haar_level_features(win):
