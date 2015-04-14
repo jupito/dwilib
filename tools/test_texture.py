@@ -216,7 +216,7 @@ for d in data:
     #feats, names = dwi.texture.hog_map(img, winsize)
     #feats, names = dwi.texture.moment_map(img, winsize, 4)
     feats, names = dwi.texture.haar_map(img, winsize)
-    print feats.shape
+    print img.shape, feats.shape
     sl = slice(winsize//2, -(winsize//2))
     cols += list(feats[:,sl,sl])
     print '; '.join(names)
