@@ -304,7 +304,6 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
             mt=masktype, c=case, s=scan)
-    #d['i'] = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
@@ -321,7 +320,6 @@ def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
             mt='auto', c=case, s=scan, ap_='_'.join(algparams))
-    #d['i'] = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
