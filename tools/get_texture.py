@@ -55,6 +55,8 @@ dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 mask = dwi.mask.read_mask(args.mask)
 
 img = data[0]['image']
+if isinstance(mask, dwi.mask.Mask):
+    mask = mask.convert_to_3d(img.shape[0])
 roi = mask.selected(img)
 roi.shape = dwi.util.make2d(roi.size)
 assert roi.shape[0] == roi.shape[1]
