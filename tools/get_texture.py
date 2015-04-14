@@ -9,10 +9,10 @@ import numpy as np
 
 import dwi.asciifile
 import dwi.dataset
+import dwi.mask
 import dwi.plot
 import dwi.texture
 import dwi.util
-import dwi.dwimage
 
 def parse_args():
     """Parse command-line arguments."""
@@ -27,8 +27,8 @@ def parse_args():
             help='case number')
     p.add_argument('--scan',
             help='scan identifier')
-    p.add_argument('--roimaskdir', default='masks_rois',
-            help='ROI mask directory')
+    p.add_argument('--mask',
+            help='mask file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='+',
             default=['all'],
             help='methods separated by comma')
@@ -52,12 +52,13 @@ args = parse_args()
 print 'Reading data...'
 data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-dwi.dataset.dataset_read_roi_masks(data, args.roimaskdir, shape='2d')
+mask = dwi.mask.read_mask(args.mask)
 
-data = data[0]
-img = data['cancer_roi']
+img = data[0]['image']
+img = mask.selected(img)
+img.shape = dwi.util.make2d(img.size)
 if args.verbose > 1:
-    print 'Image shape: %s' % (img.shape,)
+    print 'Image: %s, ROI: %s' % (data[0]['image'].shape, img.shape)
 
 propnames = []
 props = []
