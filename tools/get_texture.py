@@ -118,8 +118,8 @@ if 'moment' in args.methods or 'all' in args.methods:
 
 if 'haar' in args.methods or 'all' in args.methods:
     l = [0,1,3,4] # Exclude middle row and column.
-    win = roi[l][:,l]
-    d = dwi.texture.haar_features(win)
+    roi_corners = roi[l][:,l]
+    d = dwi.texture.haar_features(roi_corners)
     for k, v in d.iteritems():
         propnames.append('haar{}'.format(str(k)).translate(None, " '"))
         props.append(v)
