@@ -117,6 +117,11 @@ def dataset_read_samplelist(samplelist_file, cases=[], scans=[]):
             data.append(dict(case=case, scan=scan))
     return data
 
+def dataset_read_samples(cases_scans):
+    """Create a new dataset from a list of (sample, scan) tuples."""
+    data = [dict(case=c, scan=s) for c, s in cases_scans]
+    return data
+
 def dataset_read_patientinfo(data, patients_file):
     """Add patient info to dataset."""
     patientsinfo = dwi.patient.read_patients_file(patients_file)
