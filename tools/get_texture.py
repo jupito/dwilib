@@ -100,26 +100,25 @@ if 'hog' in args.methods or 'all' in args.methods:
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
-    roi = roi.copy()
-    roi.shape += (1,)
-    dwi.util.clip_pmap(roi, ['ADCm'])
-    roi.shape = roi.shape[:-1]
-    #roi = (roi - roi.mean()) / roi.std()
-    tmap, names = dwi.texture.gabor_map(roi, winsize, sigmas=[1, 2, 3],
+    roi_clipped = roi.copy()
+    roi_clipped.shape += (1,)
+    dwi.util.clip_pmap(roi_clipped, ['ADCm'])
+    roi_clipped.shape = roi_clipped.shape[:-1]
+    tmap, names = dwi.texture.gabor_map(roi_clipped, winsize, sigmas=[1, 2, 3],
             freqs=[0.1, 0.2, 0.3, 0.4])
     for a, n in zip(tmap[:,sl,sl], names):
         props.append(np.mean(a))
         propnames.append('gabor{:s}'.format(n).translate(None, " '"))
 
 if 'moment' in args.methods or 'all' in args.methods:
-    d = dwi.texture.moments(roi.squeeze(), max_order=12)
+    d = dwi.texture.moments(roi, max_order=12)
     for k, v in d.iteritems():
         propnames.append('moment{}'.format(str(k)).translate(None, " '"))
         props.append(v)
 
 if 'haar' in args.methods or 'all' in args.methods:
     l = [0,1,3,4] # Exclude middle row and column.
-    win = roi.squeeze()[l][:,l]
+    win = roi[l][:,l]
     d = dwi.texture.haar_features(win)
     for k, v in d.iteritems():
         propnames.append('haar{}'.format(str(k)).translate(None, " '"))
