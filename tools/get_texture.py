@@ -103,12 +103,13 @@ if 'gabor' in args.methods or 'all' in args.methods:
     roi = roi.copy()
     roi.shape += (1,)
     dwi.util.clip_pmap(roi, ['ADCm'])
+    roi.shape = roi.shape[:-1]
     #roi = (roi - roi.mean()) / roi.std()
-    d = dwi.texture.gabor(roi[...,0], sigmas=[1, 2, 3],
+    tmap, names = dwi.texture.gabor_map(roi, winsize, sigmas=[1, 2, 3],
             freqs=[0.1, 0.2, 0.3, 0.4])
-    for k, v in d.iteritems():
-        propnames.append('gabor{}'.format(str(k)).translate(None, " '"))
-        props.append(v)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append('gabor{:s}'.format(n).translate(None, " '"))
 
 if 'moment' in args.methods or 'all' in args.methods:
     d = dwi.texture.moments(roi.squeeze(), max_order=12)
