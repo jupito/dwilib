@@ -79,13 +79,12 @@ if 'glcm' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'haralick' in args.methods or 'all' in args.methods:
-    img_normalized = normalize(roi)
-    feats, labels = dwi.texture.haralick(img_normalized)
-    for i, (feat, label) in enumerate(zip(feats, labels)):
-        if ' ' in label:
-            label = ''.join([word[0] for word in label.split()])
-        propnames.append('haralick{:d}-{:s}'.format(i+1, label))
-        props.append(feat)
+    tmap, names = dwi.texture.haralick_map(normalize(roi), winsize)
+    for i, (a, n) in enumerate(zip(tmap[:,sl,sl], names)):
+        if ' ' in n:
+            n = ''.join([word[0] for word in n.split()])
+        props.append(np.mean(a))
+        propnames.append('haralick{:d}-{:s}'.format(i+1, n))
 
 if 'lbp' in args.methods or 'all' in args.methods:
     _, lbp_freq_data, n_patterns = dwi.texture.lbp_freqs(roi, winsize=5,
