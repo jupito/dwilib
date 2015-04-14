@@ -28,6 +28,10 @@ class Mask(object):
         array = self.array[y0:y1,x0:x1]
         return Mask(slice, array)
 
+    def n_selected(self):
+        """Return number of selected voxels."""
+        return np.count_nonzero(self.array)
+
     def selected(self, array):
         """Get selected region as a flat array."""
         if array.ndim == self.array.ndim:
