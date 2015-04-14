@@ -57,6 +57,9 @@ mask = dwi.mask.read_mask(args.mask)
 img = data[0]['image']
 roi = mask.selected(img)
 roi.shape = dwi.util.make2d(roi.size)
+assert roi.shape[0] == roi.shape[1]
+winsize = roi.shape[0]
+sl = slice(winsize//2, -(winsize//2))
 if args.verbose > 1:
     print 'Image: %s, ROI: %s' % (img.shape, roi.shape)
 
@@ -64,10 +67,10 @@ propnames = []
 props = []
 
 if 'basic' in args.methods or 'all' in args.methods:
-    d = dwi.texture.stats(roi)
-    for k, v in d.iteritems():
-        propnames.append(k)
-        props.append(v)
+    tmap, names = dwi.texture.stats_map(roi, winsize)
+    for a, n in zip(tmap[:,sl,sl], names):
+        props.append(np.mean(a))
+        propnames.append(n)
 
 if 'glcm' in args.methods or 'all' in args.methods:
     img_normalized = normalize(roi)
