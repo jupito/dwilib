@@ -28,7 +28,7 @@ def stats(img):
 
 def stats_map(img, winsize, names=None, mask=None, output=None):
     """Get basic statistical texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize, mask):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = stats(win)
         if names is None:
             names = d.keys()
@@ -55,9 +55,9 @@ def glcm_props(img, names=PROPNAMES):
     d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
     return d
 
-def glcm_map(img, winsize, names=PROPNAMES, output=None):
+def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
     """Grey-level co-occurrence matrix texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = glcm_props(win, names)
         if output is None:
             output = np.zeros((len(names),) + img.shape)
