@@ -108,9 +108,9 @@ def haralick(img):
     a = np.mean(a, axis=0)
     return a, mahotas.features.texture.haralick_labels
 
-def haralick_map(img, winsize, output=None):
+def haralick_map(img, winsize, mask=None, output=None):
     """Haralick texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win)
         if output is None:
             output = np.zeros((len(names),) + img.shape)
@@ -174,9 +174,9 @@ def gabor(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
         d[key] = value
     return d
 
-def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], output=None):
+def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], mask=None, output=None):
     """Gabor texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win, sigmas, freqs)
         if output is None:
             output = np.zeros((len(feats),) + img.shape)
@@ -192,8 +192,8 @@ def hog(img):
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
 
-def hog_map(img, winsize, output=None):
-    for pos, win in dwi.util.sliding_window(img, winsize):
+def hog_map(img, winsize, mask=None, output=None):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hog(win)
         if output is None:
             output = np.zeros((len(feats),) + img.shape)
@@ -224,8 +224,8 @@ def moments(img, max_order=2):
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
 
-def moment_map(img, winsize, max_order=2, output=None):
-    for pos, win in dwi.util.sliding_window(img, winsize):
+def moment_map(img, winsize, max_order=2, mask=None, output=None):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = moments(win, max_order=max_order)
         if output is None:
             output = np.zeros((len(feats),) + img.shape)
