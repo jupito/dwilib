@@ -276,19 +276,17 @@ def haar_features(img):
             d[(i, k)] = v
     return d
 
-def haar_map(img, winsize, zoom=True, output=None):
+def haar_map(img, winsize, mask=None, output=None):
     """Haar texture feature map."""
     levels = haar(img)
+    levels = sp.ndimage.interpolation.zoom(levels, (1,2,2))
     names = []
     for i, level in enumerate(levels):
-        for pos, win in dwi.util.sliding_window(level, winsize):
+        for pos, win in dwi.util.sliding_window(level, winsize, mask):
             feats = haar_level_features(win)
             if output is None:
                 output = np.zeros((len(levels)*len(feats),) + level.shape)
             for j, v in enumerate(feats.values()):
                 output[(i*len(feats)+j,) + pos] = v
         names += ['%i,%s' % (i, k) for k in feats.keys()]
-    if zoom:
-        # Zoom to original size.
-        output = sp.ndimage.interpolation.zoom(output, (1,2,2))
     return output, names
