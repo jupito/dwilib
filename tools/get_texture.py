@@ -41,8 +41,10 @@ def normalize(pmap):
     """Normalize images within given range and convert to byte maps."""
     import skimage
     import skimage.exposure
-    in_range = (0, 0.03)
-    #in_range = (0, 0.01)
+    #in_range = (0, 0.03)
+    in_range = (0, 0.005)
+    #in_range = (0, 0.002)
+    #in_range = (pmap.min(), pmap.max())
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     return pmap
@@ -84,50 +86,60 @@ if 'glcm' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'haralick' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.haralick_map(normalize(roi), winsize)
-    for i, (a, n) in enumerate(zip(tmap[:,sl,sl], names)):
+    tmap, names = dwi.texture.haralick_map(normalize(img_slice), winsize,
+            mask=mask_slice)
+    for i, (a, n) in enumerate(zip(tmap, names)):
         if ' ' in n:
             n = ''.join([word[0] for word in n.split()])
-        props.append(np.mean(a))
+        props.append(np.mean(a[mask_slice]))
         propnames.append('haralick{:d}-{:s}'.format(i+1, n))
 
 if 'lbp' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.lbp_freq_map(roi, winsize, radius=1.5)
-    for a, n in zip(tmap[:,sl,sl], names):
-        props.append(np.mean(a))
+    tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize, radius=1.5)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
         propnames.append('lbpf{:s}'.format(n))
 
 if 'hog' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.hog_map(roi, winsize)
-    for a, n in zip(tmap[:,sl,sl], names):
-        props.append(np.mean(a))
+    tmap, names = dwi.texture.hog_map(img_slice, winsize, mask=mask_slice)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
         propnames.append('hog{:s}'.format(n))
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
-    roi_clipped = roi.copy()
-    roi_clipped.shape += (1,)
-    dwi.util.clip_pmap(roi_clipped, ['ADCm'])
-    roi_clipped.shape = roi_clipped.shape[:-1]
-    tmap, names = dwi.texture.gabor_map(roi_clipped, winsize, sigmas=[1, 2, 3],
-            freqs=[0.1, 0.2, 0.3, 0.4])
-    for a, n in zip(tmap[:,sl,sl], names):
-        props.append(np.mean(a))
+    #roi_clipped = roi.copy()
+    #roi_clipped.shape += (1,)
+    #dwi.util.clip_pmap(roi_clipped, ['ADCm'])
+    #roi_clipped.shape = roi_clipped.shape[:-1]
+    clipped = img_slice.copy()
+    clipped.shape += (1,)
+    dwi.util.clip_pmap(clipped, ['ADCm'])
+    clipped.shape = clipped.shape[:-1]
+    tmap, names = dwi.texture.gabor_map(clipped, winsize, sigmas=[1, 2, 3],
+            freqs=[0.1, 0.2, 0.3, 0.4], mask=mask_slice)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
         propnames.append('gabor{:s}'.format(n).translate(None, " '"))
 
 if 'moment' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.moment_map(roi, winsize, max_order=12)
-    for a, n in zip(tmap[:,sl,sl], names):
-        props.append(np.mean(a))
+    tmap, names = dwi.texture.moment_map(img_slice, winsize, max_order=12,
+            mask=mask_slice)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
         propnames.append('moment{:s}'.format(n).translate(None, " '"))
 
 if 'haar' in args.methods or 'all' in args.methods:
-    l = [0,1,3,4] # Exclude middle row and column.
-    roi_corners = roi[l][:,l]
-    d = dwi.texture.haar_features(roi_corners)
-    for k, v in d.iteritems():
-        propnames.append('haar{}'.format(str(k)).translate(None, " '"))
-        props.append(v)
+    #l = [0,1,3,4] # Exclude middle row and column.
+    #roi_corners = roi[l][:,l]
+    #d = dwi.texture.haar_features(roi_corners)
+    #for k, v in d.iteritems():
+    #    propnames.append('haar{}'.format(str(k)).translate(None, " '"))
+    #    props.append(v)
+    tmap, names = dwi.texture.haar_map(img_slice, winsize, mask=mask_slice)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
+        propnames.append('haar({:s})'.format(n).translate(None, " '"))
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
