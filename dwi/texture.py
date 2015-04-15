@@ -14,7 +14,7 @@ import dwi.util
 # Basic statistical features
 
 def stats(img):
-    """Get basic statistical features."""
+    """Statistical texture features that don't consider spatial relations."""
     d = collections.OrderedDict()
     d['mean'] = np.mean(img)
     d['stddev'] = np.std(img)
@@ -27,7 +27,7 @@ def stats(img):
     return d
 
 def stats_map(img, winsize, names=None, mask=None, output=None):
-    """Get basic statistical texture feature map."""
+    """Statistical texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = stats(win)
         if names is None:
@@ -43,7 +43,8 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
 def glcm_props(img, names=PROPNAMES):
-    """Get grey-level co-occurrence matrix texture properties over an image."""
+    """Grey-level co-occurrence matrix (GLCM) texture features averaged over 4
+    directions (6 features provided by scikit-image)."""
     from skimage.feature import greycomatrix, greycoprops
     distances = [1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
@@ -56,7 +57,7 @@ def glcm_props(img, names=PROPNAMES):
     return d
 
 def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
-    """Grey-level co-occurrence matrix texture feature map."""
+    """Grey-level co-occurrence matrix (GLCM) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = glcm_props(win, names)
         if output is None:
@@ -102,7 +103,8 @@ def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
 #    return pmap
 
 def haralick(img):
-    """Haralick texture features (14) averaged over directions."""
+    """Haralick texture features averaged over 4 directions (14 features
+    provided by mahotas)."""
     import mahotas
     a = mahotas.features.texture.haralick(img, compute_14th_feature=True)
     a = np.mean(a, axis=0)
@@ -121,7 +123,7 @@ def haralick_map(img, winsize, mask=None, output=None):
 # Local Binary Pattern (LBP) features
 
 def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
-    """Calculate local binary pattern (LBP) frequency map."""
+    """Local Binary Pattern (LBP) frequency histogram map."""
     import lbp
     lbp_data = lbp.lbp(img, neighbours, radius, roinv, uniform)
     lbp_freq_data, n_patterns = lbp.get_freqs(lbp_data, winsize, neighbours,
@@ -129,7 +131,7 @@ def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
     return lbp_data, lbp_freq_data, n_patterns
 
 def lbp_freq_map(img, winsize=3, neighbours=8, radius=1):
-    """Local binary pattern (LBP) frequency histogram map."""
+    """Local Binary Pattern (LBP) frequency histogram map."""
     _, freqs, n = lbp_freqs(img, winsize, neighbours, radius)
     output = np.rollaxis(freqs, -1)
     names = map(str, range(n))
@@ -157,7 +159,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 # Gabor features
 
 def gabor(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
-    """Gabor features averaged over directions."""
+    """Gabor features averaged over 4 directions."""
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=np.double)
@@ -188,11 +190,13 @@ def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], mask=None, ou
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
+    """Histogram of Gradients (HoG) texture features."""
     # TODO Average over directions
     return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
 
 def hog_map(img, winsize, mask=None, output=None):
+    """Histogram of Gradients (HoG) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hog(win)
         if output is None:
@@ -225,6 +229,7 @@ def moments(img, max_order=2):
     return d
 
 def moment_map(img, winsize, max_order=2, mask=None, output=None):
+    """Image moment map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = moments(win, max_order=max_order)
         if output is None:
@@ -237,7 +242,7 @@ def moment_map(img, winsize, max_order=2, mask=None, output=None):
 # Haar transformation
 
 def haar(img):
-    """Haar"""
+    """Haar wavelet transform."""
     import mahotas
     assert img.ndim == 2
     #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
@@ -253,7 +258,7 @@ def haar(img):
     return levels
 
 def haar_level_features(win):
-    """Haar features of a single level."""
+    """Haar texture features of a single level."""
     d = collections.OrderedDict()
     d['aav'] = np.mean(np.abs(win))
     d['std'] = np.std(win)
@@ -267,7 +272,7 @@ def haar_level_features(win):
     return d
 
 def haar_features(img):
-    """Haar features."""
+    """Haar texture features."""
     levels = haar(img)
     d = collections.OrderedDict()
     for i, level in enumerate(levels):
