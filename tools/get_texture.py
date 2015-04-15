@@ -57,6 +57,9 @@ mask = dwi.mask.read_mask(args.mask)
 img = data[0]['image']
 if isinstance(mask, dwi.mask.Mask):
     mask = mask.convert_to_3d(img.shape[0])
+
+img_slice = mask.selected_slice(img)[:,:,0]
+mask_slice = mask.array[mask.selected_slices()[0]]
 roi = mask.selected(img)
 roi.shape = dwi.util.make2d(roi.size)
 assert roi.shape[0] == roi.shape[1]
@@ -69,9 +72,13 @@ propnames = []
 props = []
 
 if 'basic' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.stats_map(roi, winsize)
-    for a, n in zip(tmap[:,sl,sl], names):
-        props.append(np.mean(a))
+    #tmap, names = dwi.texture.stats_map(roi, winsize)
+    #for a, n in zip(tmap[:,sl,sl], names):
+    #    props.append(np.mean(a))
+    #    propnames.append(n)
+    tmap, names = dwi.texture.stats_map(img_slice, winsize, mask=mask_slice)
+    for a, n in zip(tmap, names):
+        props.append(np.mean(a[mask_slice]))
         propnames.append(n)
 
 if 'glcm' in args.methods or 'all' in args.methods:
