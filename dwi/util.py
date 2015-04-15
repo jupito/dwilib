@@ -97,7 +97,7 @@ def subwindow_shape(subwindow):
     """Return subwindow shape."""
     return tuple(b-a for a, b in chunks(subwindow, 2))
 
-def sliding_window(a, size):
+def sliding_window(a, size, mask=None):
     """Multidimensional sliding window iterator.
     
     Yields window origin (center) and view to window. Window won't overlap
@@ -110,8 +110,9 @@ def sliding_window(a, size):
     shape = tuple(i-size+1 for i in a.shape)
     for indices in np.ndindex(shape):
         origin = tuple(i+size//2 for i in indices)
-        slices = [slice(i, i+size) for i in indices]
-        yield origin, a[slices]
+        if mask is None or mask[origin]:
+            slices = [slice(i, i+size) for i in indices]
+            yield origin, a[slices]
 
 
 def median(a, axis=None, keepdims=False):
