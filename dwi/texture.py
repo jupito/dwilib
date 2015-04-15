@@ -26,9 +26,9 @@ def stats(img):
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
 
-def stats_map(img, winsize, names=None, output=None):
+def stats_map(img, winsize, names=None, mask=None, output=None):
     """Get basic statistical texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize):
+    for pos, win in dwi.util.sliding_window(img, winsize, mask):
         d = stats(win)
         if names is None:
             names = d.keys()
