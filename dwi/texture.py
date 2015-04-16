@@ -138,8 +138,10 @@ def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
             roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
-def lbp_freq_map(img, winsize, neighbours=8, radius=None):
-    """Local Binary Pattern (LBP) frequency histogram map."""
+def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
+    """Local Binary Pattern (LBP) frequency histogram map.
+    
+    Note: mask parameter is not used."""
     if radius is None:
         radius = winsize // 2
     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
@@ -239,7 +241,7 @@ def moments(img, max_order=2):
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
 
-def moment_map(img, winsize, max_order=2, mask=None, output=None):
+def moment_map(img, winsize, max_order=12, mask=None, output=None):
     """Image moment map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = moments(win, max_order=max_order)
