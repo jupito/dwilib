@@ -1,10 +1,9 @@
 #!/usr/bin/env python2
 
-"""Calculate texture properties for a ROI.
+"""Calculate texture properties for a ROI."""
 
-TODO Gabor clips pmap, only suitable for ADCm
-TODO GLCM uses only length 1
-"""
+#TODO Gabor clips pmap, only suitable for ADCm
+#TODO GLCM uses only length 1
 
 import argparse
 import glob
