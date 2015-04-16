@@ -7,6 +7,7 @@
 #TODO GLCM uses only length 1
 
 import argparse
+import collections
 import glob
 import re
 import numpy as np
@@ -17,6 +18,17 @@ import dwi.mask
 import dwi.plot
 import dwi.texture
 import dwi.util
+
+METHODS = collections.OrderedDict([
+        ('stats', dwi.texture.stats_map),
+        ('glcm', dwi.texture.glcm_map),
+        ('haralick', dwi.texture.haralick_map),
+        ('lbp', dwi.texture.lbp_freq_map),
+        ('hog', dwi.texture.hog_map),
+        ('gabor', dwi.texture.gabor_map),
+        ('moment', dwi.texture.moment_map),
+        ('haar', dwi.texture.haar_map),
+        ])
 
 def parse_args():
     """Parse command-line arguments."""
@@ -35,7 +47,7 @@ def parse_args():
             help='mask file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='+',
             default=['all'],
-            help='methods separated by comma')
+            help='methods ({})'.format(', '.join(METHODS.keys())))
     p.add_argument('--winsize', type=int, default=5,
             help='window size length')
     p.add_argument('--output', metavar='FILENAME',
