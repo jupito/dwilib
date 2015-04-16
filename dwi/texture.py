@@ -134,7 +134,7 @@ def lbp_freq_map(img, winsize=3, neighbours=8, radius=1):
     """Local Binary Pattern (LBP) frequency histogram map."""
     _, freqs, n = lbp_freqs(img, winsize, neighbours, radius)
     output = np.rollaxis(freqs, -1)
-    names = map(str, range(n))
+    names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
     return output, names
 
 def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):

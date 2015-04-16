@@ -98,7 +98,7 @@ if 'lbp' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize, radius=1.5)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('lbpf{:s}'.format(n))
+        propnames.append(n)
 
 if 'hog' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.hog_map(img_slice, winsize, mask=mask_slice)
