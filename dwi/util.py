@@ -97,13 +97,12 @@ def subwindow_shape(subwindow):
     """Return subwindow shape."""
     return tuple(b-a for a, b in chunks(subwindow, 2))
 
-def sliding_window(a, size, mask=None, mask_total=False):
+def sliding_window(a, size, mask=None):
     """Multidimensional sliding window iterator.
     
     Yields window origin (center) and view to window. Window won't overlap
     image border. If a mask array is provided, windows are skipped unless origin
-    is selected in mask. If mask_total is True, then the whole window area must
-    be selected in mask.
+    is selected in mask.
     """
     if size % 2 != 1:
         raise Exception('Window size must be odd: {}'.format(size))
@@ -113,14 +112,8 @@ def sliding_window(a, size, mask=None, mask_total=False):
     shape = tuple(i-size+1 for i in a.shape)
     for indices in np.ndindex(shape):
         origin = tuple(i+size//2 for i in indices)
-        slices = [slice(i, i+size) for i in indices]
-        if mask is None:
-            selected = True
-        elif mask_total:
-            selected = mask[slices].all()
-        else:
-            selected = mask[origin]
-        if selected:
+        if mask is None or mask[origin]:
+            slices = [slice(i, i+size) for i in indices]
             yield origin, a[slices]
 
 def median(a, axis=None, keepdims=False):
