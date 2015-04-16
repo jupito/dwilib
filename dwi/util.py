@@ -111,7 +111,6 @@ def sliding_window(a, size, mask=None, mask_total=False):
         raise Exception('Window size too large: {}, {}'.format(size, a.shape))
     a = np.asarray(a)
     shape = tuple(i-size+1 for i in a.shape)
-    _x = 0
     for indices in np.ndindex(shape):
         origin = tuple(i+size//2 for i in indices)
         slices = [slice(i, i+size) for i in indices]
@@ -122,10 +121,7 @@ def sliding_window(a, size, mask=None, mask_total=False):
         else:
             selected = mask[origin]
         if selected:
-            _x += 1
             yield origin, a[slices]
-    print _x
-
 
 def median(a, axis=None, keepdims=False):
     """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
