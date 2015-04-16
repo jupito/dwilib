@@ -98,6 +98,13 @@ class Mask3D(object):
             raise Exception('Exactly one slice not selected.')
         return a[indices[0]]
 
+    def max_slices(self):
+        """Return slices with maximum number of selected voxels."""
+        numbers = [np.count_nonzero(a) for a in self.array]
+        max_number = max(numbers)
+        indices = [i for i, n in enumerate(numbers) if n == max_number]
+        return indices
+
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
         if onebased:
