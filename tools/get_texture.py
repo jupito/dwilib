@@ -55,15 +55,6 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def clip(pmap):
-    """Clip ADC pmap slice."""
-    assert pmap.ndim == 2
-    r = pmap.copy()
-    r.shape += (1,)
-    dwi.util.clip_pmap(r, ['ADCm'])
-    r.shape = r.shape[:-1]
-    return r
-
 
 args = parse_args()
 print 'Reading data...'
@@ -111,7 +102,7 @@ if 'hog' in args.methods or 'all' in args.methods:
     propnames += names
 
 if 'gabor' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.gabor_map(clip(img_slice), winsize, mask=mask_slice)
+    tmap, names = dwi.texture.gabor_map(img_slice, winsize, mask=mask_slice)
     props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
