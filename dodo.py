@@ -311,7 +311,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
         d['portion'] = 0
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --portion {portion} --output {o}'.format(**d)
+    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --portion {portion} --winsizes 3 5 7 9 11 13 --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
@@ -327,7 +327,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
+    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --winsizes 3 5 7 9 11 13 --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
