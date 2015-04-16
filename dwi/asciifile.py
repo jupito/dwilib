@@ -93,4 +93,6 @@ def write_ascii_file(filename, pmap, params):
     with open(filename, 'w') as f:
         f.write('parameters: %s\n' % ' '.join(map(str, params)))
         for values in pmap:
+            if len(values) != len(params):
+                raise Exception('Number of values and parameters mismatch')
             f.write(' '.join(map(repr, values)) + '\n')
