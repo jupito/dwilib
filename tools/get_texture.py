@@ -49,6 +49,15 @@ def normalize(pmap):
     pmap = skimage.img_as_ubyte(pmap)
     return pmap
 
+def clip(pmap):
+    """Clip ADC pmap slice."""
+    assert pmap.ndim == 2
+    r = pmap.copy()
+    r.shape += (1,)
+    dwi.util.clip_pmap(r, ['ADCm'])
+    r.shape = r.shape[:-1]
+    return r
+
 
 args = parse_args()
 print 'Reading data...'
@@ -108,16 +117,8 @@ if 'hog' in args.methods or 'all' in args.methods:
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
-    #roi_clipped = roi.copy()
-    #roi_clipped.shape += (1,)
-    #dwi.util.clip_pmap(roi_clipped, ['ADCm'])
-    #roi_clipped.shape = roi_clipped.shape[:-1]
-    clipped = img_slice.copy()
-    clipped.shape += (1,)
-    dwi.util.clip_pmap(clipped, ['ADCm'])
-    clipped.shape = clipped.shape[:-1]
-    tmap, names = dwi.texture.gabor_map(clipped, winsize, sigmas=[1, 2, 3],
-            freqs=[0.1, 0.2, 0.3, 0.4], mask=mask_slice)
+    tmap, names = dwi.texture.gabor_map(clip(img_slice), winsize,
+            sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4], mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)
