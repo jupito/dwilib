@@ -1,6 +1,10 @@
 #!/usr/bin/env python2
 
-"""Calculate texture properties for a ROI."""
+"""Calculate texture properties for a ROI.
+
+TODO Gabor clips pmap, only suitable for ADCm
+TODO GLCM uses only length 1
+"""
 
 import argparse
 import glob
@@ -117,7 +121,6 @@ if 'hog' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'gabor' in args.methods or 'all' in args.methods:
-    # TODO only for ADCm, clips them
     tmap, names = dwi.texture.gabor_map(clip(img_slice), winsize,
             mask=mask_slice)
     for a, n in zip(tmap, names):
