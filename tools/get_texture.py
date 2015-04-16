@@ -66,10 +66,14 @@ img = data[0]['image']
 if isinstance(mask, dwi.mask.Mask):
     mask = mask.convert_to_3d(img.shape[0])
 
-img_slice = mask.selected_slice(img)[:,:,0]
-mask_slice = mask.array[mask.selected_slices()[0]]
+slice_index = mask.max_slices()[0]
+img_slice = img[slice_index,:,:,0]
+mask_slice = mask.array[slice_index]
+
 if args.verbose > 1:
-    print 'Image: %s, window sizes: %s' % (img.shape, args.winsizes)
+    d = dict(s=img.shape, i=slice_index, n=np.count_nonzero(mask_slice),
+            w=args.winsizes)
+    print 'Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d)
 
 if args.verbose:
     print 'Calculating texture features...'
