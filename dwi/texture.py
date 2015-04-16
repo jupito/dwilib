@@ -14,7 +14,7 @@ import dwi.util
 def abbrev(name):
     """Abbreviate multiword feature name."""
     if ' ' in name:
-        name = ''.join([word[0] for word in name.split()])
+        name = ''.join(word[0] for word in name.split())
     return name
 
 # Basic statistical features
