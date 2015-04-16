@@ -219,11 +219,8 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 def hog(img):
     """Histogram of Gradients (HoG) averaged over directions."""
     kwargs = dict(
-            #orientations=2,
             orientations=8,
-            #pixels_per_cell=(2,2),
             pixels_per_cell=img.shape,
-            #cells_per_block=(2,2),
             cells_per_block=(1,1),
             normalise=True,
             )
