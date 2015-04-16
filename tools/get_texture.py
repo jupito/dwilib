@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Calculate texture properties for a ROI."""
+"""Calculate texture properties for a masked area."""
 
 #TODO Gabor clips pmap, only suitable for ADCm
 #TODO GLCM uses only length 1
