@@ -6,6 +6,7 @@
 #TODO Gabor clips pmap, only suitable for ADCm
 #TODO GLCM uses only length 1
 
+from __future__ import division
 import argparse
 import collections
 import glob
@@ -49,10 +50,40 @@ def parse_args():
             help='methods ({})'.format(', '.join(METHODS.keys())))
     p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
             help='window side lengths')
+    p.add_argument('--portion', type=float, required=False, default=0,
+            help='portion of selected voxels required for each window')
     p.add_argument('--output', metavar='FILENAME',
             help='output ASCII file')
     args = p.parse_args()
     return args
+
+def max_mask(mask, winsize):
+    """Return a mask that has the voxels selected that have the maximum number
+    of surrounding voxels selected in the original mask.
+    """
+    d = collections.defaultdict(list)
+    for pos, win in dwi.util.sliding_window(mask, winsize, mask=mask):
+        d[np.count_nonzero(win)].append(pos)
+    r = np.zeros_like(mask)
+    for pos in d[max(d)]:
+        r[pos] = True
+    return r
+
+def portion_mask(mask, winsize, portion=1., resort_to_max=True):
+    """Return a mask that selects (only) voxels that have the window at each
+    selected voxel origin up to a minimum portion in the original mask selected
+    (1 means the whole window must be selected, 0 gives the original mask).
+
+    If resort_to_max is true, the window with maximum number of selected voxels
+    is used in case the resulting mask would otherwise be empty.
+    """
+    r = np.zeros_like(mask)
+    for pos, win in dwi.util.sliding_window(mask, winsize, mask=mask):
+        if np.count_nonzero(win) / win.size >= portion:
+            r[pos] = True
+    if resort_to_max and np.count_nonzero(r) == 0:
+        r = max_mask(mask, winsize)
+    return r
 
 
 args = parse_args()
@@ -69,6 +100,8 @@ if isinstance(mask, dwi.mask.Mask):
 slice_index = mask.max_slices()[0]
 img_slice = img[slice_index,:,:,0]
 mask_slice = mask.array[slice_index]
+portion_masks = [portion_mask(mask_slice, i, args.portion) for i in
+        args.winsizes]
 
 if args.verbose > 1:
     d = dict(s=img.shape, i=slice_index, n=np.count_nonzero(mask_slice),
@@ -83,9 +116,9 @@ for method, call in METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method
-        for winsize in args.winsizes:
-            tmaps, names = call(img_slice, winsize, mask=mask_slice)
-            tmaps = tmaps[:,mask_slice]
+        for winsize, mask in zip(args.winsizes, portion_masks):
+            tmaps, names = call(img_slice, winsize, mask=mask)
+            tmaps = tmaps[:,mask]
             feats += map(np.mean, tmaps)
             featnames += names
 

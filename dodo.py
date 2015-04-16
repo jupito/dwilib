@@ -304,12 +304,14 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
             mt=masktype, c=case, s=scan)
-    if masktype == 'prostate':
-        d['mask'] = dwi.util.sglob('masks_prostate/{c}_*_{s}_*'.format(**d))
+    if masktype == 'lesion':
+        d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_DWI_[O1]*/{c}_hB_{s}_DWI'.format(**d))
+        d['portion'] = 1
     else:
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
+        d['portion'] = 0
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --output {o}'.format(**d)
+    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --portion {portion} --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
@@ -338,7 +340,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
 def task_texture():
     """Generate texture features."""
     for case, scan in cases_scans():
-        for masktype in 'CA', 'N', 'prostate':
+        for masktype in 'CA', 'N', 'lesion':
             yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
         for algparams in find_roi_param_combinations():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
