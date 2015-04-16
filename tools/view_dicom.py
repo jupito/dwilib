@@ -102,9 +102,12 @@ if args.normalize:
 print dwimage
 d = dict(min=dwimage.image.min(),
         max=dwimage.image.max(),
-        vs=dwimage.voxel_spacing)
+        vs=dwimage.voxel_spacing,
+        nz=np.count_nonzero(dwimage.image),
+        )
 print 'Image intensity min/max: {min}/{max}'.format(**d)
 print 'Voxel spacing: {vs}'.format(**d)
+print 'Non-zero voxels: {nz}'.format(**d)
 print
 
 #plt.switch_backend('gtk')
