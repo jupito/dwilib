@@ -219,8 +219,9 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 def hog(img):
     """Histogram of Gradients (HoG) texture features."""
     # TODO Average over directions
-    return skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
+    feats = skimage.feature.hog(img, orientations=2, pixels_per_cell=(2,2),
             cells_per_block=(2,2), normalise=True)
+    return feats
 
 def hog_map(img, winsize, mask=None, output=None):
     """Histogram of Gradients (HoG) texture feature map."""
