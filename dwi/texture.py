@@ -122,7 +122,7 @@ def haralick_map(img, winsize, mask=None, output=None):
 
 # Local Binary Pattern (LBP) features
 
-def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
+def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
     """Local Binary Pattern (LBP) frequency histogram map."""
     import lbp
     lbp_data = lbp.lbp(img, neighbours, radius, roinv, uniform)
@@ -130,9 +130,11 @@ def lbp_freqs(img, winsize=3, neighbours=8, radius=1, roinv=1, uniform=1):
             roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
-def lbp_freq_map(img, winsize=3, neighbours=8, radius=1):
+def lbp_freq_map(img, winsize, neighbours=8, radius=None):
     """Local Binary Pattern (LBP) frequency histogram map."""
-    _, freqs, n = lbp_freqs(img, winsize, neighbours, radius)
+    if radius is None:
+        radius = winsize // 2
+    _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
     output = np.rollaxis(freqs, -1)
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
     return output, names
