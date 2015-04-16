@@ -84,8 +84,9 @@ for method, call in METHODS.items():
         if args.verbose > 1:
             print method
         for winsize in args.winsizes:
-            tmap, names = call(img_slice, winsize, mask=mask_slice)
-            feats += map(np.mean, tmap[:,mask_slice])
+            tmaps, names = call(img_slice, winsize, mask=mask_slice)
+            tmaps = tmaps[:,mask_slice]
+            feats += map(np.mean, tmaps)
             featnames += names
 
 if args.verbose:
