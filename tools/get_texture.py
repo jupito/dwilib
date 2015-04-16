@@ -98,18 +98,12 @@ if 'glcm' in args.methods or 'all' in args.methods:
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)
 
-def abbrev(name):
-    """Abbreviate multiword feature name."""
-    if ' ' in name:
-        name = ''.join([word[0] for word in name.split()])
-    return name
-
 if 'haralick' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.haralick_map(normalize(img_slice), winsize,
             mask=mask_slice)
     for i, (a, n) in enumerate(zip(tmap, names)):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('haralick{:d}-{:s}'.format(i+1, abbrev(n)))
+        propnames.append(n)
 
 if 'lbp' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize)

@@ -11,6 +11,12 @@ import skimage.feature
 
 import dwi.util
 
+def abbrev(name):
+    """Abbreviate multiword feature name."""
+    if ' ' in name:
+        name = ''.join([word[0] for word in name.split()])
+    return name
+
 # Basic statistical features
 
 def stats(img):
@@ -118,6 +124,8 @@ def haralick_map(img, winsize, mask=None, output=None):
             output = np.zeros((len(names),) + img.shape)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
+    names = ['haralick{i}-{n}'.format(i=i+1, n=abbrev(n)) for i, n in
+            enumerate(names)]
     return output, names
 
 # Local Binary Pattern (LBP) features
