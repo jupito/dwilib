@@ -43,18 +43,6 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def normalize(pmap):
-    """Normalize images within given range and convert to byte maps."""
-    import skimage
-    import skimage.exposure
-    #in_range = (0, 0.03)
-    in_range = (0, 0.005)
-    #in_range = (0, 0.002)
-    #in_range = (pmap.min(), pmap.max())
-    pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
-    pmap = skimage.img_as_ubyte(pmap)
-    return pmap
-
 def clip(pmap):
     """Clip ADC pmap slice."""
     assert pmap.ndim == 2
@@ -91,12 +79,12 @@ if 'stats' in args.methods or 'all' in args.methods:
     propnames += names
 
 if 'glcm' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.glcm_map(normalize(img_slice), winsize, mask=mask_slice)
+    tmap, names = dwi.texture.glcm_map(img_slice, winsize, mask=mask_slice)
     props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'haralick' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.haralick_map(normalize(img_slice), winsize, mask=mask_slice)
+    tmap, names = dwi.texture.haralick_map(img_slice, winsize, mask=mask_slice)
     props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 

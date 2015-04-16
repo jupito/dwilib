@@ -11,6 +11,18 @@ import skimage.feature
 
 import dwi.util
 
+def normalize(pmap):
+    """Normalize images within given range and convert to byte maps."""
+    import skimage
+    import skimage.exposure
+    #in_range = (0, 0.03)
+    in_range = (0, 0.005)
+    #in_range = (0, 0.002)
+    #in_range = (pmap.min(), pmap.max())
+    pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
+    pmap = skimage.img_as_ubyte(pmap)
+    return pmap
+
 def abbrev(name):
     """Abbreviate multiword feature name."""
     if ' ' in name:
@@ -64,6 +76,7 @@ def glcm_props(img, names=PROPNAMES):
 
 def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
+    img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = glcm_props(win, names)
         if output is None:
@@ -118,6 +131,7 @@ def haralick(img):
 
 def haralick_map(img, winsize, mask=None, output=None):
     """Haralick texture feature map."""
+    img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win)
         if output is None:
