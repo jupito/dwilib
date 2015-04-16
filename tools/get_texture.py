@@ -118,7 +118,7 @@ if 'hog' in args.methods or 'all' in args.methods:
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
     tmap, names = dwi.texture.gabor_map(clip(img_slice), winsize,
-            sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4], mask=mask_slice)
+            mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)

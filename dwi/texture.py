@@ -178,7 +178,8 @@ def gabor(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
         d[key] = value
     return d
 
-def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], mask=None, output=None):
+def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
+        mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win, sigmas, freqs)
