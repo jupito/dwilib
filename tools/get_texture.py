@@ -23,7 +23,7 @@ import dwi.util
 METHODS = collections.OrderedDict([
         ('stats', dwi.texture.stats_map),
         ('glcm', dwi.texture.glcm_map),
-        ('haralick', dwi.texture.haralick_map),
+        #('haralick', dwi.texture.haralick_map),
         ('lbp', dwi.texture.lbp_freq_map),
         ('hog', dwi.texture.hog_map),
         ('gabor', dwi.texture.gabor_map),
@@ -120,6 +120,7 @@ for method, call in METHODS.items():
             tmaps, names = call(img_slice, winsize, mask=mask)
             tmaps = tmaps[:,mask]
             feats += map(np.mean, tmaps)
+            names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
             featnames += names
 
 if args.verbose:
