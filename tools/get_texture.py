@@ -89,7 +89,8 @@ if 'basic' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'glcm' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.glcm_map(normalize(img_slice), winsize, mask=mask_slice)
+    tmap, names = dwi.texture.glcm_map(normalize(img_slice), winsize,
+            mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)
@@ -131,12 +132,6 @@ if 'moment' in args.methods or 'all' in args.methods:
         propnames.append(n)
 
 if 'haar' in args.methods or 'all' in args.methods:
-    #l = [0,1,3,4] # Exclude middle row and column.
-    #roi_corners = roi[l][:,l]
-    #d = dwi.texture.haar_features(roi_corners)
-    #for k, v in d.iteritems():
-    #    propnames.append('haar{}'.format(str(k)).translate(None, " '"))
-    #    props.append(v)
     tmap, names = dwi.texture.haar_map(img_slice, winsize, mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
