@@ -56,7 +56,8 @@ def parse_args():
 
 
 args = parse_args()
-print 'Reading data...'
+if args.verbose:
+    print 'Reading data...'
 data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 mask = dwi.mask.read_mask(args.mask)
@@ -71,12 +72,14 @@ winsize = args.winsize
 if args.verbose > 1:
     print 'Image: %s, winsize: %s' % (img.shape, winsize)
 
+if args.verbose:
+    print 'Calculating texture features...'
 feats = []
 featnames = []
 for method, call in METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
-            print 'Calculating {}...'.format(method)
+            print method
         tmap, names = call(img_slice, winsize, mask=mask_slice)
         feats += map(np.mean, tmap[:,mask_slice])
         featnames += names
