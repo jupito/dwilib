@@ -68,20 +68,19 @@ if isinstance(mask, dwi.mask.Mask):
 img_slice = mask.selected_slice(img)[:,:,0]
 mask_slice = mask.array[mask.selected_slices()[0]]
 winsize = args.winsize
-sl = slice(winsize//2, -(winsize//2))
 if args.verbose > 1:
     print 'Image: %s, winsize: %s' % (img.shape, winsize)
 
-props = []
-propnames = []
+feats = []
+featnames = []
 for method, call in METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print 'Calculating {}...'.format(method)
         tmap, names = call(img_slice, winsize, mask=mask_slice)
-        props += map(np.mean, tmap[:,mask_slice])
-        propnames += names
+        feats += map(np.mean, tmap[:,mask_slice])
+        featnames += names
 
 if args.verbose:
-    print 'Writing %s features to %s' % (len(props), args.output)
-dwi.asciifile.write_ascii_file(args.output, [props], propnames)
+    print 'Writing %s features to %s' % (len(feats), args.output)
+dwi.asciifile.write_ascii_file(args.output, [feats], featnames)
