@@ -82,8 +82,8 @@ sl = slice(winsize//2, -(winsize//2))
 if args.verbose > 1:
     print 'Image: %s, winsize: %s' % (img.shape, winsize)
 
-propnames = []
 props = []
+propnames = []
 
 if 'stats' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.stats_map(img_slice, winsize, mask=mask_slice)
