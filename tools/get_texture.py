@@ -47,8 +47,8 @@ def parse_args():
             help='mask file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='*',
             help='methods ({})'.format(', '.join(METHODS.keys())))
-    p.add_argument('--winsize', type=int, default=5,
-            help='window size length')
+    p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
+            help='window side lengths')
     p.add_argument('--output', metavar='FILENAME',
             help='output ASCII file')
     args = p.parse_args()
@@ -68,9 +68,8 @@ if isinstance(mask, dwi.mask.Mask):
 
 img_slice = mask.selected_slice(img)[:,:,0]
 mask_slice = mask.array[mask.selected_slices()[0]]
-winsize = args.winsize
 if args.verbose > 1:
-    print 'Image: %s, winsize: %s' % (img.shape, winsize)
+    print 'Image: %s, window sizes: %s' % (img.shape, args.winsizes)
 
 if args.verbose:
     print 'Calculating texture features...'
@@ -80,9 +79,10 @@ for method, call in METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method
-        tmap, names = call(img_slice, winsize, mask=mask_slice)
-        feats += map(np.mean, tmap[:,mask_slice])
-        featnames += names
+        for winsize in args.winsizes:
+            tmap, names = call(img_slice, winsize, mask=mask_slice)
+            feats += map(np.mean, tmap[:,mask_slice])
+            featnames += names
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(feats), args.output)
