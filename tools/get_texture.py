@@ -87,54 +87,46 @@ props = []
 
 if 'stats' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.stats_map(img_slice, winsize, mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'glcm' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.glcm_map(normalize(img_slice), winsize,
             mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'haralick' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.haralick_map(normalize(img_slice), winsize,
             mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'lbp' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'hog' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.hog_map(img_slice, winsize, mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'gabor' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.gabor_map(clip(img_slice), winsize,
             mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'moment' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.moment_map(img_slice, winsize, max_order=12,
             mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if 'haar' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.haar_map(img_slice, winsize, mask=mask_slice)
-    tmap = tmap[:,mask_slice]
-    props += map(np.mean, tmap)
+    props += map(np.mean, tmap[:,mask_slice])
     propnames += names
 
 if args.verbose:
