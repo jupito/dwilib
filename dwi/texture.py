@@ -186,7 +186,7 @@ def gabor_map(img, winsize, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4], mask=None, ou
             output = np.zeros((len(feats),) + img.shape)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
-    names = map(str, feats.keys())
+    names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
 # Histogram of Oriented Gradients (HOG)
@@ -205,7 +205,7 @@ def hog_map(img, winsize, mask=None, output=None):
             output = np.zeros((len(feats),) + img.shape)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
-    names = map(str, range(len(feats)))
+    names = ['hog({})'.format(i) for i in range(len(feats))]
     return output, names
 
 # Image moments
@@ -238,7 +238,7 @@ def moment_map(img, winsize, max_order=2, mask=None, output=None):
             output = np.zeros((len(feats),) + img.shape)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
-    names = map(str, feats.keys())
+    names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
 # Haar transformation
@@ -295,5 +295,5 @@ def haar_map(img, winsize, mask=None, output=None):
                 output = np.zeros((len(levels)*len(feats),) + level.shape)
             for j, v in enumerate(feats.values()):
                 output[(i*len(feats)+j,) + pos] = v
-        names += ['%i,%s' % (i, k) for k in feats.keys()]
+        names += ['haar(%i,%s)' % (i, k) for k in feats.keys()]
     return output, names

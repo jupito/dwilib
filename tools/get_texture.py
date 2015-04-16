@@ -95,7 +95,7 @@ if 'haralick' in args.methods or 'all' in args.methods:
         propnames.append('haralick{:d}-{:s}'.format(i+1, n))
 
 if 'lbp' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize, radius=1.5)
+    tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)
@@ -104,7 +104,7 @@ if 'hog' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.hog_map(img_slice, winsize, mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('hog{:s}'.format(n))
+        propnames.append(n)
 
 if 'gabor' in args.methods or 'all' in args.methods:
     # TODO only for ADCm, clips them
@@ -120,14 +120,14 @@ if 'gabor' in args.methods or 'all' in args.methods:
             freqs=[0.1, 0.2, 0.3, 0.4], mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('gabor{:s}'.format(n).translate(None, " '"))
+        propnames.append(n)
 
 if 'moment' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.moment_map(img_slice, winsize, max_order=12,
             mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('moment{:s}'.format(n).translate(None, " '"))
+        propnames.append(n)
 
 if 'haar' in args.methods or 'all' in args.methods:
     #l = [0,1,3,4] # Exclude middle row and column.
@@ -139,7 +139,7 @@ if 'haar' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.haar_map(img_slice, winsize, mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
-        propnames.append('haar({:s})'.format(n).translate(None, " '"))
+        propnames.append(n)
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
