@@ -101,7 +101,7 @@ if 'glcm' in args.methods or 'all' in args.methods:
 if 'haralick' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.haralick_map(normalize(img_slice), winsize,
             mask=mask_slice)
-    for i, (a, n) in enumerate(zip(tmap, names)):
+    for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
         propnames.append(n)
 
