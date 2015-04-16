@@ -36,6 +36,8 @@ def parse_args():
     p.add_argument('--methods', metavar='METHOD', nargs='+',
             default=['all'],
             help='methods separated by comma')
+    p.add_argument('--winsize', type=int, default=5,
+            help='window size length')
     p.add_argument('--output', metavar='FILENAME',
             help='output ASCII file')
     args = p.parse_args()
@@ -75,13 +77,10 @@ if isinstance(mask, dwi.mask.Mask):
 
 img_slice = mask.selected_slice(img)[:,:,0]
 mask_slice = mask.array[mask.selected_slices()[0]]
-roi = mask.selected(img)
-roi.shape = dwi.util.make2d(roi.size)
-assert roi.shape[0] == roi.shape[1]
-winsize = roi.shape[0]
+winsize = args.winsize
 sl = slice(winsize//2, -(winsize//2))
 if args.verbose > 1:
-    print 'Image: %s, ROI: %s' % (img.shape, roi.shape)
+    print 'Image: %s, winsize: %s' % (img.shape, winsize)
 
 propnames = []
 props = []
@@ -143,8 +142,3 @@ if 'haar' in args.methods or 'all' in args.methods:
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
 dwi.asciifile.write_ascii_file(args.output, [props], propnames)
-
-#roi = roi[50:150, 50:150]
-#lbp_data, lbp_freq_data, patterns = dwi.texture.lbp_freqs(roi)
-#freqs = np.rollaxis(lbp_freq_data, 2)
-#dwi.plot.show_images([[roi, lbp_data], freqs[:5], freqs[5:]])
