@@ -45,8 +45,7 @@ def parse_args():
             help='scan identifier')
     p.add_argument('--mask',
             help='mask file to use')
-    p.add_argument('--methods', metavar='METHOD', nargs='+',
-            default=['all'],
+    p.add_argument('--methods', metavar='METHOD', nargs='*',
             help='methods ({})'.format(', '.join(METHODS.keys())))
     p.add_argument('--winsize', type=int, default=5,
             help='window size length')
@@ -75,46 +74,13 @@ if args.verbose > 1:
 
 props = []
 propnames = []
-
-if 'stats' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.stats_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'glcm' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.glcm_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'haralick' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.haralick_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'lbp' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.lbp_freq_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'hog' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.hog_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'gabor' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.gabor_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'moment' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.moment_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
-
-if 'haar' in args.methods or 'all' in args.methods:
-    tmap, names = dwi.texture.haar_map(img_slice, winsize, mask=mask_slice)
-    props += map(np.mean, tmap[:,mask_slice])
-    propnames += names
+for method, call in METHODS.items():
+    if args.methods is None or method in args.methods:
+        if args.verbose > 1:
+            print 'Calculating {}...'.format(method)
+        tmap, names = call(img_slice, winsize, mask=mask_slice)
+        props += map(np.mean, tmap[:,mask_slice])
+        propnames += names
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(props), args.output)
