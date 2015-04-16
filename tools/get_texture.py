@@ -85,7 +85,7 @@ if args.verbose > 1:
 propnames = []
 props = []
 
-if 'basic' in args.methods or 'all' in args.methods:
+if 'stats' in args.methods or 'all' in args.methods:
     tmap, names = dwi.texture.stats_map(img_slice, winsize, mask=mask_slice)
     for a, n in zip(tmap, names):
         props.append(np.mean(a[mask_slice]))
