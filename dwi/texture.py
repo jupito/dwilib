@@ -220,12 +220,16 @@ def hog(img):
     """Histogram of Gradients (HoG) texture features."""
     # TODO Average over directions
     kwargs = dict(
-            orientations=2,
-            pixels_per_cell=(2,2),
-            cells_per_block=(2,2),
+            #orientations=2,
+            orientations=8,
+            #pixels_per_cell=(2,2),
+            pixels_per_cell=img.shape,
+            #cells_per_block=(2,2),
+            cells_per_block=(1,1),
             normalise=True,
             )
     feats = skimage.feature.hog(img, **kwargs)
+    feats = [np.mean(feats)]
     return feats
 
 def hog_map(img, winsize, mask=None, output=None):
