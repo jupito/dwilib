@@ -217,8 +217,7 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
-    """Histogram of Gradients (HoG) texture features."""
-    # TODO Average over directions
+    """Histogram of Gradients (HoG) averaged over directions."""
     kwargs = dict(
             #orientations=2,
             orientations=8,
@@ -229,18 +228,17 @@ def hog(img):
             normalise=True,
             )
     feats = skimage.feature.hog(img, **kwargs)
-    feats = [np.mean(feats)]
-    return feats
+    return np.mean(feats)
 
 def hog_map(img, winsize, mask=None, output=None):
     """Histogram of Gradients (HoG) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = hog(win)
+        feats = [hog(win)]
         if output is None:
             output = np.zeros((len(feats),) + img.shape)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
-    names = ['hog({})'.format(i) for i in range(len(feats))]
+    names = ['hog']
     return output, names
 
 # Image moments
