@@ -160,7 +160,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 
 # Gabor features
 
-def gabor(img, sigmas=[1, 3], freqs=[0.1, 0.25, 0.4]):
+def gabor(img, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4]):
     """Gabor features averaged over 4 directions."""
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
