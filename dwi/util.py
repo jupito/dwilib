@@ -97,23 +97,25 @@ def subwindow_shape(subwindow):
     """Return subwindow shape."""
     return tuple(b-a for a, b in chunks(subwindow, 2))
 
-def sliding_window(a, size, mask=None):
-    """Multidimensional sliding window iterator.
+def sliding_window(a, winshape, mask=None):
+    """Multidimensional sliding window iterator with arbitrary window shape.
     
     Yields window origin (center) and view to window. Window won't overlap
     image border. If a mask array is provided, windows are skipped unless origin
     is selected in mask.
     """
-    if size % 2 != 1:
-        raise Exception('Window size must be odd: {}'.format(size))
-    if size > min(a.shape):
-        raise Exception('Window size too large: {}, {}'.format(size, a.shape))
+    if isinstance(winshape, int):
+        winshape = (winshape,) * a.ndim # Can give single value for window size.
+    if len(winshape) != a.ndim:
+        raise Exception('Invalid window dimensionality: {}'.format(winshape))
+    if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
+        raise Exception('Invalid window shape: {}'.format(winshape))
     a = np.asarray(a)
-    shape = tuple(i-size+1 for i in a.shape)
+    shape = tuple(i-w+1 for i, w in zip(a.shape, winshape))
     for indices in np.ndindex(shape):
-        origin = tuple(i+size//2 for i in indices)
+        origin = tuple(i+w//2 for i, w in zip(indices, winshape))
         if mask is None or mask[origin]:
-            slices = [slice(i, i+size) for i in indices]
+            slices = [slice(i, i+w) for i, w in zip(indices, winshape)]
             yield origin, a[slices]
 
 def median(a, axis=None, keepdims=False):
