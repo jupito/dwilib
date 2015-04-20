@@ -116,7 +116,8 @@ def sliding_window(a, winshape, mask=None):
         origin = tuple(i+w//2 for i, w in zip(indices, winshape))
         if mask is None or mask[origin]:
             slices = [slice(i, i+w) for i, w in zip(indices, winshape)]
-            yield origin, a[slices]
+            window = np.squeeze(a[slices])
+            yield origin, window
 
 def median(a, axis=None, keepdims=False):
     """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
