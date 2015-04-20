@@ -48,6 +48,8 @@ def parse_args():
             help='mask file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='*',
             help='methods ({})'.format(', '.join(METHODS.keys())))
+    p.add_argument('--slices', default='maxfirst',
+            help='slice selection (maxfirst, max, all)')
     p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
             help='window side lengths')
     p.add_argument('--portion', type=float, required=False, default=0,
@@ -97,14 +99,22 @@ img = data[0]['image']
 if isinstance(mask, dwi.mask.Mask):
     mask = mask.convert_to_3d(img.shape[0])
 
-slice_index = mask.max_slices()[0]
-img_slice = img[slice_index,:,:,0]
-mask_slice = mask.array[slice_index]
-portion_masks = [portion_mask(mask_slice, i, args.portion) for i in
-        args.winsizes]
+if args.slices == 'maxfirst':
+    slice_indices = [mask.max_slices()[0]]
+elif args.slices == 'max':
+    slice_indices = mask.max_slices()
+elif args.slices == 'all':
+    slice_indices = mask.selected_slices()
+else:
+    raise Exception('Invalid slice set specification', args.slices)
+
+img_slices = img[slice_indices,:,:,0]
+mask_slices = mask.array[slice_indices]
+winshapes = [(1,w,w) for w in args.winsizes]
+pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
 
 if args.verbose > 1:
-    d = dict(s=img.shape, i=slice_index, n=np.count_nonzero(mask_slice),
+    d = dict(s=img.shape, i=slice_indices, n=np.count_nonzero(mask_slices),
             w=args.winsizes)
     print 'Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d)
 
@@ -116,10 +126,16 @@ for method, call in METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method
-        for winsize, mask in zip(args.winsizes, portion_masks):
-            tmaps, names = call(img_slice, winsize, mask=mask)
-            tmaps = tmaps[:,mask]
-            feats += map(np.mean, tmaps)
+        for winsize, pmask_slices in zip(args.winsizes, pmasks):
+            tmaps_all = None
+            for img_slice, pmask_slice in zip(img_slices, pmask_slices):
+                tmaps, names = call(img_slice, winsize, mask=pmask_slice)
+                tmaps = tmaps[:,pmask_slice]
+                if tmaps_all is None:
+                    tmaps_all = tmaps
+                else:
+                    np.concatenate((tmaps_all, tmaps), axis=-1)
+            feats += map(np.mean, tmaps_all)
             names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
             featnames += names
 
