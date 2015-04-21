@@ -119,6 +119,22 @@ def sliding_window(a, winshape, mask=None):
             window = np.squeeze(a[slices])
             yield origin, window
 
+def bounding_box(array, pad=0):
+    """Return the minimum bounding box with optional padding.
+
+    Parameter pad can be a tuple of each dimension or a single number. It can
+    contain infinity for maximum padding.
+    """
+    if np.isscalar(pad):
+        pad = (pad,) * array.ndim
+    r = []
+    for a, l, p in zip(array.nonzero(), array.shape, pad):
+        x = max(min(a)-p, 0)
+        y = min(max(a)+1+p, l)
+        r.append((x, y))
+    #return tuple(map(int, r))
+    return tuple(r)
+
 def median(a, axis=None, keepdims=False):
     """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
     a = np.asanyarray(a)

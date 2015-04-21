@@ -27,6 +27,7 @@ def parse_args():
 def write_subregion(mask, pad, infile, filename):
     """Write a subregion file from mask."""
     bb = mask.bounding_box(pad=(np.inf, pad, pad))
+    bb = tuple(np.ravel(bb))
     comment = '%s, %i' % (os.path.basename(infile), pad)
     print 'Writing subregion to %s with padding of %s...' % (filename, pad)
     dwi.util.write_subregion_file(filename, bb, comment=comment)
