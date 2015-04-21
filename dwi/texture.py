@@ -89,6 +89,16 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
             output[(i,) + pos] = d[name]
     return output, names
 
+def glcm_mbb(img, names=PROPNAMES, mask):
+    """Single GLCM features for selected area inside minimum bounding box."""
+    positions = dwi.util.bounding_box(mask)
+    slices = [slice(*t) for t in positions]
+    img = img[slices]
+    mask = mask[slices]
+    img[-mask] = 0
+    feats = glcm_props(img, ignore_zeros=True)
+    return feats.values(), feats.keys()
+
 def haralick(img, ignore_zeros=False):
     """Haralick texture features averaged over 4 directions (14 features
     provided by mahotas)."""
@@ -110,6 +120,16 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     names = ['haralick{i}-{n}'.format(i=i+1, n=abbrev(n)) for i, n in
             enumerate(names)]
     return output, names
+
+def haralick_mbb(img, names=PROPNAMES, mask):
+    """Haralick features for selected area inside minimum bounding box."""
+    positions = dwi.util.bounding_box(mask)
+    slices = [slice(*t) for t in positions]
+    img = img[slices]
+    mask = mask[slices]
+    img[-mask] = 0
+    feats, names = haralick(img, ignore_zeros=True)
+    return feats, names
 
 # Local Binary Pattern (LBP) features
 
