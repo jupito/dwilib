@@ -85,19 +85,20 @@ def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
             output[(i,) + pos] = d[name]
     return output, names
 
-def haralick(img):
+def haralick(img, ignore_zeros=False):
     """Haralick texture features averaged over 4 directions (14 features
     provided by mahotas)."""
     import mahotas
-    a = mahotas.features.texture.haralick(img, compute_14th_feature=True)
+    a = mahotas.features.texture.haralick(img, ignore_zeros,
+            compute_14th_feature=True)
     a = np.mean(a, axis=0)
     return a, mahotas.features.texture.haralick_labels
 
-def haralick_map(img, winsize, mask=None, output=None):
+def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     """Haralick texture feature map."""
     img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats, names = haralick(win)
+        feats, names = haralick(win, ignore_zeros=ignore_zeros)
         if output is None:
             output = np.zeros((len(names),) + img.shape)
         for i, v in enumerate(feats):
