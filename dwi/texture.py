@@ -60,7 +60,7 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
-def glcm_props(img, names=PROPNAMES):
+def glcm_props(img, names=PROPNAMES, ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features averaged over 4
     directions (6 features provided by scikit-image)."""
     from skimage.feature import greycomatrix, greycoprops
@@ -69,16 +69,20 @@ def glcm_props(img, names=PROPNAMES):
     levels = 256
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
             normed=True)
+    if ignore_zeros and np.min(img) == 0:
+        # Drop information on the first grey-level if it's zero.
+        glcm = glcm[1:,1:,...]
     keys = names
     values = [np.mean(greycoprops(glcm, p)) for p in names]
     d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
     return d
 
-def glcm_map(img, winsize, names=PROPNAMES, mask=None, output=None):
+def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
+        output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
     img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        d = glcm_props(win, names)
+        d = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
             output = np.zeros((len(names),) + img.shape)
         for i, name in enumerate(names):
