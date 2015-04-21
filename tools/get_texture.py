@@ -129,6 +129,8 @@ for method, call in METHODS.items():
         for winsize, pmask_slices in zip(args.winsizes, pmasks):
             tmaps_all = None
             for img_slice, pmask_slice in zip(img_slices, pmask_slices):
+                if np.count_nonzero(pmask_slice) == 0:
+                    continue # Skip slice with empty mask.
                 tmaps, names = call(img_slice, winsize, mask=pmask_slice)
                 tmaps = tmaps[:,pmask_slice]
                 if tmaps_all is None:
