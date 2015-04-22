@@ -326,7 +326,10 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     d['slices'] = 'maxfirst'
     d['portion'] = 1
     if masktype == 'lesion':
-        d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
+        if model == 'T2':
+            d['mask'] = dwi.util.sglob('masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
+        else:
+            d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
     else:
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
@@ -368,7 +371,11 @@ def get_task_texture_auto(model, param, algparams, case, scan):
 def task_texture():
     """Generate texture features."""
     for case, scan in cases_scans():
-        for masktype in 'CA', 'N', 'lesion':
+        for masktype in ['lesion']:
+            yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
+        if MODEL == 'T2':
+            continue # Skip the rest.
+        for masktype in ['CA', 'N']:
             yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
         for algparams in find_roi_param_combinations():
             yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
