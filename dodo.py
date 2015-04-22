@@ -324,7 +324,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     d['slices'] = 'maxfirst'
     d['portion'] = 1
     if masktype == 'lesion':
-        d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_DWI_[O1]*/{c}_hB_{s}_DWI'.format(**d))
+        d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
     else:
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
