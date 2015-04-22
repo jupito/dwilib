@@ -58,6 +58,20 @@ FIND_ROI_PARAMS = [
         range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
 ]
 
+TEXTURE_METHODS = ' '.join([
+        'stats',
+        'glcm',
+        #'haralick',
+        'lbp',
+        'hog',
+        'gabor',
+        'moment',
+        'haar',
+        'glcm_mbb',
+        #'haralick_mbb',
+        ])
+TEXTURE_WINSIZES = '3 5 7 9 11 13'
+
 def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
     if SAMPLELIST == 'test':
@@ -302,32 +316,42 @@ def task_evaluate_autoroi():
 
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
-            mt=masktype, c=case, s=scan)
+    d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
+            winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
+            p=param, mt=masktype, c=case, s=scan)
+    d['slices'] = 'maxfirst'
+    d['portion'] = 1
     if masktype == 'lesion':
         d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_DWI_[O1]*/{c}_hB_{s}_DWI'.format(**d))
-        d['portion'] = 1
     else:
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
-        d['portion'] = 0
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --portion {portion} --winsizes 3 5 7 9 11 13 --output {o}'.format(**d)
+    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
+            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
+            ' --slices {slices} --portion {portion}'\
+            ' --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
-            #'file_dep': [d['i']],
+            'file_dep': glob.glob('{mask}/*'.format(**d)),
             'targets': [d['o']],
             'clean': True,
             }
 
 def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, pd=pmapdir_dicom(model), m=model, p=param,
-            mt='auto', c=case, s=scan, ap_='_'.join(algparams))
+    d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
+            winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
+            p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
+    d['slices'] = 'maxfirst'
+    d['portion'] = 1
     d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
-    cmd = '{prg} --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask} --winsizes 3 5 7 9 11 13 --output {o}'.format(**d)
+    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
+            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
+            ' --slices {slices} --portion {portion}'\
+            ' --output {o}'.format(**d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
