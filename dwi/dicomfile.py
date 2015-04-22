@@ -7,12 +7,11 @@ def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
     import os.path
+    # Sometimes the files reside in an additional 'DICOM' subdirectory.
+    path = os.path.join(dirname, 'DICOM')
+    if os.path.isdir(path):
+        dirname = path
     filenames = os.listdir(dirname)
-    if 'DICOM' in filenames:
-        # Sometimes the files reside in an additional 'DICOM' subdirectory.
-        path = os.path.join(dirname, 'DICOM')
-        if os.path.isdir(path):
-            dirname = path
     pathnames = [os.path.join(dirname, f) for f in filenames]
     return read_files(pathnames)
 
