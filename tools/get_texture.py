@@ -23,12 +23,16 @@ import dwi.util
 METHODS = collections.OrderedDict([
         ('stats', dwi.texture.stats_map),
         ('glcm', dwi.texture.glcm_map),
-        #('haralick', dwi.texture.haralick_map),
+        ('haralick', dwi.texture.haralick_map),
         ('lbp', dwi.texture.lbp_freq_map),
         ('hog', dwi.texture.hog_map),
         ('gabor', dwi.texture.gabor_map),
         ('moment', dwi.texture.moment_map),
         ('haar', dwi.texture.haar_map),
+        ])
+METHODS_MBB = collections.OrderedDict([
+        ('glcm_mbb', dwi.texture.glcm_mbb),
+        ('haralick_mbb', dwi.texture.haralick_mbb),
         ])
 
 def parse_args():
@@ -140,6 +144,24 @@ for method, call in METHODS.items():
             feats += map(np.mean, tmaps_all)
             names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
             featnames += names
+for method, call in METHODS_MBB.items():
+    if args.methods is None or method in args.methods:
+        if args.verbose > 1:
+            print method
+        tmaps_all = None
+        for img_slice, mask_slice in zip(img_slices, mask_slices):
+            if np.count_nonzero(mask_slice) == 0:
+                continue # Skip slice with empty mask.
+            tmaps, names = call(img_slice, mask=mask_slice)
+            tmaps = np.asarray(tmaps)
+            tmaps.shape += (1,)
+            if tmaps_all is None:
+                tmaps_all = tmaps
+            else:
+                np.concatenate((tmaps_all, tmaps), axis=-1)
+        feats += map(np.mean, tmaps_all)
+        names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
+        featnames += names
 
 if args.verbose:
     print 'Writing %s features to %s' % (len(feats), args.output)
