@@ -52,7 +52,11 @@ def read_prostate_mask(directory, case, scan):
 def read_dicom_pmap(directory, case, scan, param):
     """Read a single-parameter pmap in DICOM format."""
     d = dict(d=directory, c=case, s=scan, p=param)
-    path = dwi.util.sglob('{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
+    if param == 'none':
+        # There's no parameter name, only single 'raw' value (used for T2).
+        path = dwi.util.sglob('{d}/{c}_*_{s}*'.format(**d))
+    else:
+        path = dwi.util.sglob('{d}/{c}_*_{s}/{c}_*_{s}_{p}'.format(**d))
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
