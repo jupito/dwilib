@@ -91,7 +91,9 @@ def find_roi_param_combinations():
             yield map(str, t)
 
 def pmapdir_dicom(model):
-    return 'results_{m}_combinedDICOM'.format(m=model)
+    s = 'dicoms_{m}_*'.format(m=model)
+    path = dwi.util.sglob(s)
+    return path
 
 def pmap_dicom(**d):
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'
