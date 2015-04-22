@@ -43,7 +43,9 @@ SUBREGION_DIR = 'subregions'
 
 MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
-DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN', Kurt='ADCk', KurtN='ADCkN')
+DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
+        Kurt='ADCk', KurtN='ADCkN',
+        T2='raw')
 MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 
