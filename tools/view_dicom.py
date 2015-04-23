@@ -25,6 +25,8 @@ def parse_args():
             help='be more verbose')
     p.add_argument('--normalize', '-n', action='store_true',
             help='normalize signal intensity curves')
+    p.add_argument('--info', '-i', action='store_true',
+            help='show information only')
     args = p.parse_args()
     return args
 
@@ -108,7 +110,7 @@ d = dict(min=dwimage.image.min(),
 print 'Image intensity min/max: {min}/{max}'.format(**d)
 print 'Voxel spacing: {vs}'.format(**d)
 print 'Non-zero voxels: {nz}'.format(**d)
-print
 
-#plt.switch_backend('gtk')
-Gui(dwimage.image)
+if not args.info:
+    #plt.switch_backend('gtk')
+    Gui(dwimage.image)
