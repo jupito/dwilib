@@ -46,6 +46,10 @@ for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
     Labels = Labels.union(set(d['score'] for d in data))
+    groups = [set() for _ in range(max(d['label'] for d in data) + 1)]
+    for d in data:
+        groups[d['label']].add(d['score'])
+    groups = [sorted(g) for g in groups]
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
@@ -59,10 +63,13 @@ for i, pmapdir in enumerate(args.pmapdir):
 # Print info on each parameter.
 if args.verbose > 2:
     for x, y, param in zip(X, Y, Params):
-        d = dict(ns=len(x), nl=len(Labels), l=sorted(Labels), npos=sum(y))
+        d = dict(ns=len(x), npos=sum(y),
+                nl=len(Labels), l=sorted(Labels),
+                ng=len(groups), g=' '.join(map(str, groups)))
         print param
         print 'Samples: {ns}'.format(**d)
         print 'Labels: {nl}: {l}'.format(**d)
+        print 'Groups: {ng}: {g}'.format(**d)
         print 'Positives: {npos}'.format(**d)
 
 # Print AUCs and bootstrapped AUCs.
