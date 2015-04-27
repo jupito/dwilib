@@ -27,7 +27,7 @@ def parse_args():
     p.add_argument('--voxel', default='all',
             help='index of voxel to use, or all, mean, median')
     p.add_argument('--autoflip', action='store_true',
-            help='flip data when AUC < .5')
+            help='flip data when AUC < 0.5')
     p.add_argument('--compare', action='store_true',
             help='do AUC comparison')
     p.add_argument('--figure',
