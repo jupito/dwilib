@@ -97,7 +97,7 @@ for x, y, param in zip(X, Y, Params):
 # Print bootstrapped AUC comparisons.
 if args.compare:
     if args.verbose > 1:
-        print '# param1\tparam2\tdiff\tZ\tp'
+        print '# param1  param2  diff  Z  p'
     done = []
     for i, param_i in enumerate(Params):
         for j, param_j in enumerate(Params):
@@ -105,7 +105,7 @@ if args.compare:
                 continue
             done.append((i,j))
             d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
-            print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)
+            print '%s  %s  %+0.6f  %+0.6f  %0.6f' % (param_i, param_j, d, z, p)
 
 # Plot the ROCs.
 if args.figure:
@@ -123,7 +123,7 @@ def plot(X, Y, params, filename):
             continue
         fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
         if args.verbose > 1:
-            print '%s:\tAUC: %f' % (param, auc)
+            print '%s:  AUC: %f' % (param, auc)
         else:
             print '%f' % auc
         pl.subplot2grid((n_rows, n_cols), (row, 0))
