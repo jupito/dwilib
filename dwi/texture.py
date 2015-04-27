@@ -148,7 +148,8 @@ def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
 def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     """Local Binary Pattern (LBP) frequency histogram map.
     
-    Note: mask parameter is not used."""
+    Note: mask parameter is not used: the feature map is calculated for whole
+    image."""
     if radius is None:
         radius = winsize // 2
     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
