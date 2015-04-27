@@ -72,7 +72,7 @@ TEXTURE_METHODS = ' '.join([
         'glcm_mbb',
         #'haralick_mbb',
         ])
-TEXTURE_WINSIZES = '3 5 7 9 11 13'
+TEXTURE_WINSIZES = ' '.join(map(str, range(3, 36, 2)))
 
 def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
