@@ -57,8 +57,7 @@ for i, pmapdir in enumerate(args.pmapdir):
     for d in data:
         groups[d['label']].add(d['score'])
     groups = [sorted(g) for g in groups]
-    params = data[0]['params']
-    for j, param in enumerate(params):
+    for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
             for v in d['pmap']:
