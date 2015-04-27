@@ -48,11 +48,16 @@ def correlation(x, y):
 args = parse_args()
 X, Y = [], []
 Params = []
+Labels = set()
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             args.thresholds, voxel=args.voxel)
+    Labels = Labels.union(set(d['score'] for d in data))
+    groups = [set() for _ in range(max(d['label'] for d in data) + 1)]
+    for d in data:
+        groups[d['label']].add(d['score'])
+    groups = [sorted(g) for g in groups]
     params = data[0]['params']
-    labels = set(d['score'] for d in data)
     for j, param in enumerate(params):
         x, y = [], []
         for d in data:
@@ -63,17 +68,19 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
+if args.verbose > 1:
+    d = dict(ns=len(X[0]),
+            nl=len(Labels), l=sorted(Labels),
+            ng=len(groups), g=' '.join(map(str, groups)))
+    print 'Samples: {ns}'.format(**d)
+    print 'Labels: {nl}: {l}'.format(**d)
+    print 'Groups: {ng}: {g}'.format(**d)
+    print '# param  r  p  lower  upper'
+
 params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
-    if args.verbose > 1:
-        d = dict(ns=len(x), nl=len(labels), l=sorted(labels))
-        print param
-        print 'Samples: {ns}'.format(**d)
-        print 'Labels: {nl}: {l}'.format(**d)
     d = dict(param=param)
     d.update(correlation(x, y))
-    if args.verbose > 1:
-        print '# param  r  p  lower  upper'
     if args.verbose:
         s = '{param:%i}  {r:+.3f}  {p:.3f}  {lower:+.3f}  {upper:+.3f}' % params_maxlen
     else:
