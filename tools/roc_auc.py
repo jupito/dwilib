@@ -41,11 +41,11 @@ args = parse_args()
 # Collect all parameters.
 X, Y = [], []
 Params = []
-Labels = set()
+labels = set()
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
-    Labels = Labels.union(set(d['score'] for d in data))
+    labels = labels.union(set(d['score'] for d in data))
     groups = [set() for _ in range(max(d['label'] for d in data) + 1)]
     for d in data:
         groups[d['label']].add(d['score'])
@@ -66,7 +66,7 @@ if args.verbose > 1:
     n_pos = sum(Y[0])
     n_neg = n_samples - n_pos
     d = dict(ns=n_samples, nn=n_neg, np=n_pos,
-            nl=len(Labels), l=sorted(Labels),
+            nl=len(labels), l=sorted(labels),
             ng=len(groups), g=' '.join(map(str, groups)))
     print 'Samples: {ns}'.format(**d)
     print 'Labels: {nl}: {l}'.format(**d)
