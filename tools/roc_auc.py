@@ -44,9 +44,8 @@ Params = []
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
-    params = data[0]['params']
     labels = set(d['score'] for d in data)
-    for j, param in enumerate(params):
+    for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
             for v in d['pmap']:
