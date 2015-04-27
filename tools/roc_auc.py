@@ -74,7 +74,7 @@ if args.verbose > 1:
     print 'Negatives: {nn}, Positives: {np}'.format(**d)
 
 # Print AUCs and bootstrapped AUCs.
-if args.verbose:
+if args.verbose > 1:
     print '# param  AUC  AUC_BS_mean  lower  upper'
 Auc_bs = []
 params_maxlen = max(len(p) for p in Params)
@@ -96,7 +96,7 @@ for x, y, param in zip(X, Y, Params):
 
 # Print bootstrapped AUC comparisons.
 if args.compare:
-    if args.verbose:
+    if args.verbose > 1:
         print '# param1\tparam2\tdiff\tZ\tp'
     done = []
     for i, param_i in enumerate(Params):
@@ -122,7 +122,7 @@ def plot(X, Y, params, filename):
         if param in skipped_params:
             continue
         fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
-        if args.verbose:
+        if args.verbose > 1:
             print '%s:\tAUC: %f' % (param, auc)
         else:
             print '%f' % auc
