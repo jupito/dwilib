@@ -44,20 +44,29 @@ def correlation(x, y):
         upper = math.tanh(math.atanh(r) + delta)
     return dict(r=r, p=p, lower=lower, upper=upper)
 
+def grouping(data):
+    """Return different scores, grouped scores, and their sample sizes."""
+    scores = [d['score'] for d in data]
+    labels = [d['label'] for d in data]
+    n_labels = max(labels) + 1
+    groups = [[] for _ in range(n_labels)]
+    for s, l in zip(scores, labels):
+        groups[l].append(s)
+    group_scores = [sorted(set(g)) for g in groups]
+    group_sizes = [len(g) for g in groups]
+    return sorted(set(scores)), group_scores, group_sizes
+
 
 # Collect all parameters.
 args = parse_args()
 X, Y = [], []
 Params = []
-labels = set()
+labels = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             args.thresholds, voxel=args.voxel)
-    labels = labels.union(set(d['score'] for d in data))
-    groups = [set() for _ in range(max(d['label'] for d in data) + 1)]
-    for d in data:
-        groups[d['label']].add(d['score'])
-    groups = [sorted(g) for g in groups]
+    if labels is None:
+        labels, groups, group_sizes = grouping(data)
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
@@ -72,10 +81,12 @@ for i, pmapdir in enumerate(args.pmapdir):
 if args.verbose > 1:
     d = dict(ns=len(X[0]),
             nl=len(labels), l=sorted(labels),
-            ng=len(groups), g=' '.join(map(str, groups)))
+            ng=len(groups), g=' '.join(map(str, groups)),
+            gs=', '.join(map(str, group_sizes)))
     print 'Samples: {ns}'.format(**d)
     print 'Labels: {nl}: {l}'.format(**d)
     print 'Groups: {ng}: {g}'.format(**d)
+    print 'Group sizes: {gs}'.format(**d)
 
 # Print correlations.
 if args.verbose > 1:
