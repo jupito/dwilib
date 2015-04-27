@@ -54,6 +54,7 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
             output = np.zeros((len(names),) + img.shape)
         for i, name in enumerate(names):
             output[(i,) + pos] = d[name]
+    names = ['stats({})'.format(n) for n in names]
     return output, names
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
