@@ -44,18 +44,6 @@ def correlation(x, y):
         upper = math.tanh(math.atanh(r) + delta)
     return dict(r=r, p=p, lower=lower, upper=upper)
 
-def grouping(data):
-    """Return different scores, grouped scores, and their sample sizes."""
-    scores = [d['score'] for d in data]
-    labels = [d['label'] for d in data]
-    n_labels = max(labels) + 1
-    groups = [[] for _ in range(n_labels)]
-    for s, l in zip(scores, labels):
-        groups[l].append(s)
-    group_scores = [sorted(set(g)) for g in groups]
-    group_sizes = [len(g) for g in groups]
-    return sorted(set(scores)), group_scores, group_sizes
-
 
 # Collect all parameters.
 args = parse_args()
@@ -66,7 +54,7 @@ for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             args.thresholds, voxel=args.voxel)
     if labels is None:
-        labels, groups, group_sizes = grouping(data)
+        labels, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:

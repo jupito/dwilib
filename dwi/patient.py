@@ -214,6 +214,21 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
                 raise Exception('Irregular params: %s' % pathname)
     return data
 
+def grouping(data):
+    """Return different scores, grouped scores, and their sample sizes.
+    
+    See read_pmaps()."""
+    scores = [d['score'] for d in data]
+    labels = [d['label'] for d in data]
+    n_labels = max(labels) + 1
+    groups = [[] for _ in range(n_labels)]
+    for s, l in zip(scores, labels):
+        groups[l].append(s)
+    different_scores = sorted(set(scores))
+    group_scores = [sorted(set(g)) for g in groups]
+    group_sizes = [len(g) for g in groups]
+    return different_scores, group_scores, group_sizes
+
 def read_pmap(dirname, case, scan, voxel='all'):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan)
