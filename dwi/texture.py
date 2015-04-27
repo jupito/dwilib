@@ -124,7 +124,7 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
             output = np.zeros((len(names),) + img.shape)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
-    names = ['haralick{i}-{n}'.format(i=i+1, n=abbrev(n)) for i, n in
+    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
             enumerate(names)]
     return output, names
 
@@ -137,7 +137,7 @@ def haralick_mbb(img, mask):
     mask = mask[slices]
     img[-mask] = 0
     feats, names = haralick(img, ignore_zeros=True)
-    names = ['haralick{i}-{n}'.format(i=i+1, n=abbrev(n)) for i, n in
+    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
             enumerate(names)]
     return feats, names
 
