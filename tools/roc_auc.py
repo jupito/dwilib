@@ -41,10 +41,11 @@ args = parse_args()
 # Collect all parameters.
 X, Y = [], []
 Params = []
+Labels = set()
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
-    labels = set(d['score'] for d in data)
+    Labels = Labels.union(set(d['score'] for d in data))
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
@@ -58,7 +59,7 @@ for i, pmapdir in enumerate(args.pmapdir):
 # Print info on each parameter.
 if args.verbose > 2:
     for x, y, param in zip(X, Y, Params):
-        d = dict(ns=len(x), nl=len(labels), l=sorted(labels), npos=sum(y))
+        d = dict(ns=len(x), nl=len(Labels), l=sorted(Labels), npos=sum(y))
         print param
         print 'Samples: {ns}'.format(**d)
         print 'Labels: {nl}: {l}'.format(**d)
