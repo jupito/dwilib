@@ -60,11 +60,10 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
-def glcm_props(img, names=PROPNAMES, ignore_zeros=False):
+def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features averaged over 4
     directions (6 features provided by scikit-image)."""
     from skimage.feature import greycomatrix, greycoprops
-    distances = [1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     levels = 256
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
@@ -72,9 +71,13 @@ def glcm_props(img, names=PROPNAMES, ignore_zeros=False):
     if ignore_zeros and np.min(img) == 0:
         # Drop information on the first grey-level if it's zero.
         glcm = glcm[1:,1:,...]
-    keys = names
-    values = [np.mean(greycoprops(glcm, p)) for p in names]
-    d = collections.OrderedDict((k, v) for k, v in zip(keys, values))
+    d = collections.OrderedDict()
+    for name in names:
+        feats = greycoprops(glcm, name) # Returns array (distance, angle).
+        feats = np.mean(feats, axis=1) # Average over angles.
+        for dist, feat in zip(distances, feats):
+            d[(name, dist)] = feat
+        d[(name, 'avg')] = np.mean(feats)
     return d
 
 def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
@@ -82,11 +85,12 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
     img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        d = glcm_props(win, names, ignore_zeros=ignore_zeros)
+        feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
-            output = np.zeros((len(names),) + img.shape)
-        for i, name in enumerate(names):
-            output[(i,) + pos] = d[name]
+            output = np.zeros((len(feats),) + img.shape)
+        for i, value in enumerate(feats.values()):
+            output[(i,) + pos] = value
+    names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
 def glcm_mbb(img, mask):
@@ -98,7 +102,9 @@ def glcm_mbb(img, mask):
     mask = mask[slices]
     img[-mask] = 0
     feats = glcm_props(img, ignore_zeros=True)
-    return feats.values(), feats.keys()
+    output = feats.values()
+    names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
+    return output, names
 
 def haralick(img, ignore_zeros=False):
     """Haralick texture features averaged over 4 directions (14 features
