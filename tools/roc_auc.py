@@ -60,7 +60,7 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
-# Print info on each parameter.
+# Print info.
 if args.verbose > 1:
     n_samples = len(X[0])
     n_pos = sum(Y[0])
