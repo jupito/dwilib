@@ -61,16 +61,17 @@ for i, pmapdir in enumerate(args.pmapdir):
         Params.append('%i:%s' % (i, param))
 
 # Print info on each parameter.
-if args.verbose > 2:
-    for x, y, param in zip(X, Y, Params):
-        d = dict(ns=len(x), npos=sum(y),
-                nl=len(Labels), l=sorted(Labels),
-                ng=len(groups), g=' '.join(map(str, groups)))
-        print param
-        print 'Samples: {ns}'.format(**d)
-        print 'Labels: {nl}: {l}'.format(**d)
-        print 'Groups: {ng}: {g}'.format(**d)
-        print 'Positives: {npos}'.format(**d)
+if args.verbose > 1:
+    n_samples = len(X[0])
+    n_pos = sum(Y[0])
+    n_neg = n_samples - n_pos
+    d = dict(ns=n_samples, nn=n_neg, np=n_pos,
+            nl=len(Labels), l=sorted(Labels),
+            ng=len(groups), g=' '.join(map(str, groups)))
+    print 'Samples: {ns}'.format(**d)
+    print 'Labels: {nl}: {l}'.format(**d)
+    print 'Groups: {ng}: {g}'.format(**d)
+    print 'Negatives: {nn}, Positives: {np}'.format(**d)
 
 # Print AUCs and bootstrapped AUCs.
 if args.verbose:
