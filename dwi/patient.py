@@ -11,7 +11,10 @@ class GleasonScore(object):
     def __init__(self, score):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional)."""
-        s = score.split('+') if isinstance(score, str) else list(score)
+        if isinstance(score, str) or isinstance(score, unicode):
+            s = score.split('+')
+        else:
+            s = list(score)
         if not 2 <= len(s) <= 3:
             raise Exception('Invalid gleason score: %s', score)
         if len(s) == 2:
