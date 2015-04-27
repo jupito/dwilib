@@ -49,12 +49,12 @@ def correlation(x, y):
 args = parse_args()
 X, Y = [], []
 Params = []
-labels = None
+scores = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             args.thresholds, voxel=args.voxel)
-    if labels is None:
-        labels, groups, group_sizes = dwi.patient.grouping(data)
+    if scores is None:
+        scores, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
@@ -67,12 +67,12 @@ for i, pmapdir in enumerate(args.pmapdir):
 
 # Print info.
 if args.verbose > 1:
-    d = dict(ns=len(X[0]),
-            nl=len(labels), l=sorted(labels),
+    d = dict(n=len(X[0]),
+            ns=len(scores), s=scores,
             ng=len(groups), g=' '.join(map(str, groups)),
             gs=', '.join(map(str, group_sizes)))
-    print 'Samples: {ns}'.format(**d)
-    print 'Labels: {nl}: {l}'.format(**d)
+    print 'Samples: {n}'.format(**d)
+    print 'Scores: {ns}: {s}'.format(**d)
     print 'Groups: {ng}: {g}'.format(**d)
     print 'Group sizes: {gs}'.format(**d)
 

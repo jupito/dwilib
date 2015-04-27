@@ -41,15 +41,12 @@ args = parse_args()
 # Collect all parameters.
 X, Y = [], []
 Params = []
-labels = set()
+scores = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
-    labels = labels.union(set(d['score'] for d in data))
-    groups = [set() for _ in range(max(d['label'] for d in data) + 1)]
-    for d in data:
-        groups[d['label']].add(d['score'])
-    groups = [sorted(g) for g in groups]
+    if scores is None:
+        scores, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):
         x, y = [], []
         for d in data:
@@ -62,16 +59,14 @@ for i, pmapdir in enumerate(args.pmapdir):
 
 # Print info.
 if args.verbose > 1:
-    n_samples = len(X[0])
-    n_pos = sum(Y[0])
-    n_neg = n_samples - n_pos
-    d = dict(ns=n_samples, nn=n_neg, np=n_pos,
-            nl=len(labels), l=sorted(labels),
-            ng=len(groups), g=' '.join(map(str, groups)))
-    print 'Samples: {ns}'.format(**d)
-    print 'Labels: {nl}: {l}'.format(**d)
+    d = dict(n=len(X[0]),
+            ns=len(scores), s=sorted(scores),
+            ng=len(groups), g=' '.join(map(str, groups)),
+            gs=', '.join(map(str, group_sizes)))
+    print 'Samples: {n}'.format(**d)
+    print 'Scores: {ns}: {s}'.format(**d)
     print 'Groups: {ng}: {g}'.format(**d)
-    print 'Negatives: {nn}, Positives: {np}'.format(**d)
+    print 'Group sizes: {gs}'.format(**d)
 
 # Print AUCs and bootstrapped AUCs.
 if args.verbose > 1:
