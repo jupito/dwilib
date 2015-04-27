@@ -45,6 +45,7 @@ def correlation(x, y):
     return dict(r=r, p=p, lower=lower, upper=upper)
 
 
+# Collect all parameters.
 args = parse_args()
 X, Y = [], []
 Params = []
@@ -67,6 +68,7 @@ for i, pmapdir in enumerate(args.pmapdir):
         Y.append(np.asarray(y))
         Params.append('%i:%s' % (i, param))
 
+# Print info.
 if args.verbose > 1:
     d = dict(ns=len(X[0]),
             nl=len(Labels), l=sorted(Labels),
@@ -74,8 +76,10 @@ if args.verbose > 1:
     print 'Samples: {ns}'.format(**d)
     print 'Labels: {nl}: {l}'.format(**d)
     print 'Groups: {ng}: {g}'.format(**d)
-    print '# param  r  p  lower  upper'
 
+# Print correlations.
+if args.verbose > 1:
+    print '# param  r  p  lower  upper'
 params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
     d = dict(param=param)
