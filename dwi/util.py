@@ -364,6 +364,21 @@ def group_labels(groups, values):
         group_ids.append(get_group_id(groups, value))
     return group_ids
 
+def sole(iterable, desc=None):
+    """Return the sole item of an iterable. Raise an exception if the number of
+    items is something else than exactly one."""
+    if desc is None:
+        desc = str(iterable)
+    it = iter(iterable)
+    try:
+        item = next(it)
+    except StopIteration:
+        raise Exception('No item: %s' % desc)
+    try:
+        next(it)
+    except StopIteration:
+        return item
+    raise Exception('More than one item: %s' % desc)
 
 
 def get_args(n=1):
