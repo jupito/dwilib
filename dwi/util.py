@@ -391,12 +391,7 @@ def get_args(n=1):
 def sglob(path):
     """Single glob: glob exactly one file."""
     import glob
-    l = glob.glob(path)
-    if len(l) < 1:
-        raise IOError('Path not found: %s' % path)
-    if len(l) > 1:
-        raise IOError('More than one path found: %s' % path)
-    return l[0]
+    return sole(glob.iglob(path), path)
 
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
