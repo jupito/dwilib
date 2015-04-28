@@ -41,7 +41,7 @@ def get_roi_slices(data):
         d['normal_slice'] = d['normal_mask'].selected_slice(img)
 
 def get_lbpf(img):
-    lbp, lbp_freq, n_patterns = dwi.texture.lbp_freqs(img)
+    lbp, lbp_freq, n_patterns = dwi.texture.lbp_freqs(img, 3)
     return lbp_freq
     #return lbp_freq[...,1:] # Drop non-uniform patterns
 
@@ -205,7 +205,8 @@ for d in data:
     #feats, names = dwi.texture.gabor_map(img, winsize)
     #feats, names = dwi.texture.hog_map(img, winsize)
     #feats, names = dwi.texture.moment_map(img, winsize, 4)
-    feats, names = dwi.texture.haar_map(img, winsize)
+    #feats, names = dwi.texture.haar_map(img, winsize)
+    feats, names = dwi.texture.sobel_map(img, winsize)
     print img.shape, feats.shape
     sl = slice(winsize//2, -(winsize//2))
     cols += list(feats[:,sl,sl])
