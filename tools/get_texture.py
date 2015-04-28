@@ -29,6 +29,7 @@ METHODS = collections.OrderedDict([
         ('gabor', dwi.texture.gabor_map),
         ('moment', dwi.texture.moment_map),
         ('haar', dwi.texture.haar_map),
+        ('sobel', dwi.texture.sobel_map),
         ])
 METHODS_MBB = collections.OrderedDict([
         ('glcm_mbb', dwi.texture.glcm_mbb),
