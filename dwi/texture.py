@@ -328,3 +328,20 @@ def haar_map(img, winsize, mask=None, output=None):
                 output[(i*len(feats)+j,) + pos] = v
         names += ['haar(%i,%s)' % (i, k) for k in feats.keys()]
     return output, names
+
+# Sobel.
+
+def sobel(img, mask=None):
+    """Sobel edge descriptor."""
+    import skimage
+    import skimage.filter
+    output = skimage.filter.sobel(img, mask=mask)
+    return output
+
+def sobel_map(img, winsize=None, mask=None):
+    """Sobel edge descriptor map.
+    
+    Parameter winsize is not used, it is there for API compatibility."""
+    output = np.array([sobel(img), sobel(img, mask)])
+    names = ['sobel', 'sobel_mask']
+    return output, names
