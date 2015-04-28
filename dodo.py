@@ -324,7 +324,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
             winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
             p=param, mt=masktype, c=case, s=scan)
     d['slices'] = 'maxfirst'
-    d['portion'] = 1
+    d['portion'] = 0
     if masktype == 'lesion':
         if model == 'T2':
             d['mask'] = dwi.util.sglob('masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
@@ -352,7 +352,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
-    d['portion'] = 1
+    d['portion'] = 0
     d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
