@@ -161,6 +161,14 @@ def fit_cmd(model, subwindow, infiles, outfile):
     s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
     return s
 
+def get_texture_cmd(d):
+    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
+            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
+            ' --slices {slices} --portion {portion}'\
+            ' --output {o}'
+    cmd = cmd.format(prg=GET_TEXTURE, **d)
+    return cmd
+
 # Tasks
 
 #def task_anonymize():
@@ -361,9 +369,9 @@ def task_evaluate_autoroi():
 
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, methods=texture_methods(model),
-            winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
-            p=param, mt=masktype, c=case, s=scan)
+    d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
+            pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
+            s=scan)
     d['slices'] = 'maxfirst'
     if masktype == 'lesion':
         d['portion'] = 0 # Window center must be inside lesion.
@@ -371,10 +379,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
         d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
-    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
-            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
-            ' --slices {slices} --portion {portion}'\
-            ' --output {o}'.format(**d)
+    cmd = get_texture_cmd(d)
     return {
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
@@ -386,17 +391,14 @@ def get_task_texture_manual(model, param, masktype, case, scan):
 
 def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, methods=texture_methods(model),
-            winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
-            p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
+    d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
+            pd=pmapdir_dicom(model), m=model, p=param, mt='auto', c=case,
+            s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
     d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
-    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
-            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
-            ' --slices {slices} --portion {portion}'\
-            ' --output {o}'.format(**d)
+    cmd = get_texture_cmd(d)
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
