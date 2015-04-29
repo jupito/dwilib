@@ -6,6 +6,7 @@ import numpy as np
 
 import dwi.dicomfile
 import dwi.mask
+import dwi.patient
 import dwi.util
 
 def read_subregion(directory, case, scan):
