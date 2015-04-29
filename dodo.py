@@ -112,19 +112,23 @@ def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
 
 def mask_path(d):
+    do_glob = True
     if d['mt'] == 'lesion':
         if d['m'] == 'T2':
-            s = 'masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'
+            path = 'masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'
         else:
-            s = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
+            path = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
     elif d['mt'] == 'CA' or d['mt'] == 'N':
-        s = 'masks_rois/{c}_*_{s}_D_{mt}'
+        path = 'masks_rois/{c}_*_{s}_D_{mt}'
     elif d['mt'] == 'auto':
         # Don't require existence, can be generated.
-        return 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+        do_glob = False
+        path = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
-    path = dwi.util.sglob(s.format(**d))
+    path = path.format(**d)
+    if do_glob:
+        path = dwi.util.sglob(path)
     return path
 
 SAMPLES = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
