@@ -99,7 +99,7 @@ def find_roi_param_combinations():
         if t[0] <= t[1] and t[2] == t[3]:
             yield map(str, t)
 
-def samplelist_file(samplelist):
+def samplelist_file(samplelist=SAMPLELIST):
     return 'samples_%s.txt' % samplelist
 
 def pmapdir_dicom(model):
@@ -138,7 +138,7 @@ def mask_path(d):
 
 def cases_scans():
     """Generate all case, scan pairs."""
-    samples = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
+    samples = dwi.util.read_sample_list(samplelist_file())
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
@@ -202,8 +202,8 @@ def task_make_subregion():
                 'clean': True,
                 }
 
-def get_task_find_roi(samplelist, case, scan, model, param, algparams):
-    d = dict(prg=FIND_ROI, slf=samplelist_file(samplelist),
+def get_task_find_roi(case, scan, model, param, algparams):
+    d = dict(prg=FIND_ROI, slf=samplelist_file(),
             pd=pmapdir_dicom(model), srd=SUBREGION_DIR, m=model, p=param,
             c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
@@ -230,8 +230,7 @@ def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_find_roi(SAMPLELIST, case, scan, MODEL, PARAM,
-                    algparams)
+            yield get_task_find_roi(case, scan, MODEL, PARAM, algparams)
 
 def get_task_select_roi_manual(case, scan, model, param, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
@@ -303,9 +302,9 @@ def task_select_roi():
             'task_dep': ['select_roi_manual', 'select_roi_auto'],
             }
 
-def get_task_autoroi_auc(samplelist, model, param, threshold):
+def get_task_autoroi_auc(model, param, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
-    d = dict(sl=samplelist, slf=samplelist_file(samplelist), prg=CALC_AUC,
+    d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CALC_AUC,
             m=model, p=param, t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
@@ -322,10 +321,10 @@ def get_task_autoroi_auc(samplelist, model, param, threshold):
             'clean': True,
             }
 
-def get_task_autoroi_correlation(samplelist, model, param, thresholds):
+def get_task_autoroi_correlation(model, param, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
-    d = dict(sl=samplelist, slf=samplelist_file(samplelist), prg=CORRELATION,
+    d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CORRELATION,
             m=model, p=param, t=thresholds, t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
@@ -344,10 +343,10 @@ def get_task_autoroi_correlation(samplelist, model, param, thresholds):
 
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability."""
-    yield get_task_autoroi_auc(SAMPLELIST, MODEL, PARAM, '3+3')
-    yield get_task_autoroi_auc(SAMPLELIST, MODEL, PARAM, '3+4')
-    yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '3+3 3+4')
-    yield get_task_autoroi_correlation(SAMPLELIST, MODEL, PARAM, '')
+    yield get_task_autoroi_auc(MODEL, PARAM, '3+3')
+    yield get_task_autoroi_auc(MODEL, PARAM, '3+4')
+    yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
+    yield get_task_autoroi_correlation(MODEL, PARAM, '')
 
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
