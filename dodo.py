@@ -413,15 +413,17 @@ def get_task_texture_auto(model, param, algparams, case, scan):
 
 def task_texture():
     """Generate texture features."""
+    if MODEL == 'T2':
+        masktypes = ['lesion']
+        algparams = []
+    else:
+        masktypes = ['lesion', 'CA', 'N']
+        algparams = find_roi_param_combinations()
     for case, scan in cases_scans():
-        for masktype in ['lesion']:
-            yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
-        if MODEL == 'T2':
-            continue # Skip the rest.
-        for masktype in ['CA', 'N']:
-            yield get_task_texture_manual(MODEL, PARAM, masktype, case, scan)
-        for algparams in find_roi_param_combinations():
-            yield get_task_texture_auto(MODEL, PARAM, algparams, case, scan)
+        for mt in masktypes:
+            yield get_task_texture_manual(MODEL, PARAM, mt, case, scan)
+        for ap in algparams:
+            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan)
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
         postfix, param='DICOM'):
