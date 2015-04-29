@@ -118,18 +118,22 @@ def mask_path(d):
             path = 'masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'
         else:
             path = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
+        deps = '{}/*'.format(path)
     elif d['mt'] == 'CA' or d['mt'] == 'N':
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
+        deps = '{}/*'.format(path)
     elif d['mt'] == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
         path = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'
+        deps = [path]
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
     if do_glob:
         path = dwi.util.sglob(path)
-    return path
+        deps = glob.glob(path)
+    return path, deps
 
 SAMPLES = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
 
@@ -355,7 +359,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
         d['portion'] = 0 # Window center must be inside lesion.
     else:
         d['portion'] = 1 # Whole window must be inside lesion if possible.
-    d['mask'] = mask_path(d)
+    d['mask'], mask_deps = mask_path(d)
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
@@ -365,7 +369,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
             'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
-            'file_dep': glob.glob('{mask}/*'.format(**d)),
+            'file_dep': mask_deps,
             'targets': [d['o']],
             'clean': True,
             }
@@ -377,7 +381,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
     d['portion'] = 1 # Whole window must be inside lesion if possible.
-    d['mask'] = mask_path(d)
+    d['mask'], mask_deps = mask_path(d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
@@ -387,7 +391,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
-            'file_dep': [d['mask']],
+            'file_dep': mask_deps,
             'targets': [d['o']],
             'clean': True,
             }
