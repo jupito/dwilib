@@ -62,7 +62,7 @@ dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 for d in data:
     img = d['image'][...,0]
     if args.verbose:
-        print img.shape
+        print d['case'], d['scan'], img.shape
 
 select_ioi(data, 0, 99.8)
 
