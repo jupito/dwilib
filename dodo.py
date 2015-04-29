@@ -370,12 +370,11 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
     yield get_task_autoroi_correlation(MODEL, PARAM, '')
 
-def get_task_texture_manual(model, param, masktype, case, scan):
+def get_task_texture_manual(model, param, masktype, case, scan, slices):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
-            s=scan)
-    d['slices'] = 'maxfirst'
+            s=scan, slices=slices)
     if masktype == 'lesion':
         d['portion'] = 0 # Window center must be inside lesion.
     else:
@@ -392,12 +391,11 @@ def get_task_texture_manual(model, param, masktype, case, scan):
             'clean': True,
             }
 
-def get_task_texture_auto(model, param, algparams, case, scan):
+def get_task_texture_auto(model, param, algparams, case, scan, slices):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt='auto', c=case,
-            s=scan, ap_='_'.join(algparams))
-    d['slices'] = 'maxfirst'
+            s=scan, ap_='_'.join(algparams), slices=slices)
     d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
@@ -421,9 +419,9 @@ def task_texture():
         algparams = find_roi_param_combinations()
     for case, scan in cases_scans():
         for mt in masktypes:
-            yield get_task_texture_manual(MODEL, PARAM, mt, case, scan)
+            yield get_task_texture_manual(MODEL, PARAM, mt, case, scan, 'maxfirst')
         for ap in algparams:
-            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan)
+            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, 'maxfirst')
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
         postfix, param='DICOM'):
