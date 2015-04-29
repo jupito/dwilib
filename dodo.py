@@ -331,13 +331,14 @@ def get_task_texture_manual(model, param, masktype, case, scan):
             winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt=masktype, c=case, s=scan)
     d['slices'] = 'maxfirst'
-    d['portion'] = 0
     if masktype == 'lesion':
+        d['portion'] = 0 # Window center must be inside lesion.
         if model == 'T2':
             d['mask'] = dwi.util.sglob('masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
         else:
             d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
     else:
+        d['portion'] = 1 # Whole window must be inside lesion if possible.
         d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
@@ -359,7 +360,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
-    d['portion'] = 0
+    d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
