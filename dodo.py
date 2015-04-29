@@ -69,10 +69,15 @@ TEXTURE_METHODS = ' '.join([
         'gabor',
         'moment',
         'haar',
+        'sobel',
         'glcm_mbb',
         #'haralick_mbb',
         ])
-TEXTURE_WINSIZES = ' '.join(map(str, range(3, 36, 2)))
+def texture_winsizes(model=MODEL):
+    if model == 'T2':
+        return ' '.join(map(str, range(3, 36, 4)))
+    else:
+        return ' '.join(map(str, range(3, 16, 2)))
 
 def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
@@ -321,7 +326,7 @@ def task_evaluate_autoroi():
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
-            winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
+            winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt=masktype, c=case, s=scan)
     d['slices'] = 'maxfirst'
     d['portion'] = 0
@@ -349,7 +354,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
 def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
     d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
-            winsizes=TEXTURE_WINSIZES, pd=pmapdir_dicom(model), m=model,
+            winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
     d['portion'] = 0
