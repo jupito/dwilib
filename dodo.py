@@ -136,6 +136,17 @@ def mask_path(d):
         deps = glob.glob(deps)
     return path, deps
 
+def texture_path(d):
+    """Return path to texture file."""
+    if d['mt'] in ['lesion', 'CA', 'N']:
+        path = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'
+    elif d['mt'] == 'auto':
+        path = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'
+    else:
+        raise Exception('Unknown mask type: {mt}'.format(**d))
+    path = path.format(**d)
+    return path
+
 def cases_scans():
     """Generate all case, scan pairs."""
     samples = dwi.util.read_sample_list(samplelist_file())
@@ -359,7 +370,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     else:
         d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'], mask_deps = mask_path(d)
-    d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
+    d['o'] = texture_path(d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
             ' --slices {slices} --portion {portion}'\
@@ -381,7 +392,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
     d['slices'] = 'maxfirst'
     d['portion'] = 1 # Whole window must be inside lesion if possible.
     d['mask'], mask_deps = mask_path(d)
-    d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
+    d['o'] = texture_path(d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
             ' --slices {slices} --portion {portion}'\
