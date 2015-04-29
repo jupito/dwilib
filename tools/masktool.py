@@ -37,9 +37,9 @@ mask = dwi.mask.read_mask(args.input)
 
 selected_slices = list(mask.selected_slices())
 mbb = mask.bounding_box()
-d = dict(infile=args.input, shape=mask.shape, mbb=mbb,
-        mbb_shape=dwi.util.subwindow_shape(mbb), nsel=mask.n_selected(),
-        nsl=len(selected_slices), sl=selected_slices)
+mbb_shape = [b - a for a, b in mbb]
+d = dict(infile=args.input, shape=mask.shape, mbb=mbb, mbb_shape=mbb_shape,
+        nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
 print 'mask: {infile}\n'\
         'minimum bounding box: {mbb_shape}: {mbb}\n'\
         'selected voxels: {nsel}\n'\
