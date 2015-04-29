@@ -373,12 +373,12 @@ def sole(iterable, desc=None):
     try:
         item = next(it)
     except StopIteration:
-        raise Exception('No item: %s' % desc)
+        raise IOError('No item: %s' % desc)
     try:
         next(it)
     except StopIteration:
         return item
-    raise Exception('More than one item: %s' % desc)
+    raise IOError('More than one item: %s' % desc)
 
 
 def get_args(n=1):
@@ -388,10 +388,24 @@ def get_args(n=1):
         sys.exit(1)
     return sys.argv[1:1+n], sys.argv[1+n:]
 
-def sglob(path):
-    """Single glob: glob exactly one file."""
+def iglob(path, typ='any'):
+    """Glob iterator that can filter paths by their type."""
     import glob
-    return sole(glob.iglob(path), path)
+    import os.path
+    it = glob.iglob(path)
+    if typ == 'any':
+        pass
+    elif typ == 'file':
+        it = itertools.ifilter(os.path.isfile, it)
+    elif typ == 'dir':
+        it = itertools.ifilter(os.path.isdir, it)
+    else:
+        raise Exception('Invalid path type: {}'.format(typ))
+    return it
+
+def sglob(path, typ='any'):
+    """Single glob: glob exactly one file."""
+    return sole(iglob(path, typ), path)
 
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
