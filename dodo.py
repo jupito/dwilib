@@ -139,9 +139,9 @@ def mask_path(d):
 def texture_path(d):
     """Return path to texture file."""
     if d['mt'] in ['lesion', 'CA', 'N']:
-        path = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}.txt'
     elif d['mt'] == 'auto':
-        path = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
