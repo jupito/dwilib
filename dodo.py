@@ -112,6 +112,7 @@ def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
 
 def mask_path(d):
+    """Return path and deps of masks of different types."""
     do_glob = True
     if d['mt'] == 'lesion':
         if d['m'] == 'T2':
