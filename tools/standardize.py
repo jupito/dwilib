@@ -19,7 +19,7 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--samplelist',
             help='sample list file')
-    p.add_argument('--subregiondir', default='bounding_box_100_10pad',
+    p.add_argument('--subregiondir', default='subregions',
             help='subregion bounding box directory')
     p.add_argument('--pmapdir', default='dicoms_Mono_combinedDICOM',
             help='input parametric map directory')
@@ -31,6 +31,22 @@ def parse_args():
             help='scan identifiers')
     args = p.parse_args()
     return args
+
+def select_ioi(data, pc1, pc2):
+    """Select intensity of interest (IOI) parts of images."""
+    for d in data:
+        img = d['image'][...,0]
+        s1 = np.percentile(img, pc1)
+        s2 = np.percentile(img, pc2)
+        img = img[img>s1]
+        img = img[img<s2]
+        d['ioi'] = img
+
+def plot_hist(hist, bin_edges):
+    import pylab as pl
+    pl.plot(bin_edges[1:], hist)
+    pl.show()
+    pl.close()
 
 
 args = parse_args()
@@ -48,3 +64,12 @@ for d in data:
     if args.verbose:
         print img.shape
 
+select_ioi(data, 0, 99.8)
+
+import pylab as pl
+for d in data:
+    img = d['ioi']
+    hist, bin_edges = np.histogram(img, bins=1000, density=True)
+    pl.plot(bin_edges[:-1], hist)
+pl.show()
+pl.close()
