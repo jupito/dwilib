@@ -120,28 +120,31 @@ def mask_path(d):
         else:
             path = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
         deps = '{}/*'.format(path)
-    elif d['mt'] == 'CA' or d['mt'] == 'N':
+    elif d['mt'] in ['CA', 'N']:
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
         deps = '{}/*'.format(path)
     elif d['mt'] == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
         path = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'
-        deps = [path]
+        deps = path
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
+    deps = deps.format(**d)
     if do_glob:
         path = dwi.util.sglob(path)
         deps = glob.glob(deps)
+    else:
+        deps = [deps]
     return path, deps
 
 def texture_path(d):
     """Return path to texture file."""
     if d['mt'] in ['lesion', 'CA', 'N']:
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'
     elif d['mt'] == 'auto':
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
