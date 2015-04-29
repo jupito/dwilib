@@ -370,15 +370,11 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
     yield get_task_autoroi_correlation(MODEL, PARAM, '')
 
-def get_task_texture_manual(model, param, masktype, case, scan, slices):
+def get_task_texture_manual(model, param, masktype, case, scan, slices, portion):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
-            s=scan, slices=slices)
-    if masktype == 'lesion':
-        d['portion'] = 0 # Window center must be inside lesion.
-    else:
-        d['portion'] = 1 # Whole window must be inside lesion if possible.
+            s=scan, slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
@@ -391,12 +387,11 @@ def get_task_texture_manual(model, param, masktype, case, scan, slices):
             'clean': True,
             }
 
-def get_task_texture_auto(model, param, algparams, case, scan, slices):
+def get_task_texture_auto(model, param, algparams, case, scan, slices, portion):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt='auto', c=case,
-            s=scan, ap_='_'.join(algparams), slices=slices)
-    d['portion'] = 1 # Whole window must be inside lesion if possible.
+            s=scan, ap_='_'.join(algparams), slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
@@ -412,14 +407,14 @@ def get_task_texture_auto(model, param, algparams, case, scan, slices):
 def task_texture():
     """Generate texture features."""
     for case, scan in cases_scans():
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst')
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all')
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst', 0)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all', 0)
         if MODEL == 'T2':
             continue # Do only lesion for these.
-        yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, 'maxfirst')
-        yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, 'maxfirst')
+        yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, 'maxfirst', 1)
+        yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, 'maxfirst', 1)
         for ap in find_roi_param_combinations():
-            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, 'maxfirst')
+            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, 'maxfirst', 1)
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
         postfix, param='DICOM'):
