@@ -101,15 +101,31 @@ def find_roi_param_combinations():
 
 def pmapdir_dicom(model):
     s = 'dicoms_{m}_*'.format(m=model)
-    path = dwi.util.sglob(s)
+    path = dwi.util.sglob(s, typ='dir')
     return path
 
 def pmap_dicom(**d):
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'
-    return dwi.util.sglob(s.format(**d))
+    return dwi.util.sglob(s.format(**d), typ='dir')
 
 def samplelist_file(samplelist):
     return 'samples_%s.txt' % samplelist
+
+def mask_path(d):
+    if d['mt'] == 'lesion':
+        if d['m'] == 'T2':
+            s = 'masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'
+        else:
+            s = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
+    elif d['mt'] == 'CA' or d['mt'] == 'N':
+        s = 'masks_rois/{c}_*_{s}_D_{mt}'
+    elif d['mt'] == 'auto':
+        # Don't require existence, can be generated.
+        return 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    else:
+        raise Exception('Unknown mask type: {mt}'.format(**d))
+    path = dwi.util.sglob(s.format(**d))
+    return path
 
 SAMPLES = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
 
@@ -333,13 +349,9 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     d['slices'] = 'maxfirst'
     if masktype == 'lesion':
         d['portion'] = 0 # Window center must be inside lesion.
-        if model == 'T2':
-            d['mask'] = dwi.util.sglob('masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
-        else:
-            d['mask'] = dwi.util.sglob('masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'.format(**d))
     else:
         d['portion'] = 1 # Whole window must be inside lesion if possible.
-        d['mask'] = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
+    d['mask'] = mask_path(d)
     d['o'] = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
@@ -361,7 +373,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
     d['portion'] = 1 # Whole window must be inside lesion if possible.
-    d['mask'] = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    d['mask'] = mask_path(d)
     d['o'] = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'.format(**d)
     cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
