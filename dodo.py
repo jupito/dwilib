@@ -99,6 +99,9 @@ def find_roi_param_combinations():
         if t[0] <= t[1] and t[2] == t[3]:
             yield map(str, t)
 
+def samplelist_file(samplelist):
+    return 'samples_%s.txt' % samplelist
+
 def pmapdir_dicom(model):
     s = 'dicoms_{m}_*'.format(m=model)
     path = dwi.util.sglob(s, typ='dir')
@@ -107,9 +110,6 @@ def pmapdir_dicom(model):
 def pmap_dicom(**d):
     s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'
     return dwi.util.sglob(s.format(**d), typ='dir')
-
-def samplelist_file(samplelist):
-    return 'samples_%s.txt' % samplelist
 
 def mask_path(d):
     """Return path and deps of masks of different types."""
