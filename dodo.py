@@ -133,7 +133,7 @@ def mask_path(d):
     path = path.format(**d)
     if do_glob:
         path = dwi.util.sglob(path)
-        deps = glob.glob(path)
+        deps = glob.glob(deps)
     return path, deps
 
 def cases_scans():
