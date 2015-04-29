@@ -38,8 +38,8 @@ def select_ioi(data, pc1, pc2):
         img = d['image'][...,0]
         s1 = np.percentile(img, pc1)
         s2 = np.percentile(img, pc2)
-        img = img[img>s1]
-        img = img[img<s2]
+        img = img[img>=s1]
+        img = img[img<=s2]
         d['ioi'] = img
 
 def plot_hist(hist, bin_edges):
@@ -62,9 +62,14 @@ dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 for d in data:
     img = d['image'][...,0]
     if args.verbose:
-        print d['case'], d['scan'], img.shape
+        print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
 select_ioi(data, 0, 99.8)
+
+for d in data:
+    img = d['ioi']
+    if args.verbose:
+        print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
 import pylab as pl
 for d in data:
