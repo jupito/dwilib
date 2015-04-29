@@ -136,11 +136,10 @@ def mask_path(d):
         deps = glob.glob(path)
     return path, deps
 
-SAMPLES = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
-
 def cases_scans():
     """Generate all case, scan pairs."""
-    for sample in SAMPLES:
+    samples = dwi.util.read_sample_list(samplelist_file(SAMPLELIST))
+    for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
             yield case, scan
