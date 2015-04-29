@@ -60,7 +60,8 @@ FIND_ROI_PARAMS = [
         range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
 ]
 
-TEXTURE_METHODS = ' '.join([
+def texture_methods(model=MODEL):
+    return ' '.join([
         'stats',
         'glcm',
         #'haralick',
@@ -73,6 +74,7 @@ TEXTURE_METHODS = ' '.join([
         'glcm_mbb',
         #'haralick_mbb',
         ])
+
 def texture_winsizes(model=MODEL):
     if model == 'T2':
         return ' '.join(map(str, range(3, 36, 4)))
@@ -325,7 +327,7 @@ def task_evaluate_autoroi():
 
 def get_task_texture_manual(model, param, masktype, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
+    d = dict(prg=GET_TEXTURE, methods=texture_methods(model),
             winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt=masktype, c=case, s=scan)
     d['slices'] = 'maxfirst'
@@ -353,7 +355,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
 
 def get_task_texture_auto(model, param, algparams, case, scan):
     """Generate texture features."""
-    d = dict(prg=GET_TEXTURE, methods=TEXTURE_METHODS,
+    d = dict(prg=GET_TEXTURE, methods=texture_methods(model),
             winsizes=texture_winsizes(model), pd=pmapdir_dicom(model), m=model,
             p=param, mt='auto', c=case, s=scan, ap_='_'.join(algparams))
     d['slices'] = 'maxfirst'
