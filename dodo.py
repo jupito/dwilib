@@ -142,9 +142,9 @@ def mask_path(d):
 def texture_path(d):
     """Return path to texture file."""
     if d['mt'] in ['lesion', 'CA', 'N']:
-        path = 'texture_{mt}_{m}_{p}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}.txt'
     elif d['mt'] == 'auto':
-        path = 'texture_{mt}_{m}_{p}/{ap_}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
@@ -384,7 +384,7 @@ def get_task_texture_manual(model, param, masktype, case, scan):
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
     return {
-            'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
             'file_dep': mask_deps,
@@ -403,7 +403,7 @@ def get_task_texture_auto(model, param, algparams, case, scan):
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
     return {
-            'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{ap_}_{slices}_{portion}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
             'file_dep': mask_deps,
