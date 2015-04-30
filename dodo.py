@@ -408,7 +408,9 @@ def task_texture():
     """Generate texture features."""
     for case, scan in cases_scans():
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst', 0)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst', 1)
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all', 0)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all', 1)
         if MODEL == 'T2':
             continue # Do only lesion for these.
         yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, 'maxfirst', 1)
