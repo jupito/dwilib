@@ -6,6 +6,7 @@ from __future__ import division
 import argparse
 
 import numpy as np
+import scipy as sp
 
 import dwi.dataset
 import dwi.mask
@@ -42,9 +43,18 @@ def select_ioi(data, pc1, pc2):
         img = img[img<=s2]
         d['ioi'] = img
 
-def plot_hist(hist, bin_edges):
+def plot(data):
     import pylab as pl
-    pl.plot(bin_edges[1:], hist)
+    for d in data:
+        img = d['ioi']
+        hist, bin_edges = np.histogram(img, bins=1000, density=True)
+        pl.plot(bin_edges[:-1], hist)
+    pl.show()
+    pl.close()
+    for d in data:
+        y = d['deciles']
+        x = range(len(y))
+        pl.plot(x, y)
     pl.show()
     pl.close()
 
@@ -59,6 +69,7 @@ if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 
+print
 for d in data:
     img = d['image'][...,0]
     if args.verbose:
@@ -66,15 +77,11 @@ for d in data:
 
 select_ioi(data, 0, 99.8)
 
+print
 for d in data:
     img = d['ioi']
     if args.verbose:
         print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
+    d['deciles'] = [sp.stats.scoreatpercentile(img, i*10) for i in range(11)]
 
-import pylab as pl
-for d in data:
-    img = d['ioi']
-    hist, bin_edges = np.histogram(img, bins=1000, density=True)
-    pl.plot(bin_edges[:-1], hist)
-pl.show()
-pl.close()
+plot(data)
