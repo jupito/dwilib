@@ -26,6 +26,9 @@ def parse_args():
             help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
+    p.add_argument('--minmax', metavar='I', nargs=2, type=int,
+            default=[0, 99.8],
+            help='minimum and maximum percentiles')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
@@ -75,7 +78,7 @@ for d in data:
     if args.verbose:
         print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
-select_ioi(data, 0, 99.8)
+select_ioi(data, *args.minmax)
 
 print
 for d in data:
