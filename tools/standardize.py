@@ -36,6 +36,14 @@ def parse_args():
     args = p.parse_args()
     return args
 
+def set_landmarks(data, pc1, pc2):
+    from scipy.stats import scoreatpercentile
+    for d in data:
+        img = d['image'][...,0]
+        d['pc_min'] = scoreatpercentile(img, pc1)
+        d['pc_max'] = scoreatpercentile(img, pc2)
+        d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
+
 def select_ioi(data, pc1, pc2):
     """Select intensity of interest (IOI) parts of images."""
     for d in data:
@@ -71,20 +79,23 @@ dwi.dataset.dataset_read_patientinfo(data, args.samplelist)
 if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-
 print
 for d in data:
     img = d['image'][...,0]
     if args.verbose:
         print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
-select_ioi(data, *args.minmax)
+set_landmarks(data, *args.minmax)
+print
+for d in data:
+    if args.verbose:
+        print d['case'], d['scan'], img.size, d['pc_min'], d['pc_max']
 
+select_ioi(data, *args.minmax)
 print
 for d in data:
     img = d['ioi']
     if args.verbose:
-        print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
-    d['deciles'] = [sp.stats.scoreatpercentile(img, i*10) for i in range(11)]
+        print d['case'], d['scan'], img.size, dwi.util.fivenum(img)
 
 plot(data)
