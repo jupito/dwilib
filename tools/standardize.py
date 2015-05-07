@@ -59,7 +59,7 @@ def map_onto_scale(p1, p2, s1, s2, v):
     """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
     f = (v-p1) / (p2-p1)
     r = f * (s2-s1) + s1
-    return r
+    return int(r)
 
 #def select_ioi(data, pc1, pc2):
 #    """Select intensity of interest (IOI) parts of images."""
