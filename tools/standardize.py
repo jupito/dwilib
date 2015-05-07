@@ -57,7 +57,7 @@ def map_landmarks(data, s1, s2):
 
 def map_onto_scale(p1, p2, s1, s2, v):
     """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
-    f = (l-p1) / (p2-p1)
+    f = (v-p1) / (p2-p1)
     r = f * (s2-s1) + s1
     return r
 
