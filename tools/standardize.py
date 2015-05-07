@@ -26,7 +26,7 @@ def parse_args():
             help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
-    p.add_argument('--minmax', metavar='I', nargs=2, type=float,
+    p.add_argument('--pc', metavar='I', nargs=2, type=float,
             default=[0, 99.8],
             help='minimum and maximum percentiles')
     p.add_argument('--scale', metavar='I', nargs=2, type=float,
@@ -104,7 +104,7 @@ if args.verbose:
         img = d['image'][...,0]
         print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
-set_landmarks(data, *args.minmax)
+set_landmarks(data, *args.pc)
 if args.verbose:
     print 'Landmarks:'
     for d in data:
