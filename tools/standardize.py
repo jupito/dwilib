@@ -26,10 +26,10 @@ def parse_args():
             help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
-    p.add_argument('--minmax', metavar='I', nargs=2, type=int,
+    p.add_argument('--minmax', metavar='I', nargs=2, type=float,
             default=[0, 99.8],
             help='minimum and maximum percentiles')
-    p.add_argument('--scale', metavar='I', nargs=2, type=int,
+    p.add_argument('--scale', metavar='I', nargs=2, type=float,
             default=[1, 4095],
             help='standard scale minimum and maximum')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
