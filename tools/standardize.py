@@ -40,8 +40,8 @@ def set_landmarks(data, pc1, pc2):
     from scipy.stats import scoreatpercentile
     for d in data:
         img = d['image'][...,0]
-        d['pc_min'] = scoreatpercentile(img, pc1)
-        d['pc_max'] = scoreatpercentile(img, pc2)
+        d['p1'] = scoreatpercentile(img, pc1)
+        d['p2'] = scoreatpercentile(img, pc2)
         d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
 
 def select_ioi(data, pc1, pc2):
@@ -89,7 +89,7 @@ set_landmarks(data, *args.minmax)
 print
 for d in data:
     if args.verbose:
-        print d['case'], d['scan'], img.size, d['pc_min'], d['pc_max']
+        print d['case'], d['scan'], img.size, d['p1'], d['p2']
 
 select_ioi(data, *args.minmax)
 print
