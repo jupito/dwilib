@@ -29,7 +29,7 @@ def parse_args():
     p.add_argument('--pc', metavar='I', nargs=2, type=float,
             default=[0, 99.8],
             help='minimum and maximum percentiles')
-    p.add_argument('--scale', metavar='I', nargs=2, type=float,
+    p.add_argument('--scale', metavar='I', nargs=2, type=int,
             default=[1, 4095],
             help='standard scale minimum and maximum')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
@@ -52,7 +52,7 @@ def set_landmarks(data, pc1, pc2):
 def map_landmarks(data, s1, s2):
     for d in data:
         p1, p2 = d['p1'], d['p2']
-        d['mapped_landmarks'] = [map_onto_scale(p1, p2, s1, s2, v) for v in
+        d['mapped_landmarks'] = [int(map_onto_scale(p1, p2, s1, s2, v)) for v in
                 d['landmarks']]
 
 def map_onto_scale(p1, p2, s1, s2, v):
@@ -115,9 +115,10 @@ if args.verbose:
     for d in data:
         print d['case'], d['scan'], args.scale, d['mapped_landmarks']
 
-mapped_landmarks = np.array([d['mapped_landmarks'] for d in data])
+mapped_landmarks = np.array([d['mapped_landmarks'] for d in data],
+        dtype=np.int16)
 print mapped_landmarks.shape
-print np.mean(mapped_landmarks, axis=0)
-print np.median(mapped_landmarks, axis=0)
+print np.mean(mapped_landmarks, axis=0, dtype=np.int16)
+print dwi.util.median(mapped_landmarks, axis=0, dtype=np.int16)
 
 plot(data)
