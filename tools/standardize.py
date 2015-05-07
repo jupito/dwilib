@@ -46,20 +46,41 @@ def set_landmarks(data, pc1, pc2):
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
         #d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
-        percentiles = [0, 25, 50, 75, 99.8]
-        d['landmarks'] = [scoreatpercentile(img, i) for i in percentiles]
+        #percentiles = [25, 50, 75]
+        percentiles = [i*10 for i in range(1, 10)]
+        d['landmarks'] = percentiles
+        d['scores'] = [scoreatpercentile(img, i) for i in percentiles]
 
 def map_landmarks(data, s1, s2):
     for d in data:
         p1, p2 = d['p1'], d['p2']
-        d['mapped_landmarks'] = [int(map_onto_scale(p1, p2, s1, s2, v)) for v in
-                d['landmarks']]
+        d['mapped_scores'] = [int(map_onto_scale(p1, p2, s1, s2, v)) for v in
+                d['scores']]
 
 def map_onto_scale(p1, p2, s1, s2, v):
     """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
+    assert p1 <= p2, (p1, p2)
+    assert s1 <= s2, (s1, s2)
+    if p1 == p2:
+        assert s1 == s2, (s1, s2)
+        return s1
     f = (v-p1) / (p2-p1)
     r = f * (s2-s1) + s1
-    return int(r)
+    return r
+
+def transform(img, pc1, pc2, landmarks, s1, s2, mapped_scores):
+    """Transform image onto standard scale."""
+    from scipy.stats import scoreatpercentile
+    pc = [pc1] + list(landmarks) + [pc2]
+    mapped = [s1] + list(mapped_scores) + [s2]
+    scores = [scoreatpercentile(img, i) for i in pc]
+    r = np.zeros_like(img, dtype=np.int16)
+    for pos, v in np.ndenumerate(img):
+        slot = sum(v > s for s in scores)
+        slot = np.clip(slot, 1, len(scores)-1)
+        r[pos] = map_onto_scale(scores[slot-1], scores[slot],
+                mapped[slot-1], mapped[slot], v)
+    return r
 
 #def select_ioi(data, pc1, pc2):
 #    """Select intensity of interest (IOI) parts of images."""
@@ -80,14 +101,17 @@ def plot(data):
     pl.show()
     pl.close()
     for d in data:
-        y = d['landmarks']
+        y = d['scores']
         x = range(len(y))
         pl.plot(x, y)
     pl.show()
     pl.close()
+    dwi.plot.show_images([[d['img'], d['img_scaled']] for d in data])
 
 
 args = parse_args()
+pc1, pc2 = args.pc
+s1, s2 = args.scale
 if args.verbose:
     print 'Reading data...'
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases,
@@ -100,25 +124,30 @@ dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 if args.verbose:
     print 'Data:'
     for d in data:
-        img = d['image'][...,0]
-        print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
+        d['img'] = d['image'][15,...,0]
+        print d['case'], d['scan'], d['img'].shape, dwi.util.fivenum(d['img'])
 
-set_landmarks(data, *args.pc)
+set_landmarks(data, pc1, pc2)
 if args.verbose:
-    print 'Landmarks:'
+    print 'Landmark scores:'
     for d in data:
-        print d['case'], d['scan'], d['p1'], d['p2'], d['landmarks']
+        print d['case'], d['scan'], (d['p1'], d['p2']), d['scores']
 
-map_landmarks(data, *args.scale)
+map_landmarks(data, s1, s2)
 if args.verbose:
-    print 'Mapped landmarks:'
+    print 'Mapped landmark scores:'
     for d in data:
-        print d['case'], d['scan'], args.scale, d['mapped_landmarks']
+        print d['case'], d['scan'], (s1, s2), d['mapped_scores']
 
-mapped_landmarks = np.array([d['mapped_landmarks'] for d in data],
+mapped_scores = np.array([d['mapped_scores'] for d in data],
         dtype=np.int16)
-print mapped_landmarks.shape
-print np.mean(mapped_landmarks, axis=0, dtype=np.int16)
-print dwi.util.median(mapped_landmarks, axis=0, dtype=np.int16)
+print mapped_scores.shape
+print np.mean(mapped_scores, axis=0, dtype=np.int16)
+print dwi.util.median(mapped_scores, axis=0, dtype=np.int16)
+mapped_scores = np.mean(mapped_scores, axis=0, dtype=np.int16)
+
+for d in data:
+    d['img_scaled'] = transform(d['img'], pc1, pc2, d['landmarks'], s1, s2,
+            mapped_scores)
 
 plot(data)
