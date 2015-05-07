@@ -116,4 +116,9 @@ if args.verbose:
     for d in data:
         print d['case'], d['scan'], args.scale, d['mapped_landmarks']
 
+mapped_landmarks = np.array([d['mapped_landmarks'] for d in data])
+print mapped_landmarks.shape
+print np.mean(mapped_landmarks, axis=0)
+print np.median(mapped_landmarks, axis=0)
+
 plot(data)
