@@ -45,28 +45,43 @@ def set_landmarks(data, pc1, pc2):
         img = d['image'][...,0]
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
-        d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
+        #d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
+        percentiles = [0, 25, 50, 75, 99.8]
+        d['landmarks'] = [scoreatpercentile(img, i) for i in percentiles]
 
-def select_ioi(data, pc1, pc2):
-    """Select intensity of interest (IOI) parts of images."""
+def map_landmarks(data, s1, s2):
     for d in data:
-        img = d['image'][...,0]
-        s1 = np.percentile(img, pc1)
-        s2 = np.percentile(img, pc2)
-        img = img[img>=s1]
-        img = img[img<=s2]
-        d['ioi'] = img
+        p1, p2 = d['p1'], d['p2']
+        d['mapped_landmarks'] = [map_landmark(p1, p2, s1, s2, l) for l in
+                d['landmarks']]
+
+def map_landmark(p1, p2, s1, s2, l):
+    """Map landmark l between min/max percentiles [p1, p2] onto standard scale
+    [s1, s2]."""
+    f = (l-p1) / (p2-p1)
+    r = f * (s2-s1) + s1
+    return r
+
+#def select_ioi(data, pc1, pc2):
+#    """Select intensity of interest (IOI) parts of images."""
+#    for d in data:
+#        img = d['image'][...,0]
+#        s1 = np.percentile(img, pc1)
+#        s2 = np.percentile(img, pc2)
+#        img = img[img>=s1]
+#        img = img[img<=s2]
+#        d['ioi'] = img
 
 def plot(data):
     import pylab as pl
     for d in data:
-        img = d['ioi']
+        img = d['image']
         hist, bin_edges = np.histogram(img, bins=1000, density=True)
         pl.plot(bin_edges[:-1], hist)
     pl.show()
     pl.close()
     for d in data:
-        y = d['deciles']
+        y = d['landmarks']
         x = range(len(y))
         pl.plot(x, y)
     pl.show()
@@ -82,23 +97,23 @@ dwi.dataset.dataset_read_patientinfo(data, args.samplelist)
 if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-print
-for d in data:
-    img = d['image'][...,0]
-    if args.verbose:
+
+if args.verbose:
+    print 'Data:'
+    for d in data:
+        img = d['image'][...,0]
         print d['case'], d['scan'], img.shape, dwi.util.fivenum(img)
 
 set_landmarks(data, *args.minmax)
-print
-for d in data:
-    if args.verbose:
-        print d['case'], d['scan'], img.size, d['p1'], d['p2']
+if args.verbose:
+    print 'Landmarks:'
+    for d in data:
+        print d['case'], d['scan'], d['p1'], d['p2'], d['landmarks']
 
-select_ioi(data, *args.minmax)
-print
-for d in data:
-    img = d['ioi']
-    if args.verbose:
-        print d['case'], d['scan'], img.size, dwi.util.fivenum(img)
+map_landmarks(data, *args.scale)
+if args.verbose:
+    print 'Mapped landmarks:'
+    for d in data:
+        print d['case'], d['scan'], args.scale, d['mapped_landmarks']
 
 plot(data)
