@@ -92,13 +92,13 @@ def plot(data, s1, s2, outfile):
     import pylab as pl
     for d in data:
         img = d['img']
-        hist, bin_edges = np.histogram(img, bins=1000, density=True)
+        hist, bin_edges = np.histogram(img, bins=50, density=True)
         pl.plot(bin_edges[:-1], hist)
     pl.show()
     pl.close()
     for d in data:
         img = d['img_scaled']
-        hist, bin_edges = np.histogram(img, bins=1000, density=True)
+        hist, bin_edges = np.histogram(img, bins=50, density=True)
         pl.plot(bin_edges[:-1], hist)
     pl.show()
     pl.close()
