@@ -68,20 +68,26 @@ def map_onto_scale(p1, p2, s1, s2, v):
     r = f * (s2-s1) + s1
     return r
 
-def transform(img, pc1, pc2, landmarks, s1, s2, mapped_scores):
+def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     """Transform image onto standard scale."""
     from scipy.stats import scoreatpercentile
-    pc = [pc1] + list(landmarks) + [pc2]
-    mapped = [s1] + list(mapped_scores) + [s2]
-    scores = [scoreatpercentile(img, i) for i in pc]
+    scores = [p1] + list(scores) + [p2]
+    mapped_scores = [s1] + list(mapped_scores) + [s2]
     r = np.zeros_like(img, dtype=np.int)
     for pos, v in np.ndenumerate(img):
+        # Select slot where to map.
         slot = sum(v > s for s in scores)
         slot = np.clip(slot, 1, len(scores)-1)
         r[pos] = map_onto_scale(scores[slot-1], scores[slot],
-                mapped[slot-1], mapped[slot], v)
-    print dwi.util.fivenum(r)
+                mapped_scores[slot-1], mapped_scores[slot], v)
     return r
+
+def transform_images(data, s1, s2, mapped_scores):
+    for d in data:
+        d['img_scaled'] = transform(d['img'], d['p1'], d['p2'], d['scores'], s1,
+                s2, mapped_scores)
+        print dwi.util.fivenum(d['img_scaled'])
+
 
 def plot(data, s1, s2, outfile):
     import pylab as pl
@@ -143,8 +149,6 @@ print np.mean(mapped_scores, axis=0, dtype=np.int)
 print dwi.util.median(mapped_scores, axis=0, dtype=np.int)
 mapped_scores = np.mean(mapped_scores, axis=0, dtype=np.int)
 
-for d in data:
-    d['img_scaled'] = transform(d['img'], pc1, pc2, d['landmarks'], s1, s2,
-            mapped_scores)
+transform_images(data, s1, s2, mapped_scores)
 
 plot(data, s1, s2, 'std.png')
