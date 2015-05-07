@@ -52,7 +52,7 @@ def set_landmarks(data, pc1, pc2):
 def map_landmarks(data, s1, s2):
     for d in data:
         p1, p2 = d['p1'], d['p2']
-        d['mapped_landmarks'] = [map_onto_scale(p1, p2, s1, s2, l) for l in
+        d['mapped_landmarks'] = [map_onto_scale(p1, p2, s1, s2, v) for v in
                 d['landmarks']]
 
 def map_onto_scale(p1, p2, s1, s2, v):
