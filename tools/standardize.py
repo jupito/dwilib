@@ -29,6 +29,9 @@ def parse_args():
     p.add_argument('--minmax', metavar='I', nargs=2, type=int,
             default=[0, 99.8],
             help='minimum and maximum percentiles')
+    p.add_argument('--scale', metavar='I', nargs=2, type=int,
+            default=[1, 4095],
+            help='standard scale minimum and maximum')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
