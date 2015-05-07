@@ -135,7 +135,7 @@ def bounding_box(array, pad=0):
     #return tuple(map(int, r))
     return tuple(r)
 
-def median(a, axis=None, keepdims=False):
+def median(a, axis=None, keepdims=False, dtype=None):
     """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
     a = np.asanyarray(a)
     r = np.median(a, axis=axis)
@@ -147,6 +147,8 @@ def median(a, axis=None, keepdims=False):
         else:
             shape[axis] = 1
         r.shape = shape
+    if dtype:
+        r = r.astype(dtype)
     return r
 
 def resample_bootstrap_single(a):
