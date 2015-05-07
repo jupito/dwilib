@@ -74,7 +74,7 @@ def transform(img, pc1, pc2, landmarks, s1, s2, mapped_scores):
     pc = [pc1] + list(landmarks) + [pc2]
     mapped = [s1] + list(mapped_scores) + [s2]
     scores = [scoreatpercentile(img, i) for i in pc]
-    r = np.zeros_like(img, dtype=np.int16)
+    r = np.zeros_like(img, dtype=np.int)
     for pos, v in np.ndenumerate(img):
         slot = sum(v > s for s in scores)
         slot = np.clip(slot, 1, len(scores)-1)
@@ -116,7 +116,6 @@ if args.verbose:
     print 'Reading data...'
 data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases,
         args.scans)
-dwi.dataset.dataset_read_patientinfo(data, args.samplelist)
 if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
@@ -140,11 +139,11 @@ if args.verbose:
         print d['case'], d['scan'], (s1, s2), d['mapped_scores']
 
 mapped_scores = np.array([d['mapped_scores'] for d in data],
-        dtype=np.int16)
+        dtype=np.int)
 print mapped_scores.shape
-print np.mean(mapped_scores, axis=0, dtype=np.int16)
-print dwi.util.median(mapped_scores, axis=0, dtype=np.int16)
-mapped_scores = np.mean(mapped_scores, axis=0, dtype=np.int16)
+print np.mean(mapped_scores, axis=0, dtype=np.int)
+print dwi.util.median(mapped_scores, axis=0, dtype=np.int)
+mapped_scores = np.mean(mapped_scores, axis=0, dtype=np.int)
 
 for d in data:
     d['img_scaled'] = transform(d['img'], pc1, pc2, d['landmarks'], s1, s2,
