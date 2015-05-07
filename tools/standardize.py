@@ -42,10 +42,10 @@ def parse_args():
 def set_landmarks(data, pc1, pc2):
     from scipy.stats import scoreatpercentile
     for d in data:
-        img = d['image'][...,0]
+        img = d['img']
+        #img = img[img > np.mean(img)]
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
-        #d['deciles'] = [scoreatpercentile(img, i*10) for i in range(1, 10)]
         #percentiles = [25, 50, 75]
         percentiles = [i*10 for i in range(1, 10)]
         d['landmarks'] = percentiles
@@ -80,22 +80,19 @@ def transform(img, pc1, pc2, landmarks, s1, s2, mapped_scores):
         slot = np.clip(slot, 1, len(scores)-1)
         r[pos] = map_onto_scale(scores[slot-1], scores[slot],
                 mapped[slot-1], mapped[slot], v)
+    print dwi.util.fivenum(r)
     return r
 
-#def select_ioi(data, pc1, pc2):
-#    """Select intensity of interest (IOI) parts of images."""
-#    for d in data:
-#        img = d['image'][...,0]
-#        s1 = np.percentile(img, pc1)
-#        s2 = np.percentile(img, pc2)
-#        img = img[img>=s1]
-#        img = img[img<=s2]
-#        d['ioi'] = img
-
-def plot(data):
+def plot(data, s1, s2):
     import pylab as pl
     for d in data:
-        img = d['image']
+        img = d['img']
+        hist, bin_edges = np.histogram(img, bins=1000, density=True)
+        pl.plot(bin_edges[:-1], hist)
+    pl.show()
+    pl.close()
+    for d in data:
+        img = d['img_normalized']
         hist, bin_edges = np.histogram(img, bins=1000, density=True)
         pl.plot(bin_edges[:-1], hist)
     pl.show()
@@ -106,7 +103,8 @@ def plot(data):
         pl.plot(x, y)
     pl.show()
     pl.close()
-    dwi.plot.show_images([[d['img'], d['img_scaled']] for d in data])
+    dwi.plot.show_images([[d['img'], d['img_scaled']] for d in data], vmin=s1,
+            vmax=s2)
 
 
 args = parse_args()
@@ -149,4 +147,4 @@ for d in data:
     d['img_scaled'] = transform(d['img'], pc1, pc2, d['landmarks'], s1, s2,
             mapped_scores)
 
-plot(data)
+plot(data, s1, s2)
