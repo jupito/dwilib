@@ -83,7 +83,7 @@ def transform(img, pc1, pc2, landmarks, s1, s2, mapped_scores):
     print dwi.util.fivenum(r)
     return r
 
-def plot(data, s1, s2):
+def plot(data, s1, s2, outfile):
     import pylab as pl
     for d in data:
         img = d['img']
@@ -92,7 +92,7 @@ def plot(data, s1, s2):
     pl.show()
     pl.close()
     for d in data:
-        img = d['img_normalized']
+        img = d['img_scaled']
         hist, bin_edges = np.histogram(img, bins=1000, density=True)
         pl.plot(bin_edges[:-1], hist)
     pl.show()
@@ -104,7 +104,7 @@ def plot(data, s1, s2):
     pl.show()
     pl.close()
     dwi.plot.show_images([[d['img'], d['img_scaled']] for d in data], vmin=s1,
-            vmax=s2)
+            vmax=s2, outfile=outfile)
 
 
 args = parse_args()
@@ -147,4 +147,4 @@ for d in data:
     d['img_scaled'] = transform(d['img'], pc1, pc2, d['landmarks'], s1, s2,
             mapped_scores)
 
-plot(data, s1, s2)
+plot(data, s1, s2, 'std.png')
