@@ -70,7 +70,6 @@ def map_onto_scale(p1, p2, s1, s2, v):
 
 def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     """Transform image onto standard scale."""
-    from scipy.stats import scoreatpercentile
     scores = [p1] + list(scores) + [p2]
     mapped_scores = [s1] + list(mapped_scores) + [s2]
     r = np.zeros_like(img, dtype=np.int)
