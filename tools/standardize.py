@@ -43,7 +43,8 @@ def set_landmarks(data, pc1, pc2):
     from scipy.stats import scoreatpercentile
     for d in data:
         img = d['img']
-        #img = img[img > np.mean(img)]
+        #threshold = np.mean(img)
+        #img = img[img > threshold]
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
         #percentiles = [25, 50, 75]
