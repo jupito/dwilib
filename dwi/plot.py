@@ -2,7 +2,8 @@
 
 import pylab as pl
 
-def show_images(Imgs, ylabels=[], xlabels=[], outfile=None):
+def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
+        outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
     pl.rcParams['image.cmap'] = 'gray'
     pl.rcParams['image.aspect'] = 'equal'
@@ -22,6 +23,6 @@ def show_images(Imgs, ylabels=[], xlabels=[], outfile=None):
     if outfile:
         pl.savefig(outfile, bbox_inches='tight')
     else:
-        pl.imshow(img)
+        pl.imshow(img, vmin=vmin, vmax=vmax)
         pl.show()
     pl.close()
