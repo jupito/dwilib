@@ -115,7 +115,9 @@ def score_ord(scores, score):
     return sorted(scores).index(score)
 
 def read_exclude_file(filename):
-    """Load a list scans to exclude."""
+    """Load a list scans to exclude.
+
+    XXX: Deprecated. Exclusion files were a bad idea after all."""
     exclusions = []
     p = re.compile(r'(\d+)\s+([*\w]+)')
     with open(filename, 'rU') as f:
@@ -129,7 +131,9 @@ def read_exclude_file(filename):
     return sorted(list(set(exclusions)))
 
 def scan_excluded(exclusions, num, scan):
-    """Tell whether given scan should be excluded."""
+    """Tell whether given scan should be excluded.
+
+    XXX: Deprecated. Exclusion files were a bad idea after all."""
     for n, s in exclusions:
         if n == num:
             if s == scan or s == '*':
@@ -137,7 +141,9 @@ def scan_excluded(exclusions, num, scan):
     return False
 
 def exclude_files(pmapfiles, patients, exclusions=[]):
-    """Return filenames without those that are to be excluded."""
+    """Return filenames without those that are to be excluded.
+
+    XXX: Deprecated. Exclusion files were a bad idea after all."""
     r = []
     for f in pmapfiles:
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
