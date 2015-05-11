@@ -76,7 +76,7 @@ def read_patients_file(filename):
     Row format: num name scan,... score1+score2
     """
     patients = []
-    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d(\+\d)?)')
+    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d(?=\+\d)?)')
     with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
@@ -86,7 +86,7 @@ def read_patients_file(filename):
                 continue
             m = p.match(line)
             if m:
-                num, name, scans, score = m.groups()[0:4]
+                num, name, scans, score = m.groups()
                 num = int(num)
                 name = name.lower()
                 scans = sorted(scans.lower().split(','))
