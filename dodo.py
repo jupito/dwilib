@@ -118,9 +118,9 @@ def mask_path(d):
     do_glob = True
     if d['mt'] == 'lesion':
         if d['m'] == 'T2':
-            path = 'masks_lesion_T2/PCa_masks_*_[O1]*/{c}_*{s}_*'
+            path = 'masks_lesion_T2/PCa_masks_T2_{l}*/{c}_*{s}_*'
         else:
-            path = 'masks_lesion/PCa_masks_*_[O1]*/{c}_*{s}_*'
+            path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
         deps = '{}/*'.format(path)
     elif d['mt'] in ['CA', 'N']:
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
@@ -144,9 +144,9 @@ def mask_path(d):
 def texture_path(d):
     """Return path to texture file."""
     if d['mt'] in ['lesion', 'CA', 'N']:
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}_{l}.txt'
     elif d['mt'] == 'auto':
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}.txt'
+        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
@@ -159,6 +159,14 @@ def cases_scans():
         case = sample['case']
         for scan in sample['scans']:
             yield case, scan
+
+def lesions():
+    """Generate all case, scan, lesion# (1-based) combinations."""
+    patients = dwi.files.read_patients_file(samplelist_file())
+    for p in patients:
+        for scan in p.scans:
+            for lesion in range(len(p.lesions)):
+                yield p.num, scan, lesion+1
 
 def fit_cmd(model, subwindow, infiles, outfile):
     d = dict(prg=PMAP, m=model, sw=' '.join(map(str, subwindow)),
@@ -372,16 +380,16 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
     yield get_task_autoroi_correlation(MODEL, PARAM, '')
 
-def get_task_texture_manual(model, param, masktype, case, scan, slices, portion):
+def get_task_texture_manual(model, param, masktype, case, scan, lesion, slices, portion):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
-            s=scan, slices=slices, portion=portion)
+            s=scan, l=lesion, slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
     return {
-            'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
             'file_dep': mask_deps,
@@ -389,16 +397,17 @@ def get_task_texture_manual(model, param, masktype, case, scan, slices, portion)
             'clean': True,
             }
 
-def get_task_texture_auto(model, param, algparams, case, scan, slices, portion):
+def get_task_texture_auto(model, param, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
     d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
             pd=pmapdir_dicom(model), m=model, p=param, mt='auto', c=case,
-            s=scan, ap_='_'.join(algparams), slices=slices, portion=portion)
+            s=scan, l=lesion, ap_='_'.join(algparams), slices=slices,
+            portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
     return {
-            'name': '{m}_{p}_{ap_}_{slices}_{portion}_{c}_{s}'.format(**d),
+            'name': '{m}_{p}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
             'actions': [(create_folder, [dirname(d['o'])]),
                     cmd],
             'file_dep': mask_deps,
@@ -408,17 +417,17 @@ def get_task_texture_auto(model, param, algparams, case, scan, slices, portion):
 
 def task_texture():
     """Generate texture features."""
-    for case, scan in cases_scans():
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst', 0)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'maxfirst', 1)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all', 0)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, 'all', 1)
+    for case, scan, lesion in lesions():
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 0)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 0)
+        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 1)
         if MODEL == 'T2':
             continue # Do only lesion for these.
-        yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, 'maxfirst', 1)
-        yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, 'maxfirst', 1)
+        yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, lesion, 'maxfirst', 1)
         for ap in find_roi_param_combinations():
-            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, 'maxfirst', 1)
+            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, lesion, 'maxfirst', 1)
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
         postfix, param='DICOM'):
