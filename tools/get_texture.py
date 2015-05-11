@@ -4,7 +4,6 @@
 
 #TODO pmap normalization for GLCM
 #TODO Gabor clips pmap, only suitable for ADCm
-#TODO GLCM uses only length 1
 
 from __future__ import division
 import argparse
