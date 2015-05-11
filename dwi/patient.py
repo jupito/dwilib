@@ -114,22 +114,6 @@ def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
     return sorted(scores).index(score)
 
-def read_exclude_file(filename):
-    """Load a list scans to exclude.
-
-    XXX: Deprecated. Exclusion files were a bad idea after all."""
-    exclusions = []
-    p = re.compile(r'(\d+)\s+([*\w]+)')
-    with open(filename, 'rU') as f:
-        for line in f:
-            m = p.match(line.strip())
-            if m:
-                num, scan = m.groups()
-                num = int(num)
-                scan = scan.lower()
-                exclusions.append((num, scan))
-    return sorted(list(set(exclusions)))
-
 def scan_excluded(exclusions, num, scan):
     """Tell whether given scan should be excluded.
 
