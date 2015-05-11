@@ -56,7 +56,11 @@ def parse_args():
 def draw_roi(img, pos, color):
     """Draw a rectangle ROI on a layer."""
     y, x = pos
-    img[y:y+5, x:x+5] = color
+    #img[y:y+5, x:x+5] = color
+    img[y:y+5, x+0] = color
+    img[y:y+5, x+4] = color
+    img[y+0, x:x+5] = color
+    img[y+4, x:x+5] = color
 
 def get_roi_layer(img, pos, color):
     """Get a layer with a rectangle ROI for drawing."""
@@ -94,35 +98,36 @@ def draw(data, param, filename):
         normal_pos = data['normal_mask'].where()[0][1:3]
 
     ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title('Slice %i %s' % (slice_index, param))
+    #ax1.set_title('Slice %i %s' % (slice_index, param))
     plt.imshow(pmap)
 
     ax2 = fig.add_subplot(1, n_cols, 2)
-    ax2.set_title('Calculated score map')
+    #ax2.set_title('Calculated score map')
     scoremap = data['scoremap'][slice_index]
     scoremap /= scoremap.max()
     imgray = plt.imshow(pmap, alpha=1)
     imjet = plt.imshow(scoremap, alpha=0.8, cmap='jet')
 
     ax3 = fig.add_subplot(1, n_cols, 3)
-    ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
-            distance))
+    #ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
+    #        distance))
     view = np.zeros(pmap.shape + (3,), dtype=float)
     view[...,0] = pmap / pmap.max()
     view[...,1] = pmap / pmap.max()
     view[...,2] = pmap / pmap.max()
-    for i, a in enumerate(pmap):
-        for j, v in enumerate(a):
-            if v < dwi.autoroi.ADCM_MIN:
-                view[i,j,:] = [0.5, 0, 0]
-            elif v > dwi.autoroi.ADCM_MAX:
-                view[i,j,:] = [0, 0.5, 0]
+    #for i, a in enumerate(pmap):
+    #    for j, v in enumerate(a):
+    #        if v < dwi.autoroi.ADCM_MIN:
+    #            view[i,j,:] = [0.5, 0, 0]
+    #        elif v > dwi.autoroi.ADCM_MAX:
+    #            view[i,j,:] = [0, 0.5, 0]
     plt.imshow(view)
-    if 'cancer_mask' in data:
-        plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
-    if 'normal_mask' in data:
-        plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
-    plt.imshow(get_roi_layer(pmap, auto_pos, AUTO_COLOR), alpha=0.7)
+    #if 'cancer_mask' in data:
+    #    plt.imshow(get_roi_layer(pmap, cancer_pos, CANCER_COLOR), alpha=0.7)
+    #if 'normal_mask' in data:
+    #    plt.imshow(get_roi_layer(pmap, normal_pos, NORMAL_COLOR), alpha=0.7)
+    #plt.imshow(get_roi_layer(pmap, auto_pos, AUTO_COLOR), alpha=0.7)
+    plt.imshow(get_roi_layer(pmap, auto_pos, CANCER_COLOR), alpha=0.7)
 
     fig.colorbar(imgray, ax=ax1, shrink=0.65)
     fig.colorbar(imjet, ax=ax2, shrink=0.65)
