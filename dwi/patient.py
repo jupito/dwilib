@@ -73,10 +73,16 @@ class Patient(object):
 def read_patients_file(filename):
     """Load a list of patients.
 
-    Row format: num name scan,... score1+score2
+    Row format: num name scan1,scan2,... score [location]
     """
     patients = []
-    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d(\+\d)?)')
+    p = re.compile(r"""
+            (?P<num>\d+) \s+
+            (?P<name>\w+) \s+
+            (?P<scans>[\w,]+) \s+
+            (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)?
+            """,
+            flags=re.VERBOSE)
     with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
