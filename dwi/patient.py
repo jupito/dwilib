@@ -14,13 +14,12 @@ class GleasonScore(object):
         optional)."""
         if isinstance(score, str) or isinstance(score, unicode):
             s = score.split('+')
-        else:
-            s = list(score)
-        if not 2 <= len(s) <= 3:
-            raise Exception('Invalid gleason score: %s', score)
+        s = tuple(map(int, s))
         if len(s) == 2:
-            s.append(0)
-        self.score = tuple(map(int, s))
+            s += (0,) # Internal representation always has three digits.
+        if not len(s) == 3:
+            raise Exception('Invalid gleason score: %s', score)
+        self.score = s
 
     def __repr__(self):
         s = self.score
