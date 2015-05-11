@@ -114,16 +114,6 @@ def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
     return sorted(scores).index(score)
 
-def scan_excluded(exclusions, num, scan):
-    """Tell whether given scan should be excluded.
-
-    XXX: Deprecated. Exclusion files were a bad idea after all."""
-    for n, s in exclusions:
-        if n == num:
-            if s == scan or s == '*':
-                return True
-    return False
-
 def exclude_files(pmapfiles, patients, exclusions=[]):
     """Return filenames without those that are to be excluded.
 
@@ -136,8 +126,6 @@ def exclude_files(pmapfiles, patients, exclusions=[]):
             continue # Patient not mentioned in patients file: exclude.
         if not scan_in_patients(patients, num, scan):
             continue # Scan not mentioned in patients file: exclude.
-        if scan_excluded(exclusions, num, scan):
-            continue # Scan mentioned in exclude file: exclude.
         r.append(f)
     return r
 
