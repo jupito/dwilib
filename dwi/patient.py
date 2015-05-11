@@ -114,10 +114,8 @@ def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
     return sorted(scores).index(score)
 
-def exclude_files(pmapfiles, patients, exclusions=[]):
-    """Return filenames without those that are to be excluded.
-
-    XXX: Deprecated. Exclusion files were a bad idea after all."""
+def exclude_files(pmapfiles, patients):
+    """Return filenames without those that are to be excluded."""
     r = []
     for f in pmapfiles:
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
