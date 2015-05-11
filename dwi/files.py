@@ -42,7 +42,7 @@ def read_patients_file(filename):
             line = line.strip()
             if not line:
                 continue
-            if line[0] == '#':
+            if line[0] == COMMENT_PREFIX:
                 continue
             m = p.match(line)
             if m:
