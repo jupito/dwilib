@@ -103,7 +103,7 @@ def get_patient(patients, num):
     for p in patients:
         if p.num == num:
             return p
-    return None
+    raise Exception('Patient not found: {}'.format(num))
 
 def get_gleason_scores(patients):
     """Get all separate Gleason scores, sorted."""
