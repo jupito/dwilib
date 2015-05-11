@@ -6,6 +6,7 @@ import scipy as sp
 from sklearn import preprocessing
 from sklearn import metrics
 
+import dwi.files
 from dwi import patient
 from dwi import dwimage
 from dwi import util
@@ -168,7 +169,7 @@ def search_params_nonlinear(trainX, trainY, group_ids, rprange, gammarange):
 
 a, filenames = util.get_args(3)
 use_roi2, labeltype, patients_file = a
-patients = patient.read_patients_file(patients_file)
+patients = dwi.files.read_patients_file(patients_file)
 pmaps, numsscans, params = patient.load_files(patients, filenames, pairs=True)
 pmaps, numsscans = util.baseline_mean(pmaps, numsscans)
 

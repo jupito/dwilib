@@ -6,6 +6,7 @@ analysis."""
 import argparse
 import numpy as np
 
+import dwi.files
 import dwi.patient
 import dwi.util
 
@@ -86,7 +87,7 @@ def bootstrap_icc(baselines, nboot=2000):
 
 
 args = parse_args()
-patients = dwi.patient.read_patients_file(args.patients)
+patients = dwi.files.read_patients_file(args.patients)
 pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
         pairs=True)
 

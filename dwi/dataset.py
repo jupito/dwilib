@@ -69,7 +69,7 @@ def read_dicom_pmap(directory, case, scan, param):
 #    """Read pmaps in DICOM format and other data."""
 #    # XXX Obsolete
 #    samples = dwi.files.read_sample_list(samplelist_file)
-#    patientsinfo = dwi.patient.read_patients_file(patients_file)
+#    patientsinfo = dwi.files.read_patients_file(patients_file)
 #    data = []
 #    for sample in samples:
 #        case = sample['case']
@@ -130,7 +130,7 @@ def dataset_read_samples(cases_scans):
 
 def dataset_read_patientinfo(data, patients_file):
     """Add patient info to dataset."""
-    patientsinfo = dwi.patient.read_patients_file(patients_file)
+    patientsinfo = dwi.files.read_patients_file(patients_file)
     for d in data:
         d['score'] = dwi.patient.get_patient(patientsinfo, d['case']).score
 

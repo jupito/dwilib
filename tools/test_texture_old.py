@@ -49,7 +49,7 @@ def normalize_pmap(pmap):
     return pmap
 
 def read_data(imagedir, patientsfile, subwindowsfile, samplesfile):
-    patients = dwi.patient.read_patients_file(patientsfile)
+    patients = dwi.files.read_patients_file(patientsfile)
     subwindows = dwi.files.read_subwindows(subwindowsfile)
     samples_all = dwi.files.read_sample_list(samplesfile)
     

@@ -10,6 +10,7 @@ import math
 import numpy as np
 import scipy.stats
 
+import dwi.files
 import dwi.patient
 import dwi.util
 
@@ -48,7 +49,7 @@ def correlation(x, y):
 
 
 args = parse_args()
-patients = dwi.patient.read_patients_file(args.scans)
+patients = dwi.files.read_patients_file(args.scans)
 pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
         pairs=True)
 pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans,

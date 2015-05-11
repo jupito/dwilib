@@ -4,8 +4,9 @@ import sys
 import argparse
 import numpy as np
 
-from dwi import patient
-from dwi import util
+import dwi.files
+import dwi.patient
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -55,17 +56,17 @@ def load_data(pmaps, labels, group_ids):
 args = parse_args()
 if args.labeltype == 'cancer':
     args.roi2 = True # Cancer vs. no cancer requires ROI2.
-patients = patient.read_patients_file(args.scans)
+patients = dwi.files.read_patients_file(args.scans)
 l = len(args.pmaps)/args.nmodels
-Pmapfiles = list(util.chunks(args.pmaps, l)) # Divide filenames by parameter.
+Pmapfiles = list(dwi.util.chunks(args.pmaps, l)) # Divide filenames by parameter.
 
 # Read input files.
 Pmaps = []
 Numsscans = []
 Params = []
 for pmapfiles in Pmapfiles:
-    pmaps, numsscans, params = patient.load_files(patients, pmapfiles, pairs=True)
-    pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
+    pmaps, numsscans, params = dwi.patient.load_files(patients, pmapfiles, pairs=True)
+    pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans, args.measurements)
     Pmaps.append(pmaps)
     Numsscans.append(numsscans)
     Params.append(params)
@@ -75,9 +76,9 @@ X = []
 Y = []
 for pmaps, numsscans in zip(Pmaps, Numsscans):
     nums = [n for n, _ in numsscans]
-    labels = patient.load_labels(patients, nums, args.labeltype)
+    labels = dwi.patient.load_labels(patients, nums, args.labeltype)
     labels_nocancer = [0] * len(labels)
-    pmaps1, pmaps2 = util.split_roi(pmaps)
+    pmaps1, pmaps2 = dwi.util.split_roi(pmaps)
     x1, y1, _ = load_data(pmaps1, labels, numsscans)
     x2, y2, _ = load_data(pmaps2, labels_nocancer, numsscans)
     X.append(np.concatenate((x1, x2)) if args.roi2 else x1)
@@ -87,10 +88,10 @@ for pmaps, numsscans in zip(Pmaps, Numsscans):
 for i in range(len(Y)):
     if args.labeltype == 'ord':
         groups = [range(args.threshold)]
-        Y[i] = np.array(util.group_labels(groups, Y[i]))
+        Y[i] = np.array(dwi.util.group_labels(groups, Y[i]))
     elif args.labeltype == 'score':
-        groups = [map(patient.GleasonScore, args.negatives)]
-        Y[i] = np.array(util.group_labels(groups, Y[i]))
+        groups = [map(dwi.patient.GleasonScore, args.negatives)]
+        Y[i] = np.array(dwi.util.group_labels(groups, Y[i]))
 
 if args.verbose:
     print 'Samples: %i, features: %i, labels: %i, type: %s'\
@@ -112,7 +113,7 @@ for x, y, params in zip(X, Y, Params):
         Y_all.append(y)
         params_all.append(param)
 
-util.negate_for_roc(X_all, params_all)
+dwi.util.negate_for_roc(X_all, params_all)
 
 if args.verbose:
     print 'Bootstrapping %i parameters %i times...' %\
@@ -122,11 +123,11 @@ if args.verbose:
 aucs = []
 aucs_bs = []
 for x, y in zip(X_all, Y_all):
-    #fpr, tpr, _ = util.roc(y, x)
-    #auc = util.roc_auc(fpr, tpr)
-    _, _, auc = util.calculate_roc_auc(y, x)
+    #fpr, tpr, _ = dwi.util.roc(y, x)
+    #auc = dwi.util.roc_auc(fpr, tpr)
+    _, _, auc = dwi.util.calculate_roc_auc(y, x)
     aucs.append(auc)
-    bs = util.bootstrap_aucs(y, x, args.nboot)
+    bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
     aucs_bs.append(bs)
 
 # Print AUC's and mean bootstrapped AUC's.
@@ -134,7 +135,7 @@ if args.verbose:
     print '# param\tAUC\tAUCbs\tlower\tupper'
 for param, auc, auc_bs in zip(params_all, aucs, aucs_bs):
     avg = np.mean(auc_bs)
-    ci1, ci2 = util.ci(auc_bs)
+    ci1, ci2 = dwi.util.ci(auc_bs)
     print '%s\t%0.6f\t%0.6f\t%0.6f\t%0.6f' % (param, auc, avg, ci1, ci2)
 
 # Print bootstrapped AUC comparisons.
@@ -148,5 +149,5 @@ for i, param_i in enumerate(params_all):
         if (i, j) in done or (j, i) in done:
             continue
         done.append((i,j))
-        d, z, p = util.compare_aucs(aucs_bs[i], aucs_bs[j])
+        d, z, p = dwi.util.compare_aucs(aucs_bs[i], aucs_bs[j])
         print '%s\t%s\t%+0.6f\t%+0.6f\t%0.6f' % (param_i, param_j, d, z, p)

@@ -10,8 +10,9 @@ import pylab as pl
 from sklearn import preprocessing
 from sklearn import metrics
 
-from dwi import patient
-from dwi import util
+import dwi.files
+import dwi.patient
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -47,12 +48,12 @@ def load_data(pmaps, labels, group_ids):
 
 # Handle arguments.
 args = parse_args()
-patients = patient.read_patients_file(args.scans)
-pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
-pmaps, numsscans = util.baseline_mean(pmaps, numsscans)
+patients = dwi.files.read_patients_file(args.scans)
+pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
+pmaps, numsscans = dwi.util.baseline_mean(pmaps, numsscans)
 
 nums = [n for n, _ in numsscans]
-labels = patient.load_labels(patients, nums, args.labeltype)
+labels = dwi.patient.load_labels(patients, nums, args.labeltype)
 pmaps = pmaps[:,0,:] # Use ROI1 only.
 
 # Print header

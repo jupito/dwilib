@@ -7,8 +7,8 @@ import sys
 import numpy as np
 import pylab as pl
 
-from dwi import patient
-from dwi import util
+import dwi.files
+import dwi.util
 
 def load_param(param, pmaps, labels, different_labels, label_nocancer, split=True):
     """Load data indicated by command arguments."""
@@ -37,23 +37,23 @@ def limits(seq, margin=0.1):
     return mn-margin*d, mx+margin*d
 
 
-a, filenames = util.get_args(2)
+a, filenames = dwi.util.get_args(2)
 outfile, patients_file = a
-patients = patient.read_patients_file(patients_file)
-pmaps, numsscans, params = patient.load_files(patients, filenames, pairs=True)
-pmaps, numsscans = util.baseline_mean(pmaps, numsscans)
+patients = dwi.files.read_patients_file(patients_file)
+pmaps, numsscans, params = dwi.patient.load_files(patients, filenames, pairs=True)
+pmaps, numsscans = dwi.util.baseline_mean(pmaps, numsscans)
 pmaps = pmaps[:,0:1,:] # Use ROI1 only.
 
-gs = patient.get_gleason_scores(patients)
-scores = [patient.get_patient(patients, n).score for n, _ in numsscans]
-scores_ord = [patient.score_ord(gs, s) for s in scores] # Use ordinal.
+gs = dwi.patient.get_gleason_scores(patients)
+scores = [dwi.patient.get_patient(patients, n).score for n, _ in numsscans]
+scores_ord = [dwi.patient.score_ord(gs, s) for s in scores] # Use ordinal.
 scores_bin = [s > GleasonScore('3+4') for s in scores] # Is aggressive? (ROI 1.)
 scores_cancer = [1] * len(scores) # Is cancer? (ROI 1 vs 2.)
 
 #labels = scores_ord
 labels = scores
 #label_nocancer = 0
-label_nocancer = patient.GleasonScore((0, 0))
+label_nocancer = dwi.patient.GleasonScore((0, 0))
 #different_labels = sorted(list(set(labels + [label_nocancer])))
 different_labels = sorted(list(set(labels)))
 
@@ -70,7 +70,7 @@ for i, label in enumerate(different_labels):
     a = [p[i] for p in X]
     for param, values in zip(params, a):
         d = dict(param=param)
-        d.update(util.fivenumd(values))
+        d.update(dwi.util.fivenumd(values))
         print '\t{param}\t{min:10.5f}\t{median:10.5f}\t{max:10.5f}'.format(**d)
 
 n_rows, n_cols = len(params), 1

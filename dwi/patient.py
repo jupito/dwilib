@@ -71,52 +71,6 @@ class Patient(object):
     def tuple(self):
         return self.num, self.name, self.scans, self.lesions
 
-def read_patients_file(filename):
-    """Load a list of patients.
-
-    Row format: num name scan1,scan2,... score [location]
-    """
-    patients = []
-    p = re.compile(r"""
-            (?P<num>\d+) \s+
-            (?P<name>\w+) \s+
-            (?P<scans>[\w,]+) \s+
-            (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
-            ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
-            ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
-            """,
-            flags=re.VERBOSE)
-    with open(filename, 'rU') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == '#':
-                continue
-            m = p.match(line)
-            if m:
-                num = int(m.group('num'))
-                name = m.group('name').lower()
-                scans = sorted(m.group('scans').lower().split(','))
-                score = GleasonScore(m.group('score'))
-                lesions = [Lesion(score, 'xx')]
-                if m.group('location'):
-                    # New-style, multi-lesion file.
-                    lesions = []
-                    lesions.append(Lesion(GleasonScore(m.group('score')),
-                            m.group('location').lower()))
-                    if m.group('score2'):
-                        lesions.append(Lesion(GleasonScore(m.group('score2')),
-                                m.group('location2').lower()))
-                    if m.group('score3'):
-                        lesions.append(Lesion(GleasonScore(m.group('score3')),
-                                m.group('location3').lower()))
-                patient = Patient(num, name, scans, lesions)
-                patients.append(patient)
-            else:
-                raise Exception('Invalid line in patients file: %s', line)
-    return sorted(patients)
-
 def scan_in_patients(patients, num, scan):
     """Is this scan listed in the patients sequence?"""
     for p in patients:
@@ -187,7 +141,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
     samples = dwi.files.read_sample_list(samplelist_file)
-    patientsinfo = read_patients_file(patients_file)
+    patientsinfo = dwi.files.read_patients_file(patients_file)
     data = []
     for sample in samples:
         case = sample['case']

@@ -6,8 +6,8 @@ ROC curves into a file."""
 import argparse
 import numpy as np
 
-from dwi import patient
-from dwi import util
+import dwi.files
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -59,17 +59,17 @@ def load_data(pmaps, labels, group_ids):
 args = parse_args()
 if args.labeltype == 'cancer':
     args.roi2 = True # Cancer vs. no cancer requires ROI2.
-patients = patient.read_patients_file(args.scans)
-pmaps, numsscans, params = patient.load_files(patients, args.pmaps, pairs=True)
-pmaps, numsscans = util.select_measurements(pmaps, numsscans, args.measurements)
+patients = dwi.files.read_patients_file(args.scans)
+pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
+pmaps, numsscans = dwi.util.select_measurements(pmaps, numsscans, args.measurements)
 
 nums = [n for n, s in numsscans]
 if args.average:
     pmaps1, pmaps2 = np.mean(pmaps, axis=1, keepdims=True), []
 else:
-    pmaps1, pmaps2 = util.split_roi(pmaps)
+    pmaps1, pmaps2 = dwi.util.split_roi(pmaps)
 
-labels = patient.load_labels(patients, nums, args.labeltype)
+labels = dwi.patient.load_labels(patients, nums, args.labeltype)
 labels_nocancer = [0] * len(labels)
 X1, Y1, G1 = load_data(pmaps1, labels, numsscans)
 if len(pmaps2):
@@ -87,10 +87,10 @@ else:
 # Group samples as negatives and positives.
 if args.labeltype == 'ord':
     groups = [range(args.threshold)]
-    Y = np.array(util.group_labels(groups, Y))
+    Y = np.array(dwi.util.group_labels(groups, Y))
 elif args.labeltype == 'score':
-    groups = [map(patient.GleasonScore, args.negatives)]
-    Y = np.array(util.group_labels(groups, Y))
+    groups = [map(dwi.patient.GleasonScore, args.negatives)]
+    Y = np.array(dwi.util.group_labels(groups, Y))
 
 if args.verbose > 1:
     print 'Samples: %i, features: %i, labels: %i, type: %s'\
@@ -98,7 +98,7 @@ if args.verbose > 1:
     print 'Labels: %s' % sorted(list(set(labels)))
     print 'Positives: %d' % sum(Y)
 
-util.negate_for_roc(X.T, params)
+dwi.util.negate_for_roc(X.T, params)
 
 # Plot ROCs.
 if args.outfile:
@@ -109,7 +109,7 @@ skipped_params = ['SI0N', 'C', 'RMSE']
 for x, param, row in zip(X.T, params, range(len(params))):
     if param in skipped_params:
         continue
-    fpr, tpr, auc = util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
+    fpr, tpr, auc = dwi.util.calculate_roc_auc(Y, x, autoflip=args.autoflip)
     if args.verbose:
         print '%s:\tAUC: %f' % (param, auc)
     else:
