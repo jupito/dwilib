@@ -49,14 +49,8 @@ def make2d(size, height=None):
 
 def fabricate_subwindow(size, height=None):
     """Fabricate a subwindow specification."""
-    if height:
-        width = size / height
-        if height * width == size:
-            return (0, height, 0, width)
-        else:
-            return fabricate_subwindow(size, height + 1)
-    else:
-        return fabricate_subwindow(size, int(np.sqrt(size)))
+    height, width = make2d(size, height=height)
+    return (0, height, 0, width)
 
 def combinations(l):
     """Return combinations of list elements."""
