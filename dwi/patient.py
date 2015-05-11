@@ -69,7 +69,6 @@ def read_patients_file(filename):
     Row format: num name scan,... score1+score2
     """
     patients = []
-    #p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d)')
     p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)\s+(\d\+\d(\+\d)?)')
     with open(filename, 'rU') as f:
         for line in f:
