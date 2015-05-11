@@ -92,11 +92,10 @@ def read_patients_file(filename):
                 continue
             m = p.match(line)
             if m:
-                num, name, scans, score = m.groups()[0:4]
-                num = int(num)
-                name = name.lower()
-                scans = sorted(scans.lower().split(','))
-                score = GleasonScore(score)
+                num = int(m.group('num'))
+                name = m.group('name').lower()
+                scans = sorted(m.group('scans').lower().split(','))
+                score = GleasonScore(m.group('score'))
                 patient = Patient(num, name, scans, score)
                 patients.append(patient)
             else:
