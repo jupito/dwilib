@@ -5,6 +5,7 @@ import glob
 import numpy as np
 
 import dwi.dicomfile
+import dwi.files
 import dwi.mask
 import dwi.patient
 import dwi.util
@@ -13,7 +14,7 @@ def read_subregion(directory, case, scan):
     """Read subregion definition."""
     d = dict(d=directory, c=case, s=scan)
     path = dwi.util.sglob('{d}/{c}_*{s}_*.txt'.format(**d))
-    subregion = dwi.util.read_subregion_file(path)
+    subregion = dwi.files.read_subregion_file(path)
     return subregion
 
 def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
@@ -67,7 +68,7 @@ def read_dicom_pmap(directory, case, scan, param):
 #        prostate_mask_dir, roi_mask_dir, param, cases=[], scans=[], clip=False):
 #    """Read pmaps in DICOM format and other data."""
 #    # XXX Obsolete
-#    samples = dwi.util.read_sample_list(samplelist_file)
+#    samples = dwi.files.read_sample_list(samplelist_file)
 #    patientsinfo = dwi.patient.read_patients_file(patients_file)
 #    data = []
 #    for sample in samples:
@@ -110,7 +111,7 @@ def read_dicom_pmap(directory, case, scan, param):
 def dataset_read_samplelist(samplelist_file, cases=[], scans=[]):
     """Create a new dataset from a sample list file, optionally including only
     mentioned cases and scans."""
-    samples = dwi.util.read_sample_list(samplelist_file)
+    samples = dwi.files.read_sample_list(samplelist_file)
     data = []
     for sample in samples:
         case = sample['case']

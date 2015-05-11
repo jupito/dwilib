@@ -9,6 +9,7 @@ import numpy as np
 import skimage
 
 import dwi.dataset
+import dwi.files
 import dwi.util
 import dwi.patient
 import dwi.dwimage
@@ -49,8 +50,8 @@ def normalize_pmap(pmap):
 
 def read_data(imagedir, patientsfile, subwindowsfile, samplesfile):
     patients = dwi.patient.read_patients_file(patientsfile)
-    subwindows = dwi.util.read_subwindows(subwindowsfile)
-    samples_all = dwi.util.read_sample_list(samplesfile)
+    subwindows = dwi.files.read_subwindows(subwindowsfile)
+    samples_all = dwi.files.read_sample_list(samplesfile)
     
     data = dict(cases=[], scans=[], scores=[], images=[], cancer_masks=[],
             normal_masks=[])

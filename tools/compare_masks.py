@@ -5,7 +5,9 @@
 import argparse
 
 import numpy as np
-from dwi import util
+
+import dwi.files
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -39,11 +41,11 @@ def roi_position(mask):
 
 def roi_distance(a, b):
     # TODO: Use general mask distance.
-    return util.distance(a, b)
+    return dwi.util.distance(a, b)
 
 args = parse_args()
-mask1 = util.read_mask_file(args.mask1)
-mask2 = util.read_mask_file(args.mask2)
+mask1 = dwi.files.read_mask_file(args.mask1)
+mask2 = dwi.files.read_mask_file(args.mask2)
 
 if args.subwindow:
     mask1 = mask_subwindow(mask1, map(int, args.subwindow))

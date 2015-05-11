@@ -4,6 +4,7 @@ from functools import total_ordering
 import numpy as np
 
 import dwi.asciifile
+import dwi.files
 import dwi.util
 
 @total_ordering
@@ -193,7 +194,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
-    samples = dwi.util.read_sample_list(samplelist_file)
+    samples = dwi.files.read_sample_list(samplelist_file)
     patientsinfo = read_patients_file(patients_file)
     data = []
     for sample in samples:

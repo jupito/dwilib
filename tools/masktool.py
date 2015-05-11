@@ -7,6 +7,7 @@ import os.path
 
 import numpy as np
 
+import dwi.files
 import dwi.mask
 import dwi.util
 
@@ -30,7 +31,7 @@ def write_subregion(mask, pad, infile, filename):
     bb = tuple(np.ravel(bb))
     comment = '%s, %i' % (os.path.basename(infile), pad)
     print 'Writing subregion to %s with padding of %s...' % (filename, pad)
-    dwi.util.write_subregion_file(filename, bb, comment=comment)
+    dwi.files.write_subregion_file(filename, bb, comment=comment)
 
 args = parse_args()
 mask = dwi.mask.read_mask(args.input)

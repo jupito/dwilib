@@ -11,6 +11,7 @@ from doit.tools import check_timestamp_unchanged
 from doit.tools import create_folder
 #from doit.tools import result_dep
 
+import dwi.files
 import dwi.util
 
 """
@@ -50,7 +51,7 @@ MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
-SUBWINDOWS = dwi.util.read_subwindows('subwindows.txt')
+SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
         [1, 2, 3], # ROI depth min
@@ -153,7 +154,7 @@ def texture_path(d):
 
 def cases_scans():
     """Generate all case, scan pairs."""
-    samples = dwi.util.read_sample_list(samplelist_file())
+    samples = dwi.files.read_sample_list(samplelist_file())
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
