@@ -49,11 +49,12 @@ class Lesion(object):
 
 @total_ordering
 class Patient(object):
-    def __init__(self, num, name, scans, score):
+    def __init__(self, num, name, scans, lesions):
         self.num = num
         self.name = name
         self.scans = scans
-        self.score = score
+        self.lesions = lesions
+        self.score = lesions[0].score # For backwards compatibility.
 
     def __repr__(self):
         return repr(self.tuple())
@@ -68,7 +69,7 @@ class Patient(object):
         return self.tuple() < other.tuple()
 
     def tuple(self):
-        return self.num, self.name, self.scans, self.score
+        return self.num, self.name, self.scans, self.lesions
 
 def read_patients_file(filename):
     """Load a list of patients.
@@ -80,7 +81,9 @@ def read_patients_file(filename):
             (?P<num>\d+) \s+
             (?P<name>\w+) \s+
             (?P<scans>[\w,]+) \s+
-            (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)?
+            (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
+            ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
+            ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
             """,
             flags=re.VERBOSE)
     with open(filename, 'rU') as f:
@@ -96,7 +99,19 @@ def read_patients_file(filename):
                 name = m.group('name').lower()
                 scans = sorted(m.group('scans').lower().split(','))
                 score = GleasonScore(m.group('score'))
-                patient = Patient(num, name, scans, score)
+                lesions = [Lesion(score, 'xx')]
+                if m.group('location'):
+                    # New-style, multi-lesion file.
+                    lesions = []
+                    lesions.append(Lesion(GleasonScore(m.group('score')),
+                            m.group('location').lower()))
+                    if m.group('score2'):
+                        lesions.append(Lesion(GleasonScore(m.group('score2')),
+                                m.group('location2').lower()))
+                    if m.group('score3'):
+                        lesions.append(Lesion(GleasonScore(m.group('score3')),
+                                m.group('location3').lower()))
+                patient = Patient(num, name, scans, lesions)
                 patients.append(patient)
             else:
                 raise Exception('Invalid line in patients file: %s', line)
