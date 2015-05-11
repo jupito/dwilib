@@ -119,12 +119,8 @@ def exclude_files(pmapfiles, patients):
     r = []
     for f in pmapfiles:
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
-        p = get_patient(patients, num)
-        if not p:
-            continue # Patient not mentioned in patients file: exclude.
-        if not scan_in_patients(patients, num, scan):
-            continue # Scan not mentioned in patients file: exclude.
-        r.append(f)
+        if scan_in_patients(patients, num, scan):
+            r.append(f)
     return r
 
 def load_files(patients, filenames, pairs=False):
