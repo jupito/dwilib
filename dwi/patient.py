@@ -39,6 +39,14 @@ class GleasonScore(object):
     def __lt__(self, other):
         return self.score < other.score
 
+class Lesion(object):
+    def __init__(self, score, location):
+        self.score = score
+        self.location = location
+
+    def __repr__(self):
+        return repr((self.score, self.location))
+
 @total_ordering
 class Patient(object):
     def __init__(self, num, name, scans, score):
