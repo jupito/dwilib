@@ -114,18 +114,13 @@ def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
     return sorted(scores).index(score)
 
-def exclude_files(pmapfiles, patients):
-    """Return filenames without those that are to be excluded."""
-    r = []
-    for f in pmapfiles:
-        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
-        if scan_in_patients(patients, num, scan):
-            r.append(f)
-    return r
-
 def load_files(patients, filenames, pairs=False):
     """Load pmap files."""
-    pmapfiles = exclude_files(filenames, patients)
+    pmapfiles = []
+    for f in filenames:
+        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
+        if scan_in_patients(patients, num, scan):
+            pmapfiles.append(f)
     afs = map(dwi.asciifile.AsciiFile, pmapfiles)
     if pairs:
         dwi.util.scan_pairs(afs)
