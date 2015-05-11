@@ -1,5 +1,4 @@
 import os.path
-import re
 from functools import total_ordering
 import numpy as np
 
