@@ -176,7 +176,7 @@ def fit_cmd(model, subwindow, infiles, outfile):
     return s
 
 def get_texture_cmd(d):
-    cmd = '{prg} --methods {methods} --winsizes {winsizes}'\
+    cmd = '{prg} -v --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
             ' --slices {slices} --portion {portion}'\
             ' --output {o}'
