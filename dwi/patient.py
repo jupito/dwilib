@@ -132,6 +132,13 @@ def load_labels(patients, nums, labeltype='score'):
         raise Exception('Invalid parameter: %s' % labeltype)
     return labels
 
+def lesions(patients):
+    """Generate all case, scan, lesion# (1-based) combinations."""
+    for p in patients:
+        for s in p.scans:
+            for i, l in enumerate(p.lesions):
+                yield p, s, i, l
+
 def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         voxel='all'):
     """Read pmaps labeled by their Gleason score.
@@ -143,22 +150,24 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     samples = dwi.files.read_sample_list(samplelist_file)
     patientsinfo = dwi.files.read_patients_file(patients_file)
     data = []
-    for sample in samples:
-        case = sample['case']
-        score = get_patient(patientsinfo, case).score
+    for patient, scan, i, lesion in lesions(patientsinfo):
+        if i != 0:
+            continue #
+        case = patient.num
+        score = lesion.score
         if thresholds:
             label = sum(score > t for t in thresholds)
         else:
             label = score_ord(get_gleason_scores(patientsinfo), score)
-        for scan in sample['scans']:
-            pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=1, voxel=voxel)
-            d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
-                    params=params, pathname=pathname)
-            data.append(d)
-            if pmap.shape != data[0]['pmap'].shape:
-                raise Exception('Irregular shape: %s' % pathname)
-            if params != data[0]['params']:
-                raise Exception('Irregular params: %s' % pathname)
+        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=i+1,
+                voxel=voxel)
+        d = dict(case=case, scan=scan, roi=i, score=score, label=label,
+                pmap=pmap, params=params, pathname=pathname)
+        data.append(d)
+        if pmap.shape != data[0]['pmap'].shape:
+            raise Exception('Irregular shape: %s' % pathname)
+        if params != data[0]['params']:
+            raise Exception('Irregular params: %s' % pathname)
     return data
 
 def grouping(data):
