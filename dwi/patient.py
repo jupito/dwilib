@@ -86,7 +86,8 @@ def get_patient(patients, num):
 
 def get_gleason_scores(patients):
     """Get all separate Gleason scores, sorted."""
-    return sorted({p.score for p in patients})
+    #return sorted({p.score for p in patients})
+    return sorted({l.score for l in p.lesions for p in patients})
 
 def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
