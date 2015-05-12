@@ -57,6 +57,14 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
     names = ['stats({})'.format(n) for n in names]
     return output, names
 
+def stats_mbb(img, mask):
+    """Statistical texture features unified over a masked area."""
+    voxels = img[mask]
+    feats = stats(voxels)
+    output = feats.values()
+    names = ['stats({})'.format(k) for k in feats.keys()]
+    return output, names
+
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()

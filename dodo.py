@@ -72,6 +72,7 @@ def texture_methods(model=MODEL):
         'moment',
         'haar',
         'sobel',
+        'stats_mbb',
         'glcm_mbb',
         #'haralick_mbb',
         ])

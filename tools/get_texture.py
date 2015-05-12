@@ -31,6 +31,7 @@ METHODS = collections.OrderedDict([
         ('sobel', dwi.texture.sobel_map),
         ])
 METHODS_MBB = collections.OrderedDict([
+        ('stats_mbb', dwi.texture.stats_mbb),
         ('glcm_mbb', dwi.texture.glcm_mbb),
         ('haralick_mbb', dwi.texture.haralick_mbb),
         ])
