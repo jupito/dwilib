@@ -151,10 +151,10 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
     #samples = dwi.files.read_sample_list(samplelist_file) # TODO Not used.
-    patientsinfo = dwi.files.read_patients_file(patients_file)
-    gs = get_gleason_scores(patientsinfo)
+    patients = dwi.files.read_patients_file(patients_file)
+    gs = get_gleason_scores(patients)
     data = []
-    for patient, scan, i, lesion in lesions(patientsinfo):
+    for patient, scan, i, lesion in lesions(patients):
         if not multiroi and i != 0:
             continue
         case = patient.num
