@@ -147,7 +147,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
-    samples = dwi.files.read_sample_list(samplelist_file)
+    #samples = dwi.files.read_sample_list(samplelist_file) # TODO Not used.
     patientsinfo = dwi.files.read_patients_file(patients_file)
     data = []
     for patient, scan, i, lesion in lesions(patientsinfo):
