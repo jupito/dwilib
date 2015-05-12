@@ -140,7 +140,7 @@ def lesions(patients):
                 yield p, s, i, l
 
 def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
-        voxel='all'):
+        voxel='all', multiroi=False):
     """Read pmaps labeled by their Gleason score.
     
     Label thresholds are maximum scores of each label group. Labels are ordinal
@@ -151,15 +151,16 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     patientsinfo = dwi.files.read_patients_file(patients_file)
     data = []
     for patient, scan, i, lesion in lesions(patientsinfo):
-        if i != 0:
-            continue #
+        if not multiroi and i != 0:
+            continue
         case = patient.num
         score = lesion.score
         if thresholds:
             label = sum(score > t for t in thresholds)
         else:
             label = score_ord(get_gleason_scores(patientsinfo), score)
-        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=i,
+        roi = i if multiroi else None
+        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
                 voxel=voxel)
         d = dict(case=case, scan=scan, roi=i, score=score, label=label,
                 pmap=pmap, params=params, pathname=pathname)
