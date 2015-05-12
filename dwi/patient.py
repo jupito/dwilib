@@ -87,7 +87,10 @@ def get_patient(patients, num):
 def get_gleason_scores(patients):
     """Get all separate Gleason scores, sorted."""
     #return sorted({p.score for p in patients})
-    return sorted({l.score for l in p.lesions for p in patients})
+    scores = set()
+    for p in patients:
+        scores.update(l.score for l in p.lesions)
+    return sorted(scores)
 
 def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
@@ -149,6 +152,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
     thresholds = map(GleasonScore, thresholds)
     #samples = dwi.files.read_sample_list(samplelist_file) # TODO Not used.
     patientsinfo = dwi.files.read_patients_file(patients_file)
+    gs = get_gleason_scores(patientsinfo)
     data = []
     for patient, scan, i, lesion in lesions(patientsinfo):
         if not multiroi and i != 0:
@@ -158,7 +162,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         if thresholds:
             label = sum(score > t for t in thresholds)
         else:
-            label = score_ord(get_gleason_scores(patientsinfo), score)
+            label = score_ord(gs, score)
         roi = i if multiroi else None
         pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
                 voxel=voxel)
