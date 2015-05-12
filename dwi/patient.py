@@ -151,7 +151,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         else:
             label = score_ord(get_gleason_scores(patientsinfo), score)
         for scan in sample['scans']:
-            pmap, params, pathname = read_pmap(pmapdir, case, scan, voxel=voxel)
+            pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=1, voxel=voxel)
             d = dict(case=case, scan=scan, score=score, label=label, pmap=pmap,
                     params=params, pathname=pathname)
             data.append(d)
@@ -176,10 +176,14 @@ def grouping(data):
     group_sizes = [len(g) for g in groups]
     return different_scores, group_scores, group_sizes
 
-def read_pmap(dirname, case, scan, voxel='all'):
+def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     """Read single pmap."""
-    d = dict(d=dirname, c=case, s=scan)
-    path = dwi.util.sglob('{d}/{c}_*{s}*.txt'.format(**d))
+    d = dict(d=dirname, c=case, s=scan, r=roi)
+    if roi is None:
+        s = '{d}/{c}_*{s}*.txt'
+    else:
+        s = '{d}/{c}_*{s}_{r}*.txt'
+    path = dwi.util.sglob(s.format(**d))
     af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
