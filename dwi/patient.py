@@ -159,7 +159,7 @@ def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
             label = sum(score > t for t in thresholds)
         else:
             label = score_ord(get_gleason_scores(patientsinfo), score)
-        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=i+1,
+        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=i,
                 voxel=voxel)
         d = dict(case=case, scan=scan, roi=i, score=score, label=label,
                 pmap=pmap, params=params, pathname=pathname)
@@ -191,6 +191,7 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     if roi is None:
         s = '{d}/{c}_*{s}*.txt'
     else:
+        d['r'] += 1
         s = '{d}/{c}_*{s}_{r}*.txt'
     path = dwi.util.sglob(s.format(**d))
     af = dwi.asciifile.AsciiFile(path)
