@@ -133,7 +133,7 @@ def load_labels(patients, nums, labeltype='score'):
     return labels
 
 def lesions(patients):
-    """Generate all case, scan, lesion# (1-based) combinations."""
+    """Generate all case, scan, lesion combinations."""
     for p in patients:
         for s in p.scans:
             for i, l in enumerate(p.lesions):
