@@ -20,6 +20,8 @@ def normalize(pmap, levels=128):
     in_range = (0, 0.005)
     #in_range = (0, 0.002)
     #in_range = (pmap.min(), pmap.max())
+    #from scipy.stats import scoreatpercentile
+    #in_range = (0, scoreatpercentile(pmap, 99.8))
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     pmap /= (256/levels)
