@@ -357,6 +357,12 @@ def sobel_map(img, winsize=None, mask=None):
     """Sobel edge descriptor map.
     
     Parameter winsize is not used, it is there for API compatibility."""
-    output = np.array([sobel(img), sobel(img, mask)])
+    output = np.array([sobel(img), sobel(img, mask=mask)])
     names = ['sobel', 'sobel_mask']
+    return output, names
+
+def sobel_mbb(img, mask):
+    """Sobel edge descriptor map."""
+    output = [np.mean(sobel(img, mask=mask))]
+    names = ['sobel']
     return output, names
