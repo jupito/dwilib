@@ -34,6 +34,7 @@ METHODS_MBB = collections.OrderedDict([
         ('stats_mbb', dwi.texture.stats_mbb),
         ('glcm_mbb', dwi.texture.glcm_mbb),
         ('haralick_mbb', dwi.texture.haralick_mbb),
+        ('sobel_mbb', dwi.texture.sobel_mbb),
         ])
 
 def parse_args():
