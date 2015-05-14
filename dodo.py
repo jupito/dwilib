@@ -63,7 +63,6 @@ FIND_ROI_PARAMS = [
 
 def texture_methods(model=MODEL):
     return ' '.join([
-        #'stats',
         'glcm',
         #'haralick',
         'lbp',
@@ -82,7 +81,6 @@ def texture_winsizes(model=MODEL):
         return ' '.join(map(str, range(3, 36, 4)))
     else:
         return ' '.join(map(str, range(3, 16, 2)))
-        #return ' '.join(map(str, range(3, 6, 2)))
 
 def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
