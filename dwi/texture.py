@@ -80,7 +80,7 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
             normed=True)
     if ignore_zeros and np.min(img) == 0:
-        # Drop information on the first grey-level if it's zero.
+        # Drop information on the first grey-level if it's zero (background).
         glcm = glcm[1:,1:,...]
     d = collections.OrderedDict()
     for name in names:
