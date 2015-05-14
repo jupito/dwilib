@@ -76,11 +76,14 @@ def texture_methods(model=MODEL):
         #'haralick_mbb',
         ])
 
-def texture_winsizes(model=MODEL):
-    if model == 'T2':
-        return ' '.join(map(str, range(3, 36, 4)))
+def texture_winsizes(masktype, model=MODEL):
+    if masktype in ('CA', 'N'):
+        l = [3, 5]
+    elif model == 'T2':
+        l = range(3, 36, 4)
     else:
-        return ' '.join(map(str, range(3, 16, 2)))
+        l = range(3, 16, 2)
+    return ' '.join(map(str, l))
 
 def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
@@ -381,7 +384,8 @@ def task_evaluate_autoroi():
 
 def get_task_texture_manual(model, param, masktype, case, scan, lesion, slices, portion):
     """Generate texture features."""
-    d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
+    d = dict(methods=texture_methods(model),
+            winsizes=texture_winsizes(masktype, model),
             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
             s=scan, l=lesion, slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
@@ -398,8 +402,10 @@ def get_task_texture_manual(model, param, masktype, case, scan, lesion, slices, 
 
 def get_task_texture_auto(model, param, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
-    d = dict(methods=texture_methods(model), winsizes=texture_winsizes(model),
-            pd=pmapdir_dicom(model), m=model, p=param, mt='auto', c=case,
+    masktype = 'auto'
+    d = dict(methods=texture_methods(model),
+            winsizes=texture_winsizes(masktype, model),
+            pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
             s=scan, l=lesion, ap_='_'.join(algparams), slices=slices,
             portion=portion)
     d['mask'], mask_deps = mask_path(d)
