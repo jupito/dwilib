@@ -142,6 +142,9 @@ def lesions(patients):
             for i, l in enumerate(p.lesions):
                 yield p, s, i, l
 
+# Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
+THRESHOLDS_STANDARD = ['3+3', '3+4']
+
 def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
         voxel='all', multiroi=False):
     """Read pmaps labeled by their Gleason score.
