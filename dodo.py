@@ -70,10 +70,10 @@ def texture_methods(model=MODEL):
         'gabor',
         'moment',
         'haar',
-        'sobel',
         'stats_mbb',
         'glcm_mbb',
         #'haralick_mbb',
+        'sobel_mbb',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
