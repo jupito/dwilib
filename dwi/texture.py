@@ -11,7 +11,7 @@ import skimage.feature
 
 import dwi.util
 
-def normalize(pmap, levels=None):
+def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
     import skimage
@@ -22,8 +22,7 @@ def normalize(pmap, levels=None):
     #in_range = (pmap.min(), pmap.max())
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
-    if levels:
-        pmap /= (256/levels)
+    pmap /= (256/levels)
     return pmap
 
 def abbrev(name):
@@ -98,7 +97,7 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
 def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
         output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
-    img = normalize(img, levels=128)
+    img = normalize(img)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
@@ -110,7 +109,7 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
 
 def glcm_mbb(img, mask):
     """Single GLCM features for selected area inside minimum bounding box."""
-    img = normalize(img, levels=128)
+    img = normalize(img)
     positions = dwi.util.bounding_box(mask)
     slices = [slice(*t) for t in positions]
     img = img[slices]
