@@ -11,8 +11,9 @@ import skimage.feature
 
 import dwi.util
 
-def normalize(pmap):
-    """Normalize images within given range and convert to byte maps."""
+def normalize(pmap, levels=None):
+    """Normalize images within given range and convert to byte maps with given
+    number of graylevels."""
     import skimage
     import skimage.exposure
     #in_range = (0, 0.03)
@@ -21,6 +22,8 @@ def normalize(pmap):
     #in_range = (pmap.min(), pmap.max())
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
+    if levels:
+        pmap /= (256/levels)
     return pmap
 
 def abbrev(name):
@@ -74,9 +77,10 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
     directions (6 features provided by scikit-image)."""
     from skimage.feature import greycomatrix, greycoprops
     assert img.ndim == 2
+    assert img.dtype == np.ubyte
     distances = [x for x in distances if x <= min(img.shape)-1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
-    levels = 256
+    levels = img.max() + 1
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
             normed=True)
     if ignore_zeros and np.min(img) == 0:
@@ -94,7 +98,7 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
 def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
         output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
-    img = normalize(img)
+    img = normalize(img, levels=128)
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
@@ -106,7 +110,7 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
 
 def glcm_mbb(img, mask):
     """Single GLCM features for selected area inside minimum bounding box."""
-    img = normalize(img)
+    img = normalize(img, levels=128)
     positions = dwi.util.bounding_box(mask)
     slices = [slice(*t) for t in positions]
     img = img[slices]
