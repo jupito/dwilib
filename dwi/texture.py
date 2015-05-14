@@ -73,6 +73,8 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features averaged over 4
     directions (6 features provided by scikit-image)."""
     from skimage.feature import greycomatrix, greycoprops
+    assert img.ndim == 2
+    distances = [x for x in distances if x <= min(img.shape)-1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     levels = 256
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
