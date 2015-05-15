@@ -16,8 +16,6 @@ def parse_args():
             help='be more verbose')
     p.add_argument('--patients', default='patients.txt',
             help='patients file')
-    p.add_argument('--samplelist', default='samples_all.txt',
-            help='sample list file')
     p.add_argument('--pmapdir', nargs='+', required=True,
             help='input pmap directory')
     p.add_argument('--threshold', default='3+3',
@@ -43,7 +41,7 @@ X, Y = [], []
 Params = []
 scores = None
 for i, pmapdir in enumerate(args.pmapdir):
-    data = dwi.patient.read_pmaps(args.samplelist, args.patients, pmapdir,
+    data = dwi.patient.read_pmaps(None, args.patients, pmapdir,
             [args.threshold], voxel=args.voxel)
     if scores is None:
         scores, groups, group_sizes = dwi.patient.grouping(data)
