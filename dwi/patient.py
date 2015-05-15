@@ -145,15 +145,14 @@ def lesions(patients):
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
 THRESHOLDS_STANDARD = ['3+3', '3+4']
 
-def read_pmaps(samplelist_file, patients_file, pmapdir, thresholds=['3+3'],
-        voxel='all', multiroi=False):
+def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
+        multiroi=False):
     """Read pmaps labeled by their Gleason score.
     
     Label thresholds are maximum scores of each label group. Labels are ordinal
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
     thresholds = map(GleasonScore, thresholds)
-    #samples = dwi.files.read_sample_list(samplelist_file) # TODO Not used.
     patients = dwi.files.read_patients_file(patients_file)
     gs = get_gleason_scores(patients)
     data = []
