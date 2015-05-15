@@ -83,7 +83,7 @@ for x, y, param in zip(X, Y, Params):
     ci1, ci2 = dwi.util.ci(auc_bs)
     d = dict(param=param, auc=auc, avg=avg, ci1=ci1, ci2=ci2)
     if args.verbose:
-        s = '{param:%i}  {auc:.6f}  {avg:.6f}  {ci1:.6f}  {ci2:.6f}' % params_maxlen
+        s = '{param:%i}  {auc:.3f}  {avg:.3f}  {ci1:.3f}  {ci2:.3f}' % params_maxlen
     else:
         s = '{auc:f}'
     print s.format(**d)
@@ -100,7 +100,7 @@ if args.compare:
                 continue
             done.append((i,j))
             d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
-            print '%s  %s  %+0.6f  %+0.6f  %0.6f' % (param_i, param_j, d, z, p)
+            print '%s  %s  %+0.4f  %+0.4f  %0.4f' % (param_i, param_j, d, z, p)
 
 # Plot the ROCs.
 if args.figure:
