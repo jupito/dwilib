@@ -5,6 +5,7 @@
 import argparse
 import glob
 import re
+
 import numpy as np
 import skimage
 
@@ -195,7 +196,10 @@ for d in data:
 
     #cols += [img[20:25,20:25]]
     #cols += dwi.texture.haar(img[20:25,20:25])
-    #cols += dwi.texture.haar(img)
+    cols += list(dwi.texture.haar(img))
+    cols += list(dwi.texture.haar(cols[1]))
+    cols += list(dwi.texture.haar(cols[5]))
+    cols += list(dwi.texture.haar(cols[9]))
     #print [a.shape for a in cols]
     winsize = 5
     #feats, names = dwi.texture.stats_map(img, winsize, names='min max median'.split())
@@ -206,10 +210,10 @@ for d in data:
     #feats, names = dwi.texture.hog_map(img, winsize)
     #feats, names = dwi.texture.moment_map(img, winsize, 4)
     #feats, names = dwi.texture.haar_map(img, winsize)
-    feats, names = dwi.texture.sobel_map(img, winsize)
-    print img.shape, feats.shape
-    sl = slice(winsize//2, -(winsize//2))
-    cols += list(feats[:,sl,sl])
-    print '; '.join(names)
+    #feats, names = dwi.texture.sobel_map(img, winsize)
+    #print img.shape, feats.shape
+    #sl = slice(winsize//2, -(winsize//2))
+    #cols += list(feats[:,sl,sl])
+    #print '; '.join(names)
     rows.append(cols)
-dwi.plot.show_images(rows)
+dwi.plot.show_images(rows, vmin=rows[0][0].min(), vmax=rows[0][0].max())
