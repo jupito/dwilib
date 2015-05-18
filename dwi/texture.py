@@ -299,49 +299,47 @@ def haar(img):
     img = img[:newshape[0], :newshape[1]]
     a = mahotas.haar(img)
     h, w = [x//2 for x in a.shape]
-    levels = np.array([
+    coeffs = [
             a[:h,:w], a[:h,w:],
             a[h:,:w], a[h:,w:],
-            ])
+            ]
+    coeffs = [sp.ndimage.interpolation.zoom(l, 2.) for l in coeffs]
+    return coeffs
+
+def haar_levels(img, nlevels=4, drop_approx=False):
+    """Multi-level Haar wavelet transform."""
+    levels = []
+    for _ in range(nlevels):
+        coeffs = haar(img)
+        levels.append(coeffs)
+        img = coeffs[0] # Set source for next iteration step.
+    if drop_approx:
+        levels = [l[1:] for l in levels]
     return levels
 
-def haar_level_features(win):
+def haar_features(win):
     """Haar texture features of a single level."""
     d = collections.OrderedDict()
     d['aav'] = np.mean(np.abs(win))
     d['std'] = np.std(win)
-    # TODO: Uses only 4 corner pixels.
-    a = win[0,:] - win[-1,:]
-    d['vert'] = np.mean(np.abs(a))
-    a = win[:,0] - win[:,-1]
-    d['horz'] = np.mean(np.abs(a))
-    a = [win[0,0] - win[-1,-1], win[0,-1] - win[-1,0]]
-    d['diag'] = np.mean(np.abs(a))
     return d
 
-def haar_features(img):
-    """Haar texture features."""
-    levels = haar(img)
-    d = collections.OrderedDict()
-    for i, level in enumerate(levels):
-        feats = haar_level_features(level)
-        for k, v in feats.iteritems():
-            d[(i, k)] = v
-    return d
-
-def haar_map(img, winsize, mask=None, output=None):
+def haar_map(img, winsize, nlevels=4, mask=None, output=None):
     """Haar texture feature map."""
-    levels = haar(img)
-    levels = sp.ndimage.interpolation.zoom(levels, (1,2,2))
+    levels = haar_levels(img, nlevels=nlevels, drop_approx=True)
     names = []
-    for i, level in enumerate(levels):
-        for pos, win in dwi.util.sliding_window(level, winsize, mask):
-            feats = haar_level_features(win)
-            if output is None:
-                output = np.zeros((len(levels)*len(feats),) + level.shape)
-            for j, v in enumerate(feats.values()):
-                output[(i*len(feats)+j,) + pos] = v
-        names += ['haar(%i,%s)' % (i, k) for k in feats.keys()]
+    for i, coeffs in enumerate(levels):
+        for j, coeff in enumerate(coeffs):
+            for pos, win in dwi.util.sliding_window(coeff, winsize, mask):
+                feats = haar_features(win)
+                if output is None:
+                    output = np.zeros((len(levels), len(coeffs), len(feats),) +
+                            coeff.shape)
+                for k, v in enumerate(feats.values()):
+                    output[(i, j, k,) + pos] = v
+            s = 'haar({level},{coeff},{feat})'
+            names += [s.format(level=i+1, coeff=j+1, feat=k) for k in feats.keys()]
+    output.shape = (-1,) + levels[0][0].shape
     return output, names
 
 # Sobel.
