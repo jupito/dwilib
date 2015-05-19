@@ -13,6 +13,8 @@ class GleasonScore(object):
         optional)."""
         if isinstance(score, str) or isinstance(score, unicode):
             s = score.split('+')
+        else:
+            s = score
         s = tuple(map(int, s))
         if len(s) == 2:
             s += (0,) # Internal representation always has three digits.
