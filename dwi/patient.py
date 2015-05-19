@@ -41,7 +41,8 @@ class GleasonScore(object):
         return self.score < other.score
 
 class Lesion(object):
-    def __init__(self, score, location):
+    def __init__(self, index, score, location):
+        self.index = index
         self.score = score
         self.location = location
 

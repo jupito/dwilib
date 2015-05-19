@@ -50,17 +50,17 @@ def read_patients_file(filename):
                 name = m.group('name').lower()
                 scans = sorted(m.group('scans').lower().split(','))
                 score = GleasonScore(m.group('score'))
-                lesions = [Lesion(score, 'xx')]
+                lesions = [Lesion(0, score, 'xx')]
                 if m.group('location'):
                     # New-style, multi-lesion file.
                     lesions = []
-                    lesions.append(Lesion(GleasonScore(m.group('score')),
+                    lesions.append(Lesion(0, GleasonScore(m.group('score')),
                             m.group('location').lower()))
                     if m.group('score2'):
-                        lesions.append(Lesion(GleasonScore(m.group('score2')),
+                        lesions.append(Lesion(1, GleasonScore(m.group('score2')),
                                 m.group('location2').lower()))
                     if m.group('score3'):
-                        lesions.append(Lesion(GleasonScore(m.group('score3')),
+                        lesions.append(Lesion(2, GleasonScore(m.group('score3')),
                                 m.group('location3').lower()))
                 patient = Patient(num, name, scans, lesions)
                 patients.append(patient)
