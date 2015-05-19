@@ -47,7 +47,7 @@ class Lesion(object):
         self.location = location
 
     def __repr__(self):
-        return repr((self.score, self.location))
+        return repr((self.index, self.score, self.location))
 
 @total_ordering
 class Patient(object):
