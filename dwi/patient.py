@@ -142,8 +142,8 @@ def lesions(patients):
     """Generate all case, scan, lesion combinations."""
     for p in patients:
         for s in p.scans:
-            for i, l in enumerate(p.lesions):
-                yield p, s, i, l
+            for l in p.lesions:
+                yield p, s, l
 
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
 THRESHOLDS_STANDARD = ['3+3', '3+4']
@@ -159,8 +159,8 @@ def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
     patients = dwi.files.read_patients_file(patients_file)
     gs = get_gleason_scores(patients)
     data = []
-    for patient, scan, i, lesion in lesions(patients):
-        if not multiroi and i != 0:
+    for patient, scan, lesion in lesions(patients):
+        if not multiroi and lesion.index != 0:
             continue
         case = patient.num
         score = lesion.score
@@ -168,11 +168,11 @@ def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
             label = sum(score > t for t in thresholds)
         else:
             label = score_ord(gs, score)
-        roi = i if multiroi else None
+        roi = lesion.index if multiroi else None
         pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
                 voxel=voxel)
-        d = dict(case=case, scan=scan, roi=i, score=score, label=label,
-                pmap=pmap, params=params, pathname=pathname)
+        d = dict(case=case, scan=scan, roi=lesion.index, score=score,
+                label=label, pmap=pmap, params=params, pathname=pathname)
         data.append(d)
         if pmap.shape != data[0]['pmap'].shape:
             raise Exception('Irregular shape: %s' % pathname)
