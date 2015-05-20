@@ -49,10 +49,14 @@ def group_patients(patients):
     groups = [[p for p in patients if p.label == i] for i in range(n_labels)]
     return groups
 
-def random_split(seq, ratio=0.5):
-    """Randomly split sequncy into two."""
+def random_split(seq, ratio=0.5, surplus=0):
+    """Randomly split sequncy into two.
+    
+    Parameter surplus defines the group where odd elements are put.
+    """
     import random
-    k = int(ratio * len(seq))
+    assert surplus == 0 or surplus == 1
+    k = int(ratio * len(seq) + 0.5 * surplus)
     a = random.sample(seq, k)
     b = [x for x in seq if not x in a]
     return a, b
@@ -83,16 +87,19 @@ label_patients(patients, group_sizes)
 for i in range(n_labels):
     print i, sum(1 for p in patients if p.label == i)
 
+# Split data into training set and test set.
 if args.split:
     patient_groups = group_patients(patients)
     train, test = [], []
     for i, g in enumerate(patient_groups):
-        a, b = random_split(g)
+        a, b = random_split(g, ratio=0.5, surplus=i%2)
         train += a
         test += b
-        #print i, [p.num for p in sorted(a)], '--', [p.num for p in sorted(b)]
+        print 'Group: {i}, patients: {n}'.format(i=i, n=len(g))
+        print '  ', [p.num for p in sorted(a)]
+        print '  ', [p.num for p in sorted(b)]
     for filename, seq in zip(args.split, [train, test]):
-        print 'Writing file {}...'.format(filename)
+        print 'Writing {n} patients to file {f}...'.format(n=len(seq), f=filename)
         with open(filename, 'w') as f:
             for p in sorted(seq):
                 f.write('{}\n'.format(p.line))
