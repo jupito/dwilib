@@ -18,7 +18,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
             help='increase verbosity')
-    p.add_argument('--samplelist',
+    p.add_argument('--patients',
             help='sample list file')
     p.add_argument('--subregiondir',
             help='subregion bounding box directory')
@@ -118,7 +118,7 @@ pc1, pc2 = args.pc
 s1, s2 = args.scale
 if args.verbose:
     print 'Reading data...'
-data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases,
+data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases,
         args.scans)
 if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
@@ -143,12 +143,11 @@ if args.verbose:
         print d['case'], d['scan'], (s1, s2), d['mapped_scores']
 
 mapped_scores = np.array([d['mapped_scores'] for d in data],
-        dtype=np.int)
+        dtype=np.int16)
 print mapped_scores.shape
-print np.mean(mapped_scores, axis=0, dtype=np.int)
-print dwi.util.median(mapped_scores, axis=0, dtype=np.int)
-mapped_scores = np.mean(mapped_scores, axis=0, dtype=np.int)
+mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
+print mapped_scores
 
-transform_images(data, s1, s2, mapped_scores)
+#transform_images(data, s1, s2, mapped_scores)
 
-plot(data, s1, s2, 'std.png')
+#plot(data, s1, s2, 'std.png')
