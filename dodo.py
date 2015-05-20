@@ -63,17 +63,17 @@ FIND_ROI_PARAMS = [
 
 def texture_methods(model=MODEL):
     return ' '.join([
-        'glcm',
-        #'haralick',
-        'lbp',
-        'hog',
-        'gabor',
-        'moment',
+        #'glcm',
+        ##'haralick',
+        #'lbp',
+        #'hog',
+        #'gabor',
+        #'moment',
         'haar',
-        'stats_mbb',
-        'glcm_mbb',
-        #'haralick_mbb',
-        'sobel_mbb',
+        #'stats_mbb',
+        #'glcm_mbb',
+        ##'haralick_mbb',
+        #'sobel_mbb',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
@@ -104,7 +104,7 @@ def find_roi_param_combinations():
             yield map(str, t)
 
 def samplelist_file(samplelist=SAMPLELIST):
-    return 'samples_%s.txt' % samplelist
+    return 'patients_%s.txt' % samplelist
 
 def pmapdir_dicom(model):
     s = 'dicoms_{m}_*'.format(m=model)
@@ -247,7 +247,7 @@ def get_task_find_roi(case, scan, model, param, algparams):
     file_deps += ['{srd}/{c}_{s}_subregion10.txt'.format(**d)]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    cmd = '{prg} --samplelist {slf} --pmapdir {pd} --subregiondir {srd} '\
+    cmd = '{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '\
             '--param {p} --cases {c} --scans {s} --algparams {ap} '\
             '--outmask {mp} --outfig {fp}'.format(**d)
     return {
@@ -345,7 +345,7 @@ def get_task_autoroi_auc(model, param, threshold):
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
+        s = r'echo `{prg} --patients {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
             'name': 'autoroi_auc_{sl}_{m}_{p}_{t}'.format(**d),
@@ -365,7 +365,7 @@ def get_task_autoroi_correlation(model, param, thresholds):
     for algparams in find_roi_param_combinations():
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m}_{p}/{ap_}'.format(**d)
-        s = r'echo `{prg} --patients patients.txt --samplelist {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
+        s = r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
             'name': 'autoroi_correlation_{sl}_{m}_{p}_{t_}'.format(**d),
