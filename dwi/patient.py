@@ -213,6 +213,10 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     # Select voxel to use.
     if voxel == 'all':
         pass # Use all voxels.
+    elif voxel == 'sole':
+        # Use sole voxel (raise exception if more found).
+        if len(pmap) != 1:
+            raise Exception('Too many voxels: {}'.format(len(pmap)))
     elif voxel == 'mean':
         pmap = np.mean(pmap, axis=0, keepdims=True) # Use mean voxel.
     elif voxel == 'median':
