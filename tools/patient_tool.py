@@ -20,6 +20,8 @@ def parse_args():
             help='classification thresholds (group maximums)')
     p.add_argument('--split', nargs=2, metavar='OUTFILE',
             help='output train and test files')
+    p.add_argument('--ratio', metavar='FLOAT', type=float, default=0.5,
+            help='split ratio')
     args = p.parse_args()
     return args
 
@@ -92,14 +94,15 @@ if args.split:
     patient_groups = group_patients(patients)
     train, test = [], []
     for i, g in enumerate(patient_groups):
-        a, b = random_split(g, ratio=0.5, surplus=i%2)
+        a, b = random_split(g, ratio=args.ratio, surplus=i%2)
         train += a
         test += b
         print 'Group: {i}, patients: {n}'.format(i=i, n=len(g))
         print '  ', [p.num for p in sorted(a)]
         print '  ', [p.num for p in sorted(b)]
     for filename, seq in zip(args.split, [train, test]):
-        print 'Writing {n} patients to file {f}...'.format(n=len(seq), f=filename)
+        d = dict(np=len(seq), nl=sum(len(p.lesions) for p in seq), f=filename)
+        print 'Writing {np} patients, {nl} lesions to {f}...'.format(**d)
         with open(filename, 'w') as f:
             for p in sorted(seq):
                 f.write('{}\n'.format(p.line))
