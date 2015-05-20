@@ -18,6 +18,8 @@ def parse_args():
             help='patients file')
     p.add_argument('--thresholds', nargs='*', default=[],
             help='classification thresholds (group maximums)')
+    p.add_argument('--split', nargs=2, metavar='OUTFILE',
+            help='output train and test files')
     args = p.parse_args()
     return args
 
@@ -41,9 +43,23 @@ def label_patients(patients, group_sizes):
                 p.label = i
                 break
 
+def group_patients(patients):
+    """Group patients by their label."""
+    n_labels = len({p.label for p in patients})
+    groups = [[p for p in patients if p.label == i] for i in range(n_labels)]
+    return groups
+
+def random_split(seq, ratio=0.5):
+    """Randomly split sequncy into two."""
+    import random
+    k = int(ratio * len(seq))
+    a = random.sample(seq, k)
+    b = [x for x in seq if not x in a]
+    return a, b
+
 
 args = parse_args()
-patients = dwi.files.read_patients_file(args.patients)
+patients = dwi.files.read_patients_file(args.patients, include_lines=True)
 scores = dwi.patient.get_gleason_scores(patients)
 thresholds = args.thresholds or scores
 label_lesions(patients, thresholds)
@@ -61,11 +77,25 @@ for lesion in all_lesions:
 group_sizes = [len(l) for l in label_groups]
 label_patients(patients, group_sizes)
 
-for p in patients:
-    print p.num, p.label, [l.label for l in p.lesions]
+#for p in patients:
+#    print p.num, p.label, [l.label for l in p.lesions]
 
 for i in range(n_labels):
     print i, sum(1 for p in patients if p.label == i)
+
+if args.split:
+    patient_groups = group_patients(patients)
+    train, test = [], []
+    for i, g in enumerate(patient_groups):
+        a, b = random_split(g)
+        train += a
+        test += b
+        #print i, [p.num for p in sorted(a)], '--', [p.num for p in sorted(b)]
+    for filename, seq in zip(args.split, [train, test]):
+        print 'Writing file {}...'.format(filename)
+        with open(filename, 'w') as f:
+            for p in sorted(seq):
+                f.write('{}\n'.format(p.line))
 
 print 'Patients: {}, lesions: {}'.format(len(patients), len(all_lesions))
 print 'Scores: {}: {}'.format(len(scores), scores)
