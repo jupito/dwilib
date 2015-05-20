@@ -23,7 +23,7 @@ def parse_args():
     p.add_argument('--nboot', type=int, default=2000,
             help='number of bootstraps')
     p.add_argument('--voxel', default='all',
-            help='index of voxel to use, or all, mean, median')
+            help='index of voxel to use, or all, sole, mean, median')
     p.add_argument('--autoflip', action='store_true',
             help='flip data when AUC < 0.5')
     p.add_argument('--compare', action='store_true',

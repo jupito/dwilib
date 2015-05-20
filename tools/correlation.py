@@ -22,7 +22,7 @@ def parse_args():
     p.add_argument('--thresholds', nargs='*', default=[],
             help='classification thresholds (group maximums)')
     p.add_argument('--voxel', default='all',
-            help='index of voxel to use, or all, mean, median')
+            help='index of voxel to use, or all, sole, mean, median')
     args = p.parse_args()
     return args
 
