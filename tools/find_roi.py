@@ -23,8 +23,6 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--patients', default='patients.txt',
             help='patients file')
-    p.add_argument('--samplelist', default='samples_all.txt',
-            help='sample list file')
     p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
             help='input parametric map directory')
     p.add_argument('--subregiondir', default='bounding_box_100_10pad',
@@ -160,7 +158,7 @@ if sidemin > sidemax or depthmin > depthmax:
 print 'Reading data...'
 params = args.param.split('+') # Can be like 'ADCk+K'.
 
-data = dwi.dataset.dataset_read_samplelist(args.samplelist, args.cases, args.scans)
+data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases, args.scans)
 dwi.dataset.dataset_read_patientinfo(data, args.patients)
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, params)
