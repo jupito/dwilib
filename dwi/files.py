@@ -107,12 +107,8 @@ def read_subregion_file(filename):
     y_start, y_stop, x_start, x_stop).
     """
     entries = []
-    with open(filename, 'rU') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith(COMMENT_PREFIX):
-                continue
-            entries.append(int(float(line)))
+    for line in valid_lines(filename):
+        entries.append(int(float(line)))
     if len(entries) != 6:
         raise Exception('Invalid subregion file: %s' % filename)
     entries = entries[4:6] + entries[0:4] # Move z indices to front.
