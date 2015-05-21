@@ -91,14 +91,10 @@ def read_sample_list(filename):
 def read_mask_file(filename):
     """Read a ROI mask file. XXX: Deprecated, use dwi.mask module instead."""
     arrays = []
-    with open(filename, 'rU') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == '0' or line[0] == '1':
-                a = np.array(list(line), dtype=int)
-                arrays.append(a)
+    for line in valid_lines(filename):
+        if line[0] == '0' or line[0] == '1':
+            a = np.array(list(line), dtype=int)
+            arrays.append(a)
     mask = np.array(arrays)
     return mask
 
