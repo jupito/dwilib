@@ -50,37 +50,31 @@ def read_patients_file(filename, include_lines=False):
             ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
             """,
             flags=re.VERBOSE)
-    with open(filename, 'rU') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line[0] == COMMENT_PREFIX:
-                continue
-            m = p.match(line)
-            if m:
-                num = int(m.group('num'))
-                name = m.group('name').lower()
-                scans = sorted(m.group('scans').lower().split(','))
-                score = GleasonScore(m.group('score'))
-                lesions = [Lesion(0, score, 'xx')]
-                if m.group('location'):
-                    # New-style, multi-lesion file.
-                    lesions = []
-                    lesions.append(Lesion(0, GleasonScore(m.group('score')),
-                            m.group('location').lower()))
-                    if m.group('score2'):
-                        lesions.append(Lesion(1, GleasonScore(m.group('score2')),
-                                m.group('location2').lower()))
-                    if m.group('score3'):
-                        lesions.append(Lesion(2, GleasonScore(m.group('score3')),
-                                m.group('location3').lower()))
-                patient = Patient(num, name, scans, lesions)
-                if include_lines:
-                    patient.line = line
-                patients.append(patient)
-            else:
-                raise Exception('Invalid line in patients file: %s', line)
+    for line in valid_lines(filename):
+        m = p.match(line)
+        if m:
+            num = int(m.group('num'))
+            name = m.group('name').lower()
+            scans = sorted(m.group('scans').lower().split(','))
+            score = GleasonScore(m.group('score'))
+            lesions = [Lesion(0, score, 'xx')]
+            if m.group('location'):
+                # New-style, multi-lesion file.
+                lesions = []
+                lesions.append(Lesion(0, GleasonScore(m.group('score')),
+                        m.group('location').lower()))
+                if m.group('score2'):
+                    lesions.append(Lesion(1, GleasonScore(m.group('score2')),
+                            m.group('location2').lower()))
+                if m.group('score3'):
+                    lesions.append(Lesion(2, GleasonScore(m.group('score3')),
+                            m.group('location3').lower()))
+            patient = Patient(num, name, scans, lesions)
+            if include_lines:
+                patient.line = line
+            patients.append(patient)
+        else:
+            raise Exception('Invalid line in patients file: %s', line)
     return sorted(patients)
 
 def read_sample_list(filename):
