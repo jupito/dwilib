@@ -36,6 +36,10 @@ def parse_args():
             help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
             help='scan identifiers')
+    p.add_argument('--outconf',
+            help='output file for standardization configuration')
+    p.add_argument('--inconf',
+            help='output file for standardization configuration')
     args = p.parse_args()
     return args
 
@@ -103,6 +107,15 @@ def transform_images(data, s1, s2, mapped_scores):
                 s2, mapped_scores)
         print dwi.util.fivenum(d['img_scaled'])
 
+def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
+        mapped_scores):
+    def line(seq):
+        return ' '.join(map(str, seq)) + '\n'
+    with open(filename, 'w') as f:
+        f.write(line([pc1, pc2]))
+        f.write(line(landmarks))
+        f.write(line([s1, s2]))
+        f.write(line(mapped_scores))
 
 def plot(data, s1, s2, outfile):
     import pylab as pl
@@ -159,24 +172,29 @@ if args.verbose:
         print d['case'], d['scan'], (s1, s2), d['mapped_scores']
 
 mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
-print mapped_scores.shape
 mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
 print mapped_scores
 
 patients = dwi.files.read_patients_file(args.patients)
 data = []
 for case, scan in cases_scans(patients, args.cases, args.scans):
-    print case, scan
     img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
+    img = img[15]
     p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks,
             thresholding=True)
     mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
+    #print case, scan, img.shape, dwi.util.fivenum(img)
+    #print case, scan, (p1, p2), scores
+    print case, scan, (s1, s2), mapped_scores
     data.append(dict(p1=p1, p2=p2, scores=scores, mapped_scores=mapped_scores))
 
 mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
-print mapped_scores.shape
 mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
-print mapped_scores
+mapped_scores = list(mapped_scores)
+
+if args.outconf:
+    write_standardization_configuration(args.outconf, pc1, pc2, landmarks, s1,
+            s2, mapped_scores)
 
 #transform_images(data, s1, s2, mapped_scores)
 
