@@ -154,7 +154,7 @@ if args.inconf:
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         print case, scan, img.shape, (p1, p2)
-        img = img[15,:,:,0]
+        img = img[15,:,:,0] # Scale and visualize slice 15 only.
         img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
         s = 'std/{c}_{s}.png'.format(c=case, s=scan)
         dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
