@@ -3,6 +3,7 @@ import re
 import numpy as np
 
 import util
+import dwi.files
 
 # Handle signal intensity and parameter map files as ASCII.
 
@@ -61,14 +62,11 @@ class AsciiFile(object):
     def name(self):
         return self.d.get('name', '')
 
-def read_ascii(f):
+def read_ascii_file(filename):
     d = {}
     rows = []
     pvar = re.compile(r'(\w+)\s*:\s*(.*)')
-    for line in f:
-        line = line.strip()
-        if line.startswith('#'):
-            continue
+    for line in dwi.files.valid_lines(filename):
         var = pvar.match(line)
         if var:
             d[var.group(1)] = var.group(2)
@@ -83,10 +81,6 @@ def read_ascii(f):
                 rows.append(nums)
     rows = np.array(rows, dtype=np.float)
     return d, rows
-
-def read_ascii_file(filename):
-    with open(filename, 'rU') as f:
-        return read_ascii(f)
 
 def write_ascii_file(filename, pmap, params):
     """Write parametric map in ASCII format."""
