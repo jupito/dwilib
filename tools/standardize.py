@@ -107,16 +107,6 @@ def transform_images(data, s1, s2, mapped_scores):
                 s2, mapped_scores)
         print dwi.util.fivenum(d['img_scaled'])
 
-def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
-        mapped_scores):
-    def line(seq):
-        return ' '.join(map(str, seq)) + '\n'
-    with open(filename, 'w') as f:
-        f.write(line([pc1, pc2]))
-        f.write(line(landmarks))
-        f.write(line([s1, s2]))
-        f.write(line(mapped_scores))
-
 def plot(data, s1, s2, outfile):
     import pylab as pl
     for d in data:
@@ -193,8 +183,12 @@ mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
 mapped_scores = list(mapped_scores)
 
 if args.outconf:
-    write_standardization_configuration(args.outconf, pc1, pc2, landmarks, s1,
-            s2, mapped_scores)
+    dwi.files.write_standardization_configuration(args.outconf, pc1, pc2,
+            landmarks, s1, s2, mapped_scores)
+
+if args.inconf:
+    d = dwi.files.read_standardization_configuration(args.inconf)
+    print d
 
 #transform_images(data, s1, s2, mapped_scores)
 
