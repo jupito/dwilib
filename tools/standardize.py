@@ -56,12 +56,13 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     scores = [scoreatpercentile(img, i) for i in landmarks]
     return p1, p2, scores
 
-def set_landmarks(data, pc1, pc2, landmarks):
+def set_landmarks(data, pc1, pc2, landmarks, thresholding=True):
     from scipy.stats import scoreatpercentile
     for d in data:
         img = d['img']
-        threshold = np.mean(img)
-        img = img[img > threshold]
+        if thresholding:
+            threshold = np.mean(img)
+            img = img[img > threshold]
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
         d['scores'] = [scoreatpercentile(img, i) for i in landmarks]
@@ -145,7 +146,7 @@ if args.verbose:
         d['img'] = d['image'][15,...,0]
         print d['case'], d['scan'], d['img'].shape, dwi.util.fivenum(d['img'])
 
-set_landmarks(data, pc1, pc2, landmarks)
+set_landmarks(data, pc1, pc2, landmarks, thresholding=True)
 if args.verbose:
     print 'Landmark scores:'
     for d in data:
