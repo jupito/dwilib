@@ -167,21 +167,20 @@ if args.outconf:
     data = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
-        #img = img[15]
+        img = img[15]
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
         #print case, scan, img.shape, dwi.util.fivenum(img)
         #print case, scan, (p1, p2), scores
         print case, scan, (s1, s2), mapped_scores
-        data.append(dict(p1=p1, p2=p2, scores=scores, mapped_scores=mapped_scores))
-    
-        mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
-        mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
-        mapped_scores = list(mapped_scores)
-        print mapped_scores
-    
-        dwi.files.write_standardization_configuration(args.outconf, pc1, pc2,
-                landmarks, s1, s2, mapped_scores)
+        data.append(dict(p1=p1, p2=p2, scores=scores,
+                mapped_scores=mapped_scores))
+    mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int)
+    mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
+    mapped_scores = list(mapped_scores)
+    print mapped_scores
+    dwi.files.write_standardization_configuration(args.outconf, pc1, pc2,
+            landmarks, s1, s2, mapped_scores)
 
 if args.inconf:
     d = dwi.files.read_standardization_configuration(args.inconf)
@@ -191,7 +190,7 @@ if args.inconf:
     s1 = d['s1']
     s2 = d['s2']
     mapped_scores = d['mapped_scores']
-
-transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
-
-plot(data, s1, s2, 'std.png')
+    for k, v in d.items():
+        print k, v
+    transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
+    plot(data, s1, s2, 'std.png')
