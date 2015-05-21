@@ -79,7 +79,7 @@ def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
     from skimage.feature import greycomatrix, greycoprops
     assert img.ndim == 2
     assert img.dtype == np.ubyte
-    distances = [x for x in distances if x <= min(img.shape)-1]
+    #distances = [x for x in distances if x <= min(img.shape)-1]
     angles = [0, np.pi/4, np.pi/2, 3*np.pi/4]
     levels = img.max() + 1
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
