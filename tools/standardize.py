@@ -39,7 +39,24 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def set_landmarks(data, pc1, pc2):
+def cases_scans(patients, cases=[], scans=[]):
+    for p in patients:
+        if not cases or p.num in cases:
+            for s in p.scans:
+                if not scans or s in scans:
+                    yield p.num, s
+
+def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
+    from scipy.stats import scoreatpercentile
+    if thresholding:
+        threshold = np.mean(img)
+        img = img[img > threshold]
+    p1 = scoreatpercentile(img, pc1)
+    p2 = scoreatpercentile(img, pc2)
+    scores = [scoreatpercentile(img, i) for i in landmarks]
+    return p1, p2, scores
+
+def set_landmarks(data, pc1, pc2, landmarks):
     from scipy.stats import scoreatpercentile
     for d in data:
         img = d['img']
@@ -47,10 +64,7 @@ def set_landmarks(data, pc1, pc2):
         img = img[img > threshold]
         d['p1'] = scoreatpercentile(img, pc1)
         d['p2'] = scoreatpercentile(img, pc2)
-        #percentiles = [25, 50, 75]
-        percentiles = [i*10 for i in range(1, 10)]
-        d['landmarks'] = percentiles
-        d['scores'] = [scoreatpercentile(img, i) for i in percentiles]
+        d['scores'] = [scoreatpercentile(img, i) for i in landmarks]
 
 def map_landmarks(data, s1, s2):
     for d in data:
@@ -123,6 +137,7 @@ data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases,
 if args.subregiondir:
     dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+landmarks = [i*10 for i in range(1, 10)] # Deciles
 
 if args.verbose:
     print 'Data:'
@@ -130,7 +145,7 @@ if args.verbose:
         d['img'] = d['image'][15,...,0]
         print d['case'], d['scan'], d['img'].shape, dwi.util.fivenum(d['img'])
 
-set_landmarks(data, pc1, pc2)
+set_landmarks(data, pc1, pc2, landmarks)
 if args.verbose:
     print 'Landmark scores:'
     for d in data:
@@ -142,8 +157,22 @@ if args.verbose:
     for d in data:
         print d['case'], d['scan'], (s1, s2), d['mapped_scores']
 
-mapped_scores = np.array([d['mapped_scores'] for d in data],
-        dtype=np.int16)
+mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
+print mapped_scores.shape
+mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
+print mapped_scores
+
+patients = dwi.files.read_patients_file(args.patients)
+data = []
+for case, scan in cases_scans(patients, args.cases, args.scans):
+    print case, scan
+    img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
+    p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks,
+            thresholding=True)
+    mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
+    data.append(dict(p1=p1, p2=p2, scores=scores, mapped_scores=mapped_scores))
+
+mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
 print mapped_scores.shape
 mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
 print mapped_scores
