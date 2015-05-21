@@ -3,6 +3,7 @@
 import re
 import numpy as np
 
+import dwi.files
 import dwi.util
 
 class Mask(object):
@@ -152,21 +153,17 @@ def line_to_text(line):
 
 def load_ascii(filename):
     """Read a ROI mask file."""
+    p = re.compile(r'(\w+)\s*:\s*(.*)')
     slice = 1
     arrays = []
-    with open(filename, 'rU') as f:
-        p = re.compile(r'(\w+)\s*:\s*(.*)')
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            m = p.match(line)
-            if m:
-                if m.group(1) == 'slice':
-                    slice = int(m.group(2))
-            elif line[0] == '0' or line[0] == '1':
-                a = np.array(list(line), dtype=int)
-                arrays.append(a)
+    for line in dwi.files.valid_lines(filename):
+        m = p.match(line)
+        if m:
+            if m.group(1) == 'slice':
+                slice = int(m.group(2))
+        elif line[0] == '0' or line[0] == '1':
+            a = np.array(list(line), dtype=int)
+            arrays.append(a)
     if arrays:
         return Mask(slice, np.array(arrays))
     else:
