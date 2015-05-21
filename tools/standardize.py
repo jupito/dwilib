@@ -77,29 +77,38 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
                 mapped_scores[slot-1], mapped_scores[slot], v)
     return r
 
-def plot(data, s1, s2, outfile):
-    import pylab as pl
-    for d in data:
-        img = d['img']
-        hist, bin_edges = np.histogram(img, bins=50, density=True)
-        pl.plot(bin_edges[:-1], hist)
-    pl.show()
-    pl.close()
-    for d in data:
-        img = d['img_scaled']
-        hist, bin_edges = np.histogram(img, bins=50, density=True)
-        pl.plot(bin_edges[:-1], hist)
-    pl.show()
-    pl.close()
-    #for d in data:
-    #    y = d['scores']
-    #    x = range(len(y))
-    #    pl.plot(x, y)
-    #pl.show()
-    #pl.close()
-    print 'Plotting to {}...'.format(outfile)
-    images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
-    dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
+def histogram(img, s1=None, s2=None):
+    if not s1 is None:
+        img = img[img>=s1]
+    if not s2 is None:
+        img = img[img<=s2]
+    hist, bin_edges = np.histogram(img, bins=20, density=True)
+    bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
+    return hist, bin_centers
+
+#def plot(data, s1, s2, outfile):
+#    import pylab as pl
+#    for d in data:
+#        img = d['img']
+#        hist, bin_edges = np.histogram(img, bins=50, density=True)
+#        pl.plot(bin_edges[:-1], hist)
+#    pl.show()
+#    pl.close()
+#    for d in data:
+#        img = d['img_scaled']
+#        hist, bin_edges = np.histogram(img, bins=50, density=True)
+#        pl.plot(bin_edges[:-1], hist)
+#    pl.show()
+#    pl.close()
+#    #for d in data:
+#    #    y = d['scores']
+#    #    x = range(len(y))
+#    #    pl.plot(x, y)
+#    #pl.show()
+#    #pl.close()
+#    print 'Plotting to {}...'.format(outfile)
+#    images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
+#    dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
 
 def plot_histograms(histograms1, histograms2, outfile):
     import pylab as pl
@@ -117,15 +126,6 @@ def plot_histograms(histograms1, histograms2, outfile):
     pl.savefig(outfile, bbox_inches='tight')
     pl.close()
 
-def histogram(img, s1=None, s2=None):
-    if not s1 is None:
-        img = img[img>=s1]
-    if not s2 is None:
-        img = img[img<=s2]
-    hist, bin_edges = np.histogram(img, bins=50, density=True)
-    bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
-    return hist, bin_centers
-
 
 args = parse_args()
 pc1, pc2 = args.pc
@@ -137,7 +137,6 @@ if args.outconf:
     data = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
-        #img = img[15]
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
         #print case, scan, img.shape, dwi.util.fivenum(img)
@@ -162,11 +161,6 @@ if args.inconf:
     mapped_scores = d['mapped_scores']
     for k, v in d.items():
         print k, v
-    #data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases,
-    #        args.scans)
-    #dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-    #transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
-    #plot(data, s1, s2, 'std.png')
 
     image_rows = []
     histograms = []
