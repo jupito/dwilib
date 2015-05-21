@@ -142,7 +142,7 @@ for method, call in METHODS.items():
                 if tmaps_all is None:
                     tmaps_all = tmaps
                 else:
-                    np.concatenate((tmaps_all, tmaps), axis=-1)
+                    tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
             feats += map(np.mean, tmaps_all)
             names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
             featnames += names
@@ -160,7 +160,7 @@ for method, call in METHODS_MBB.items():
             if tmaps_all is None:
                 tmaps_all = tmaps
             else:
-                np.concatenate((tmaps_all, tmaps), axis=-1)
+                tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
         feats += map(np.mean, tmaps_all)
         names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
         featnames += names
