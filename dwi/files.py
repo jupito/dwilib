@@ -1,3 +1,4 @@
+import collections
 import re
 
 import dwi.util
@@ -21,7 +22,7 @@ def read_subwindows(filename):
             r[(case, scan)] = subwindow
     return r
 
-def read_patients_file(filename):
+def read_patients_file(filename, include_lines=False):
     """Load a list of patients.
 
     Row format: num name scan1,scan2,... score [location]
@@ -63,6 +64,8 @@ def read_patients_file(filename):
                         lesions.append(Lesion(2, GleasonScore(m.group('score3')),
                                 m.group('location3').lower()))
                 patient = Patient(num, name, scans, lesions)
+                if include_lines:
+                    patient.line = line
                 patients.append(patient)
             else:
                 raise Exception('Invalid line in patients file: %s', line)
@@ -140,3 +143,37 @@ def write_subregion_file(filename, win, comment=''):
         write_comment(f, comment)
         for entry in entries:
             f.write('%i\n' % entry)
+
+def toline(seq):
+    """Convert sequence to line."""
+    return ' '.join(map(str, seq)) + '\n'
+
+def valid_lines(filename):
+    """Read and yield lines that are neither empty nor comments."""
+    with open(filename, 'rU') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith(COMMENT_PREFIX):
+                yield line
+
+def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
+        mapped_scores):
+    """Write image standardization configuration file."""
+    with open(filename, 'w') as f:
+        f.write(toline([pc1, pc2]))
+        f.write(toline(landmarks))
+        f.write(toline([s1, s2]))
+        f.write(toline(mapped_scores))
+
+def read_standardization_configuration(filename):
+    """Read image standardization configuration file."""
+    lines = list(valid_lines(filename))[:4]
+    lines = [l.split() for l in lines]
+    d = collections.OrderedDict()
+    d['pc1'], d['pc2'] = map(float, lines[0])
+    d['landmarks'] = map(float, lines[1])
+    d['s1'], d['s2'] = map(int, lines[2])
+    d['mapped_scores'] = map(int, lines[3])
+    if len(d['landmarks']) != len(d['mapped_scores']):
+        raise Exception('Invalid standardization file: {}'.format(filename))
+    return d
