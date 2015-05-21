@@ -77,13 +77,6 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
                 mapped_scores[slot-1], mapped_scores[slot], v)
     return r
 
-#def transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores):
-#    for d in data:
-#        p1, p2, scores = landmark_scores(d['img'], pc1, pc2, landmarks)
-#        d['img_scaled'] = transform(d['img'], p1, p2, scores, s1, s2,
-#                mapped_scores)
-#        print dwi.util.fivenum(d['img_scaled'])
-
 def plot(data, s1, s2, outfile):
     import pylab as pl
     for d in data:
@@ -107,6 +100,31 @@ def plot(data, s1, s2, outfile):
     print 'Plotting to {}...'.format(outfile)
     images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
     dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
+
+def plot_histograms(histograms1, histograms2, outfile):
+    import pylab as pl
+    ncols, nrows = 2, 1
+    fig = pl.figure(figsize=(ncols*6, nrows*6))
+    #pl.yscale('log')
+    ax = fig.add_subplot(1, 2, 1)
+    for hist, bins in histograms1:
+        pl.plot(bins, hist)
+    ax = fig.add_subplot(1, 2, 2)
+    for hist, bins in histograms2:
+        pl.plot(bins, hist)
+    pl.tight_layout()
+    print 'Plotting to {}...'.format(outfile)
+    pl.savefig(outfile, bbox_inches='tight')
+    pl.close()
+
+def histogram(img, s1=None, s2=None):
+    if not s1 is None:
+        img = img[img>=s1]
+    if not s2 is None:
+        img = img[img<=s2]
+    hist, bin_edges = np.histogram(img, bins=50, density=True)
+    bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
+    return hist, bin_centers
 
 
 args = parse_args()
@@ -150,11 +168,21 @@ if args.inconf:
     #transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
     #plot(data, s1, s2, 'std.png')
 
+    image_rows = []
+    histograms = []
+    histograms_scaled = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         print case, scan, img.shape, (p1, p2)
-        img = img[15,:,:,0] # Scale and visualize slice 15 only.
+        img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
         img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
+
+        image_rows.append([img, img_scaled])
         s = 'std/{c}_{s}.png'.format(c=case, s=scan)
         dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
+
+        histograms.append(histogram(img, p1, p2))
+        histograms_scaled.append(histogram(img_scaled, s1, s2))
+    dwi.plot.show_images(image_rows, vmin=s1, vmax=s2, outfile='std/img.png')
+    plot_histograms(histograms, histograms_scaled, 'std/histograms.png')
