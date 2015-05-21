@@ -178,5 +178,5 @@ if args.inconf:
 
         histograms.append(histogram(img, p1, p2))
         histograms_scaled.append(histogram(img_scaled, s1, s2))
-    dwi.plot.show_images(image_rows, vmin=s1, vmax=s2, outfile='std/img.png')
     plot_histograms(histograms, histograms_scaled, 'std/histograms.png')
+    #dwi.plot.show_images(image_rows, vmin=s1, vmax=s2, outfile='std/img.png')
