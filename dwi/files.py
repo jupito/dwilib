@@ -7,6 +7,18 @@ import dwi.util
 
 COMMENT_PREFIX = '#'
 
+def toline(seq):
+    """Convert sequence to line."""
+    return ' '.join(map(str, seq)) + '\n'
+
+def valid_lines(filename):
+    """Read and yield lines that are neither empty nor comments."""
+    with open(filename, 'rU') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith(COMMENT_PREFIX):
+                yield line
+
 def read_subwindows(filename):
     """Read a list of subwindows from file, return in a dictionary."""
     r = {}
@@ -143,18 +155,6 @@ def write_subregion_file(filename, win, comment=''):
         write_comment(f, comment)
         for entry in entries:
             f.write('%i\n' % entry)
-
-def toline(seq):
-    """Convert sequence to line."""
-    return ' '.join(map(str, seq)) + '\n'
-
-def valid_lines(filename):
-    """Read and yield lines that are neither empty nor comments."""
-    with open(filename, 'rU') as f:
-        for line in f:
-            line = line.strip()
-            if line and not line.startswith(COMMENT_PREFIX):
-                yield line
 
 def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         mapped_scores):
