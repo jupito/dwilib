@@ -53,23 +53,6 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     scores = [scoreatpercentile(img, i) for i in landmarks]
     return p1, p2, scores
 
-#def set_landmarks(data, pc1, pc2, landmarks, thresholding=True):
-#    from scipy.stats import scoreatpercentile
-#    for d in data:
-#        img = d['img']
-#        if thresholding:
-#            threshold = np.mean(img)
-#            img = img[img > threshold]
-#        d['p1'] = scoreatpercentile(img, pc1)
-#        d['p2'] = scoreatpercentile(img, pc2)
-#        d['scores'] = [scoreatpercentile(img, i) for i in landmarks]
-
-#def map_landmarks(data, s1, s2):
-#    for d in data:
-#        p1, p2 = d['p1'], d['p2']
-#        d['mapped_scores'] = [int(map_onto_scale(p1, p2, s1, s2, v)) for v in
-#                d['scores']]
-
 def map_onto_scale(p1, p2, s1, s2, v):
     """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
     assert p1 <= p2, (p1, p2)
@@ -94,13 +77,12 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
                 mapped_scores[slot-1], mapped_scores[slot], v)
     return r
 
-def transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores):
-    from scipy.stats import scoreatpercentile
-    for d in data:
-        p1, p2, scores = landmark_scores(d['img'], pc1, pc2, landmarks)
-        d['img_scaled'] = transform(d['img'], p1, p2, scores, s1, s2,
-                mapped_scores)
-        print dwi.util.fivenum(d['img_scaled'])
+#def transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores):
+#    for d in data:
+#        p1, p2, scores = landmark_scores(d['img'], pc1, pc2, landmarks)
+#        d['img_scaled'] = transform(d['img'], p1, p2, scores, s1, s2,
+#                mapped_scores)
+#        print dwi.util.fivenum(d['img_scaled'])
 
 def plot(data, s1, s2, outfile):
     import pylab as pl
@@ -123,56 +105,26 @@ def plot(data, s1, s2, outfile):
     #pl.show()
     #pl.close()
     print 'Plotting to {}...'.format(outfile)
-    dwi.plot.show_images([[d['img'], d['img_scaled']] for d in data], vmin=s1,
-            vmax=s2, outfile=outfile)
+    images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
+    dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
 
 
 args = parse_args()
 pc1, pc2 = args.pc
 s1, s2 = args.scale
-if args.verbose:
-    print 'Reading data...'
-data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases,
-        args.scans)
-if args.subregiondir:
-    dwi.dataset.dataset_read_subregions(data, args.subregiondir)
-dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 landmarks = [i*10 for i in range(1, 10)] # Deciles
-
-if args.verbose:
-    print 'Data:'
-    for d in data:
-        d['img'] = d['image'][15,...,0]
-        print d['case'], d['scan'], d['img'].shape, dwi.util.fivenum(d['img'])
-
-#set_landmarks(data, pc1, pc2, landmarks, thresholding=True)
-#if args.verbose:
-#    print 'Landmark scores:'
-#    for d in data:
-#        print d['case'], d['scan'], (d['p1'], d['p2']), d['scores']
-#
-#map_landmarks(data, s1, s2)
-#if args.verbose:
-#    print 'Mapped landmark scores:'
-#    for d in data:
-#        print d['case'], d['scan'], (s1, s2), d['mapped_scores']
-
-#mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int16)
-#mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
-#print mapped_scores
-
 patients = dwi.files.read_patients_file(args.patients)
 
 if args.outconf:
     data = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
-        img = img[15]
+        #img = img[15]
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
         #print case, scan, img.shape, dwi.util.fivenum(img)
         #print case, scan, (p1, p2), scores
-        print case, scan, (s1, s2), mapped_scores
+        print case, scan, img.shape, mapped_scores
         data.append(dict(p1=p1, p2=p2, scores=scores,
                 mapped_scores=mapped_scores))
     mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int)
@@ -192,5 +144,17 @@ if args.inconf:
     mapped_scores = d['mapped_scores']
     for k, v in d.items():
         print k, v
-    transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
-    plot(data, s1, s2, 'std.png')
+    #data = dwi.dataset.dataset_read_samplelist(args.patients, args.cases,
+    #        args.scans)
+    #dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+    #transform_images(data, pc1, pc2, landmarks, s1, s2, mapped_scores)
+    #plot(data, s1, s2, 'std.png')
+
+    for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
+        img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
+        p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
+        print case, scan, img.shape, (p1, p2)
+        img = img[15,:,:,0]
+        img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
+        s = 'std/{c}_{s}.png'.format(c=case, s=scan)
+        dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
