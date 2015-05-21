@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
-"""Standardize images."""
+"""Standardize images.
+
+See Nyul et al. 2000: New variants of a method of MRI scale standardization.
+"""
 
 from __future__ import division
 import argparse
@@ -169,12 +172,12 @@ if args.inconf:
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         print case, scan, img.shape, (p1, p2)
-        img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
+        #img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
         img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
 
-        image_rows.append([img, img_scaled])
-        s = 'std/{c}_{s}.png'.format(c=case, s=scan)
-        dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
+        #image_rows.append([img, img_scaled])
+        #s = 'std/{c}_{s}.png'.format(c=case, s=scan)
+        #dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
 
         histograms.append(histogram(img, p1, p2))
         histograms_scaled.append(histogram(img_scaled, s1, s2))
