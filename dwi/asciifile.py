@@ -2,7 +2,7 @@ import os
 import re
 import numpy as np
 
-import util
+import dwi.util
 import dwi.files
 
 # Handle signal intensity and parameter map files as ASCII.
@@ -23,7 +23,7 @@ class AsciiFile(object):
     def subwindow(self):
         a = re.findall(r'\d+', self.d.get('subwindow', ''))
         if not a:
-            a = util.fabricate_subwindow(len(self.a))
+            a = dwi.util.fabricate_subwindow(len(self.a))
         return tuple(map(int, a))
 
     def subwinsize(self):
@@ -35,7 +35,7 @@ class AsciiFile(object):
         return tuple(r)
 
     def subwindow_shape(self):
-        return util.subwindow_shape(self.subwindow())
+        return dwi.util.subwindow_shape(self.subwindow())
 
     def bset(self):
         """Return the b-value set. Fabricate if not present."""
