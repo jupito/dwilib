@@ -3,8 +3,8 @@ import re
 
 import numpy as np
 
-import dwi.util
 import dwi.files
+import dwi.util
 
 # Handle signal intensity and parameter map files as ASCII.
 
