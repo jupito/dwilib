@@ -47,7 +47,7 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
         Kurt='ADCk', KurtN='ADCkN',
-        T2='raw', T2W='raw')
+        T2='raw', T2w='raw')
 MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 
@@ -80,7 +80,7 @@ def texture_methods(model=MODEL):
 def texture_winsizes(masktype, model=MODEL):
     if masktype in ['CA', 'N']:
         l = [3, 5]
-    elif model in ['T2', 'T2W']:
+    elif model in ['T2', 'T2w']:
         l = range(3, 36, 4)
     else:
         l = range(3, 16, 2)
@@ -120,7 +120,7 @@ def mask_path(d):
     """Return path and deps of masks of different types."""
     do_glob = True
     if d['mt'] == 'lesion':
-        if d['m'] in ['T2', 'T2W']:
+        if d['m'] in ['T2', 'T2w']:
             path = 'masks_lesion_{m}/PCa_masks_{m}_{l}*/{c}_*{s}_*'
         else:
             path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
@@ -428,7 +428,7 @@ def task_texture():
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 0)
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 1)
-        if MODEL in ['T2', 'T2W']:
+        if MODEL in ['T2', 'T2w']:
             continue # Do only lesion for these.
         yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, lesion, 'maxfirst', 1)
@@ -471,7 +471,7 @@ def task_mask_prostate_T2():
         try:
             yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65', 'dicoms_masked_T2', '', '_T2')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
-            #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2W', 'dicoms_T2W_TSE_2.5m', 'dicoms_masked_T2W', '', '*')
+            #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2w', 'dicoms_T2w_TSE_2.5m', 'dicoms_masked_T2w', '', '*')
         except IOError, e:
             print e
 
