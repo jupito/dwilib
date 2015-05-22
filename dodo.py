@@ -12,6 +12,7 @@ from doit.tools import create_folder
 #from doit.tools import result_dep
 
 import dwi.files
+import dwi.patient
 import dwi.util
 
 """
@@ -46,7 +47,7 @@ MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
         'Biexp BiexpN'.split()
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
         Kurt='ADCk', KurtN='ADCkN',
-        T2='raw')
+        T2='raw', T2W='raw')
 MODEL = get_var('model', 'Mono')
 PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
 
@@ -63,23 +64,23 @@ FIND_ROI_PARAMS = [
 
 def texture_methods(model=MODEL):
     return ' '.join([
-        #'glcm',
+        'glcm',
         #'haralick',
-        #'lbp',
-        #'hog',
-        #'gabor',
-        #'moment',
-        #'haar',
+        'lbp',
+        'hog',
+        'gabor',
+        'moment',
+        'haar',
         'stats_mbb',
-        #'glcm_mbb',
+        'glcm_mbb',
         #'haralick_mbb',
-        #'sobel_mbb',
+        'sobel_mbb',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
-    if masktype in ('CA', 'N'):
+    if masktype in ['CA', 'N']:
         l = [3, 5]
-    elif model == 'T2':
+    elif model in ['T2', 'T2W']:
         l = range(3, 36, 4)
     else:
         l = range(3, 16, 2)
@@ -119,8 +120,8 @@ def mask_path(d):
     """Return path and deps of masks of different types."""
     do_glob = True
     if d['mt'] == 'lesion':
-        if d['m'] == 'T2':
-            path = 'masks_lesion_T2/PCa_masks_T2_{l}*/{c}_*{s}_*'
+        if d['m'] in ['T2', 'T2W']:
+            path = 'masks_lesion_{m}/PCa_masks_{m}_{l}*/{c}_*{s}_*'
         else:
             path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
         deps = '{}/*'.format(path)
@@ -427,7 +428,7 @@ def task_texture():
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 0)
         yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 1)
-        if MODEL == 'T2':
+        if MODEL in ['T2', 'T2W']:
             continue # Do only lesion for these.
         yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, lesion, 'maxfirst', 1)
