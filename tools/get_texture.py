@@ -101,9 +101,12 @@ data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 mask = dwi.mask.read_mask(args.mask)
 
-img = data[0]['image']
+img = data[0]['image'].squeeze()
 if isinstance(mask, dwi.mask.Mask):
     mask = mask.convert_to_3d(img.shape[0])
+if img.shape != mask.shape():
+    raise Exception('Image shape {} does not match mask shape {}'.format(
+            img.shape, mask.shape()))
 
 if args.slices == 'maxfirst':
     slice_indices = [mask.max_slices()[0]]
@@ -114,7 +117,7 @@ elif args.slices == 'all':
 else:
     raise Exception('Invalid slice set specification', args.slices)
 
-img_slices = img[slice_indices,:,:,0]
+img_slices = img[slice_indices]
 mask_slices = mask.array[slice_indices]
 winshapes = [(1,w,w) for w in args.winsizes]
 pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
