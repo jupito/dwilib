@@ -21,6 +21,7 @@ def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
             pl.imshow(img)
     pl.tight_layout()
     if outfile:
+        #print 'Plotting to {}'.format(outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.imshow(img, vmin=vmin, vmax=vmax)
