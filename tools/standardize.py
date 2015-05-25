@@ -173,6 +173,7 @@ if args.inconf:
         p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
         print case, scan, img.shape, (p1, p2)
         #img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
+        #img = img[10:20].copy() # Scale and visualize slice 15 only.
         img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
 
         #image_rows.append([img, img_scaled])
