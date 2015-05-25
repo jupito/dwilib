@@ -49,6 +49,7 @@ def parse_args():
     return args
 
 def histogram(img, s1=None, s2=None):
+    """Create histogram from data between min, max values, with bin centers."""
     if not s1 is None:
         img = img[img>=s1]
     if not s2 is None:
