@@ -4,6 +4,7 @@
 
 import argparse
 import glob
+import itertools
 import re
 
 import numpy as np
@@ -196,11 +197,8 @@ for d in data:
 
     #cols += [img[20:25,20:25]]
     #cols += dwi.texture.haar(img[20:25,20:25])
-    cols += list(dwi.texture.haar(img))
-    cols += list(dwi.texture.haar(cols[1]))
-    cols += list(dwi.texture.haar(cols[5]))
-    cols += list(dwi.texture.haar(cols[9]))
-    #print [a.shape for a in cols]
+    cols += list(itertools.chain(*dwi.texture.haar_levels(img, nlevels=4, drop_approx=True)))
+    print [a.shape for a in cols]
     winsize = 5
     #feats, names = dwi.texture.stats_map(img, winsize, names='min max median'.split())
     #feats, names = dwi.texture.glcm_map(img, winsize)
