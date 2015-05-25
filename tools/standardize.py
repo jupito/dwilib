@@ -16,6 +16,8 @@ import dwi.plot
 import dwi.util
 import dwi.standardize
 
+DEF_CFG = dwi.standard.DEFAULT_CONFIGURATION
+
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
@@ -30,10 +32,10 @@ def parse_args():
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
     p.add_argument('--pc', metavar='I', nargs=2, type=float,
-            default=[0, 99.8],
+            default=DEF_CFG['pc'],
             help='minimum and maximum percentiles')
     p.add_argument('--scale', metavar='I', nargs=2, type=int,
-            default=[1, 4095],
+            default=DEF_CFG['scale'],
             help='standard scale minimum and maximum')
     p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
             help='case numbers')
@@ -99,7 +101,7 @@ def plot_histograms(histograms1, histograms2, outfile):
 args = parse_args()
 pc1, pc2 = args.pc
 s1, s2 = args.scale
-landmarks = [i*10 for i in range(1, 10)] # Deciles
+landmarks = DEF_CFG['landmarks']
 patients = dwi.files.read_patients_file(args.patients)
 
 if args.outconf:

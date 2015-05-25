@@ -10,11 +10,9 @@ import numpy as np
 import dwi.util
 
 DEFAULT_CONFIGURATION = dict(
-        pc1=0.,
-        pc2=99.8,
+        pc=(0., 99.8),
         landmarks=[i*10 for i in range(1, 10)], # Deciles
-        s1=1,
-        s2=4095,
+        scale=(1, 4095),
         )
 
 def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
