@@ -48,13 +48,14 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def histogram(img, s1=None, s2=None):
-    """Create histogram from data between min, max values, with bin centers."""
-    if not s1 is None:
-        img = img[img>=s1]
-    if not s2 is None:
-        img = img[img<=s2]
-    hist, bin_edges = np.histogram(img, bins=20, density=True)
+def histogram(a, m1=None, m2=None, bins=20):
+    """Create histogram from data between [m1, m2], with bin centers."""
+    a = np.asarray(a)
+    if not m1 is None:
+        a = a[a>=m1]
+    if not m2 is None:
+        a = a[a<=m2]
+    hist, bin_edges = np.histogram(a, bins=bins, density=True)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
     return hist, bin_centers
 
