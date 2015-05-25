@@ -9,12 +9,12 @@ from __future__ import division
 import argparse
 
 import numpy as np
-import scipy as sp
 
 import dwi.dataset
 import dwi.patient
 import dwi.plot
 import dwi.util
+import dwi.standardize
 
 def parse_args():
     """Parse command-line arguments."""
@@ -45,40 +45,6 @@ def parse_args():
             help='output file for standardization configuration')
     args = p.parse_args()
     return args
-
-def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
-    from scipy.stats import scoreatpercentile
-    if thresholding:
-        threshold = np.mean(img)
-        img = img[img > threshold]
-    p1 = scoreatpercentile(img, pc1)
-    p2 = scoreatpercentile(img, pc2)
-    scores = [scoreatpercentile(img, i) for i in landmarks]
-    return p1, p2, scores
-
-def map_onto_scale(p1, p2, s1, s2, v):
-    """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
-    assert p1 <= p2, (p1, p2)
-    assert s1 <= s2, (s1, s2)
-    if p1 == p2:
-        assert s1 == s2, (s1, s2)
-        return s1
-    f = (v-p1) / (p2-p1)
-    r = f * (s2-s1) + s1
-    return r
-
-def transform(img, p1, p2, scores, s1, s2, mapped_scores):
-    """Transform image onto standard scale."""
-    scores = [p1] + list(scores) + [p2]
-    mapped_scores = [s1] + list(mapped_scores) + [s2]
-    r = np.zeros_like(img, dtype=np.int)
-    for pos, v in np.ndenumerate(img):
-        # Select slot where to map.
-        slot = sum(v > s for s in scores)
-        slot = np.clip(slot, 1, len(scores)-1)
-        r[pos] = map_onto_scale(scores[slot-1], scores[slot],
-                mapped_scores[slot-1], mapped_scores[slot], v)
-    return r
 
 def histogram(img, s1=None, s2=None):
     if not s1 is None:
@@ -140,8 +106,10 @@ if args.outconf:
     data = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
-        p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
-        mapped_scores = [int(map_onto_scale(p1, p2, s1, s2, x)) for x in scores]
+        p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
+                landmarks)
+        mapped_scores = [int(dwi.standardize.map_onto_scale(p1, p2, s1, s2, x))
+                for x in scores]
         #print case, scan, img.shape, dwi.util.fivenum(img)
         #print case, scan, (p1, p2), scores
         print case, scan, img.shape, mapped_scores
@@ -170,11 +138,13 @@ if args.inconf:
     histograms_scaled = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
-        p1, p2, scores = landmark_scores(img, pc1, pc2, landmarks)
+        p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
+                landmarks)
         print case, scan, img.shape, (p1, p2)
         #img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
         #img = img[10:20].copy() # Scale and visualize slice 15 only.
-        img_scaled = transform(img, p1, p2, scores, s1, s2, mapped_scores)
+        img_scaled = dwi.standardize.transform(img, p1, p2, scores, s1, s2,
+                mapped_scores)
 
         #image_rows.append([img, img_scaled])
         #s = 'std/{c}_{s}.png'.format(c=case, s=scan)
