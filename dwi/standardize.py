@@ -64,10 +64,10 @@ def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         mapped_scores):
     """Write image standardization configuration file."""
     with open(filename, 'w') as f:
-        f.write(toline([pc1, pc2]))
-        f.write(toline(landmarks))
-        f.write(toline([s1, s2]))
-        f.write(toline(mapped_scores))
+        f.write(dwi.files.toline([pc1, pc2]))
+        f.write(dwi.files.toline(landmarks))
+        f.write(dwi.files.toline([s1, s2]))
+        f.write(dwi.files.toline(mapped_scores))
 
 def read_standardization_configuration(filename):
     """Read image standardization configuration file."""
