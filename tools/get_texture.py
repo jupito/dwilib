@@ -112,11 +112,7 @@ if img.shape != mask.shape():
             img.shape, mask.shape()))
 
 if args.std:
-    std_cfg = dwi.standardize.read_standardization_configuration(args.std)
-    p1, p2, scores = dwi.standardize.landmark_scores(img, d['pc1'], d['pc2'],
-            d['landmarks'])
-    img = dwi.standardize.transform(img, p1, p2, scores, d['s1'], d['s2'],
-            d['mapped_scores'])
+    img = dwi.standardize.standardize(args.std)
 
 if args.slices == 'maxfirst':
     slice_indices = [mask.max_slices()[0]]

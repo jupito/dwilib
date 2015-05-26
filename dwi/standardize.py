@@ -51,6 +51,15 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
                 mapped_scores[slot-1], mapped_scores[slot], v)
     return r
 
+def standardize(img, cfg):
+    """Transform an image based on a configuration (file)."""
+    if isinstance(cfg, str) or isinstance(cfg, unicode):
+        cfg = read_standardization_configuration(cfg)
+    d = cfg
+    p1, p2, scores = landmark_scores(img, d['pc1'], d['pc2'], d['landmarks'])
+    img = transform(img, p1, p2, scores, d['s1'], d['s2'], d['mapped_scores'])
+    return img
+
 def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         mapped_scores):
     """Write image standardization configuration file."""
