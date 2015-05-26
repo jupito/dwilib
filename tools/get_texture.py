@@ -16,6 +16,7 @@ import dwi.asciifile
 import dwi.dataset
 import dwi.mask
 import dwi.plot
+import dwi.standardize
 import dwi.texture
 import dwi.util
 
@@ -52,6 +53,8 @@ def parse_args():
             help='scan identifier')
     p.add_argument('--mask',
             help='mask file to use')
+    p.add_argument('--std',
+            help='standardization file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='*',
             help='methods ({})'.format(', '.join(METHODS.keys())))
     p.add_argument('--slices', default='maxfirst',
@@ -107,6 +110,13 @@ if isinstance(mask, dwi.mask.Mask):
 if img.shape != mask.shape():
     raise Exception('Image shape {} does not match mask shape {}'.format(
             img.shape, mask.shape()))
+
+if args.std:
+    std_cfg = dwi.standardize.read_standardization_configuration(args.std)
+    p1, p2, scores = dwi.standardize.landmark_scores(img, d['pc1'], d['pc2'],
+            d['landmarks'])
+    img = dwi.standardize.transform(img, p1, p2, scores, d['s1'], d['s2'],
+            d['mapped_scores'])
 
 if args.slices == 'maxfirst':
     slice_indices = [mask.max_slices()[0]]
