@@ -138,6 +138,14 @@ def load_labels(patients, nums, labeltype='score'):
         raise Exception('Invalid parameter: %s' % labeltype)
     return labels
 
+def cases_scans(patients, cases=[], scans=[]):
+    """Generate all case, scan combinations, with optional whitelists."""
+    for p in patients:
+        if not cases or p.num in cases:
+            for s in p.scans:
+                if not scans or s in scans:
+                    yield p.num, s
+
 def lesions(patients):
     """Generate all case, scan, lesion combinations."""
     for p in patients:
