@@ -16,7 +16,7 @@ import dwi.plot
 import dwi.util
 import dwi.standardize
 
-DEF_CFG = dwi.standard.DEFAULT_CONFIGURATION
+DEF_CFG = dwi.standardize.DEFAULT_CONFIGURATION
 
 def parse_args():
     """Parse command-line arguments."""
