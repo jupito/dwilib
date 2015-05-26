@@ -7,6 +7,7 @@ from __future__ import division
 
 import numpy as np
 
+import dwi.files
 import dwi.util
 
 DEFAULT_CONFIGURATION = dict(
@@ -49,3 +50,25 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
         r[pos] = map_onto_scale(scores[slot-1], scores[slot],
                 mapped_scores[slot-1], mapped_scores[slot], v)
     return r
+
+def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
+        mapped_scores):
+    """Write image standardization configuration file."""
+    with open(filename, 'w') as f:
+        f.write(toline([pc1, pc2]))
+        f.write(toline(landmarks))
+        f.write(toline([s1, s2]))
+        f.write(toline(mapped_scores))
+
+def read_standardization_configuration(filename):
+    """Read image standardization configuration file."""
+    lines = list(dwi.files.valid_lines(filename))[:4]
+    lines = [l.split() for l in lines]
+    d = collections.OrderedDict()
+    d['pc1'], d['pc2'] = map(float, lines[0])
+    d['landmarks'] = map(float, lines[1])
+    d['s1'], d['s2'] = map(int, lines[2])
+    d['mapped_scores'] = map(int, lines[3])
+    if len(d['landmarks']) != len(d['mapped_scores']):
+        raise Exception('Invalid standardization file: {}'.format(filename))
+    return d

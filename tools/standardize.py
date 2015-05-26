@@ -123,11 +123,11 @@ if args.outconf:
     mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
     mapped_scores = list(mapped_scores)
     print mapped_scores
-    dwi.files.write_standardization_configuration(args.outconf, pc1, pc2,
+    dwi.standardize.write_standardization_configuration(args.outconf, pc1, pc2,
             landmarks, s1, s2, mapped_scores)
 
 if args.inconf:
-    d = dwi.files.read_standardization_configuration(args.inconf)
+    d = dwi.standardize.read_standardization_configuration(args.inconf)
     pc1 = d['pc1']
     pc2 = d['pc2']
     landmarks = d['landmarks']
