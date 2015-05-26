@@ -24,6 +24,7 @@ def normalize(pmap, levels=128):
     #in_range = (0, scoreatpercentile(pmap, 99.8))
     if pmap.dtype == np.int:
         print np.min(pmap), np.max(pmap)
+        # The rescaler cannot handle int32.
         pmap = np.asarray(pmap, dtype=np.int16)
     if pmap.dtype == np.int16:
         in_range = (0, 4095)
