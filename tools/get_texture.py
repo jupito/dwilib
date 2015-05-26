@@ -111,9 +111,6 @@ if img.shape != mask.shape():
     raise Exception('Image shape {} does not match mask shape {}'.format(
             img.shape, mask.shape()))
 
-if args.std:
-    img = dwi.standardize.standardize(args.std)
-
 if args.slices == 'maxfirst':
     slice_indices = [mask.max_slices()[0]]
 elif args.slices == 'max':
@@ -132,6 +129,11 @@ if args.verbose > 1:
     d = dict(s=img.shape, i=slice_indices, n=np.count_nonzero(mask_slices),
             w=args.winsizes)
     print 'Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d)
+
+if args.std:
+    if args.verbose:
+        print 'Standardizing...'
+    img_slices = dwi.standardize.standardize(img_slices, args.std)
 
 if args.verbose:
     print 'Calculating texture features...'
