@@ -20,6 +20,7 @@ import dwi.standardize
 import dwi.texture
 import dwi.util
 
+# Methods that consider an n*n window.
 METHODS = collections.OrderedDict([
         ('stats', dwi.texture.stats_map),
         ('glcm', dwi.texture.glcm_map),
@@ -31,12 +32,14 @@ METHODS = collections.OrderedDict([
         ('haar', dwi.texture.haar_map),
         ('sobel', dwi.texture.sobel_map),
         ])
+# Methods that consider a minimum bounding box of selected voxels.
 METHODS_MBB = collections.OrderedDict([
         ('stats_mbb', dwi.texture.stats_mbb),
         ('glcm_mbb', dwi.texture.glcm_mbb),
         ('haralick_mbb', dwi.texture.haralick_mbb),
         ('sobel_mbb', dwi.texture.sobel_mbb),
         ])
+# Methods that consider all selected voxels.
 METHODS_ALL = collections.OrderedDict([
         ('stats_all', dwi.texture.stats_mbb),
         ])
