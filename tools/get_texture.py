@@ -37,6 +37,9 @@ METHODS_MBB = collections.OrderedDict([
         ('haralick_mbb', dwi.texture.haralick_mbb),
         ('sobel_mbb', dwi.texture.sobel_mbb),
         ])
+METHODS_ALL = collections.OrderedDict([
+        ('stats_all', dwi.texture.stats_mbb),
+        ])
 
 def parse_args():
     """Parse command-line arguments."""
@@ -174,6 +177,16 @@ for method, call in METHODS_MBB.items():
                 tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
         feats += map(np.mean, tmaps_all)
         names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
+        featnames += names
+for method, call in METHODS_ALL.items():
+    if args.methods is None or method in args.methods:
+        if args.verbose > 1:
+            print method
+        if np.count_nonzero(mask_slices) == 0:
+            continue # Skip slice with empty mask.
+        tmaps, names = call(img_slices, mask=mask_slices)
+        feats += list(tmaps)
+        names = ['{w}-{n}'.format(w='all', n=n) for n in names]
         featnames += names
 
 if args.verbose:
