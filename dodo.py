@@ -71,10 +71,10 @@ def texture_methods(model=MODEL):
         'gabor',
         'moment',
         'haar',
-        'stats_mbb',
         'glcm_mbb',
         #'haralick_mbb',
         'sobel_mbb',
+        'stats_all',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
@@ -180,6 +180,7 @@ def fit_cmd(model, subwindow, infiles, outfile):
 def get_texture_cmd(d):
     cmd = '{prg} -v --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
+            ' --std stdcfg_{m}.txt'\
             ' --slices {slices} --portion {portion}'\
             ' --output {o}'
     cmd = cmd.format(prg=GET_TEXTURE, **d)
