@@ -58,6 +58,8 @@ class Gui(object):
     def on_key(self, event):
         if event.key == 'q':
             plt.close()
+        if event.key == 'c':
+            plt.set_cmap('coolwarm')
         if event.key == 'g':
             plt.set_cmap('gray')
         if event.key == 'j':
