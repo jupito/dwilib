@@ -3,7 +3,6 @@
 """Calculate texture properties for a masked area."""
 
 #TODO pmap normalization for GLCM
-#TODO Gabor clips pmap, only suitable for ADCm
 
 from __future__ import division
 import argparse
