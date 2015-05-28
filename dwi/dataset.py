@@ -56,9 +56,10 @@ def read_dicom_pmap(directory, case, scan, param):
     d = dict(d=directory, c=case, s=scan, p=param)
     if param == 'raw':
         # There's no actual parameter, only single 'raw' value (used for T2).
-        path = dwi.util.sglob('{d}/{c}_*_{s}*'.format(**d))
+        s = '{d}/{c}_*_{s}*'
     else:
-        path = dwi.util.sglob('{d}/{c}_*_{s}/{c}_*_{s}*_{p}'.format(**d))
+        s = '{d}/{c}_*_{s}/{c}_*_{s}*_{p}'
+    path = dwi.util.sglob(s.format(**d))
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
     #image = image.squeeze(axis=3) # Remove single subvalue dimension.
