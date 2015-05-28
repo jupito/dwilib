@@ -64,6 +64,7 @@ FIND_ROI_PARAMS = [
 
 def texture_methods(model=MODEL):
     return ' '.join([
+        'stats',
         'glcm',
         #'haralick',
         'lbp',
