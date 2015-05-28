@@ -180,9 +180,10 @@ def fit_cmd(model, subwindow, infiles, outfile):
 def get_texture_cmd(d):
     cmd = '{prg} -v --methods {methods} --winsizes {winsizes}'\
             ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
-            ' --std stdcfg_{m}.txt'\
             ' --slices {slices} --portion {portion}'\
             ' --output {o}'
+    if d['m'] == 'T2w':
+        cmd += ' --std stdcfg_{m}.txt'
     cmd = cmd.format(prg=GET_TEXTURE, **d)
     return cmd
 
