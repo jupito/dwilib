@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Mask tool."""
+"""Show information on masks and write subregions of them."""
 
 import argparse
 import os.path
