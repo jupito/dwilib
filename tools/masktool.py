@@ -43,12 +43,13 @@ mbb_size = np.prod(mbb_shape)
 d = dict(infile=args.input, shape=mask.shape,
         mbb=mbb, mbb_shape=mbb_shape, mbb_size=mbb_size,
         nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
-print 'mask: {infile}\n'\
+s = 'mask: {infile}\n'\
+        'minimum bounding box coordinates: {mbb}\n'\
         'minimum bounding box shape: {mbb_shape}\n'\
-        '                     coordinates: {mbb}\n'\
-        '                     size: {mbb_size}\n'\
+        'minimum bounding box size: {mbb_size}\n'\
         'selected voxels: {nsel}\n'\
-        '         slices: {nsl}: {sl}'.format(**d)
+        'selected slices: {nsl}: {sl}'
+print s.format(**d)
 
 if args.subregion:
     write_subregion(mask, args.pad, args.input, args.subregion)
