@@ -40,10 +40,11 @@ selected_slices = list(mask.selected_slices())
 mbb = mask.bounding_box()
 mbb_shape = tuple([b - a for a, b in mbb])
 mbb_size = np.prod(mbb_shape)
-d = dict(infile=args.input, shape=mask.shape,
+d = dict(infile=args.input, shape=mask.shape(),
         mbb=mbb, mbb_shape=mbb_shape, mbb_size=mbb_size,
         nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
 s = 'mask: {infile}\n'\
+        'mask shape: {shape}\n'\
         'minimum bounding box coordinates: {mbb}\n'\
         'minimum bounding box shape: {mbb_shape}\n'\
         'minimum bounding box size: {mbb_size}\n'\
