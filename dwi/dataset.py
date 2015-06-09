@@ -51,6 +51,19 @@ def read_prostate_mask(directory, case, scan):
             return mask
     raise Exception('Multi-slice prostate mask not found: %s' % s)
 
+def read_lesion_masks(directory, case, scan):
+    """Read 3D prostate mask in DICOM format.
+    
+    The first multi-slice mask with proper pathname is used.
+    """
+    d = dict(d=directory, c=case, s=scan)
+    s = '{d}/PCa_masks_*/{c}_*{s}_*'.format(**d)
+    paths = sorted(glob.glob(s))
+    if len(paths) == 0:
+        raise Exception('Lesion masks not found: %s' % s)
+    masks = [dwi.mask.read_mask(p) for p in paths]
+    return masks
+
 def read_dicom_pmap(directory, case, scan, param):
     """Read a single-parameter pmap in DICOM format."""
     d = dict(d=directory, c=case, s=scan, p=param)
@@ -161,6 +174,16 @@ def dataset_read_prostate_masks(data, prostate_mask_dir):
         assert d['image'].shape[0:3] == mask.array.shape
         roi = mask.selected(d['image'])
         d.update(prostate_mask=mask, prostate_roi=roi)
+
+def dataset_read_lesion_masks(data, mask_dir):
+    """Add lesion masks to dataset (after pmaps)."""
+    for d in data:
+        masks = read_lesion_masks(mask_dir, d['case'], d['scan'])
+        if 'subregion' in d:
+            masks = [m.crop(d['subregion']) for m in masks]
+        for m in masks:
+            assert d['image'].shape[0:3] == m.array.shape
+        d.update(lesion_masks=masks)
 
 def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
     """Add ROI masks to dataset (after pmaps)."""
