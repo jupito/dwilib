@@ -135,7 +135,8 @@ def draw(data, param, filename):
 args = parse_args()
 
 print 'Reading dataset...'
-data = dwi.dataset.dataset_read_samplelist('samples_train.txt', cases=args.cases, scans=['1a', '2a'])
+data = dwi.dataset.dataset_read_samplelist('samples_train.txt',
+        cases=args.cases, scans=['1a', '2a'])
 dwi.dataset.dataset_read_patientinfo(data, 'patients.txt')
 dwi.dataset.dataset_read_subregions(data, 'bounding_box_100_10pad')
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
