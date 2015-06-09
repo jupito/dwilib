@@ -38,13 +38,17 @@ mask = dwi.mask.read_mask(args.input)
 
 selected_slices = list(mask.selected_slices())
 mbb = mask.bounding_box()
-mbb_shape = [b - a for a, b in mbb]
-d = dict(infile=args.input, shape=mask.shape, mbb=mbb, mbb_shape=mbb_shape,
+mbb_shape = tuple([b - a for a, b in mbb])
+mbb_size = np.prod(mbb_shape)
+d = dict(infile=args.input, shape=mask.shape,
+        mbb=mbb, mbb_shape=mbb_shape, mbb_size=mbb_size,
         nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
 print 'mask: {infile}\n'\
-        'minimum bounding box: {mbb_shape}: {mbb}\n'\
+        'minimum bounding box shape: {mbb_shape}\n'\
+        '                     coordinates: {mbb}\n'\
+        '                     size: {mbb_size}\n'\
         'selected voxels: {nsel}\n'\
-        'selected slices: {nsl}: {sl}'.format(**d)
+        '         slices: {nsl}: {sl}'.format(**d)
 
 if args.subregion:
     write_subregion(mask, args.pad, args.input, args.subregion)
