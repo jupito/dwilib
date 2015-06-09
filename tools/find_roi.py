@@ -69,7 +69,6 @@ def get_roi_layer(img, pos, color):
 def draw(data, param, filename):
     import matplotlib
     import matplotlib.pyplot as plt
-    import pylab as pl
 
     plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.interpolation'] = 'nearest'
