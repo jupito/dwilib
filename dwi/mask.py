@@ -135,14 +135,6 @@ class Mask3D(object):
         Parameter pad can be a tuple of each dimension or a single number. It
         can contain infinity for maximum padding.
         """
-        #if np.isscalar(pad):
-        #    pad = (pad,) * self.array.ndim
-        #r = []
-        #for a, l, p in zip(self.array.nonzero(), self.array.shape, pad):
-        #    x = max(min(a)-p, 0)
-        #    y = min(max(a)+1+p, l)
-        #    r += [x, y]
-        #return tuple(map(int, r))
         return dwi.util.bounding_box(self.array, pad)
 
     def mbb_equals_selection(self):
