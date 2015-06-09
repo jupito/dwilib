@@ -145,6 +145,14 @@ class Mask3D(object):
         #return tuple(map(int, r))
         return dwi.util.bounding_box(self.array, pad)
 
+    def mbb_equals_selection(self):
+        """Tell whether minimum bounding box equals selected voxels."""
+        mbb = self.bounding_box()
+        mbb_shape = [b - a for a, b in mbb]
+        mbb_size = np.prod(mbb_shape)
+        r = (mbb_size == self.n_selected())
+        return r
+
 def mask_to_text(mask):
     return '\n'.join(map(line_to_text, mask))
 

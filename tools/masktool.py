@@ -42,7 +42,7 @@ mbb_shape = tuple([b - a for a, b in mbb])
 mbb_size = np.prod(mbb_shape)
 d = dict(infile=args.input, shape=mask.shape(),
         mbb=mbb, mbb_shape=mbb_shape, mbb_size=mbb_size,
-        mbb_all=(mbb_size == mask.n_selected()),
+        mbb_all=mask.mbb_equals_selection(),
         nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
 s = 'mask: {infile}\n'\
         'mask shape: {shape}\n'\
