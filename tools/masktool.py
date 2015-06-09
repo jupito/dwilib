@@ -21,7 +21,7 @@ def parse_args():
     p.add_argument('--subregion', '-s', metavar='OUTFILE',
             help='output subregion file')
     p.add_argument('--pad', metavar='I', type=int, default=10,
-            help='subregion padding size')
+            help='subregion padding size (default: 10)')
     args = p.parse_args()
     return args
 
