@@ -6,6 +6,7 @@ import argparse
 
 import numpy as np
 
+import dwi.asciifile
 import dwi.dataset
 import dwi.patient
 import dwi.dwimage
@@ -22,6 +23,8 @@ def parse_args():
             help='subregion bounding box directory')
     p.add_argument('--pmapdir', default='dicoms_Mono_combinedDICOM',
             help='input parametric map directory')
+    p.add_argument('--af',
+            help='input parametric map as ASCII file')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
     p.add_argument('--case', type=int, required=True,
@@ -79,7 +82,21 @@ if args.verbose:
     print 'Reading data...'
 data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
-dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+if args.af:
+    af = dwi.asciifile.AsciiFile(args.af)
+    print 'params:', af.params()
+    # Fix switched height/width.
+    subwindow = af.subwindow()
+    subwindow = subwindow[2:] + subwindow[:2]
+    assert len(subwindow) == 4
+    subwindow_shape = dwi.util.subwindow_shape(subwindow)
+    image = af.a
+    image.shape = (20,) + subwindow_shape + (len(af.params()),)
+    data[0]['subregion'] = (0, 20) + subwindow
+    data[0]['image'] = image
+    print data[0]['subregion']
+else:
+    dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 dwi.dataset.dataset_read_prostate_masks(data, args.pmaskdir)
 dwi.dataset.dataset_read_lesion_masks(data, args.lmaskdir)
 
@@ -87,6 +104,7 @@ data = data[0]
 print 'image shape:', data['image'].shape
 print 'lesion mask sizes:', [m.n_selected() for m in data['lesion_masks']]
 
+# Find maximum lesion and use it.
 lesion = max((m.n_selected(), i) for i, m in enumerate(data['lesion_masks']))
 print 'max lesion:', lesion
 max_lesion = lesion[1]
@@ -96,11 +114,13 @@ pmap = data['image'][max_slice]
 proste_mask = data['prostate_mask'].array[max_slice]
 lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
-dwi.util.clip_pmap(pmap, [args.param])
-tmaps, names = dwi.texture.texture_map(args.method, pmap[:,:,0], args.winsize,
+#dwi.util.clip_pmap(pmap, [args.param])
+pmap = pmap[:,:,0]
+pmap = dwi.util.clip_outliers(pmap, out=pmap)
+tmaps, names = dwi.texture.texture_map(args.method, pmap, args.winsize,
         mask=proste_mask)
 print pmap.shape, lesion_mask.shape, tmaps.shape
 print names
 
 filename = 'texture_{case}_{scan}'.format(**data)
-plot(pmap[:,:,0], lesion_mask, tmaps, names, filename)
+plot(pmap, lesion_mask, tmaps, names, filename)
