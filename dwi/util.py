@@ -303,6 +303,14 @@ def clip_pmap(img, params):
         elif params[i].startswith('K'):
             img[...,i].clip(0, 2, out=img[...,i])
 
+def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
+    """Clip outliers based on percentiles."""
+    from scipy.stats import scoreatpercentile
+    a = np.asanyarray(a)
+    min_score = scoreatpercentile(a, min_pc)
+    max_score = scoreatpercentile(a, max_pc)
+    return a.clip(min_score, max_score, out=out)
+
 def add_dummy_feature(X):
     """Add an extra dummy feature to an array of samples."""
     r = np.ones((X.shape[0], X.shape[1]+1), dtype=X.dtype)
