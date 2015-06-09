@@ -56,7 +56,7 @@ def plot(pmap, lmask, tmaps, names, filename):
     #view = np.ones(pmap.shape + (3,), dtype=float)
     #view[...,0] = view[...,1] = view[...,2] = pmap / pmap.max()
     #plt.imshow(view)
-    plt.imshow(pmap)
+    impmap = plt.imshow(pmap)
     view = np.zeros(lmask.shape + (4,), dtype=float)
     view[...,1] = view[...,3] = lmask
     plt.imshow(view, alpha=0.6)
@@ -65,6 +65,8 @@ def plot(pmap, lmask, tmaps, names, filename):
         ax = fig.add_subplot(1, n_cols, i+2)
         ax.set_title(name)
         plt.imshow(tmap)
+
+    fig.colorbar(impmap, ax=ax1, shrink=0.65)
 
     plt.tight_layout()
     print 'Writing figure:', filename
