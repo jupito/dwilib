@@ -46,7 +46,7 @@ def plot(pmap, lmask, tmaps, names, filename):
     import matplotlib
     import matplotlib.pyplot as plt
 
-    assert pmap.shape == lmask.shape == tmaps[0].shape
+    assert pmap.shape == lmask.shape
 
     #plt.rcParams['image.cmap'] = 'coolwarm'
     plt.rcParams['image.cmap'] = 'YlGnBu_r'
@@ -61,13 +61,13 @@ def plot(pmap, lmask, tmaps, names, filename):
     #plt.imshow(view)
     impmap = plt.imshow(pmap)
     view = np.zeros(lmask.shape + (4,), dtype=float)
-    view[...,1] = view[...,3] = lmask
+    view[...,0] = view[...,3] = lmask
     plt.imshow(view, alpha=0.6)
 
     for i, (tmap, name) in enumerate(zip(tmaps, names)):
         ax = fig.add_subplot(1, n_cols, i+2)
         ax.set_title(name)
-        plt.imshow(tmap)
+        plt.imshow(tmap, vmin=0)
 
     fig.colorbar(impmap, ax=ax1, shrink=0.65)
 
@@ -119,7 +119,6 @@ pmap = pmap[:,:,0]
 pmap = dwi.util.clip_outliers(pmap, out=pmap)
 tmaps, names = dwi.texture.texture_map(args.method, pmap, args.winsize,
         mask=proste_mask)
-print pmap.shape, lesion_mask.shape, tmaps.shape
 print names
 
 filename = 'texture_{case}_{scan}'.format(**data)
