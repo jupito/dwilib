@@ -42,12 +42,13 @@ mbb_shape = tuple([b - a for a, b in mbb])
 mbb_size = np.prod(mbb_shape)
 d = dict(infile=args.input, shape=mask.shape(),
         mbb=mbb, mbb_shape=mbb_shape, mbb_size=mbb_size,
+        mbb_all=(mbb_size == mask.n_selected()),
         nsel=mask.n_selected(), nsl=len(selected_slices), sl=selected_slices)
 s = 'mask: {infile}\n'\
         'mask shape: {shape}\n'\
         'minimum bounding box coordinates: {mbb}\n'\
         'minimum bounding box shape: {mbb_shape}\n'\
-        'minimum bounding box size: {mbb_size}\n'\
+        'minimum bounding box size: {mbb_size} (all selected: {mbb_all})\n'\
         'selected voxels: {nsel}\n'\
         'selected slices: {nsl}: {sl}'
 print s.format(**d)
