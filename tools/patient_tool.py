@@ -110,3 +110,10 @@ if args.split:
 print 'Patients: {}, lesions: {}'.format(len(patients), len(all_lesions))
 print 'Scores: {}: {}'.format(len(scores), scores)
 print 'Group sizes: {}'.format(group_sizes)
+
+print 'Patients grouped by number of lesions:'
+min_lesions = min(len(p.lesions) for p in patients)
+max_lesions = max(len(p.lesions) for p in patients)
+for i in range(min_lesions, max_lesions+1):
+    l = [p.num for p in patients if len(p.lesions) == i]
+    print '{i} lesions: {n} patients: {l}'.format(i=i, n=len(l), l=l)
