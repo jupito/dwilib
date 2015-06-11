@@ -37,13 +37,12 @@ def parse_args():
             help='lesion mask directory')
     p.add_argument('--method', default='stats',
             help='texture method')
-    p.add_argument('--winsize', type=int, default=[5],
+    p.add_argument('--winsize', type=int, default=5,
             help='window side length')
     args = p.parse_args()
     return args
 
 def plot(pmap, lmask, tmaps, names, filename):
-    import matplotlib
     import matplotlib.pyplot as plt
 
     assert pmap.shape == lmask.shape
