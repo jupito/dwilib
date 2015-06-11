@@ -116,6 +116,7 @@ lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
 #dwi.util.clip_pmap(pmap, [args.param])
 pmap = pmap[:,:,0]
+print dwi.util.fivenum(pmap)
 pmap = dwi.util.clip_outliers(pmap, out=pmap)
 tmaps, names = dwi.texture.texture_map(args.method, pmap, args.winsize,
         mask=proste_mask)
