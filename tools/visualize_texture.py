@@ -21,7 +21,7 @@ def parse_args():
             help='increase verbosity')
     p.add_argument('--subregiondir', default='bounding_box_100_10pad',
             help='subregion bounding box directory')
-    p.add_argument('--pmapdir', default='dicoms_Mono_combinedDICOM',
+    p.add_argument('--pmapdir', default='dicoms_*',
             help='input parametric map directory')
     p.add_argument('--af',
             help='input parametric map as ASCII file')
