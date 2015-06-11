@@ -25,7 +25,7 @@ def parse_args():
             help='input parametric map directory')
     p.add_argument('--af',
             help='input parametric map as ASCII file')
-    p.add_argument('--param', default='ADCm',
+    p.add_argument('--params', nargs='+', default=['ADCm'],
             help='image parameter to use')
     p.add_argument('--case', type=int, required=True,
             help='case number')
@@ -96,7 +96,7 @@ if args.af:
     data[0]['image'] = image
     print data[0]['subregion']
 else:
-    dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+    dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.params)
 dwi.dataset.dataset_read_prostate_masks(data, args.pmaskdir)
 dwi.dataset.dataset_read_lesion_masks(data, args.lmaskdir)
 
@@ -114,7 +114,7 @@ pmap = data['image'][max_slice]
 proste_mask = data['prostate_mask'].array[max_slice]
 lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
-#dwi.util.clip_pmap(pmap, [args.param])
+#dwi.util.clip_pmap(pmap, args.param)
 pmap = pmap[:,:,0]
 print dwi.util.fivenum(pmap)
 pmap = dwi.util.clip_outliers(pmap, out=pmap)
