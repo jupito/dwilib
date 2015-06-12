@@ -63,7 +63,7 @@ def plot(pmaps, titles, lmask, n_rows, filename):
             view[...,0] = view[...,3] = lmask
             plt.imshow(view, alpha=0.6)
         else:
-            plt.imshow(pmap, vmin=0)
+            impmap = plt.imshow(pmap, vmin=0)
         fig.colorbar(impmap, ax=ax, shrink=0.65)
 
     plt.tight_layout()
