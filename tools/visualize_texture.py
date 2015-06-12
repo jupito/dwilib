@@ -42,29 +42,27 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def plot(pmaps, lmask, tmaps, params, names, filename):
+def plot(pmaps, titles, lmask, n_rows, filename):
     import matplotlib.pyplot as plt
 
     assert pmaps[0].shape == lmask.shape
     #plt.rcParams['image.cmap'] = 'coolwarm'
     plt.rcParams['image.cmap'] = 'YlGnBu_r'
     plt.rcParams['image.interpolation'] = 'nearest'
-    n_cols, n_rows = len(pmaps)+len(tmaps), 1
+    n_cols = len(pmaps) / n_rows
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
-    for i, (pmap, param) in enumerate(zip(pmaps, params)):
+    for i, (pmap, title) in enumerate(zip(pmaps, titles)):
         ax = fig.add_subplot(n_rows, n_cols, i+1)
-        ax.set_title(param)
-        impmap = plt.imshow(pmap)
-        view = np.zeros(lmask.shape + (4,), dtype=float)
-        view[...,0] = view[...,3] = lmask
-        plt.imshow(view, alpha=0.6)
+        ax.set_title(title)
+        if i % n_cols == 0:
+            impmap = plt.imshow(pmap)
+            view = np.zeros(lmask.shape + (4,), dtype=float)
+            view[...,0] = view[...,3] = lmask
+            plt.imshow(view, alpha=0.6)
+        else:
+            plt.imshow(pmap, vmin=0)
         fig.colorbar(impmap, ax=ax, shrink=0.65)
-
-    for i, (tmap, name) in enumerate(zip(tmaps, names)):
-        ax = fig.add_subplot(n_rows, n_cols, len(pmaps)+i+1)
-        ax.set_title(name)
-        plt.imshow(tmap, vmin=0)
 
     plt.tight_layout()
     print 'Writing figure:', filename
@@ -110,6 +108,7 @@ proste_mask = data['prostate_mask'].array[max_slice]
 lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
 pmaps = []
+titles = []
 for i, param in enumerate(args.params):
     p = pmap[:,:,i]
     print param, dwi.util.fivenum(p)
@@ -117,6 +116,9 @@ for i, param in enumerate(args.params):
     pmaps.append(p)
     tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize,
             mask=proste_mask)
+    pmaps += list(tmaps)
+    titles += [param] + names
+
 
 filename = 'texture_{case}_{scan}'.format(**data)
-plot(pmaps, lesion_mask, tmaps, args.params, names, filename)
+plot(pmaps, titles, lesion_mask, len(args.params), filename)
