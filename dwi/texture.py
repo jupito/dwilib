@@ -179,7 +179,7 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
     output = np.rollaxis(freqs, -1)
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
-    if mask != None:
+    if not mask is None:
         output[:,-mask] = 0
     return output, names
 
