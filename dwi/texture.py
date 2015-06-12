@@ -173,15 +173,14 @@ def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
     return lbp_data, lbp_freq_data, n_patterns
 
 def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
-    """Local Binary Pattern (LBP) frequency histogram map.
-    
-    Note: mask parameter is not used: the feature map is calculated for whole
-    image."""
+    """Local Binary Pattern (LBP) frequency histogram map."""
     if radius is None:
         radius = winsize // 2
     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
     output = np.rollaxis(freqs, -1)
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
+    if mask != None:
+        output[:,-mask] = 0
     return output, names
 
 def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
