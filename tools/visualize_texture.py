@@ -114,10 +114,19 @@ for i, param in enumerate(args.params):
     print param, dwi.util.fivenum(p)
     dwi.util.clip_outliers(p, out=p)
     pmaps.append(p)
-    tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize,
-            mask=proste_mask)
+    titles.append(param)
+    #tmaps, names = dwi.texture.gabor_map(p, 5, [1], [0.1], mask=proste_mask)
+    #pmaps.append(tmaps[0])
+    #titles.append('Gabor')
+    #tmaps, names = dwi.texture.moment_map(p, 9, 2, mask=proste_mask)
+    #pmaps.append(tmaps[-1])
+    #titles.append('Moment')
+    #tmaps, names = dwi.texture.lbp_freq_map(p, 9, mask=proste_mask)
+    #pmaps.append(tmaps[8])
+    #titles.append('LBP')
+    tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize, proste_mask)
     pmaps += list(tmaps)
-    titles += [param] + names
+    titles += names
 
 
 filename = 'texture_{case}_{scan}'.format(**data)
