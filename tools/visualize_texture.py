@@ -42,33 +42,29 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def plot(pmap, lmask, tmaps, names, filename):
+def plot(pmaps, lmask, tmaps, params, names, filename):
     import matplotlib.pyplot as plt
 
-    assert pmap.shape == lmask.shape
-
+    assert pmaps[0].shape == lmask.shape
     #plt.rcParams['image.cmap'] = 'coolwarm'
     plt.rcParams['image.cmap'] = 'YlGnBu_r'
     plt.rcParams['image.interpolation'] = 'nearest'
-    n_cols, n_rows = len(tmaps)+1, 1
+    n_cols, n_rows = len(pmaps)+len(tmaps), 1
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
-    ax1 = fig.add_subplot(1, n_cols, 1)
-    ax1.set_title('parametric map')
-    #view = np.ones(pmap.shape + (3,), dtype=float)
-    #view[...,0] = view[...,1] = view[...,2] = pmap / pmap.max()
-    #plt.imshow(view)
-    impmap = plt.imshow(pmap)
-    view = np.zeros(lmask.shape + (4,), dtype=float)
-    view[...,0] = view[...,3] = lmask
-    plt.imshow(view, alpha=0.6)
+    for i, (pmap, param) in enumerate(zip(pmaps, params)):
+        ax = fig.add_subplot(n_rows, n_cols, i+1)
+        ax.set_title(param)
+        impmap = plt.imshow(pmap)
+        view = np.zeros(lmask.shape + (4,), dtype=float)
+        view[...,0] = view[...,3] = lmask
+        plt.imshow(view, alpha=0.6)
+        fig.colorbar(impmap, ax=ax, shrink=0.65)
 
     for i, (tmap, name) in enumerate(zip(tmaps, names)):
-        ax = fig.add_subplot(1, n_cols, i+2)
+        ax = fig.add_subplot(n_rows, n_cols, len(pmaps)+i+1)
         ax.set_title(name)
         plt.imshow(tmap, vmin=0)
-
-    fig.colorbar(impmap, ax=ax1, shrink=0.65)
 
     plt.tight_layout()
     print 'Writing figure:', filename
@@ -113,13 +109,16 @@ pmap = data['image'][max_slice]
 proste_mask = data['prostate_mask'].array[max_slice]
 lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
-#dwi.util.clip_pmap(pmap, args.param)
-pmap = pmap[:,:,0]
-print dwi.util.fivenum(pmap)
-pmap = dwi.util.clip_outliers(pmap, out=pmap)
-tmaps, names = dwi.texture.texture_map(args.method, pmap, args.winsize,
+pmaps = []
+for i, param in enumerate(args.params):
+    print param
+    #dwi.util.clip_pmap(pmap, args.param)
+    print dwi.util.fivenum(pmap[:,:,i])
+    dwi.util.clip_outliers(pmap[:,:,i], out=pmap[:,:,i])
+    pmaps.append(pmap[:,:,i])
+tmaps, names = dwi.texture.texture_map(args.method, pmap[:,:,0], args.winsize,
         mask=proste_mask)
 print names
 
 filename = 'texture_{case}_{scan}'.format(**data)
-plot(pmap, lesion_mask, tmaps, names, filename)
+plot(pmaps, lesion_mask, tmaps, args.params, names, filename)
