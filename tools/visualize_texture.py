@@ -111,14 +111,12 @@ lesion_mask = data['lesion_masks'][max_lesion].array[max_slice]
 
 pmaps = []
 for i, param in enumerate(args.params):
-    print param
-    #dwi.util.clip_pmap(pmap, args.param)
-    print dwi.util.fivenum(pmap[:,:,i])
-    dwi.util.clip_outliers(pmap[:,:,i], out=pmap[:,:,i])
-    pmaps.append(pmap[:,:,i])
-tmaps, names = dwi.texture.texture_map(args.method, pmap[:,:,0], args.winsize,
-        mask=proste_mask)
-print names
+    p = pmap[:,:,i]
+    print param, dwi.util.fivenum(p)
+    dwi.util.clip_outliers(p, out=p)
+    pmaps.append(p)
+    tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize,
+            mask=proste_mask)
 
 filename = 'texture_{case}_{scan}'.format(**data)
 plot(pmaps, lesion_mask, tmaps, args.params, names, filename)
