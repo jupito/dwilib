@@ -46,9 +46,11 @@ def plot(pmaps, titles, lmask, n_rows, filename):
     import matplotlib.pyplot as plt
 
     assert pmaps[0].shape == lmask.shape
+    #plt.rcParams['image.cmap'] = 'jet'
     #plt.rcParams['image.cmap'] = 'coolwarm'
     plt.rcParams['image.cmap'] = 'YlGnBu_r'
     plt.rcParams['image.interpolation'] = 'nearest'
+    #plt.rcParams['text.usetex'] = True
     n_cols = len(pmaps) / n_rows
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
@@ -115,18 +117,27 @@ for i, param in enumerate(args.params):
     dwi.util.clip_outliers(p, out=p)
     pmaps.append(p)
     titles.append(param)
-    #tmaps, names = dwi.texture.gabor_map(p, 5, [1], [0.1], mask=proste_mask)
-    #pmaps.append(tmaps[0])
-    #titles.append('Gabor')
-    #tmaps, names = dwi.texture.moment_map(p, 9, 2, mask=proste_mask)
-    #pmaps.append(tmaps[-1])
-    #titles.append('Moment')
-    #tmaps, names = dwi.texture.lbp_freq_map(p, 9, mask=proste_mask)
-    #pmaps.append(tmaps[8])
-    #titles.append('LBP')
-    tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize, proste_mask)
-    pmaps += list(tmaps)
-    titles += names
+    tmaps, names = dwi.texture.stats_map(p, 5, ['q1'], mask=proste_mask)
+    pmaps.append(tmaps[0])
+    titles.append('1st quartile')
+    tmaps, names = dwi.texture.gabor_map(p, 5, [1], [0.1], mask=proste_mask)
+    pmaps.append(tmaps[0])
+    titles.append('Gabor')
+    tmaps, names = dwi.texture.moment_map(p, 9, 2, mask=proste_mask)
+    pmaps.append(tmaps[-1])
+    titles.append('Moment')
+    tmaps, names = dwi.texture.lbp_freq_map(p, 9, mask=proste_mask)
+    pmaps.append(tmaps[8])
+    titles.append('LBP')
+    tmaps, names = dwi.texture.sobel_map(p, None, mask=proste_mask)
+    pmaps.append(tmaps[-1])
+    titles.append('Sobel')
+    tmaps, names = dwi.texture.haar_map(p, 7, 2, mask=proste_mask)
+    pmaps.append(tmaps[8])
+    titles.append('Haar level 2')
+    #tmaps, names = dwi.texture.texture_map(args.method, p, args.winsize, proste_mask)
+    #pmaps += list(tmaps)
+    #titles += names
 
 
 filename = 'texture_{case}_{scan}'.format(**data)
