@@ -24,6 +24,8 @@ def parse_args():
             help='number of bootstraps')
     p.add_argument('--voxel', default='all',
             help='index of voxel to use, or all, sole, mean, median')
+    p.add_argument('--multilesion', action='store_true',
+            help='use all lesions, not just first for each')
     p.add_argument('--autoflip', action='store_true',
             help='flip data when AUC < 0.5')
     p.add_argument('--compare', action='store_true',
@@ -42,7 +44,7 @@ Params = []
 scores = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.patients, pmapdir, [args.threshold],
-            voxel=args.voxel)
+            voxel=args.voxel, multiroi=args.multilesion)
     if scores is None:
         scores, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):
