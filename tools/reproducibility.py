@@ -56,7 +56,11 @@ def coefficients(a1, a2, avgfun=np.mean):
     return d
 
 def icc(baselines):
-    """Calculate Shrout & Fleiss ICC(3,1) intraclass correlation."""
+    """Calculate ICC(3,1) intraclass correlation.
+    
+    See Shrout, Fleiss 1979: Intraclass Correlations: Uses in Assessing Rater
+    Reliability.
+    """
     data = np.array(baselines)
     k, n = data.shape # Number of raters, targets.
     mpt = np.mean(data, axis=0) # Mean per target.
