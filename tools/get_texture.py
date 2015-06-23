@@ -19,30 +19,6 @@ import dwi.standardize
 import dwi.texture
 import dwi.util
 
-# Methods that consider an n*n window.
-METHODS = collections.OrderedDict([
-        ('stats', dwi.texture.stats_map),
-        ('glcm', dwi.texture.glcm_map),
-        ('haralick', dwi.texture.haralick_map),
-        ('lbp', dwi.texture.lbp_freq_map),
-        ('hog', dwi.texture.hog_map),
-        ('gabor', dwi.texture.gabor_map),
-        ('moment', dwi.texture.moment_map),
-        ('haar', dwi.texture.haar_map),
-        ('sobel', dwi.texture.sobel_map),
-        ])
-# Methods that consider a minimum bounding box of selected voxels.
-METHODS_MBB = collections.OrderedDict([
-        ('stats_mbb', dwi.texture.stats_mbb),
-        ('glcm_mbb', dwi.texture.glcm_mbb),
-        ('haralick_mbb', dwi.texture.haralick_mbb),
-        ('sobel_mbb', dwi.texture.sobel_mbb),
-        ])
-# Methods that consider all selected voxels.
-METHODS_ALL = collections.OrderedDict([
-        ('stats_all', dwi.texture.stats_mbb),
-        ])
-
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
@@ -61,7 +37,7 @@ def parse_args():
     p.add_argument('--std',
             help='standardization file to use')
     p.add_argument('--methods', metavar='METHOD', nargs='*',
-            help='methods ({})'.format(', '.join(METHODS.keys())))
+            help='methods')
     p.add_argument('--slices', default='maxfirst',
             help='slice selection (maxfirst, max, all)')
     p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
@@ -144,7 +120,7 @@ if args.verbose:
     print 'Calculating texture features...'
 feats = []
 featnames = []
-for method, call in METHODS.items():
+for method, call in dwi.texture.METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method
@@ -162,7 +138,7 @@ for method, call in METHODS.items():
             feats += map(np.mean, tmaps_all)
             names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
             featnames += names
-for method, call in METHODS_MBB.items():
+for method, call in dwi.texture.METHODS_MBB.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method
@@ -180,7 +156,7 @@ for method, call in METHODS_MBB.items():
         feats += map(np.mean, tmaps_all)
         names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
         featnames += names
-for method, call in METHODS_ALL.items():
+for method, call in dwi.texture.METHODS_ALL.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
             print method

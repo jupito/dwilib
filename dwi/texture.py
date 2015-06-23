@@ -394,19 +394,32 @@ def sobel_mbb(img, mask):
 
 # General texture map.
 
+# Methods that consider an n*n window.
+METHODS = collections.OrderedDict([
+        ('stats', stats_map),
+        ('glcm', glcm_map),
+        ('haralick', haralick_map),
+        ('lbp', lbp_freq_map),
+        ('hog', hog_map),
+        ('gabor', gabor_map),
+        ('moment', moment_map),
+        ('haar', haar_map),
+        ('sobel', sobel_map),
+        ('zernike', zernike_map),
+        ])
+# Methods that consider a minimum bounding box of selected voxels.
+METHODS_MBB = collections.OrderedDict([
+        ('stats_mbb', stats_mbb),
+        ('glcm_mbb', glcm_mbb),
+        ('haralick_mbb', haralick_mbb),
+        ('sobel_mbb', sobel_mbb),
+        ])
+# Methods that consider all selected voxels.
+METHODS_ALL = collections.OrderedDict([
+        ('stats_all', stats_mbb),
+        ])
+
 def texture_map(method, img, winsize, mask=None):
     """General texture map using given method."""
-    methods = collections.OrderedDict([
-            ('stats', stats_map),
-            ('glcm', glcm_map),
-            ('haralick', haralick_map),
-            ('lbp', lbp_freq_map),
-            ('hog', hog_map),
-            ('gabor', gabor_map),
-            ('moment', moment_map),
-            ('haar', haar_map),
-            ('sobel', sobel_map),
-            ('zernike', zernike_map),
-            ])
-    f = methods[method]
+    f = METHODS[method]
     return f(img, winsize, mask=mask)
