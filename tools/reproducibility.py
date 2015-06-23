@@ -15,7 +15,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
             help='be more verbose')
-    p.add_argument('-p', '--patients', default='patients.txt',
+    p.add_argument('-p', '--patients',
             help='patients file')
     p.add_argument('-b', '--nboot', type=int, default=2000,
             help='number of bootstraps')
@@ -91,7 +91,10 @@ def bootstrap_icc(baselines, nboot=2000):
 
 
 args = parse_args()
-patients = dwi.files.read_patients_file(args.patients)
+if args.patients:
+    patients = dwi.files.read_patients_file(args.patients)
+else:
+    patients = None
 pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
         pairs=True)
 

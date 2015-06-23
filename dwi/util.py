@@ -423,7 +423,10 @@ def parse_filename(filename):
 
 def parse_num_scan(filename):
     """Like parse_filename() but return only num, scan."""
-    num, _, scan = parse_filename(filename)
+    t = parse_filename(filename)
+    if t is None or len(t) != 3:
+        raise Exception('Cannot parse filename: {}'.format(filename))
+    num, _, scan = t
     return num, scan
 
 def scan_pairs(afs):

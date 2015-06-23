@@ -104,7 +104,7 @@ def load_files(patients, filenames, pairs=False):
     pmapfiles = []
     for f in filenames:
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
-        if scan_in_patients(patients, num, scan):
+        if patients is None or scan_in_patients(patients, num, scan):
             pmapfiles.append(f)
     afs = map(dwi.asciifile.AsciiFile, pmapfiles)
     if pairs:
