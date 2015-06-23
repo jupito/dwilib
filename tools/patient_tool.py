@@ -115,7 +115,7 @@ print 'Patients grouped by score group:'
 for i, g in enumerate(label_groups):
     p = sorted({l.patient.num for l in g})
     d = dict(i=i, n=len(p), p=p)
-    print 'group {i}: {n} patients: {p}'.format(**d)
+    print '{i}: {n} patients: {p}'.format(**d)
 
 print
 print 'Patients grouped by number of lesions:'
