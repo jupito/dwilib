@@ -291,6 +291,29 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
     names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
+# Zernike moments.
+
+def zernike(img, radius, degree=8, cm=None):
+    """Zernike moments."""
+    import mahotas
+    img = np.asarray(img)
+    assert img.ndim == 2
+    feats = mahotas.features.zernike_moments(img, radius, degree=degree, cm=cm)
+    return feats
+
+def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
+    """Zernike moments."""
+    if radius is None:
+        radius = winsize // 2
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
+        feats = zernike(win, radius, degree=degree, cm=(radius, radius))
+        if output is None:
+            output = np.zeros((len(feats),) + img.shape)
+            for i, v in enumerate(feats):
+                output[(i,) + pos] = v
+    names = ['zernike({})'.format(i) for i in range(len(feats))]
+    return output, names
+
 # Haar transformation
 
 def haar(img):
