@@ -291,6 +291,30 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
     names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
+# Hu moments.
+
+def hu(img, postproc=True):
+    """The seven moments of Hu."""
+    m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
+    m = skimage.measure.moments_normalized(m)
+    m = skimage.measure.moments_hu(m)
+    if postproc:
+        m = abs(m) # Last one changes sign on reflection.
+        m = np.log(m) # They are small, usually logarithms are used.
+    assert m.shape == (7,)
+    return m
+
+def hu_map(img, winsize, mask=None, output=None):
+    """The seven moments of Hu."""
+    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
+        feats = hu(win)
+        if output is None:
+            output = np.zeros((len(feats),) + img.shape)
+            for i, v in enumerate(feats):
+                output[(i,) + pos] = v
+    names = ['hu({})'.format(i) for i in range(len(feats))]
+    return output, names
+
 # Zernike moments.
 
 def zernike(img, radius, degree=8, cm=None):
@@ -405,6 +429,7 @@ METHODS = collections.OrderedDict([
         ('moment', moment_map),
         ('haar', haar_map),
         ('sobel', sobel_map),
+        ('hu', hu_map),
         ('zernike', zernike_map),
         ])
 # Methods that consider a minimum bounding box of selected voxels.
