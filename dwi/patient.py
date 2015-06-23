@@ -102,6 +102,12 @@ def score_ord(scores, score):
 def load_files(patients, filenames, pairs=False):
     """Load pmap files."""
     pmapfiles = []
+    if len(filenames) == 1:
+        # Workaround for platforms without shell-level globbing.
+        import glob
+        l = glob.glob(filenames[0])
+        if len(l) > 0:
+            filenames = l
     for f in filenames:
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
         if patients is None or scan_in_patients(patients, num, scan):
