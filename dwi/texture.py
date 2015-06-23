@@ -295,6 +295,8 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
 
 def hu(img, postproc=True):
     """The seven moments of Hu."""
+    img = np.array(img)
+    assert img.ndim == 2
     m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
     m = skimage.measure.moments_normalized(m)
     m = skimage.measure.moments_hu(m)
