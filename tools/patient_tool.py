@@ -88,9 +88,6 @@ label_patients(patients, group_sizes)
 #for p in patients:
 #    print p.num, p.label, [l.label for l in p.lesions]
 
-for i in range(n_labels):
-    print i, sum(1 for p in patients if p.label == i)
-
 # Split data into training set and test set.
 if args.split:
     patient_groups = group_patients(patients)
@@ -127,3 +124,8 @@ max_lesions = max(len(p.lesions) for p in patients)
 for i in range(min_lesions, max_lesions+1):
     l = [p.num for p in patients if len(p.lesions) == i]
     print '{i} lesions: {n} patients: {l}'.format(i=i, n=len(l), l=l)
+
+print
+print 'Number of patients assigned to each group with bias counter:'
+for i in range(n_labels):
+    print i, sum(1 for p in patients if p.label == i)
