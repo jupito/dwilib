@@ -406,6 +406,7 @@ def texture_map(method, img, winsize, mask=None):
             ('moment', moment_map),
             ('haar', haar_map),
             ('sobel', sobel_map),
+            ('zernike', zernike_map),
             ])
     f = methods[method]
     return f(img, winsize, mask=mask)
