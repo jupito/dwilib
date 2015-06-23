@@ -109,7 +109,7 @@ if args.split:
 
 print 'Patients: {}, lesions: {}'.format(len(patients), len(all_lesions))
 print 'Scores: {}: {}'.format(len(scores), scores)
-print 'Group sizes: {}'.format(group_sizes)
+print 'Number of lesions in each group: {}'.format(group_sizes)
 
 print
 print 'Patients grouped by score group:'
