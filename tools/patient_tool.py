@@ -76,10 +76,12 @@ label_lesions(patients, thresholds)
 all_lesions = list(itertools.chain(*(p.lesions for p in patients)))
 n_labels = len({l.label for l in all_lesions})
 
+# Lesions grouped by label.
 label_groups = [[] for _ in range(n_labels)]
 for lesion in all_lesions:
     label_groups[lesion.label].append(lesion)
 
+# Number of lesions in each group.
 group_sizes = [len(l) for l in label_groups]
 label_patients(patients, group_sizes)
 
