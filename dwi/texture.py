@@ -416,7 +416,7 @@ METHODS_MBB = collections.OrderedDict([
         ])
 # Methods that consider all selected voxels.
 METHODS_ALL = collections.OrderedDict([
-        ('stats_all', stats_mbb),
+        ('stats_all', stats_mbb), # Use the same mbb function.
         ])
 
 def texture_map(method, img, winsize, mask=None):
