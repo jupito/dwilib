@@ -2,6 +2,7 @@
 
 """Patient list tool."""
 
+from __future__ import print_function
 import argparse
 import itertools
 
@@ -71,7 +72,7 @@ thresholds = args.thresholds or scores
 label_lesions(patients, thresholds)
 
 #for p, s, l in dwi.patient.lesions(patients):
-#    print p.num, l.index, l.score, l.label
+#    print(p.num, l.index, l.score, l.label)
 
 all_lesions = list(itertools.chain(*(p.lesions for p in patients)))
 n_labels = len({l.label for l in all_lesions})
@@ -86,7 +87,7 @@ group_sizes = [len(l) for l in label_groups]
 label_patients(patients, group_sizes)
 
 #for p in patients:
-#    print p.num, p.label, [l.label for l in p.lesions]
+#    print(p.num, p.label, [l.label for l in p.lesions])
 
 # Split data into training set and test set.
 if args.split:
@@ -96,36 +97,36 @@ if args.split:
         a, b = random_split(g, ratio=args.ratio, surplus=i%2)
         train += a
         test += b
-        print 'Group: {i}, patients: {n}'.format(i=i, n=len(g))
-        print '  ', [p.num for p in sorted(a)]
-        print '  ', [p.num for p in sorted(b)]
+        print('Group: {i}, patients: {n}'.format(i=i, n=len(g)))
+        print('  ', [p.num for p in sorted(a)])
+        print('  ', [p.num for p in sorted(b)])
     for filename, seq in zip(args.split, [train, test]):
         d = dict(np=len(seq), nl=sum(len(p.lesions) for p in seq), f=filename)
-        print 'Writing {np} patients, {nl} lesions to {f}...'.format(**d)
+        print('Writing {np} patients, {nl} lesions to {f}...'.format(**d))
         with open(filename, 'w') as f:
             for p in sorted(seq):
                 f.write('{}\n'.format(p.line))
 
-print 'Patients: {}, lesions: {}'.format(len(patients), len(all_lesions))
-print 'Scores: {}: {}'.format(len(scores), scores)
-print 'Number of lesions in each group: {}'.format(group_sizes)
+print('Patients: {}, lesions: {}'.format(len(patients), len(all_lesions)))
+print('Scores: {}: {}'.format(len(scores), scores))
+print('Number of lesions in each group: {}'.format(group_sizes))
 
-print
-print 'Patients grouped by score group:'
+print()
+print('Patients grouped by score group:')
 for i, g in enumerate(label_groups):
     p = sorted({l.patient.num for l in g})
     d = dict(i=i, n=len(p), p=p)
-    print '{i}: {n} patients: {p}'.format(**d)
+    print('{i}: {n} patients: {p}'.format(**d))
 
-print
-print 'Patients grouped by number of lesions:'
+print()
+print('Patients grouped by number of lesions:')
 min_lesions = min(len(p.lesions) for p in patients)
 max_lesions = max(len(p.lesions) for p in patients)
 for i in range(min_lesions, max_lesions+1):
     l = [p.num for p in patients if len(p.lesions) == i]
-    print '{i} lesions: {n} patients: {l}'.format(i=i, n=len(l), l=l)
+    print('{i} lesions: {n} patients: {l}'.format(i=i, n=len(l), l=l))
 
-print
-print 'Number of patients assigned to each group with bias counter:'
+print()
+print('Number of patients assigned to each group with bias counter:')
 for i in range(n_labels):
-    print i, sum(1 for p in patients if p.label == i)
+    print(i, sum(1 for p in patients if p.label == i))
