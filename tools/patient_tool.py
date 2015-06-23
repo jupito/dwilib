@@ -27,7 +27,8 @@ def parse_args():
     return args
 
 def label_lesions(patients, thresholds):
-    """Label lesions according to score groups."""
+    """Label lesions according to score groups. Also add reference to
+    patient."""
     thresholds = map(dwi.patient.GleasonScore, thresholds)
     for p in patients:
         for l in p.lesions:
