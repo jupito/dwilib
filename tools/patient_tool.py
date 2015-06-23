@@ -111,6 +111,14 @@ print 'Patients: {}, lesions: {}'.format(len(patients), len(all_lesions))
 print 'Scores: {}: {}'.format(len(scores), scores)
 print 'Group sizes: {}'.format(group_sizes)
 
+print
+print 'Patients grouped by score group:'
+for i, g in enumerate(label_groups):
+    p = sorted({l.patient.num for l in g})
+    d = dict(i=i, n=len(p), p=p)
+    print 'group {i}: {n} patients: {p}'.format(**d)
+
+print
 print 'Patients grouped by number of lesions:'
 min_lesions = min(len(p.lesions) for p in patients)
 max_lesions = max(len(p.lesions) for p in patients)
