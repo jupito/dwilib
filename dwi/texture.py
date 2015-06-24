@@ -253,7 +253,7 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
-    """Histogram of Gradients (HoG).
+    """Histogram of oriented gradients (HOG).
     
     Averaged over directions for orientation invariance.
     """
@@ -267,7 +267,7 @@ def hog(img):
     return np.mean(feats)
 
 def hog_map(img, winsize, mask=None, output=None):
-    """Histogram of Gradients (HoG) texture feature map."""
+    """Histogram of oriented gradients (HOG) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = [hog(win)]
         if output is None:
