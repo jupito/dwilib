@@ -301,7 +301,7 @@ def hu(img, postproc=True):
     These are a derivative of the geometric moments, that are invariant under
     translation, scaling, and rotation (and reflection, if absolute taken).
     """
-    img = np.array(img)
+    img = np.asarray(img, dtype=np.double)
     assert img.ndim == 2
     m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
     m = skimage.measure.moments_normalized(m)
