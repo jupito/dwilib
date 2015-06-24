@@ -324,7 +324,9 @@ def hu(img, postproc=True):
     m = skimage.measure.moments_hu(m)
     if postproc:
         m = abs(m) # Last one changes sign on reflection.
+        m[m==0] = 1 # Required by log.
         m = np.log(m) # They are small, usually logarithms are used.
+    m = np.nan_to_num(m) # Not sure why there are sometimes NaN values.
     assert m.shape == (7,)
     return m
 
