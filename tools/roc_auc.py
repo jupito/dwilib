@@ -74,10 +74,11 @@ if args.verbose > 1:
 Auc_bs = []
 params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
-    fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x)
+    fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=False)
     if args.autoflip and auc < 0.5:
         x = -x
         fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x)
+    # Note: x may now be negated (ROC flipped).
     auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
     avg = np.mean(auc_bs)
     ci1, ci2 = dwi.util.ci(auc_bs)
