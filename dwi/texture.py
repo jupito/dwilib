@@ -299,7 +299,8 @@ def hu(img, postproc=True):
     If postproc is True, return the logarithms of absolute values.
 
     These are a derivative of the geometric moments, that are invariant under
-    translation, scaling, and rotation (and reflection, if absolute taken)."""
+    translation, scaling, and rotation (and reflection, if absolute taken).
+    """
     img = np.array(img)
     assert img.ndim == 2
     m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
@@ -325,7 +326,12 @@ def hu_map(img, winsize, mask=None, output=None):
 # Zernike moments.
 
 def zernike(img, radius, degree=8, cm=None):
-    """Zernike moments."""
+    """Zernike moments.
+    
+    This geometric moment derivate is based on alternative orthogonal
+    polynomials, which makes it more optimal wrt. information redundancy. These
+    are invariant to rotation.
+    """
     import mahotas
     img = np.asarray(img)
     assert img.ndim == 2
