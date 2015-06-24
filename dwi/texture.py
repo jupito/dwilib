@@ -294,7 +294,12 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
 # Hu moments.
 
 def hu(img, postproc=True):
-    """The seven moments of Hu."""
+    """The seven moments of Hu.
+
+    If postproc is True, return the logarithms of absolute values.
+
+    These are a derivative of the geometric moments, that are invariant under
+    translation, scaling, and rotation (and reflection, if absolute taken)."""
     img = np.array(img)
     assert img.ndim == 2
     m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
@@ -307,7 +312,7 @@ def hu(img, postproc=True):
     return m
 
 def hu_map(img, winsize, mask=None, output=None):
-    """The seven moments of Hu."""
+    """Hu moment map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hu(win)
         if output is None:
@@ -328,7 +333,7 @@ def zernike(img, radius, degree=8, cm=None):
     return feats
 
 def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
-    """Zernike moments."""
+    """Zernike moment map."""
     if radius is None:
         radius = winsize // 2
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
