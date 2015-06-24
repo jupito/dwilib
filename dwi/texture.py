@@ -79,8 +79,11 @@ def stats_mbb(img, mask):
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
 def glcm_props(img, names=PROPNAMES, distances=[1,2,3,4], ignore_zeros=False):
-    """Grey-level co-occurrence matrix (GLCM) texture features averaged over 4
-    directions (6 features provided by scikit-image)."""
+    """Grey-level co-occurrence matrix (GLCM) texture features.
+
+    Six features provided by scikit-image. Averaged over 4 directions for
+    orientation invariance.
+    """
     from skimage.feature import greycomatrix, greycoprops
     assert img.ndim == 2
     assert img.dtype == np.ubyte
@@ -128,8 +131,14 @@ def glcm_mbb(img, mask):
     return output, names
 
 def haralick(img, ignore_zeros=False):
-    """Haralick texture features averaged over 4 directions (14 features
-    provided by mahotas)."""
+    """Haralick texture features.
+
+    14 features provided by mahotas. Averaged over 4 directions for orientation
+    invariance.
+
+    Note: This implementation has some issues, it fails with some input raising
+    an exception about eigenvectors not converging.
+    """
     import mahotas
     a = mahotas.features.texture.haralick(img, ignore_zeros,
             compute_14th_feature=True)
@@ -165,7 +174,11 @@ def haralick_mbb(img, mask):
 # Local Binary Pattern (LBP) features
 
 def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
-    """Local Binary Pattern (LBP) frequency histogram map."""
+    """Local Binary Pattern (LBP) frequency histogram map.
+
+    Invariant to global illumination change, local contrast magnitude, local
+    rotation.
+    """
     import lbp
     lbp_data = lbp.lbp(img, neighbours, radius, roinv, uniform)
     lbp_freq_data, n_patterns = lbp.get_freqs(lbp_data, winsize, neighbours,
