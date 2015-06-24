@@ -253,7 +253,10 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 # Histogram of Oriented Gradients (HOG)
 
 def hog(img):
-    """Histogram of Gradients (HoG) averaged over directions."""
+    """Histogram of Gradients (HoG).
+    
+    Averaged over directions for orientation invariance.
+    """
     kwargs = dict(
             orientations=8,
             pixels_per_cell=img.shape,
