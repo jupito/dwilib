@@ -25,18 +25,18 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     img : ndarray
         Model used for fitting.
     pc1, pc2 : number
-        minimum and maximum percentiles
+        Minimum and maximum percentiles.
     landmarks : iterable
-        landmark percentiles
+        Landmark percentiles.
     thresholding : bool, optional
-        whether to threshold by mean value (default True)
+        Whether to threshold by mean value (default True).
 
     Returns
     -------
     p1, p2 : float
-        minimum and maximum percentile scores
+        Minimum and maximum percentile scores.
     scores : array of floats
-        landmark percentile scores
+        Landmark percentile scores.
     """
     from scipy.stats import scoreatpercentile
     if thresholding:
@@ -48,7 +48,22 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     return p1, p2, scores
 
 def map_onto_scale(p1, p2, s1, s2, v):
-    """Map value v from original scale [p1, p2] onto standard scale [s1, s2]."""
+    """Map value v from original scale [p1, p2] onto standard scale [s1, s2].
+
+    Parameters
+    ----------
+    p1, p2 : number
+        Minimum and maximum percentile scores.
+    s1, s2 : number
+        Minimum and maximum intensities on the standard scale.
+    v : number
+        Value to map.
+
+    Returns
+    -------
+    r : float
+        Mapped value.
+    """
     assert p1 <= p2, (p1, p2)
     assert s1 <= s2, (s1, s2)
     if p1 == p2:
