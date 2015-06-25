@@ -74,7 +74,14 @@ def map_onto_scale(p1, p2, s1, s2, v):
     return r
 
 def transform(img, p1, p2, scores, s1, s2, mapped_scores):
-    """Transform image onto standard scale."""
+    """Transform image onto standard scale.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
     scores = [p1] + list(scores) + [p2]
     mapped_scores = [s1] + list(mapped_scores) + [s2]
     r = np.zeros_like(img, dtype=np.int)
@@ -87,7 +94,14 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     return r
 
 def standardize(img, cfg):
-    """Transform an image based on a configuration (file)."""
+    """Transform an image based on a configuration (file).
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
     if isinstance(cfg, str) or isinstance(cfg, unicode):
         cfg = read_standardization_configuration(cfg)
     d = cfg
@@ -97,7 +111,14 @@ def standardize(img, cfg):
 
 def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         mapped_scores):
-    """Write image standardization configuration file."""
+    """Write image standardization configuration file.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
     with open(filename, 'w') as f:
         f.write(dwi.files.toline([pc1, pc2]))
         f.write(dwi.files.toline(landmarks))
@@ -105,7 +126,14 @@ def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         f.write(dwi.files.toline(mapped_scores))
 
 def read_standardization_configuration(filename):
-    """Read image standardization configuration file."""
+    """Read image standardization configuration file.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
     lines = list(dwi.files.valid_lines(filename))[:4]
     lines = [l.split() for l in lines]
     d = collections.OrderedDict()
