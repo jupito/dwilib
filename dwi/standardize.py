@@ -78,9 +78,21 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
 
     Parameters
     ----------
+    img : ndarray
+        Image to transform.
+    p1, p2 : number
+        Minimum and maximum percentile scores.
+    scores : array of numbers
+        Landmark percentile scores.
+    s1, s2 : number
+        Minimum and maximum intensities on the standard scale.
+    mapped_scores : array of numbers
+        Standard landmark percentile scores on the standard scale.
 
     Returns
     -------
+    r : ndarray of integers, shape equals source image shape
+        Transformed image.
     """
     scores = [p1] + list(scores) + [p2]
     mapped_scores = [s1] + list(mapped_scores) + [s2]
