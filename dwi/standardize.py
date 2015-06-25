@@ -133,9 +133,16 @@ def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
 
     Parameters
     ----------
-
-    Returns
-    -------
+    filename : string
+        Output filename.
+    pc1, pc2 : number
+        Minimum and maximum percentiles.
+    landmarks : array of numbers
+        Landmark percentiles.
+    s1, s2 : number
+        Minimum and maximum intensities on the standard scale.
+    mapped_scores : array of numbers
+        Standard landmark percentile scores on the standard scale.
     """
     with open(filename, 'w') as f:
         f.write(dwi.files.toline([pc1, pc2]))
@@ -148,9 +155,13 @@ def read_standardization_configuration(filename):
 
     Parameters
     ----------
+    filename : string
+        Input filename.
 
     Returns
     -------
+    d : OrderedDict
+        Standardization configuration.
     """
     lines = list(dwi.files.valid_lines(filename))[:4]
     lines = [l.split() for l in lines]
