@@ -18,7 +18,26 @@ DEFAULT_CONFIGURATION = dict(
         )
 
 def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
-    """Get scores at histogram landmarks."""
+    """Get scores at histogram landmarks.
+
+    Parameters
+    ----------
+    img : ndarray
+        Model used for fitting.
+    pc1, pc2 : number
+        minimum and maximum percentiles
+    landmarks : iterable
+        landmark percentiles
+    thresholding : bool, optional
+        whether to threshold by mean value (default True)
+
+    Returns
+    -------
+    p1, p2 : float
+        minimum and maximum percentile scores
+    scores : array of floats
+        landmark percentile scores
+    """
     from scipy.stats import scoreatpercentile
     if thresholding:
         threshold = np.mean(img)
