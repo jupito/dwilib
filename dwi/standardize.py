@@ -3,9 +3,19 @@
 This module implements the percentile landmark method described in [1]. Much of
 the notation (variable names etc.) comes from this paper.
 
-TODO: Creating the standard mapped landmarks is missing here at the moment, it
-should be done by averaging the mapped landmarks from all images. See
-tools/standardize.py.
+Learning:
+    - Use landmark_scores() to get percentile scores for all images.
+    - Use map_onto_scale() to map landmark scores to the standard scale.
+    - Average mapped landmarks to get standard landmarks. TODO: This should be
+      implemented here somehow.
+    - Use write_standardization_configuration() to output configuration.
+
+Standardizing:
+    - Use read_standardization_configuration() to input configuration.
+    - Use standardize() to standardize images according to configuration.
+    - You can also use transform() to do this more free-form.
+
+See also tools/standardize.py.
 
 [1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
