@@ -106,6 +106,7 @@ s1, s2 = args.scale
 landmarks = DEF_CFG['landmarks']
 patients = dwi.files.read_patients_file(args.patients)
 
+# Generate and write configuration.
 if args.outconf:
     data = []
     for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
@@ -126,6 +127,7 @@ if args.outconf:
     dwi.standardize.write_standardization_configuration(args.outconf, pc1, pc2,
             landmarks, s1, s2, mapped_scores)
 
+# Read configuration, standardize images, plot them.
 if args.inconf:
     d = dwi.standardize.read_standardization_configuration(args.inconf)
     pc1 = d['pc1']
