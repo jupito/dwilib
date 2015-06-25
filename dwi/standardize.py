@@ -12,9 +12,9 @@ import dwi.files
 import dwi.util
 
 DEFAULT_CONFIGURATION = dict(
-        pc=(0., 99.8),
-        landmarks=[i*10 for i in range(1, 10)], # Deciles
-        scale=(1, 4095),
+        pc=(0., 99.8), # Min, max percentiles.
+        landmarks=[i*10 for i in range(1, 10)], # Landmark percentiles.
+        scale=(1, 4095), # Min, max intensities on standard scale.
         )
 
 def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
@@ -91,7 +91,7 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
 
     Returns
     -------
-    r : ndarray of integers, shape equals source image shape
+    r : ndarray of integers
         Transformed image.
     """
     scores = [p1] + list(scores) + [p2]
@@ -110,9 +110,15 @@ def standardize(img, cfg):
 
     Parameters
     ----------
+    img : ndarray
+        Image to transform.
+    cfg : filename (or dict)
+        Standardization configuration file (or configuration already read).
 
     Returns
     -------
+    img : ndarray of integers
+        Transformed image.
     """
     if isinstance(cfg, str) or isinstance(cfg, unicode):
         cfg = read_standardization_configuration(cfg)
