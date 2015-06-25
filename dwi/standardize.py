@@ -1,6 +1,13 @@
 """Image standardization.
 
-See Nyul et al. 2000: New variants of a method of MRI scale standardization.
+This module implements the percentile landmark method described in [1]. Much of
+the notation (variable names etc.) comes from this paper.
+
+TODO: Creating the standard mapped landmarks is missing here at the moment, it
+should be done by averaging the mapped landmarks from all images. See
+tools/standardize.py.
+
+[1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
 from __future__ import division
@@ -29,7 +36,8 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     landmarks : iterable
         Landmark percentiles.
     thresholding : bool, optional
-        Whether to threshold by mean value (default True).
+        Whether to threshold by mean (default True). This includes only values
+        higher than mean, which should help ignore the image background.
 
     Returns
     -------
