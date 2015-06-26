@@ -5,14 +5,16 @@ import collections
 import numpy as np
 import h5py
 
-def write_hdf5(filename, array, attrs, dsetname='array'):
+DEF_DSETNAME = 'array'
+
+def write_hdf5(filename, array, attrs, dsetname=DEF_DSETNAME):
     f = h5py.File(filename, 'w')
     dset = f.create_dataset(dsetname, data=array, compression='gzip',
             shuffle=True, fletcher32=True)
     dset.attrs.update(attrs)
     f.close()
 
-def read_hdf5(filename, dsetname='array'):
+def read_hdf5(filename, dsetname=DEF_DSETNAME):
     f = h5py.File(filename, 'r')
     dset = f[dsetname]
     array = np.array(dset)
