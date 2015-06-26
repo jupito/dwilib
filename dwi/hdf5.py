@@ -1,5 +1,7 @@
 """Support for HDF5 files."""
 
+import collections
+
 import numpy as np
 import h5py
 
@@ -14,6 +16,6 @@ def read_hdf5(filename, dsetname='array'):
     f = h5py.File(filename, 'r')
     dset = f[dsetname]
     array = np.array(dset)
-    print dset.attrs
-    attrs = dset.attrs
+    attrs = collections.OrderedDict(dset.attrs)
+    f.close()
     return array, attrs
