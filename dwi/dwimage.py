@@ -1,7 +1,8 @@
 """Utilities for handling DWI images."""
 
-from time import time
 import os
+from time import time
+
 import numpy as np
 
 import dwi.util
@@ -41,8 +42,8 @@ def load_matlab(filename, varname='ROIdata'):
 
 def load_ascii(filename, nrois=1):
     """Load images from an ASCII file."""
-    import asciifile
-    af = asciifile.AsciiFile(filename)
+    import dwi.asciifile
+    af = dwi.asciifile.AsciiFile(filename)
     a = af.a.reshape(nrois,-1,af.a.shape[-1])
     r = []
     for i in range(nrois):
@@ -64,11 +65,11 @@ def load_dicom(filenames):
 
     If only one filename is given, it is assumed to be a directory.
     """
-    import dicomfile
+    import dwi.dicomfile
     if len(filenames) == 1 and os.path.isdir(filenames[0]):
-        d = dicomfile.read_dir(filenames[0]) # Directory.
+        d = dwi.dicomfile.read_dir(filenames[0]) # Directory.
     else:
-        d = dicomfile.read_files(filenames) # File list.
+        d = dwi.dicomfile.read_files(filenames) # File list.
     bset = d['bvalues']
     image = d['image']
     dwi = DWImage(image, bset)
