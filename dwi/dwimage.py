@@ -4,8 +4,7 @@ from time import time
 import os
 import numpy as np
 
-import fit
-import util
+import dwi.util
 
 def load(filename, nrois=1, varname='ROIdata'):
     """Load images from a file."""
@@ -35,7 +34,7 @@ def load_matlab(filename, varname='ROIdata'):
         try:
             dwi.subwindow = tuple(map(int, win.subwindow[0]))
         except:
-            dwi.subwindow = util.fabricate_subwindow(len(sis))
+            dwi.subwindow = dwi.util.fabricate_subwindow(len(sis))
         dwi.voxel_spacing = (1.0, 1.0, 1.0)
         r.append(dwi)
     return r
@@ -132,7 +131,7 @@ class DWImage(object):
         return s
 
     def subwindow_shape(self):
-        return util.subwindow_shape(self.subwindow)
+        return dwi.util.subwindow_shape(self.subwindow)
 
     def shape(self):
         """Return image height and width."""
@@ -185,7 +184,7 @@ class DWImage(object):
 
         Parameters
         ----------
-        model : fit.Model
+        model : dwi.fit.Model
             Model used for fitting.
         average : bool, optional
             Fit just the mean of all voxels.
@@ -201,7 +200,7 @@ class DWImage(object):
         if average == 'mean' or average == True:
             ydatas = np.mean(ydatas, axis=0, keepdims=True)
         elif average == 'median':
-            ydatas = util.median(ydatas, axis=0, keepdims=True)
+            ydatas = dwi.util.median(ydatas, axis=0, keepdims=True)
         elif average:
             raise Exception('Invalid averaging method: {}'.format(average))
         pmap = model.fit(xdata, ydatas)
