@@ -14,6 +14,8 @@ def load(filename, nrois=1, varname='ROIdata'):
         return load_matlab(filename, varname)
     elif ext == '.txt':
         return load_ascii(filename, nrois)
+    elif ext == '.hdf5':
+        return load_hdf5(filename)
     else:
         return load_dicom([filename])
 
@@ -59,6 +61,18 @@ def load_ascii(filename, nrois=1):
         dwi.voxel_spacing = (1.0, 1.0, 1.0)
         r.append(dwi)
     return r
+
+def load_hdf5(filename):
+    """Load image from an HDF5 file."""
+    import dwi.hdf5
+    a, d = dwi.hdf5.read_hdf5(filename)
+    dwimage = DWImage(a, d['bset'])
+    dwimage.filename = os.path.abspath(filename)
+    dwimage.basename = os.path.basename(filename)
+    dwimage.number = 0
+    dwimage.subwindow = (0, a.shape[0], 0, a.shape[1], 0, a.shape[2])
+    dwimage.voxel_spacing = (1.0, 1.0, 1.0)
+    return [dwimage]
 
 def load_dicom(filenames):
     """Load a 3d image from DICOM files with slices combined.
