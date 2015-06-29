@@ -95,7 +95,11 @@ class Gui(object):
 
 args = parse_args()
 
-dwimage = dwi.dwimage.load_dicom(args.files)[0]
+if len(args.files) == 1:
+    dwimage = dwi.dwimage.load(args.files[0])[0]
+else:
+    dwimage = dwi.dwimage.load_dicom(args.files)[0]
+
 if args.subwindow:
     dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
