@@ -38,13 +38,14 @@ def resize(array, min_size):
         array.append([])
 
 def make2d(size, height=None):
-    """Turn 1d size into 2d shape."""
+    """Turn 1d size into 2d shape by growing the height until it fits."""
     if height:
+        assert height <= size
         width = size // height
         if height * width == size:
-            return (height, width)
+            return height, width
         else:
-            return make2d(size, height + 1)
+            return make2d(size, height+1)
     else:
         return make2d(size, int(np.sqrt(size)))
 
