@@ -26,12 +26,6 @@ def impute(a):
             cnt += 1
     return cnt
 
-def zeros_to_small(a):
-    """Turn zeros into small positives."""
-    for i in range(len(a)):
-        if a[i] == 0:
-            a[i] = 1e-9
-
 def resize(array, min_size):
     """Extend array of arrays to minimum size."""
     while len(array) < min_size:
