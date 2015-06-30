@@ -218,15 +218,6 @@ def calculate_roc_auc(y, x, autoflip=False):
         fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
     return fpr, tpr, auc
 
-def negate_for_roc(X, params):
-    """Negate certain parameters to produce correct ROC."""
-    for i, param in enumerate(params):
-        if not (param.isdigit() or\
-                param.startswith('SI') or\
-                param.startswith('K') or\
-                param.startswith('Df')):
-            X[i] = -X[i]
-
 def bootstrap_aucs(y, x, n=2000):
     """Produce an array of bootstrapped ROC AUCs."""
     aucs = np.zeros(n)

@@ -51,6 +51,15 @@ def load_data(pmaps, labels, group_ids):
     Y = np.array(Y)
     return X, Y, G
 
+def negate_for_roc(X, params):
+    """Negate certain parameters to produce correct ROC."""
+    for i, param in enumerate(params):
+        if not (param.isdigit() or\
+                param.startswith('SI') or\
+                param.startswith('K') or\
+                param.startswith('Df')):
+            X[i] = -X[i]
+
 
 # Handle arguments.
 args = parse_args()
@@ -113,7 +122,7 @@ for x, y, params in zip(X, Y, Params):
         Y_all.append(y)
         params_all.append(param)
 
-dwi.util.negate_for_roc(X_all, params_all)
+negate_for_roc(X_all, params_all)
 
 if args.verbose:
     print 'Bootstrapping %i parameters %i times...' %\
