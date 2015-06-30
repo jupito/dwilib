@@ -66,6 +66,8 @@ class Gui(object):
             plt.set_cmap('jet')
         if event.key == 'b':
             plt.set_cmap('Blues_r')
+        if event.key == 'y':
+            plt.set_cmap('YlGnBu_r')
         self.redraw(event)
 
     def on_click(self, event):
