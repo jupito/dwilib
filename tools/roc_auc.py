@@ -35,7 +35,7 @@ def parse_args():
     args = p.parse_args()
     return args
 
-def plot(X, Y, params, filename):
+def plot(X, Y, params, filename, autoflip=False):
     """Plot ROCs."""
     import pylab as pl
     X = np.asarray(X)
@@ -43,7 +43,7 @@ def plot(X, Y, params, filename):
     n_rows, n_cols = len(params), 1
     pl.figure(figsize=(n_cols*6, n_rows*6))
     for x, y, param, row in zip(X, Y, params, range(n_rows)):
-        fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=args.autoflip)
+        fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=autoflip)
         if args.verbose > 1:
             print '%s:  AUC: %f' % (param, auc)
         else:
@@ -131,4 +131,4 @@ if args.compare:
 
 # Plot the ROCs.
 if args.figure:
-    plot(X, Y, Params, args.figure)
+    plot(X, Y, Params, args.figure, autoflip=args.autoflip)
