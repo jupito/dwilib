@@ -3,6 +3,7 @@
 """Select voxels from image by subwindow, ROI, and write them into an ASCII
 file. Multiple same-size images may be combined by overlaying the parameters."""
 
+from __future__ import division, print_function
 import argparse
 import collections
 import os
@@ -102,12 +103,12 @@ else:
         dwimages.append(dwi.dwimage.load(infile)[0])
     dwimage = merge_dwimages(dwimages)
 if args.verbose:
-    print dwimage
+    print(dwimage)
 
 # Select subwindow.
 if args.subwindow:
     if args.verbose:
-        print 'Using subwindow %s' % args.subwindow
+        print('Using subwindow %s' % args.subwindow)
     dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
 # Select sequence of voxels.
@@ -117,7 +118,7 @@ if args.mask:
     if args.subwindow and args.subwindow_mask:
         mask = mask.get_subwindow(args.subwindow)
     if args.verbose:
-        print 'Using mask %s' % mask
+        print('Using mask %s' % mask)
     if args.keep_masked:
         image = mask.apply_mask(image)
     else:
@@ -127,6 +128,6 @@ if args.mask:
 # constructed from (first) input filename.
 outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
-    print 'Writing %i voxels with %i parameters to %s' % (image.size,
-            image.shape[-1], outfile)
+    print('Writing %i voxels with %i parameters to %s' % (image.size,
+            image.shape[-1], outfile))
 write(outfile, dwimage, image)
