@@ -348,7 +348,6 @@ def sole(iterable, desc=None):
         return item
     raise IOError('More than one item: %s' % desc)
 
-
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
     import glob
