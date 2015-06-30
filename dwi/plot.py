@@ -30,7 +30,7 @@ def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
     pl.close()
 
 def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
-    """Plot several ROCs."""
+    """Plot multiple ROCs."""
     X = np.asarray(X)
     Y = np.asarray(Y)
     if params is None:
