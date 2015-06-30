@@ -10,20 +10,6 @@ def all_equal(a):
     a = np.asarray(a)
     return a.min() == a.max()
 
-def finites(a):
-    """Return finite elements as a flat array."""
-    return np.array(filter(np.isfinite, a.flat))
-
-def impute(a):
-    """Set missing (non-finite) values to mean. Return their number."""
-    cnt = 0
-    m = finites(a).mean()
-    for i, v in enumerate(a):
-        if not np.isfinite(v):
-            a[i] = m
-            cnt += 1
-    return cnt
-
 def make2d(size, height=None):
     """Turn 1d size into 2d shape by growing the height until it fits."""
     if height:
