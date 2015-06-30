@@ -66,6 +66,8 @@ def load_hdf5(filename):
     """Load image from an HDF5 file."""
     import dwi.hdf5
     a, d = dwi.hdf5.read_hdf5(filename)
+    if a.ndim != 4:
+        raise Exception('Shape {} is not 4D: {}'.format(a.shape, filename))
     dwimage = DWImage(a, d['bset'])
     dwimage.filename = os.path.abspath(filename)
     dwimage.basename = os.path.basename(filename)
