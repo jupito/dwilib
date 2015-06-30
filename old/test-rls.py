@@ -18,6 +18,13 @@ from rlscore.kernel.linear_kernel import LinearKernel
 from rlscore.kernel.gaussian_kernel import GaussianKernel
 from rlscore.kernel.polynomial_kernel import PolynomialKernel
 
+def get_args(n):
+    """Get arguments."""
+    import sys
+    if len(sys.argv) < 1 + n + 1:
+        raise Exception('Need parameters')
+    return sys.argv[1:1+n], sys.argv[1+n:]
+
 def load_data(pmaps, labels, group_ids):
     """Load data indicated by command arguments."""
     assert len(pmaps) == len(labels) == len(group_ids)
@@ -167,7 +174,7 @@ def search_params_nonlinear(trainX, trainY, group_ids, rprange, gammarange):
     return bestperf, bestperf_groups, bestrp, bestgamma
     
 
-a, filenames = util.get_args(3)
+a, filenames = get_args(3)
 use_roi2, labeltype, patients_file = a
 patients = dwi.files.read_patients_file(patients_file)
 pmaps, numsscans, params = patient.load_files(patients, filenames, pairs=True)

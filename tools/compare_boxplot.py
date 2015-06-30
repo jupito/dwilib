@@ -3,16 +3,19 @@
 # Draw comparative boxplots in one figure.
 
 import os.path
-import sys
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-from dwi import patient
-from dwi import util
+def get_args(n):
+    """Get arguments."""
+    import sys
+    if len(sys.argv) < 1 + n + 1:
+        raise Exception('Need parameters')
+    return sys.argv[1:1+n], sys.argv[1+n:]
 
-a, infiles = util.get_args(2)
+a, infiles = get_args(2)
 outfile = a[0]
 
 afs = map(asciifile.AsciiFile, infiles)

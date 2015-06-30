@@ -3,12 +3,18 @@
 # Draw boxplots for parameters.
 
 import os.path
-import sys
 import numpy as np
 import pylab as pl
 
 import dwi.files
 import dwi.util
+
+def get_args(n):
+    """Get arguments."""
+    import sys
+    if len(sys.argv) < 1 + n + 1:
+        raise Exception('Need parameters')
+    return sys.argv[1:1+n], sys.argv[1+n:]
 
 def load_param(param, pmaps, labels, different_labels, label_nocancer, split=True):
     """Load data indicated by command arguments."""
@@ -37,7 +43,7 @@ def limits(seq, margin=0.1):
     return mn-margin*d, mx+margin*d
 
 
-a, filenames = dwi.util.get_args(2)
+a, filenames = get_args(2)
 outfile, patients_file = a
 patients = dwi.files.read_patients_file(patients_file)
 pmaps, numsscans, params = dwi.patient.load_files(patients, filenames, pairs=True)

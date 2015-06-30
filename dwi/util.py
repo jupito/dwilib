@@ -349,13 +349,6 @@ def sole(iterable, desc=None):
     raise IOError('More than one item: %s' % desc)
 
 
-def get_args(n=1):
-    """Get arguments. XXX: Deprecated, don't use."""
-    import sys
-    if len(sys.argv) < 1 + n + 1:
-        raise Exception('Need parameters')
-    return sys.argv[1:1+n], sys.argv[1+n:]
-
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
     import glob
