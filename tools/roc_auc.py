@@ -42,10 +42,7 @@ def plot(X, Y, params, filename):
     Y = np.asarray(Y)
     n_rows, n_cols = len(params), 1
     pl.figure(figsize=(n_cols*6, n_rows*6))
-    skipped_params = ['SI0N', 'C', 'RMSE']
     for x, y, param, row in zip(X, Y, params, range(n_rows)):
-        if param in skipped_params:
-            continue
         fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=args.autoflip)
         if args.verbose > 1:
             print '%s:  AUC: %f' % (param, auc)
