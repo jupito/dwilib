@@ -2,6 +2,9 @@
 
 """View a multi-slice, multi-b-value DWI DICOM image via the matplotlib GUI."""
 
+# TODO Take only one path as argument.
+# TODO Rename to general image viewer, not just dicom.
+
 import argparse
 import sys
 
@@ -17,7 +20,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--files', '-f', metavar='PATH',
             nargs='+', default=[], required=True,
-            help='DICOM directory or files')
+            help='DICOM directory or file(s)')
     p.add_argument('--subwindow', '-s', metavar='i',
             nargs=6, default=[], type=int,
             help='ROI (6 integers, one-based)')
