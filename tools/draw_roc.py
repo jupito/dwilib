@@ -98,8 +98,6 @@ if args.verbose > 1:
     print 'Labels: %s' % sorted(list(set(labels)))
     print 'Positives: %d' % sum(Y)
 
-dwi.util.negate_for_roc(X.T, params)
-
 # Plot ROCs.
 if args.outfile:
     import pylab as pl
