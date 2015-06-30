@@ -72,8 +72,11 @@ def ext(filename):
     root, ext = os.path.splitext(filename)
     return ext[1:]
 
-def write(filename, dwimage, image, model, params, fmt=None):
+def write(filename, dwimage, image, model, params=None, fmt=None):
     """Write output file."""
+    if params is None:
+        params = range(image.shape[-1])
+    assert len(params) == image.shape[-1]
     if fmt is None:
         fmt = ext(filename)
     if fmt == 'hdf5':
@@ -129,5 +132,4 @@ if args.verbose:
     print 'Writing %i voxels with %i parameters to %s' % (image.size,
             image.shape[-1], outfile)
 model = 'selection'
-params = range(image.shape[-1])
-write(outfile, dwimage, image, model, params)
+write(outfile, dwimage, image, model)
