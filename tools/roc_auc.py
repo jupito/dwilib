@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 
 import dwi.patient
+import dwi.plot
 import dwi.util
 
 def parse_args():
@@ -34,32 +35,6 @@ def parse_args():
             help='output figure file')
     args = p.parse_args()
     return args
-
-def plot(X, Y, params, filename, autoflip=False):
-    """Plot ROCs."""
-    import pylab as pl
-    X = np.asarray(X)
-    Y = np.asarray(Y)
-    n_rows, n_cols = len(params), 1
-    pl.figure(figsize=(n_cols*6, n_rows*6))
-    for x, y, param, row in zip(X, Y, params, range(n_rows)):
-        fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=autoflip)
-        if args.verbose > 1:
-            print '%s:  AUC: %f' % (param, auc)
-        else:
-            print '%f' % auc
-        pl.subplot2grid((n_rows, n_cols), (row, 0))
-        pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc)
-        pl.plot([0, 1], [0, 1], 'k--')
-        pl.xlim([0.0, 1.0])
-        pl.ylim([0.0, 1.0])
-        pl.xlabel('False Positive rate')
-        pl.ylabel('True Positive rate')
-        pl.title('%s' % param)
-        pl.legend(loc='lower right')
-    if filename:
-        print 'Writing %s...' % filename
-        pl.savefig(filename, bbox_inches='tight')
 
 
 args = parse_args()
@@ -131,4 +106,7 @@ if args.compare:
 
 # Plot the ROCs.
 if args.figure:
-    plot(X, Y, Params, args.figure, autoflip=args.autoflip)
+    if args.verbose > 1:
+        print 'Plotting to {}...'.format(args.figure)
+    dwi.plot.plot_rocs(X, Y, Params, autoflip=args.autoflip,
+            outfile=args.figure)
