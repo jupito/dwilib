@@ -9,7 +9,7 @@ import numpy as np
 import dwi.util
 
 def load(filename, nrois=1, varname='ROIdata'):
-    """Load images from a file."""
+    """Load images from a file or directory."""
     root, ext = os.path.splitext(filename)
     if ext == '.mat':
         return load_matlab(filename, varname)
