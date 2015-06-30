@@ -277,8 +277,8 @@ def ci(x, p=0.05):
     """Confidence interval of a normally distributed array."""
     x = sorted(x)
     l = len(x)
-    i1 = int(round((p/2.) * l + 0.5))
-    i2 = int(round((1.-p/2.) * l - 0.5))
+    i1 = int(round((p/2) * l + 0.5))
+    i2 = int(round((1-p/2) * l - 0.5))
     ci1 = x[i1]
     ci2 = x[i2]
     return ci1, ci2
