@@ -41,7 +41,7 @@ def make2d(size, height=None):
 def fabricate_subwindow(size, height=None):
     """Fabricate a subwindow specification."""
     height, width = make2d(size, height=height)
-    return (0, height, 0, width)
+    return 0, height, 0, width
 
 def combinations(l):
     """Return combinations of list elements."""
@@ -57,7 +57,7 @@ def pairs(seq):
     """Return sequence split in two, each containing every second item."""
     if len(seq) % 2:
         raise Exception('Sequence length not even.')
-    return (seq[0::2], seq[1::2])
+    return seq[0::2], seq[1::2]
 
 def get_indices(seq, val):
     """Return indices of elements containing given value in a sequence."""
