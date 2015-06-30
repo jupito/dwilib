@@ -31,8 +31,6 @@ def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
 
 def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     """Plot multiple ROCs."""
-    X = np.asarray(X)
-    Y = np.asarray(Y)
     if params is None:
         params = [str(i) for i in range(len(X))]
     assert len(X) == len(Y) == len(params)
