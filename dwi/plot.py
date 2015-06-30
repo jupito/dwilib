@@ -21,18 +21,16 @@ def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
                 ax.set_ylabel(ylabels[i])
             if xlabels:
                 ax.set_xlabel(xlabels[j])
-            pl.imshow(img)
+            pl.imshow(img, vmin=vmin, vmax=vmax)
     pl.tight_layout()
     if outfile:
-        #print 'Plotting to {}'.format(outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
-        pl.imshow(img, vmin=vmin, vmax=vmax)
         pl.show()
     pl.close()
 
 def plot_rocs(X, Y, params, autoflip=False, outfile=None):
-    """Plot ROCs."""
+    """Plot several ROCs."""
     X = np.asarray(X)
     Y = np.asarray(Y)
     n_rows, n_cols = len(params), 1
@@ -48,5 +46,9 @@ def plot_rocs(X, Y, params, autoflip=False, outfile=None):
         pl.ylabel('True Positive rate')
         pl.title('%s' % param)
         pl.legend(loc='lower right')
+    pl.tight_layout()
     if outfile:
         pl.savefig(outfile, bbox_inches='tight')
+    else:
+        pl.show()
+    pl.close()
