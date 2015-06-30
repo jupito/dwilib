@@ -5,6 +5,7 @@
 # TODO Take only one path as argument.
 # TODO Rename to general image viewer, not just dicom.
 
+from __future__ import print_function
 import argparse
 import sys
 
@@ -59,7 +60,7 @@ class Gui(object):
         view = self.image[self.i,:,:,self.j]
         self.im = plt.imshow(view, interpolation='none', vmin=self.image.min(),
                 vmax=self.image.max())
-        print HELPTEXT
+        print(HELPTEXT)
         plt.show()
 
     def on_key(self, event):
@@ -108,15 +109,15 @@ if args.normalize:
     for si in dwimage.sis:
         dwi.util.normalize_si_curve(si)
 
-print dwimage
+print(dwimage)
 d = dict(min=dwimage.image.min(),
         max=dwimage.image.max(),
         vs=dwimage.voxel_spacing,
         nz=np.count_nonzero(dwimage.image),
         )
-print 'Image intensity min/max: {min}/{max}'.format(**d)
-print 'Voxel spacing: {vs}'.format(**d)
-print 'Non-zero voxels: {nz}'.format(**d)
+print('Image intensity min/max: {min}/{max}'.format(**d))
+print('Voxel spacing: {vs}'.format(**d))
+print('Non-zero voxels: {nz}'.format(**d))
 
 if not args.info:
     #plt.switch_backend('gtk')
