@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import collections
 import itertools
 import random
@@ -39,7 +40,7 @@ def resize(array, min_size):
 def make2d(size, height=None):
     """Turn 1d size into 2d shape."""
     if height:
-        width = size / height
+        width = size // height
         if height * width == size:
             return (height, width)
         else:
@@ -321,8 +322,8 @@ def split_roi(pmaps):
     """Split samples to ROI1 and 2."""
     l = pmaps.shape[1]
     if l > 1:
-        pmaps1 = pmaps[:,0:l/2,:]
-        pmaps2 = pmaps[:,l/2:,:]
+        pmaps1 = pmaps[:, :l//2, :]
+        pmaps2 = pmaps[:, l//2:, :]
     else:
         pmaps1 = pmaps
         pmaps2 = []
@@ -386,8 +387,7 @@ def sole(iterable, desc=None):
 def get_args(n=1):
     """Get arguments. XXX: Deprecated, don't use."""
     if len(sys.argv) < 1 + n + 1:
-        print 'Need parameters'
-        sys.exit(1)
+        raise Exception('Need parameters')
     return sys.argv[1:1+n], sys.argv[1+n:]
 
 def iglob(path, typ='any'):
