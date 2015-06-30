@@ -4,6 +4,7 @@
 file. Multiple same-size images may be combined by overlaying the parameters."""
 
 import argparse
+import collections
 import os
 import numpy as np
 
@@ -94,20 +95,20 @@ if args.mask:
     if args.verbose:
         print 'Using mask %s' % mask
     if args.keep_masked:
-        voxels = mask.apply_mask(image).reshape((-1,image.shape[-1]))
+        image = mask.apply_mask(image).reshape((-1,image.shape[-1]))
     else:
-        voxels = mask.selected(image)
+        image = mask.selected(image)
 else:
-    voxels = image.reshape((-1,image.shape[-1]))
+    image = image.reshape((-1,image.shape[-1]))
 
 # Write output voxels. Unless output filename is specified, one will be
 # constructed from (first) input filename.
 outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
-    print 'Writing %i voxels with %i values to %s' % (voxels.shape[0],
-            voxels.shape[1], outfile)
+    print 'Writing %i voxels with %i values to %s' % (image.shape[0],
+            image.shape[1], outfile)
 with open(outfile, 'w') as f:
     model = 'selection'
-    params = range(voxels.shape[1])
+    params = range(image.shape[1])
     write_pmap_ascii_head(dwimage, model, params, f)
-    write_pmap_ascii_body(voxels, f)
+    write_pmap_ascii_body(image, f)
