@@ -174,36 +174,38 @@ def tilde(a):
     typ = a.dtype
     return (~a.astype(bool)).astype(typ)
 
-def roc(truths, scores):
-    """Calculate ROC curve."""
-    truths = np.array(truths)
-    scores = np.array(scores)
-    indices_sorted = scores.argsort()
-    scores = scores[indices_sorted]
-    truths = truths[indices_sorted]
-    values = np.unique(scores)
-    tp = np.array(values)
-    tn = np.array(values)
-    fp = np.array(values)
-    fn = np.array(values)
-    for i, value in enumerate(values):
-        c = np.ones_like(scores)
-        c[scores >= value] = 0 # Set classifications.
-        tp[i] = sum(c * truths)
-        tn[i] = sum(tilde(c) * tilde(truths))
-        fp[i] = sum(c * tilde(truths))
-        fn[i] = sum(tilde(c) * truths)
-    fpr = fp / (fp+tn)
-    tpr = tp / (tp+fn)
-    acc = np.mean((tp+tn) / (tp+fp+fn+tn))
-    return fpr, tpr, acc
-
-def roc_auc(fpr, tpr):
-    """Calculate ROC AUC from false and true positive rates."""
-    area = 0
-    for i in range(len(fpr))[1:]:
-        area += abs(fpr[i]-fpr[i-1]) * (tpr[i]+tpr[i-1]) / 2
-    return area
+# XXX Use calculate_roc_auc() instead of roc(), roc_auc().
+#
+#def roc(truths, scores):
+#    """Calculate ROC curve. Based on HM's matlab implementation."""
+#    truths = np.array(truths)
+#    scores = np.array(scores)
+#    indices_sorted = scores.argsort()
+#    scores = scores[indices_sorted]
+#    truths = truths[indices_sorted]
+#    values = np.unique(scores)
+#    tp = np.array(values)
+#    tn = np.array(values)
+#    fp = np.array(values)
+#    fn = np.array(values)
+#    for i, value in enumerate(values):
+#        c = np.ones_like(scores)
+#        c[scores >= value] = 0 # Set classifications.
+#        tp[i] = sum(c * truths)
+#        tn[i] = sum(tilde(c) * tilde(truths))
+#        fp[i] = sum(c * tilde(truths))
+#        fn[i] = sum(tilde(c) * truths)
+#    fpr = fp / (fp+tn)
+#    tpr = tp / (tp+fn)
+#    acc = np.mean((tp+tn) / (tp+fp+fn+tn))
+#    return fpr, tpr, acc
+#
+#def roc_auc(fpr, tpr):
+#    """Calculate ROC AUC from false and true positive rates."""
+#    area = 0
+#    for i in range(len(fpr))[1:]:
+#        area += abs(fpr[i]-fpr[i-1]) * (tpr[i]+tpr[i-1]) / 2
+#    return area
 
 def calculate_roc_auc(y, x, autoflip=False):
     """Calculate ROC and AUC from data points and their classifications."""
