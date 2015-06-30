@@ -10,7 +10,7 @@ import numpy as np
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal."""
     a = np.asarray(a)
-    return min(a.flat) == max(a.flat)
+    return a.min() == a.max()
 
 def finites(a):
     """Return finite elements as a flat array."""
