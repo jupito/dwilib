@@ -108,5 +108,5 @@ if args.compare:
 if args.figure:
     if args.verbose > 1:
         print 'Plotting to {}...'.format(args.figure)
-    dwi.plot.plot_rocs(X, Y, Params, autoflip=args.autoflip,
+    dwi.plot.plot_rocs(X, Y, params=Params, autoflip=args.autoflip,
             outfile=args.figure)

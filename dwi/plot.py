@@ -29,10 +29,13 @@ def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
         pl.show()
     pl.close()
 
-def plot_rocs(X, Y, params, autoflip=False, outfile=None):
+def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     """Plot several ROCs."""
     X = np.asarray(X)
     Y = np.asarray(Y)
+    if params is None:
+        params = [str(i) for i in range(len(X))]
+    assert len(X) == len(Y) == len(params)
     n_rows, n_cols = len(params), 1
     pl.figure(figsize=(n_cols*6, n_rows*6))
     for x, y, param, row in zip(X, Y, params, range(n_rows)):
