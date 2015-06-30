@@ -67,6 +67,23 @@ def write_pmap_ascii_body(pmap, f):
     for p in pmap:
         f.write(' '.join(map(repr, p)) + '\n')
 
+def write(filename, dwimage, image, model, params, fmt=None):
+    """Write output file."""
+    if fmt is None:
+        fmt = os.path.splitext(filename)[1][1:] # Use extension.
+    if fmt == 'hdf5':
+        import dwi.hdf5
+        attrs = collections.OrderedDict()
+        attrs['bset'] = dwimage.bset
+        attrs['parameters'] = params
+        dwi.hdf5.write_hdf5(filename, image, attrs)
+    elif fmt == 'txt':
+        with open(filename, 'w') as f:
+            write_pmap_ascii_head(dwimage, model, params, f)
+            write_pmap_ascii_body(image, f)
+    else:
+        raise Exception('Unknown format: {}'.format(fmt))
+
 args = parse_args()
 
 # Load image.
@@ -107,8 +124,6 @@ outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
     print 'Writing %i voxels with %i values to %s' % (image.shape[0],
             image.shape[1], outfile)
-with open(outfile, 'w') as f:
-    model = 'selection'
-    params = range(image.shape[1])
-    write_pmap_ascii_head(dwimage, model, params, f)
-    write_pmap_ascii_body(image, f)
+model = 'selection'
+params = range(image.shape[1])
+write(outfile, dwimage, image, model, params)
