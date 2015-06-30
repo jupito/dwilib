@@ -36,6 +36,13 @@ class Gui(object):
         self.i = 0
         self.j = 0
         self.update = False
+        self.colormaps = dict(
+                b='Blues_r',
+                c='coolwarm',
+                g='gray',
+                j='jet',
+                y='YlGnBu_r',
+        )
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
@@ -52,22 +59,14 @@ class Gui(object):
         print '    Click: toggle update mode on/off'
         print '    Move left/right: change slice (in update mode)'
         print '    Move up/down: change b-value (in update mode)'
-        print '    b/g/j: select colormap (blue/gray/jet)'
+        print '    b/c/g/j/y: select colormap (blue/coolwarm/gray/jet/ygb)'
         print '    q: quit'
 
     def on_key(self, event):
         if event.key == 'q':
             plt.close()
-        if event.key == 'c':
-            plt.set_cmap('coolwarm')
-        if event.key == 'g':
-            plt.set_cmap('gray')
-        if event.key == 'j':
-            plt.set_cmap('jet')
-        if event.key == 'b':
-            plt.set_cmap('Blues_r')
-        if event.key == 'y':
-            plt.set_cmap('YlGnBu_r')
+        if event.key in self.colormaps:
+            plt.set_cmap(self.colormaps[event.key])
         self.redraw(event)
 
     def on_click(self, event):
