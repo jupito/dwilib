@@ -2,8 +2,6 @@ from __future__ import division, print_function
 import collections
 import itertools
 import random
-import re
-import sys
 
 import numpy as np
 
@@ -376,6 +374,7 @@ def sole(iterable, desc=None):
 
 def get_args(n=1):
     """Get arguments. XXX: Deprecated, don't use."""
+    import sys
     if len(sys.argv) < 1 + n + 1:
         raise Exception('Need parameters')
     return sys.argv[1:1+n], sys.argv[1+n:]
@@ -401,6 +400,7 @@ def sglob(path, typ='any'):
 
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
+    import re
     #m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
     m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
     if m:
