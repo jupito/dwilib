@@ -83,6 +83,7 @@ def write(filename, dwimage, image, model, params, fmt=None):
         attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, image, attrs)
     elif fmt == 'txt':
+        image = image.reshape((-1, image.shape[-1]))
         with open(filename, 'w') as f:
             write_pmap_ascii_head(dwimage, model, params, f)
             write_pmap_ascii_body(image, f)
@@ -117,18 +118,16 @@ if args.mask:
     if args.verbose:
         print 'Using mask %s' % mask
     if args.keep_masked:
-        image = mask.apply_mask(image).reshape((-1,image.shape[-1]))
+        image = mask.apply_mask(image)
     else:
         image = mask.selected(image)
-else:
-    image = image.reshape((-1,image.shape[-1]))
 
 # Write output voxels. Unless output filename is specified, one will be
 # constructed from (first) input filename.
 outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
-    print 'Writing %i voxels with %i values to %s' % (image.shape[0],
-            image.shape[1], outfile)
+    print 'Writing %i voxels with %i parameters to %s' % (image.size,
+            image.shape[-1], outfile)
 model = 'selection'
-params = range(image.shape[1])
+params = range(image.shape[-1])
 write(outfile, dwimage, image, model, params)
