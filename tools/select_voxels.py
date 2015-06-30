@@ -72,11 +72,9 @@ def ext(filename):
     root, ext = os.path.splitext(filename)
     return ext[1:]
 
-def write(filename, dwimage, image, model, params=None, fmt=None):
+def write(filename, dwimage, image, fmt=None):
     """Write output file."""
-    if params is None:
-        params = range(image.shape[-1])
-    assert len(params) == image.shape[-1]
+    params = range(image.shape[-1])
     if fmt is None:
         fmt = ext(filename)
     if fmt == 'hdf5':
@@ -88,7 +86,7 @@ def write(filename, dwimage, image, model, params=None, fmt=None):
     elif fmt == 'txt':
         image = image.reshape((-1, image.shape[-1]))
         with open(filename, 'w') as f:
-            write_pmap_ascii_head(dwimage, model, params, f)
+            write_pmap_ascii_head(dwimage, 'selection', params, f)
             write_pmap_ascii_body(image, f)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
@@ -131,5 +129,4 @@ outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
     print 'Writing %i voxels with %i parameters to %s' % (image.size,
             image.shape[-1], outfile)
-model = 'selection'
-write(outfile, dwimage, image, model)
+write(outfile, dwimage, image)
