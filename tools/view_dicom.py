@@ -5,7 +5,7 @@
 # TODO Take only one path as argument.
 # TODO Rename to general image viewer, not just dicom.
 
-from __future__ import print_function
+from __future__ import division, print_function
 import argparse
 import sys
 
