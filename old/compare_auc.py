@@ -123,8 +123,6 @@ if args.verbose:
 aucs = []
 aucs_bs = []
 for x, y in zip(X_all, Y_all):
-    #fpr, tpr, _ = dwi.util.roc(y, x)
-    #auc = dwi.util.roc_auc(fpr, tpr)
     _, _, auc = dwi.util.calculate_roc_auc(y, x)
     aucs.append(auc)
     bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
