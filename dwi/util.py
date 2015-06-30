@@ -324,7 +324,7 @@ def get_group_id(groups, value):
 
 def group_labels(groups, values):
     """Replace labels with group id's.
-    
+
     Parameter groups is a sequence of sequences that indicate labels belonging
     to each group. Default group will be len(groups)."""
     group_ids = []
