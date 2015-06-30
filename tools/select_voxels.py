@@ -67,10 +67,15 @@ def write_pmap_ascii_body(pmap, f):
     for p in pmap:
         f.write(' '.join(map(repr, p)) + '\n')
 
+def ext(filename):
+    """Return filename extension without the leading dot."""
+    root, ext = os.path.splitext(filename)
+    return ext[1:]
+
 def write(filename, dwimage, image, model, params, fmt=None):
     """Write output file."""
     if fmt is None:
-        fmt = os.path.splitext(filename)[1][1:] # Use extension.
+        fmt = ext(filename)
     if fmt == 'hdf5':
         import dwi.hdf5
         attrs = collections.OrderedDict()
