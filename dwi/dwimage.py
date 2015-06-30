@@ -1,5 +1,6 @@
 """Utilities for handling DWI images."""
 
+from __future__ import division, print_function
 import os
 from time import time
 
