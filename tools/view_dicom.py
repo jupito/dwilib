@@ -14,6 +14,13 @@ import matplotlib.pyplot as plt
 import dwi.dwimage
 import dwi.util
 
+HELPTEXT = '''Usage:
+    Click: toggle update mode on/off
+    Move left/right: change slice (in update mode)
+    Move up/down: change b-value (in update mode)
+    b/c/g/j/y: select colormap (blue/coolwarm/gray/jet/ygb)
+    q: quit'''
+
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
@@ -52,16 +59,8 @@ class Gui(object):
         view = self.image[self.i,:,:,self.j]
         self.im = plt.imshow(view, interpolation='none', vmin=self.image.min(),
                 vmax=self.image.max())
-        self.show_help()
+        print HELPTEXT
         plt.show()
-
-    def show_help(self):
-        print 'Usage:'
-        print '    Click: toggle update mode on/off'
-        print '    Move left/right: change slice (in update mode)'
-        print '    Move up/down: change b-value (in update mode)'
-        print '    b/c/g/j/y: select colormap (blue/coolwarm/gray/jet/ygb)'
-        print '    q: quit'
 
     def on_key(self, event):
         if event.key == 'q':
