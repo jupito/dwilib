@@ -26,11 +26,6 @@ def impute(a):
             cnt += 1
     return cnt
 
-def resize(array, min_size):
-    """Extend array of arrays to minimum size."""
-    while len(array) < min_size:
-        array.append([])
-
 def make2d(size, height=None):
     """Turn 1d size into 2d shape by growing the height until it fits."""
     if height:
