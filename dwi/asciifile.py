@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import os
 import re
 
@@ -31,7 +32,7 @@ class AsciiFile(object):
         # XXX: Remove in favor of subwindow_shape()?
         a = self.subwindow()
         r = []
-        for i in range(len(a)/2):
+        for i in range(len(a)//2):
             r.append(a[i*2+1] - a[i*2])
         return tuple(r)
 
@@ -75,7 +76,7 @@ def read_ascii_file(filename):
             try:
                 nums = map(float, line.split())
             except ValueError as e:
-                #print e
+                #print(e)
                 #continue
                 raise
             if nums:
