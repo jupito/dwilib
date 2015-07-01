@@ -136,3 +136,26 @@ def write_subregion_file(filename, win, comment=''):
         write_comment(f, comment)
         for entry in entries:
             f.write('%i\n' % entry)
+
+def write_pmap(filename, pmap, params=None, fmt=None):
+    """Write parametric map file either as HDF5 or ASCII."""
+    pmap = np.asanyarray(pmap)
+    if pmap.ndim < 2:
+        raise Exception('Not enough dimensions: {}'.format(pmap.shape))
+    if params is None:
+        params = map(str, range(image.shape[-1]))
+    if pmap.shape[-1] != len(params):
+        raise Exception('Number of values and parameters mismatch')
+    if fmt is None:
+        fmt = ext(filename)
+    if fmt in ['hdf5', 'h5']:
+        import dwi.hdf5
+        attrs = collections.OrderedDict()
+        attrs['parameters'] = params
+        dwi.hdf5.write_hdf5(filename, image, attrs)
+    elif fmt in ['txt', 'ascii']:
+        import dwi.asciifile
+        pmap = pmap.reshape((-1, pmap.shape[-1])) # Can't keep shape.
+        dwi.asciifile.write_ascii_file(filename, pmap, params)
+    else:
+        raise Exception('Unknown format: {}'.format(fmt))
