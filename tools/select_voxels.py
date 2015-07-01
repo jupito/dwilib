@@ -78,13 +78,13 @@ def write(filename, dwimage, image, fmt=None):
     params = range(image.shape[-1])
     if fmt is None:
         fmt = ext(filename)
-    if fmt == 'hdf5':
+    if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
         attrs = collections.OrderedDict()
         attrs['bset'] = dwimage.bset
         attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, image, attrs)
-    elif fmt == 'txt':
+    elif fmt in ['txt', 'ascii']:
         image = image.reshape((-1, image.shape[-1]))
         with open(filename, 'w') as f:
             write_pmap_ascii_head(dwimage, 'selection', params, f)
