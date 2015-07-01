@@ -1,5 +1,6 @@
 """Support for HDF5 files."""
 
+from __future__ import division, print_function
 import collections
 
 import numpy as np
