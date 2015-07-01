@@ -70,7 +70,7 @@ def write_pmap_ascii_body(pmap, f):
 
 def ext(filename):
     """Return filename extension without the leading dot."""
-    root, ext = os.path.splitext(filename)
+    _, ext = os.path.splitext(filename)
     return ext[1:]
 
 def write(filename, dwimage, image, fmt=None):
