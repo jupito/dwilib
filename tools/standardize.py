@@ -5,7 +5,7 @@
 See Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-from __future__ import division
+from __future__ import division, print_function
 import argparse
 
 import numpy as np
@@ -79,7 +79,7 @@ def histogram(a, m1=None, m2=None, bins=20):
 #    #    pl.plot(x, y)
 #    #pl.show()
 #    #pl.close()
-#    print 'Plotting to {}...'.format(outfile)
+#    print('Plotting to {}...'.format(outfile))
 #    images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
 #    dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
 
@@ -95,7 +95,7 @@ def plot_histograms(histograms1, histograms2, outfile):
     for hist, bins in histograms2:
         pl.plot(bins, hist)
     pl.tight_layout()
-    print 'Plotting to {}...'.format(outfile)
+    print('Plotting to {}...'.format(outfile))
     pl.savefig(outfile, bbox_inches='tight')
     pl.close()
 
@@ -115,15 +115,15 @@ if args.outconf:
                 landmarks)
         mapped_scores = [int(dwi.standardize.map_onto_scale(p1, p2, s1, s2, x))
                 for x in scores]
-        #print case, scan, img.shape, dwi.util.fivenum(img)
-        #print case, scan, (p1, p2), scores
-        print case, scan, img.shape, mapped_scores
+        #print(case, scan, img.shape, dwi.util.fivenum(img))
+        #print(case, scan, (p1, p2), scores)
+        print(case, scan, img.shape, mapped_scores)
         data.append(dict(p1=p1, p2=p2, scores=scores,
                 mapped_scores=mapped_scores))
     mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int)
     mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
     mapped_scores = list(mapped_scores)
-    print mapped_scores
+    print(mapped_scores)
     dwi.standardize.write_standardization_configuration(args.outconf, pc1, pc2,
             landmarks, s1, s2, mapped_scores)
 
@@ -137,7 +137,7 @@ if args.inconf:
     s2 = d['s2']
     mapped_scores = d['mapped_scores']
     for k, v in d.items():
-        print k, v
+        print(k, v)
 
     image_rows = []
     histograms = []
@@ -146,7 +146,7 @@ if args.inconf:
         img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
         p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
                 landmarks)
-        print case, scan, img.shape, (p1, p2)
+        print(case, scan, img.shape, (p1, p2))
         #img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
         #img = img[10:20].copy() # Scale and visualize slice 15 only.
         img_scaled = dwi.standardize.transform(img, p1, p2, scores, s1, s2,
@@ -154,7 +154,7 @@ if args.inconf:
 
         #image_rows.append([img, img_scaled])
         #s = 'std/{c}_{s}.png'.format(c=case, s=scan)
-        #print 'Plotting to {}...'.format(s)
+        #print('Plotting to {}...'.format(s))
         #dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
 
         histograms.append(histogram(img, p1, p2))
