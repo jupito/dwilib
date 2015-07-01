@@ -64,25 +64,28 @@ FIND_ROI_PARAMS = [
 
 def texture_methods(model=MODEL):
     return ' '.join([
-        'stats',
-        'glcm',
-        #'haralick',
-        'lbp',
-        'hog',
-        'gabor',
-        'moment',
-        'haar',
-        'glcm_mbb',
-        #'haralick_mbb',
-        'sobel_mbb',
-        'stats_all',
+        #'stats',
+        #'glcm',
+        ##'haralick',
+        #'lbp',
+        #'hog',
+        #'gabor',
+        #'moment',
+        #'haar',
+        #'glcm_mbb',
+        ##'haralick_mbb',
+        #'sobel_mbb',
+        #'stats_all',
+        'hu',
+        'zernike',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
     if masktype in ['CA', 'N']:
         l = [3, 5]
     elif model in ['T2', 'T2w']:
-        l = range(3, 36, 4)
+        #l = range(3, 36, 4)
+        l = range(3, 36, 2)
     else:
         l = range(3, 16, 2)
     return ' '.join(map(str, l))
@@ -202,26 +205,26 @@ def get_texture_cmd(d):
 #                #'file_dep': [f],
 #                }
 
-def task_fit():
-    """Fit models to imaging data."""
-    for case, scan in SUBWINDOWS.keys():
-        subwindow = SUBWINDOWS[(case, scan)]
-        d = dict(c=case, s=scan)
-        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
-        if len(infiles) == 0:
-            continue
-        for model in MODELS:
-            d['m'] = model
-            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
-            cmd = fit_cmd(model, subwindow, infiles, outfile)
-            yield {
-                    'name': '{c}_{s}_{m}'.format(**d),
-                    'actions': [(create_folder, [dirname(outfile)]),
-                            cmd],
-                    'file_dep': infiles,
-                    'targets': [outfile],
-                    'clean': True,
-                    }
+#def task_fit():
+#    """Fit models to imaging data."""
+#    for case, scan in SUBWINDOWS.keys():
+#        subwindow = SUBWINDOWS[(case, scan)]
+#        d = dict(c=case, s=scan)
+#        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
+#        if len(infiles) == 0:
+#            continue
+#        for model in MODELS:
+#            d['m'] = model
+#            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
+#            cmd = fit_cmd(model, subwindow, infiles, outfile)
+#            yield {
+#                    'name': '{c}_{s}_{m}'.format(**d),
+#                    'actions': [(create_folder, [dirname(outfile)]),
+#                            cmd],
+#                    'file_dep': infiles,
+#                    'targets': [outfile],
+#                    'clean': True,
+#                    }
 
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
