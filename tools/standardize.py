@@ -154,6 +154,7 @@ if args.inconf:
 
         #image_rows.append([img, img_scaled])
         #s = 'std/{c}_{s}.png'.format(c=case, s=scan)
+        #print 'Plotting to {}...'.format(s)
         #dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2, outfile=s)
 
         histograms.append(histogram(img, p1, p2))
