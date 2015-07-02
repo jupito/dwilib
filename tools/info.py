@@ -2,8 +2,10 @@
 
 """Print information about columns of number values."""
 
+from __future__ import division, print_function
 import argparse
 import sys
+
 import numpy as np
 
 from dwi import asciifile
@@ -28,18 +30,18 @@ args = parse_args()
 for filename in args.input:
     af = asciifile.AsciiFile(filename)
     if args.verbose:
-        print filename
+        print(filename)
         if af.d.has_key('description'):
-            print af.d['description']
+            print(af.d['description'])
     params = af.params()
     for i, a in enumerate(af.a.T):
         d = dict(i=i, param=params[i])
         if args.basic:
             d.update(mean=a.mean(), std=a.std(), var=a.var(), sum=sum(a))
-            print '{i}\t{param}'\
+            print('{i}\t{param}'\
                     '\t{mean:g}\t{std:g}\t{var:g}'\
-                    '\t{sum:g}'.format(**d)
+                    '\t{sum:g}'.format(**d))
         if args.five:
             d.update(util.fivenumd(a))
-            print '{i}\t{param}'\
-                    '\t{min:g}\t{q1:g}\t{median:g}\t{q3:g}\t{max:g}'.format(**d)
+            print('{i}\t{param}'\
+                    '\t{min:g}\t{q1:g}\t{median:g}\t{q3:g}\t{max:g}'.format(**d))
