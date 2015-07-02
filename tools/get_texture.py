@@ -169,5 +169,6 @@ for method, call in dwi.texture.METHODS_ALL.items():
 
 if args.verbose:
     print('Writing %s features to %s' % (len(feats), args.output))
-dwi.asciifile.write_ascii_file(args.output, [feats], featnames)
-#dwi.files.write_pmap(args.output, [feats], featnames)
+feats = np.array([feats], dtype=np.float32)
+#dwi.asciifile.write_ascii_file(args.output, feats, featnames)
+dwi.files.write_pmap(args.output, feats, featnames)
