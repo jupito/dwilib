@@ -65,19 +65,20 @@ FIND_ROI_PARAMS = [
 def texture_methods(model=MODEL):
     return ' '.join([
         #'stats',
-        'glcm',
         #'haralick',
+        #'moment',
+        #'haralick_mbb',
+
+        'glcm',
         'lbp',
         'hog',
         'gabor',
-        #'moment',
         'haar',
-        'glcm_mbb',
-        #'haralick_mbb',
-        'sobel_mbb',
-        'stats_all',
         'hu',
         'zernike',
+        'glcm_mbb',
+        'sobel_mbb',
+        'stats_all',
         ])
 
 def texture_winsizes(masktype, model=MODEL):
