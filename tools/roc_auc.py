@@ -3,6 +3,7 @@
 """Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally compare
 AUCs and draw the ROC curves into a file."""
 
+from __future__ import division, print_function
 import argparse
 import numpy as np
 
@@ -64,14 +65,14 @@ if args.verbose > 1:
             ns=len(scores), s=sorted(scores),
             ng=len(groups), g=' '.join(map(str, groups)),
             gs=', '.join(map(str, group_sizes)))
-    print 'Samples: {n}'.format(**d)
-    print 'Scores: {ns}: {s}'.format(**d)
-    print 'Groups: {ng}: {g}'.format(**d)
-    print 'Group sizes: {gs}'.format(**d)
+    print('Samples: {n}'.format(**d))
+    print('Scores: {ns}: {s}'.format(**d))
+    print('Groups: {ng}: {g}'.format(**d))
+    print('Group sizes: {gs}'.format(**d))
 
 # Print AUCs and bootstrapped AUCs.
 if args.verbose > 1:
-    print '# param  AUC  AUC_BS_mean  lower  upper'
+    print('# param  AUC  AUC_BS_mean  lower  upper')
 Auc_bs = []
 params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
@@ -88,13 +89,13 @@ for x, y, param in zip(X, Y, Params):
         s = '{param:%i}  {auc:.3f}  {avg:.3f}  {ci1:.3f}  {ci2:.3f}' % params_maxlen
     else:
         s = '{auc:f}'
-    print s.format(**d)
+    print(s.format(**d))
     Auc_bs.append(auc_bs)
 
 # Print bootstrapped AUC comparisons.
 if args.compare:
     if args.verbose > 1:
-        print '# param1  param2  diff  Z  p'
+        print('# param1  param2  diff  Z  p')
     done = []
     for i, param_i in enumerate(Params):
         for j, param_j in enumerate(Params):
@@ -102,11 +103,11 @@ if args.compare:
                 continue
             done.append((i,j))
             d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
-            print '%s  %s  %+0.4f  %+0.4f  %0.4f' % (param_i, param_j, d, z, p)
+            print('%s  %s  %+0.4f  %+0.4f  %0.4f' % (param_i, param_j, d, z, p))
 
 # Plot the ROCs.
 if args.figure:
     if args.verbose > 1:
-        print 'Plotting to {}...'.format(args.figure)
+        print('Plotting to {}...'.format(args.figure))
     dwi.plot.plot_rocs(X, Y, params=Params, autoflip=args.autoflip,
             outfile=args.figure)
