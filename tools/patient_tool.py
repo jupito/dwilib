@@ -2,7 +2,7 @@
 
 """Patient list tool."""
 
-from __future__ import print_function
+from __future__ import division, print_function
 import argparse
 import itertools
 
