@@ -2,6 +2,7 @@
 
 """Calculate correlation for parametric maps vs. Gleason scores."""
 
+from __future__ import division, print_function
 import argparse
 import math
 import numpy as np
@@ -38,7 +39,7 @@ def correlation(x, y):
         #r, p = scipy.stats.kendalltau(x, y)
         r, p = scipy.stats.spearmanr(x, y)
         n = len(x)
-        stderr = 1.0 / math.sqrt(n-3)
+        stderr = 1 / math.sqrt(n-3)
         delta = 1.96 * stderr
         lower = math.tanh(math.atanh(r) - delta)
         upper = math.tanh(math.atanh(r) + delta)
@@ -71,14 +72,14 @@ if args.verbose > 1:
             ns=len(scores), s=scores,
             ng=len(groups), g=' '.join(map(str, groups)),
             gs=', '.join(map(str, group_sizes)))
-    print 'Samples: {n}'.format(**d)
-    print 'Scores: {ns}: {s}'.format(**d)
-    print 'Groups: {ng}: {g}'.format(**d)
-    print 'Group sizes: {gs}'.format(**d)
+    print('Samples: {n}'.format(**d))
+    print('Scores: {ns}: {s}'.format(**d))
+    print('Groups: {ng}: {g}'.format(**d))
+    print('Group sizes: {gs}'.format(**d))
 
 # Print correlations.
 if args.verbose > 1:
-    print '# param  r  p  lower  upper'
+    print('# param  r  p  lower  upper')
 params_maxlen = max(len(p) for p in Params)
 for x, y, param in zip(X, Y, Params):
     d = dict(param=param)
@@ -87,4 +88,4 @@ for x, y, param in zip(X, Y, Params):
         s = '{param:%i}  {r:+.3f}  {p:.3f}  {lower:+.3f}  {upper:+.3f}' % params_maxlen
     else:
         s = '{r:+.3f}'
-    print s.format(**d)
+    print(s.format(**d))
