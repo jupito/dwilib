@@ -12,9 +12,6 @@ import skimage
 
 import dwi.dataset
 import dwi.util
-import dwi.patient
-import dwi.dwimage
-import dwi.mask
 import dwi.plot
 import dwi.texture
 
