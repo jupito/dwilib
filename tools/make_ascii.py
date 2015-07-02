@@ -2,13 +2,8 @@
 
 import sys
 import argparse
+
 import numpy as np
-from numpy import mean, std
-import scipy as sp
-import scipy.stats
-import pylab as pl
-from sklearn import preprocessing
-from sklearn import metrics
 
 import dwi.files
 import dwi.patient
