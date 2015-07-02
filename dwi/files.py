@@ -1,9 +1,10 @@
+"""Operations regarding miscellaneous files."""
+
+from __future__ import division, print_function
 import collections
 import re
 
 import dwi.util
-
-"""Operations regarding miscellaneous files."""
 
 COMMENT_PREFIX = '#'
 
