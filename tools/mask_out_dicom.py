@@ -2,16 +2,15 @@
 
 """Zero out all voxels in multi-file DICOM image according to a mask."""
 
+from __future__ import division, print_function
 import argparse
 import collections
 import os
-import numpy as np
 
+import numpy as np
 import dicom
 
-import dwi.dwimage
 import dwi.mask
-import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -49,7 +48,7 @@ def get_slices(dirname):
 
 def mask_out_slice(mask_slice, pathname):
     """Mask out a slice (set all unselected voxels to zero).
-    
+
     See https://code.google.com/p/pydicom/wiki/WorkingWithPixelData
     """
     ds = dicom.read_file(pathname)
@@ -71,5 +70,5 @@ for mask_slice, pathnames, i in zip(mask.array, slices, range(len(slices))):
     for p in pathnames:
         if args.verbose:
             d = dict(i=i, n_selected=np.sum(mask_slice != False), p=p)
-            print 'Slice {i:d} ({n_selected:d}): {p:s}'.format(**d)
+            print('Slice {i:d} ({n_selected:d}): {p:s}'.format(**d))
         mask_out_slice(mask_slice, p)
