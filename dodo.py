@@ -70,7 +70,7 @@ def texture_methods(model=MODEL):
         'lbp',
         'hog',
         'gabor',
-        'moment',
+        #'moment',
         'haar',
         'glcm_mbb',
         #'haralick_mbb',
