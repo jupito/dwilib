@@ -2,7 +2,10 @@
 
 from __future__ import division, print_function
 import collections
+import os.path
 import re
+
+import numpy as np
 
 import dwi.util
 
@@ -148,7 +151,7 @@ def write_pmap(filename, pmap, params=None, fmt=None):
     if pmap.shape[-1] != len(params):
         raise Exception('Number of values and parameters mismatch')
     if fmt is None:
-        fmt = ext(filename)
+        fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
         attrs = collections.OrderedDict()
