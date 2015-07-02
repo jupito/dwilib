@@ -1,3 +1,5 @@
+"""Handle signal intensity and parameter map files as ASCII."""
+
 from __future__ import division, print_function
 import os
 import re
@@ -6,8 +8,6 @@ import numpy as np
 
 import dwi.files
 import dwi.util
-
-# Handle signal intensity and parameter map files as ASCII.
 
 class AsciiFile(object):
     def __init__(self, filename):
