@@ -147,7 +147,7 @@ def write_pmap(filename, pmap, params=None, fmt=None):
     if pmap.ndim < 2:
         raise Exception('Not enough dimensions: {}'.format(pmap.shape))
     if params is None:
-        params = map(str, range(image.shape[-1]))
+        params = map(str, range(pmap.shape[-1]))
     if pmap.shape[-1] != len(params):
         raise Exception('Number of values and parameters mismatch')
     if fmt is None:
@@ -156,7 +156,7 @@ def write_pmap(filename, pmap, params=None, fmt=None):
         import dwi.hdf5
         attrs = collections.OrderedDict()
         attrs['parameters'] = params
-        dwi.hdf5.write_hdf5(filename, image, attrs)
+        dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
         pmap = pmap.reshape((-1, pmap.shape[-1])) # Can't keep shape.
