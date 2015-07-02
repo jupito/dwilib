@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 
+"""Make single ASCII file from several ones."""
+
 import sys
 import argparse
 
@@ -11,8 +13,7 @@ import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description =
-            'Make single ASCII file from several ones.')
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--pmaps', '-m', nargs='+', required=True,
             help='pmap files')
     p.add_argument('--scans', '-s', default='scans.txt',
