@@ -1,8 +1,8 @@
 """Routines for handling patient lists."""
 
 from __future__ import division, print_function
-import os.path
 from functools import total_ordering
+import os.path
 
 import numpy as np
 
