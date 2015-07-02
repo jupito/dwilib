@@ -15,7 +15,7 @@ import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description = __doc__)
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose',
             action='count',
             help='increase verbosity')
