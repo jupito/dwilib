@@ -4,6 +4,7 @@
 ROC curves into a file."""
 
 import argparse
+
 import numpy as np
 
 import dwi.files
