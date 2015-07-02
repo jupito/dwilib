@@ -1,8 +1,9 @@
 #!/usr/bin/env python2
 
-"""test"""
+"""Test LBP stuff."""
 
 import argparse
+
 import numpy as np
 
 import dwi.dwimage
