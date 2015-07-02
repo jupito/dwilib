@@ -4,7 +4,7 @@
 
 #TODO pmap normalization for GLCM
 
-from __future__ import division
+from __future__ import division, print_function
 import argparse
 import collections
 import glob
@@ -80,7 +80,7 @@ def portion_mask(mask, winsize, portion=1., resort_to_max=True):
 
 args = parse_args()
 if args.verbose:
-    print 'Reading data...'
+    print('Reading data...')
 data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
 mask = dwi.mask.read_mask(args.mask)
@@ -109,21 +109,21 @@ pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
 if args.verbose > 1:
     d = dict(s=img.shape, i=slice_indices, n=np.count_nonzero(mask_slices),
             w=args.winsizes)
-    print 'Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d)
+    print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d))
 
 if args.std:
     if args.verbose:
-        print 'Standardizing...'
+        print('Standardizing...')
     img_slices = dwi.standardize.standardize(img_slices, args.std)
 
 if args.verbose:
-    print 'Calculating texture features...'
+    print('Calculating texture features...')
 feats = []
 featnames = []
 for method, call in dwi.texture.METHODS.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
-            print method
+            print(method)
         for winsize, pmask_slices in zip(args.winsizes, pmasks):
             tmaps_all = None
             for img_slice, pmask_slice in zip(img_slices, pmask_slices):
@@ -141,7 +141,7 @@ for method, call in dwi.texture.METHODS.items():
 for method, call in dwi.texture.METHODS_MBB.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
-            print method
+            print(method)
         tmaps_all = None
         for img_slice, mask_slice in zip(img_slices, mask_slices):
             if np.count_nonzero(mask_slice) == 0:
@@ -159,7 +159,7 @@ for method, call in dwi.texture.METHODS_MBB.items():
 for method, call in dwi.texture.METHODS_ALL.items():
     if args.methods is None or method in args.methods:
         if args.verbose > 1:
-            print method
+            print(method)
         if np.count_nonzero(mask_slices) == 0:
             continue # Skip slice with empty mask.
         tmaps, names = call(img_slices, mask=mask_slices)
@@ -168,6 +168,6 @@ for method, call in dwi.texture.METHODS_ALL.items():
         featnames += names
 
 if args.verbose:
-    print 'Writing %s features to %s' % (len(feats), args.output)
+    print('Writing %s features to %s' % (len(feats), args.output))
 dwi.asciifile.write_ascii_file(args.output, [feats], featnames)
 #dwi.files.write_pmap(args.output, [feats], featnames)
