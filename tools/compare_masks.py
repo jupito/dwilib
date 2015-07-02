@@ -1,10 +1,14 @@
 #!/usr/bin/env python2
 
-"""Compare ROI masks."""
+"""Compare ROI masks.
 
+This was meant to be used as a simple tool for evaluating the automatic ROI
+search by comparing their position to the manual ones. But this is not really a
+good way to do it.
+"""
+
+from __future__ import division, print_function
 import argparse
-
-import numpy as np
 
 import dwi.files
 import dwi.util
@@ -57,5 +61,5 @@ pos1 = roi_position(mask1)
 pos2 = roi_position(mask2)
 
 if args.verbose:
-    print pos1, pos2
-print roi_distance(pos1, pos2)
+    print(pos1, pos2)
+print(roi_distance(pos1, pos2))
