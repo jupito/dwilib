@@ -7,14 +7,11 @@
 from __future__ import division, print_function
 import argparse
 import collections
-import glob
-import re
+
 import numpy as np
 
-import dwi.asciifile
 import dwi.dataset
 import dwi.mask
-import dwi.plot
 import dwi.standardize
 import dwi.texture
 import dwi.util
