@@ -3,6 +3,7 @@
 """Calculate reproducibility coefficients for parametric maps by Bland-Altman
 analysis."""
 
+from __future__ import division, print_function
 import argparse
 import numpy as np
 
@@ -108,15 +109,15 @@ else:
     X = pmaps[:,i,:] # Use single voxel only.
 
 if args.verbose > 1:
-    print 'Samples: %i, features: %i, voxel: %s'\
-            % (X.shape[0], X.shape[1], args.voxel)
-    print 'Number of bootstraps: %d' % args.nboot
+    print('Samples: %i, features: %i, voxel: %s'\
+            % (X.shape[0], X.shape[1], args.voxel))
+    print('Number of bootstraps: %d' % args.nboot)
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print '# param    avg[lower-upper]'\
+    print('# param    avg[lower-upper]'\
             '    msd/avg    CI/avg    wCV    CoR/avg'\
-            '    ICC    bsICC[lower-upper]'
+            '    ICC    bsICC[lower-upper]')
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
     if param in skipped_params:
@@ -134,4 +135,4 @@ for values, param in zip(X.T, params):
             '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
             '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'\
             '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
-    print s.format(**d)
+    print(s.format(**d))
