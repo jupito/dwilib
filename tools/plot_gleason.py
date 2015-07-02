@@ -1,15 +1,14 @@
 #!/usr/bin/env python2
 
-# Plot by gleason score.
+"""Plot by gleason score."""
 
-import os.path
 import sys
-import numpy as np
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-from dwi import asciifile
+import dwi.asciifile
 
 if len(sys.argv) < 3:
     print 'Need parameters'
@@ -18,15 +17,15 @@ if len(sys.argv) < 3:
 outfile = sys.argv[1]
 infiles = sys.argv[2:]
 
-scores = asciifile.read_gleason_file(infiles[0])
-afs = map(asciifile.AsciiFile, infiles[1:])
+scores = dwi.asciifile.read_gleason_file(infiles[0])
+afs = map(dwi.asciifile.AsciiFile, infiles[1:])
 params = afs[0].params()
 
 #scores.sort(key=lambda x: (-x[2], -x[3], x[0]))
 #for score in scores:
 #    print score
 #for af in afs:
-#    print '%s\t%s' % (af.filename, asciifile.get_gs(scores, af.basename))
+#    print '%s\t%s' % (af.filename, dwi.asciifile.get_gs(scores, af.basename))
 
 n_rows = 1
 n_cols = len(params)
@@ -44,7 +43,7 @@ for col in range(n_cols):
     x = [[], []]
     y = [[], []]
     for af in afs:
-        score = asciifile.get_gs(scores, af.basename)
+        score = dwi.asciifile.get_gs(scores, af.basename)
         if score:
             ps = af.a.T[col]
             n = af.number()-1
