@@ -2,15 +2,13 @@
 
 """Visualize texture map alongside pmap with lesion highlighted."""
 
+from __future__ import division, print_function
 import argparse
 
 import numpy as np
 
 import dwi.asciifile
 import dwi.dataset
-import dwi.patient
-import dwi.dwimage
-import dwi.mask
 import dwi.texture
 import dwi.util
 
@@ -51,7 +49,7 @@ def plot(pmaps, titles, lmask, n_rows, filename):
     plt.rcParams['image.cmap'] = 'YlGnBu_r'
     plt.rcParams['image.interpolation'] = 'nearest'
     #plt.rcParams['text.usetex'] = True
-    n_cols = len(pmaps) / n_rows
+    n_cols = len(pmaps) // n_rows
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
 
     for i, (pmap, title) in enumerate(zip(pmaps, titles)):
@@ -70,19 +68,19 @@ def plot(pmaps, titles, lmask, n_rows, filename):
         fig.colorbar(impmap, ax=ax, shrink=0.65)
 
     plt.tight_layout()
-    print 'Writing figure:', filename
+    print('Writing figure:', filename)
     plt.savefig(filename, bbox_inches='tight')
     plt.close()
 
 
 args = parse_args()
 if args.verbose:
-    print 'Reading data...'
+    print('Reading data...')
 data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
 dwi.dataset.dataset_read_subregions(data, args.subregiondir)
 if args.af:
     af = dwi.asciifile.AsciiFile(args.af)
-    print 'params:', af.params()
+    print('params:', af.params())
     # Fix switched height/width.
     subwindow = af.subwindow()
     subwindow = subwindow[2:] + subwindow[:2]
@@ -92,19 +90,19 @@ if args.af:
     image.shape = (20,) + subwindow_shape + (len(af.params()),)
     data[0]['subregion'] = (0, 20) + subwindow
     data[0]['image'] = image
-    print data[0]['subregion']
+    print(data[0]['subregion'])
 else:
     dwi.dataset.dataset_read_pmaps(data, args.pmapdir, args.params)
 dwi.dataset.dataset_read_prostate_masks(data, args.pmaskdir)
 dwi.dataset.dataset_read_lesion_masks(data, args.lmaskdir)
 
 data = data[0]
-print 'image shape:', data['image'].shape
-print 'lesion mask sizes:', [m.n_selected() for m in data['lesion_masks']]
+print('image shape:', data['image'].shape)
+print('lesion mask sizes:', [m.n_selected() for m in data['lesion_masks']])
 
 # Find maximum lesion and use it.
 lesion = max((m.n_selected(), i) for i, m in enumerate(data['lesion_masks']))
-print 'max lesion:', lesion
+print('max lesion:', lesion)
 max_lesion = lesion[1]
 
 max_slice = data['lesion_masks'][max_lesion].max_slices()[0]
@@ -116,7 +114,7 @@ pmaps = []
 titles = []
 for i, param in enumerate(args.params):
     p = pmap[:,:,i]
-    print param, dwi.util.fivenum(p)
+    print(param, dwi.util.fivenum(p))
     dwi.util.clip_outliers(p, out=p)
     pmaps.append(p)
     titles.append(param)
