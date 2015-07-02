@@ -6,7 +6,7 @@ file. Multiple same-size images may be combined by overlaying the parameters."""
 from __future__ import division, print_function
 import argparse
 import collections
-import os
+import os.path
 import numpy as np
 
 import dwi.dwimage
@@ -68,16 +68,11 @@ def write_pmap_ascii_body(pmap, f):
     for p in pmap:
         f.write(' '.join(map(repr, p)) + '\n')
 
-def ext(filename):
-    """Return filename extension without the leading dot."""
-    _, ext = os.path.splitext(filename)
-    return ext[1:]
-
 def write(filename, dwimage, image, fmt=None):
     """Write output file."""
     params = range(image.shape[-1])
     if fmt is None:
-        fmt = ext(filename)
+        fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
         attrs = collections.OrderedDict()
