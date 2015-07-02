@@ -1,15 +1,15 @@
 #!/usr/bin/env python2
 
-# Draw parametric maps in one figure.
+"""Draw parametric maps in one figure."""
 
-import os.path
 import sys
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-from dwi import asciifile
+import dwi.asciifile
 
 if len(sys.argv) < 3:
     print 'Need parameters'
@@ -18,7 +18,7 @@ if len(sys.argv) < 3:
 outfile = sys.argv[1]
 infiles = sys.argv[2:]
 
-afs = map(asciifile.AsciiFile, infiles)
+afs = map(dwi.asciifile.AsciiFile, infiles)
 params = afs[0].params()
 shape = afs[0].subwinsize()
 
