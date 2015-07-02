@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 import os.path
 from functools import total_ordering
+
 import numpy as np
 
 import dwi.asciifile
