@@ -1,17 +1,15 @@
 #!/usr/bin/env python2
 
-# -*- coding: iso-8859-15 -*-
-
-# Draw parametric maps and their histograms.
+"""Draw parametric maps and their histograms."""
 
 import os.path
 import sys
-import numpy as np
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab
 
-from dwi import asciifile
+import dwi.asciifile
 
 def draw_pmap(img, filename):
     fig = plt.figure()
@@ -30,7 +28,7 @@ def draw_histogram(array, filename):
     pylab.savefig(filename, bbox_inches='tight')
 
 for filename in sys.argv[1:]:
-    af = asciifile.AsciiFile(filename)
+    af = dwi.asciifile.AsciiFile(filename)
     for i, a in enumerate(af.a.T):
         p = af.params()[i]
         name = '%s_%s_%02i%s.png' % (os.path.basename(filename), 'pmap', i, p)
