@@ -8,8 +8,8 @@ import sys
 
 import numpy as np
 
-from dwi import asciifile
-from dwi import util
+import dwi.asciifile
+import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
@@ -28,7 +28,7 @@ def parse_args():
 
 args = parse_args()
 for filename in args.input:
-    af = asciifile.AsciiFile(filename)
+    af = dwi.asciifile.AsciiFile(filename)
     if args.verbose:
         print(filename)
         if af.d.has_key('description'):
@@ -42,6 +42,6 @@ for filename in args.input:
                     '\t{mean:g}\t{std:g}\t{var:g}'\
                     '\t{sum:g}'.format(**d))
         if args.five:
-            d.update(util.fivenumd(a))
+            d.update(dwi.util.fivenumd(a))
             print('{i}\t{param}'\
                     '\t{min:g}\t{q1:g}\t{median:g}\t{q3:g}\t{max:g}'.format(**d))
