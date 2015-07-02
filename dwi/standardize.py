@@ -20,7 +20,7 @@ See also tools/standardize.py.
 [1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-from __future__ import division
+from __future__ import division, print_function
 import collections
 
 import numpy as np
