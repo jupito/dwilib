@@ -1,7 +1,9 @@
+"""Support for reading DWI data from DICOM files."""
+
+from __future__ import division, print_function
+
 import numpy as np
 import dicom
-
-# Support for reading DWI data from DICOM files.
 
 def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
