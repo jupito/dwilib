@@ -2,6 +2,7 @@
 
 """Anonymize DICOM files. Write in-place or into another directory."""
 
+from __future__ import division, print_function
 import argparse
 import os
 
@@ -98,9 +99,9 @@ for infile in args.input:
     if deleted:
         if args.verbose > 1:
             for elem in deleted:
-                print '{i}: {t} {n}'.format(i=infile, t=elem[0], n=elem[1])
+                print('{i}: {t} {n}'.format(i=infile, t=elem[0], n=elem[1]))
         if args.verbose:
             d = dict(i=infile, o=outfile, n=len(deleted))
-            print '{i}: Deleted {n} elements, writing to {o}.'.format(**d)
+            print('{i}: Deleted {n} elements, writing to {o}.'.format(**d))
         if not args.dry_run:
             f.save_as(outfile, WriteLikeOriginal=True)
