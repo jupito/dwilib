@@ -69,14 +69,14 @@ def texture_methods(model=MODEL):
         #'moment',
         #'haralick_mbb',
 
-        'glcm',
-        'lbp',
+        #'glcm',
+        #'glcm_mbb',
+        #'lbp',
         'hog',
         'gabor',
         'haar',
         'hu',
         'zernike',
-        'glcm_mbb',
         'sobel_mbb',
         'stats_all',
         ])
