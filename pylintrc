@@ -49,8 +49,7 @@ extension-pkg-whitelist=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-#C0103
-disable=E1101,W0142
+disable=E1101,W0142,C0326,C0103
 
 
 [REPORTS]
