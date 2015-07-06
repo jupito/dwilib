@@ -224,7 +224,7 @@ def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
     """
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
-    feats = np.zeros(shape + (2,), dtype=np.double)
+    feats = np.zeros(shape + (2,))
     for i, j, k in np.ndindex(shape):
         t, s, f = thetas[i], sigmas[j], freqs[k]
         kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
