@@ -43,8 +43,8 @@ MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
 
 SUBREGION_DIR = 'subregions'
 
-MODELS = 'Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '\
-        'Biexp BiexpN'.split()
+MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
+        'Biexp BiexpN'.split())
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
         Kurt='ADCk', KurtN='ADCkN',
         T2='raw', T2w='raw')
@@ -183,10 +183,10 @@ def fit_cmd(model, subwindow, infiles, outfile):
     return s
 
 def get_texture_cmd(d):
-    cmd = '{prg} -v --methods {methods} --winsizes {winsizes}'\
-            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'\
-            ' --slices {slices} --portion {portion}'\
-            ' --output {o}'
+    cmd = ('{prg} -v --methods {methods} --winsizes {winsizes}'
+            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'
+            ' --slices {slices} --portion {portion}'
+            ' --output {o}')
     if d['m'] == 'T2w':
         cmd += ' --std stdcfg_{m}.txt'
     cmd = cmd.format(prg=GET_TEXTURE, **d)
@@ -255,9 +255,9 @@ def get_task_find_roi(case, scan, model, param, algparams):
     file_deps += ['{srd}/{c}_{s}_subregion10.txt'.format(**d)]
     file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    cmd = '{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '\
-            '--param {p} --cases {c} --scans {s} --algparams {ap} '\
-            '--outmask {mp} --outfig {fp}'.format(**d)
+    cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
+            '--param {p} --cases {c} --scans {s} --algparams {ap} '
+            '--outmask {mp} --outfig {fp}'.format(**d))
     return {
             'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
             'actions': [(create_folder, [dirname(maskpath)]),

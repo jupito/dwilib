@@ -141,11 +141,11 @@ class DWImage(object):
                 nb=len(self.bset), b=list(self.bset),
                 size=self.size(), shape=self.shape(),
                 w=self.subwindow, ws=self.subwindow_shape())
-        s = 'File: {fn}\n'\
-                'Number: {n}\n'\
-                'B-values: {nb}: {b}\n'\
-                'Voxels: {size}, {shape}\n'\
-                'Window: {w}, {ws}'.format(**d)
+        s = ('File: {fn}\n'
+                'Number: {n}\n'
+                'B-values: {nb}: {b}\n'
+                'Voxels: {size}, {shape}\n'
+                'Window: {w}, {ws}'.format(**d))
         return s
 
     def subwindow_shape(self):

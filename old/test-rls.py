@@ -210,8 +210,8 @@ else:
     X = normalize_sis(X)
 X = util.add_dummy_feature(X)
 Y = normalize_y(Y)
-print 'Samples: %i, features: %i, labels: %i, type: %s'\
-        % (X.shape[0], X.shape[1], len(np.unique(Y)), labeltype)
+print ('Samples: %i, features: %i, labels: %i, type: %s'
+        % (X.shape[0], X.shape[1], len(np.unique(Y)), labeltype))
 print 'Labels: %s' % sorted(np.unique(Y))
 
 rprange = (-10, 10)

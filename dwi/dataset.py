@@ -116,10 +116,10 @@ def read_dicom_pmap(directory, case, scan, param):
 #                    normal_mask=normal_mask,
 #                    )
 #            data.append(d)
-#            assert d['image'].shape[0:3] ==\
-#                    d['prostate_mask'].array.shape ==\
-#                    d['cancer_mask'].array.shape ==\
-#                    d['normal_mask'].array.shape
+#            assert (d['image'].shape[0:3] ==
+#                    d['prostate_mask'].array.shape ==
+#                    d['cancer_mask'].array.shape ==
+#                    d['normal_mask'].array.shape)
 #    return data
 
 def dataset_read_samplelist(samplelist_file, cases=[], scans=[]):

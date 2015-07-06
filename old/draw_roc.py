@@ -94,8 +94,8 @@ elif args.labeltype == 'score':
     Y = np.array(dwi.util.group_labels(groups, Y))
 
 if args.verbose > 1:
-    print 'Samples: %i, features: %i, labels: %i, type: %s'\
-            % (X.shape[0], X.shape[1], len(set(labels)), args.labeltype)
+    print ('Samples: %i, features: %i, labels: %i, type: %s'
+            % (X.shape[0], X.shape[1], len(set(labels)), args.labeltype))
     print 'Labels: %s' % sorted(list(set(labels)))
     print 'Positives: %d' % sum(Y)
 

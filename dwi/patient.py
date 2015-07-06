@@ -124,7 +124,7 @@ def load_files(patients, filenames, pairs=False):
     pmaps = np.array(pmaps)
     params = afs[0].params()
     assert pmaps.shape[-1] == len(params), 'Parameter name mismatch.'
-    #print('Filenames: %i, loaded: %i, lines: %i, columns: %i'\
+    #print('Filenames: %i, loaded: %i, lines: %i, columns: %i'
     #        % (len(filenames), pmaps.shape[0], pmaps.shape[1], pmaps.shape[2]))
     return pmaps, ids, params
 

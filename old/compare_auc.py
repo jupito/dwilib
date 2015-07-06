@@ -54,9 +54,9 @@ def load_data(pmaps, labels, group_ids):
 def negate_for_roc(X, params):
     """Negate certain parameters to produce correct ROC."""
     for i, param in enumerate(params):
-        if not (param.isdigit() or\
-                param.startswith('SI') or\
-                param.startswith('K') or\
+        if not (param.isdigit() or
+                param.startswith('SI') or
+                param.startswith('K') or
                 param.startswith('Df')):
             X[i] = -X[i]
 
@@ -103,8 +103,8 @@ for i in range(len(Y)):
         Y[i] = np.array(dwi.util.group_labels(groups, Y[i]))
 
 if args.verbose:
-    print 'Samples: %i, features: %i, labels: %i, type: %s'\
-            % (X[0].shape[0], X[0].shape[1], len(set(labels)), args.labeltype)
+    print ('Samples: %i, features: %i, labels: %i, type: %s'
+            % (X[0].shape[0], X[0].shape[1], len(set(labels)), args.labeltype))
     print 'Labels: %s' % sorted(list(set(labels)))
     print 'Positives: %d' % sum(Y[0])
     print args.threshold, args.negatives
@@ -125,8 +125,8 @@ for x, y, params in zip(X, Y, Params):
 negate_for_roc(X_all, params_all)
 
 if args.verbose:
-    print 'Bootstrapping %i parameters %i times...' %\
-            (len(params_all), args.nboot)
+    print ('Bootstrapping %i parameters %i times...' %
+            (len(params_all), args.nboot))
 
 # Collect AUC's and bootstrapped AUC's.
 aucs = []

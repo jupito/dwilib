@@ -44,15 +44,15 @@ d = dict(infile=args.input, shape=mask.shape(), size=np.prod(mask.shape()),
         mbb=mbb, mbb_shape=mbb_shape, mbb_size=np.prod(mbb_shape),
         mbb_all=mask.mbb_equals_selection(),
         nsl=len(selected_slices), sl=selected_slices, msl=mask.max_slices())
-s = 'mask: {infile}\n'\
-        'mask shape: {shape}\n'\
-        'mask size: {size}\n'\
-        'selected voxels: {nsel}\n'\
-        'minimum bounding box coordinates: {mbb}\n'\
-        'minimum bounding box shape: {mbb_shape}\n'\
-        'minimum bounding box size: {mbb_size} (equals selection: {mbb_all})\n'\
-        'selected slices: {nsl}: {sl}\n'\
-        'maximum slices: {msl}'
+s = ('mask: {infile}\n'
+        'mask shape: {shape}\n'
+        'mask size: {size}\n'
+        'selected voxels: {nsel}\n'
+        'minimum bounding box coordinates: {mbb}\n'
+        'minimum bounding box shape: {mbb_shape}\n'
+        'minimum bounding box size: {mbb_size} (equals selection: {mbb_all})\n'
+        'selected slices: {nsl}: {sl}\n'
+        'maximum slices: {msl}')
 print s.format(**d)
 
 if args.subregion:
