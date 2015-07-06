@@ -198,7 +198,7 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
 
 def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
     """Measure the distance of two LBP frequency histograms.
-    
+
     Method can be one of the following:
     intersection: histogram intersection
     log-likelihood: log-likelihood
@@ -254,7 +254,7 @@ def gabor_map(img, winsize, sigmas=[1, 2, 3], freqs=[0.1, 0.2, 0.3, 0.4],
 
 def hog(img):
     """Histogram of oriented gradients (HOG).
-    
+
     Averaged over directions for orientation invariance.
     """
     kwargs = dict(
@@ -348,7 +348,7 @@ def hu_map(img, winsize, mask=None, output=None):
 
 def zernike(img, radius, degree=8, cm=None):
     """Zernike moments.
-    
+
     This geometric moment derivate is based on alternative orthogonal
     polynomials, which makes it more optimal wrt. information redundancy. These
     are invariant to rotation.
@@ -438,7 +438,7 @@ def sobel(img, mask=None):
 
 def sobel_map(img, winsize=None, mask=None):
     """Sobel edge descriptor map.
-    
+
     Parameter winsize is not used, it is there for API compatibility."""
     output = np.array([sobel(img), sobel(img, mask=mask)])
     names = ['sobel', 'sobel_mask']
