@@ -58,7 +58,7 @@ def coefficients(a1, a2, avgfun=np.mean):
 
 def icc(baselines):
     """Calculate ICC(3,1) intraclass correlation.
-    
+
     See Shrout, Fleiss 1979: Intraclass Correlations: Uses in Assessing Rater
     Reliability.
     """

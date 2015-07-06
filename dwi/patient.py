@@ -169,7 +169,7 @@ THRESHOLDS_STANDARD = ['3+3', '3+4']
 def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
         multiroi=False):
     """Read pmaps labeled by their Gleason score.
-    
+
     Label thresholds are maximum scores of each label group. Labels are ordinal
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
@@ -200,7 +200,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
 
 def grouping(data):
     """Return different scores, grouped scores, and their sample sizes.
-    
+
     See read_pmaps()."""
     scores = [d['score'] for d in data]
     labels = [d['label'] for d in data]

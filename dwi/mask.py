@@ -132,7 +132,7 @@ class Mask3D(object):
 
     def bounding_box(self, pad=0):
         """Return the minimum bounding box with optional padding.
-        
+
         Parameter pad can be a tuple of each dimension or a single number. It
         can contain infinity for maximum padding.
         """

@@ -66,7 +66,7 @@ def subwindow_shape(subwindow):
 
 def sliding_window(a, winshape, mask=None):
     """Multidimensional sliding window iterator with arbitrary window shape.
-    
+
     Yields window origin (center) and view to window. Window won't overlap
     image border. If a mask array is provided, windows are skipped unless origin
     is selected in mask.
@@ -130,7 +130,7 @@ def resample_bootstrap(Y, X):
 
 def resample_bootstrap_stratified(Y, X):
     """Get a bootstrap resampled group with stratification.
-    
+
     Note that as a side-effect the resulting Y array will be sorted, but that
     doesn't matter because X will be randomized accordingly.
     """

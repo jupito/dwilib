@@ -172,7 +172,7 @@ def search_params_nonlinear(trainX, trainY, group_ids, rprange, gammarange):
             bestrp = rp
             bestgamma = gamma
     return bestperf, bestperf_groups, bestrp, bestgamma
-    
+
 
 a, filenames = get_args(3)
 use_roi2, labeltype, patients_file = a

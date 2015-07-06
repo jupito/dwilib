@@ -19,7 +19,7 @@ def read_subregion(directory, case, scan):
 
 def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
     """Read cancer and normal ROI masks.
-    
+
     Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2' for
     an optional second cancer ROI.
 
@@ -39,7 +39,7 @@ def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
 
 def read_prostate_mask(directory, case, scan):
     """Read 3D prostate mask in DICOM format.
-    
+
     The first multi-slice mask with proper pathname is used.
     """
     d = dict(d=directory, c=case, s=scan)
@@ -53,7 +53,7 @@ def read_prostate_mask(directory, case, scan):
 
 def read_lesion_masks(directory, case, scan):
     """Read 3D prostate mask in DICOM format.
-    
+
     The first multi-slice mask with proper pathname is used.
     """
     d = dict(d=directory, c=case, s=scan)

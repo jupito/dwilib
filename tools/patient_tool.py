@@ -37,7 +37,7 @@ def label_lesions(patients, thresholds):
 
 def label_patients(patients, group_sizes):
     """Label patients according to their lesion labels.
-    
+
     Least-used labels are preferred in order to counter bias.
     """
     sorted_sizes = sorted((size, i) for i, size in enumerate(group_sizes))
@@ -55,7 +55,7 @@ def group_patients(patients):
 
 def random_split(seq, ratio=0.5, surplus=0):
     """Randomly split sequncy into two.
-    
+
     Parameter surplus defines the group where odd elements are put.
     """
     import random

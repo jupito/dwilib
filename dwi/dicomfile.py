@@ -20,7 +20,7 @@ def read_dir(dirname):
 def read_files(filenames):
     """Read a bunch of files, each containing a single slice with one b-value,
     and construct a 4d image array.
-    
+
     The slices are sorted simply by their position as it is, assuming it only
     changes in one dimension. In case there are more than one scan of a position
     and a b-value, the files are averaged by mean.
