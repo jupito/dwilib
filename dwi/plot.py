@@ -7,7 +7,7 @@ import pylab as pl
 
 import dwi.util
 
-def show_images(Imgs, ylabels=[], xlabels=[], vmin=None, vmax=None,
+def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
         outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
     pl.rcParams['image.cmap'] = 'gray'
