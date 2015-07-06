@@ -1,9 +1,12 @@
+"""Utility functionality."""
+
 from __future__ import division, print_function
 import collections
 import itertools
 import random
 
 import numpy as np
+import scipy as sp
 
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal."""
@@ -158,7 +161,9 @@ def fivenumd(a):
     return d
 
 def stem_and_leaf(values):
-    # XXX: only first and second decimal places
+    """A quick and dirty text mode stem-and-leaf diagram that only uses first
+    and second decimal places.
+    """
     stems = {}
     for v in sorted(values):
         a = stems.setdefault(int(v*10), [])
@@ -174,7 +179,7 @@ def tilde(a):
     typ = a.dtype
     return (~a.astype(bool)).astype(typ)
 
-# XXX Use calculate_roc_auc() instead of roc(), roc_auc().
+# Note: These are obsolete. use calculate_roc_auc() instead of roc(), roc_auc().
 #
 #def roc(truths, scores):
 #    """Calculate ROC curve. Based on HM's matlab implementation."""
@@ -212,7 +217,7 @@ def calculate_roc_auc(y, x, autoflip=False):
     import sklearn.metrics
     y = np.asarray(y)
     x = np.asarray(x)
-    fpr, tpr, thresholds = sklearn.metrics.roc_curve(y, x)
+    fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
     auc = sklearn.metrics.auc(fpr, tpr)
     if autoflip and auc < 0.5:
         fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
@@ -250,8 +255,7 @@ def ci(x, p=0.05):
 
 def distance(a, b):
     """Return the Euclidean distance of two vectors."""
-    from scipy.spatial import distance
-    return distance.euclidean(a, b)
+    return sp.spatial.distance.euclidean(a, b)
 
 
 def normalize_si_curve(si):
