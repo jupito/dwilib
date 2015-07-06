@@ -87,6 +87,8 @@ def main():
     if img.shape != mask.shape():
         raise Exception('Image shape {} does not match mask shape {}'.format(
             img.shape, mask.shape()))
+    if mask.n_selected() == 0:
+        raise ValueError('Empty mask.')
 
     if args.slices == 'maxfirst':
         slice_indices = [mask.max_slices()[0]]
@@ -156,8 +158,6 @@ def main():
         if args.methods is None or method in args.methods:
             if args.verbose > 1:
                 print(method)
-            if np.count_nonzero(mask_slices) == 0:
-                continue # Skip slice with empty mask.
             tmaps, names = call(img_slices, mask=mask_slices)
             feats += list(tmaps)
             names = ['{w}-{n}'.format(w='all', n=n) for n in names]
