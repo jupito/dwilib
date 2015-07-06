@@ -38,10 +38,10 @@ for filename in args.input:
         d = dict(i=i, param=params[i])
         if args.basic:
             d.update(mean=a.mean(), std=a.std(), var=a.var(), sum=sum(a))
-            print('{i}\t{param}'\
-                    '\t{mean:g}\t{std:g}\t{var:g}'\
+            print('{i}\t{param}'
+                    '\t{mean:g}\t{std:g}\t{var:g}'
                     '\t{sum:g}'.format(**d))
         if args.five:
             d.update(dwi.util.fivenumd(a))
-            print('{i}\t{param}'\
+            print('{i}\t{param}'
                     '\t{min:g}\t{q1:g}\t{median:g}\t{q3:g}\t{max:g}'.format(**d))

@@ -109,14 +109,14 @@ else:
     X = pmaps[:,i,:] # Use single voxel only.
 
 if args.verbose > 1:
-    print('Samples: %i, features: %i, voxel: %s'\
+    print('Samples: %i, features: %i, voxel: %s'
             % (X.shape[0], X.shape[1], args.voxel))
     print('Number of bootstraps: %d' % args.nboot)
 
 # Print coefficients for each parameter.
 if args.verbose:
-    print('# param    avg[lower-upper]'\
-            '    msd/avg    CI/avg    wCV    CoR/avg'\
+    print('# param    avg[lower-upper]'
+            '    msd/avg    CI/avg    wCV    CoR/avg'
             '    ICC    bsICC[lower-upper]')
 skipped_params = 'SI0N C RMSE'.split()
 for values, param in zip(X.T, params):
@@ -131,8 +131,8 @@ for values, param in zip(X.T, params):
     d['icc'] = icc(baselines)
     d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = bootstrap_icc(baselines,
             nboot=args.nboot)
-    s = '{param:7}'\
-            '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'\
-            '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'\
-            '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]'
+    s = ('{param:7}'
+            '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'
+            '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'
+            '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]')
     print(s.format(**d))
