@@ -7,13 +7,11 @@ import re
 
 import numpy as np
 
-import dwi.util
-
 COMMENT_PREFIX = '#'
 
-def toline(seq):
-    """Convert sequence to line."""
-    return ' '.join(map(str, seq)) + '\n'
+def toline(iterable):
+    """Convert an iterable into a line."""
+    return ' '.join(str(x) for x in iterable) + '\n'
 
 def valid_lines(filename):
     """Read and yield lines that are neither empty nor comments."""
@@ -42,14 +40,14 @@ def read_patients_file(filename, include_lines=False):
     from dwi.patient import GleasonScore, Lesion, Patient
     patients = []
     p = re.compile(r"""
-            (?P<num>\d+) \s+
-            (?P<name>\w+) \s+
-            (?P<scans>[\w,]+) \s+
-            (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
-            ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
-            ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
-            """,
-            flags=re.VERBOSE)
+                   (?P<num>\d+) \s+
+                   (?P<name>\w+) \s+
+                   (?P<scans>[\w,]+) \s+
+                   (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
+                   ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
+                   ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
+                   """,
+                   flags=re.VERBOSE)
     for line in valid_lines(filename):
         m = p.match(line)
         if m:
@@ -62,13 +60,13 @@ def read_patients_file(filename, include_lines=False):
                 # New-style, multi-lesion file.
                 lesions = []
                 lesions.append(Lesion(0, GleasonScore(m.group('score')),
-                        m.group('location').lower()))
+                                      m.group('location').lower()))
                 if m.group('score2'):
                     lesions.append(Lesion(1, GleasonScore(m.group('score2')),
-                            m.group('location2').lower()))
+                                          m.group('location2').lower()))
                 if m.group('score3'):
                     lesions.append(Lesion(2, GleasonScore(m.group('score3')),
-                            m.group('location3').lower()))
+                                          m.group('location3').lower()))
             patient = Patient(num, name, scans, lesions)
             if include_lines:
                 patient.line = line
