@@ -254,7 +254,6 @@ def distance(a, b):
     return distance.euclidean(a, b)
 
 
-
 def normalize_si_curve(si):
     """Normalize a signal intensity curve (divide all by SI(b0))."""
     unit = si[0]
