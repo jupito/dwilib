@@ -12,6 +12,9 @@ import dwi.util
 
 @total_ordering
 class GleasonScore(object):
+    """Gleason score is a two or three-value measure of prostate cancer
+    severity.
+    """
     def __init__(self, score):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional)."""
@@ -19,7 +22,7 @@ class GleasonScore(object):
             s = score.split('+')
         else:
             s = score
-        s = tuple(map(int, s))
+        s = tuple(int(x) for x in s)
         if len(s) == 2:
             s += (0,) # Internal representation always has three digits.
         if not len(s) == 3:
@@ -30,7 +33,7 @@ class GleasonScore(object):
         s = self.score
         if not s[-1]:
             s = s[0:-1] # Drop trailing zero.
-        return '+'.join(map(str, s))
+        return '+'.join(str(x) for x in s)
 
     def __hash__(self):
         return hash(self.score)
@@ -45,16 +48,18 @@ class GleasonScore(object):
         return self.score < other.score
 
 class Lesion(object):
+    """Lesion is a lump of cancer tissue."""
     def __init__(self, index, score, location):
-        self.index = index
-        self.score = score
-        self.location = location
+        self.index = index # No. in patient.
+        self.score = score # Gleason score.
+        self.location = location # PZ or CZ.
 
     def __repr__(self):
         return repr((self.index, self.score, self.location))
 
 @total_ordering
 class Patient(object):
+    """Patient case."""
     def __init__(self, num, name, scans, lesions):
         self.num = num
         self.name = name
@@ -116,7 +121,7 @@ def load_files(patients, filenames, pairs=False):
         num, scan = dwi.util.parse_num_scan(os.path.basename(f))
         if patients is None or scan_in_patients(patients, num, scan):
             pmapfiles.append(f)
-    afs = map(dwi.asciifile.AsciiFile, pmapfiles)
+    afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
     if pairs:
         dwi.util.scan_pairs(afs)
     ids = [dwi.util.parse_num_scan(af.basename) for af in afs]
@@ -148,7 +153,7 @@ def load_labels(patients, nums, labeltype='score'):
         raise Exception('Invalid parameter: %s' % labeltype)
     return labels
 
-def cases_scans(patients, cases=[], scans=[]):
+def cases_scans(patients, cases=(), scans=()):
     """Generate all case, scan combinations, with optional whitelists."""
     for p in patients:
         if not cases or p.num in cases:
@@ -164,16 +169,16 @@ def lesions(patients):
                 yield p, s, l
 
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
-THRESHOLDS_STANDARD = ['3+3', '3+4']
+THRESHOLDS_STANDARD = ('3+3', '3+4')
 
-def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
-        multiroi=False):
+def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
+               multiroi=False):
     """Read pmaps labeled by their Gleason score.
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
     of score if no thresholds provided."""
     # TODO Support for selecting measurements over scan pairs
-    thresholds = map(GleasonScore, thresholds)
+    thresholds = tuple(GleasonScore(x) for x in thresholds)
     patients = dwi.files.read_patients_file(patients_file)
     gs = get_gleason_scores(patients)
     data = []
@@ -188,9 +193,9 @@ def read_pmaps(patients_file, pmapdir, thresholds=['3+3'], voxel='all',
             label = score_ord(gs, score)
         roi = lesion.index if multiroi else None
         pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
-                voxel=voxel)
+                                           voxel=voxel)
         d = dict(case=case, scan=scan, roi=lesion.index, score=score,
-                label=label, pmap=pmap, params=params, pathname=pathname)
+                 label=label, pmap=pmap, params=params, pathname=pathname)
         data.append(d)
         if pmap.shape != data[0]['pmap'].shape:
             raise Exception('Irregular shape: %s' % pathname)
