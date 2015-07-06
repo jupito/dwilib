@@ -122,7 +122,7 @@ def read_dicom_pmap(directory, case, scan, param):
 #                    d['normal_mask'].array.shape)
 #    return data
 
-def dataset_read_samplelist(samplelist_file, cases=(), scans=()):
+def dataset_read_samplelist(samplelist_file, cases=None, scans=None):
     """Create a new dataset from a sample list file, optionally including only
     mentioned cases and scans."""
     samples = dwi.files.read_sample_list(samplelist_file)
