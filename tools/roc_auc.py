@@ -32,6 +32,8 @@ def parse_args():
             help='flip data when AUC < 0.5')
     p.add_argument('--compare', action='store_true',
             help='do AUC comparison')
+    p.add_argument('--dropok', action='store_true',
+            help='allow dropping of files not found')
     p.add_argument('--figure',
             help='output figure file')
     args = p.parse_args()
@@ -46,7 +48,7 @@ Params = []
 scores = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.patients, pmapdir, [args.threshold],
-            voxel=args.voxel, multiroi=args.multilesion)
+            voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok)
     if scores is None:
         scores, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):

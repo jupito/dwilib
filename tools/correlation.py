@@ -26,6 +26,8 @@ def parse_args():
             help='index of voxel to use, or all, sole, mean, median')
     p.add_argument('--multilesion', action='store_true',
             help='use all lesions, not just first for each')
+    p.add_argument('--dropok', action='store_true',
+            help='allow dropping of files not found')
     args = p.parse_args()
     return args
 
@@ -53,7 +55,7 @@ Params = []
 scores = None
 for i, pmapdir in enumerate(args.pmapdir):
     data = dwi.patient.read_pmaps(args.patients, pmapdir, args.thresholds,
-            voxel=args.voxel, multiroi=args.multilesion)
+            voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok)
     if scores is None:
         scores, groups, group_sizes = dwi.patient.grouping(data)
     for j, param in enumerate(data[0]['params']):
