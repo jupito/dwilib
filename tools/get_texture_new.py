@@ -41,6 +41,8 @@ def parse_args():
                    help='window side lengths')
     p.add_argument('--portion', type=float, required=False, default=0,
                    help='portion of selected voxels required for each window')
+    p.add_argument('--voxel', choices=('all', 'mean'), default='all',
+                   help='voxel to output (all, mean)')
     p.add_argument('--output', metavar='FILENAME',
                    help='output ASCII file')
     return p.parse_args()
@@ -121,7 +123,7 @@ def main():
     if args.verbose:
         print('Calculating texture features...')
     tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
-                                          mask=pmask, avg=True)
+                                          mask=pmask, avg=(args.voxel=='mean'))
 
     if args.verbose:
         print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
