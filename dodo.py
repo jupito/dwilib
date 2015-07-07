@@ -59,7 +59,7 @@ FIND_ROI_PARAMS = [
     range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
     ]
 
-def texture_methods(model=MODE.model):
+def texture_methods(mode):
     return ' '.join([
         #'stats',
         #'haralick',
@@ -78,10 +78,10 @@ def texture_methods(model=MODE.model):
         'stats_all',
         ])
 
-def texture_winsizes(masktype, model=MODE.model):
+def texture_winsizes(masktype, mode):
     if masktype in ('CA', 'N'):
         l = [3, 5]
-    elif model in ('T2', 'T2w'):
+    elif mode.modality in ('T2', 'T2w'):
         l = range(3, 30, 4)
     else:
         l = range(3, 16, 2)
@@ -105,11 +105,11 @@ def find_roi_param_combinations():
         if t[0] <= t[1] and t[2] == t[3]:
             yield [str(x) for x in t]
 
-def samplelist_file(mode=MODE, samplelist=SAMPLELIST):
+def samplelist_file(mode, samplelist=SAMPLELIST):
     return 'patients_{m}_{l}.txt'.format(m=mode.modality, l=samplelist)
 
-def pmapdir_dicom(model):
-    s = 'dicoms_{m}_*'.format(m=model)
+def pmapdir_dicom(mode):
+    s = 'dicoms_{m.model}_*'.format(m=mode)
     path = dwi.util.sglob(s, typ='dir')
     return path
 
@@ -156,17 +156,17 @@ def texture_path(d):
     path = path.format(**d)
     return path
 
-def cases_scans():
+def cases_scans(mode):
     """Generate all case, scan pairs."""
-    samples = dwi.files.read_sample_list(samplelist_file())
+    samples = dwi.files.read_sample_list(samplelist_file(mode))
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
             yield case, scan
 
-def lesions():
+def lesions(mode):
     """Generate all case, scan, lesion# (1-based) combinations."""
-    patients = dwi.files.read_patients_file(samplelist_file())
+    patients = dwi.files.read_patients_file(samplelist_file(mode))
     for p in patients:
         for scan in p.scans:
             for lesion in range(len(p.lesions)):
@@ -225,7 +225,7 @@ def get_texture_cmd(d):
 
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
-    for case, scan in cases_scans():
+    for case, scan in cases_scans(MODE):
         d = dict(prg=MASKTOOL, c=case, s=scan)
         d.update(i='masks_prostate/{c}_*_{s}_*'.format(**d),
                  o='subregions/{c}_{s}_subregion10.txt'.format(**d))
@@ -241,8 +241,8 @@ def task_make_subregion():
             }
 
 def get_task_find_roi(case, scan, mode, algparams):
-    d = dict(prg=FIND_ROI, slf=samplelist_file(),
-             pd=pmapdir_dicom(mode.model), srd=SUBREGION_DIR, m=mode.model,
+    d = dict(prg=FIND_ROI, slf=samplelist_file(mode),
+             pd=pmapdir_dicom(mode), srd=SUBREGION_DIR, m=mode.model,
              p=mode.param, c=case, s=scan, ap=' '.join(algparams),
              ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
@@ -268,7 +268,7 @@ def get_task_find_roi(case, scan, mode, algparams):
 def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
-        for case, scan in cases_scans():
+        for case, scan in cases_scans(MODE):
             yield get_task_find_roi(case, scan, MODE, algparams)
 
 def get_task_select_roi_manual(case, scan, mode, masktype):
@@ -318,7 +318,7 @@ def get_task_select_roi_auto(case, scan, mode, algparams):
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
     for masktype in ('CA', 'N'):
-        for case, scan in cases_scans():
+        for case, scan in cases_scans(MODE):
             try:
                 yield get_task_select_roi_manual(case, scan, MODE, masktype)
             except IOError, e:
@@ -327,7 +327,7 @@ def task_select_roi_manual():
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for algparams in find_roi_param_combinations():
-        for case, scan in cases_scans():
+        for case, scan in cases_scans(MODE):
             try:
                 yield get_task_select_roi_auto(case, scan, MODE, algparams)
             except IOError, e:
@@ -342,7 +342,7 @@ def task_select_roi():
 
 def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
-    d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CALC_AUC,
+    d = dict(sl=SAMPLELIST, slf=samplelist_file(mode), prg=CALC_AUC,
              m=mode.model, p=mode.param, t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
@@ -362,7 +362,7 @@ def get_task_autoroi_auc(mode, threshold):
 def get_task_autoroi_correlation(mode, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
-    d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CORRELATION,
+    d = dict(sl=SAMPLELIST, slf=samplelist_file(mode), prg=CORRELATION,
              m=mode.model, p=mode.param, t=thresholds,
              t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
@@ -390,9 +390,9 @@ def task_evaluate_autoroi():
 def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                             portion):
     """Generate texture features."""
-    d = dict(methods=texture_methods(mode.model),
-             winsizes=texture_winsizes(masktype, mode.model),
-             pd=pmapdir_dicom(mode.model), m=mode.model, p=mode.param,
+    d = dict(methods=texture_methods(mode),
+             winsizes=texture_winsizes(masktype, mode),
+             pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
              mt=masktype, c=case, s=scan, l=lesion, slices=slices,
              portion=portion)
     d['mask'], mask_deps = mask_path(d)
@@ -410,9 +410,9 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
     masktype = 'auto'
-    d = dict(methods=texture_methods(mode.model),
-             winsizes=texture_winsizes(masktype, mode.model),
-             pd=pmapdir_dicom(mode.model), m=mode.model, p=mode.param,
+    d = dict(methods=texture_methods(mode),
+             winsizes=texture_winsizes(masktype, mode),
+             pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
              mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
              slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
@@ -429,7 +429,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
 
 def task_texture():
     """Generate texture features."""
-    for case, scan, lesion in lesions():
+    for case, scan, lesion in lesions(MODE):
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 0)
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 0)
@@ -464,7 +464,7 @@ def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
 
 def task_mask_prostate():
     """Generate DICOM images with everything but prostate zeroed."""
-    for case, scan in cases_scans():
+    for case, scan in cases_scans(MODE):
         try:
             yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms', 'dicoms_masked_DWI', '_hB', '')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate', 'new/for_jussi_data_missing_04_01_2015/SPAIR_f_12b_highb', 'dicoms_masked_DWI_missing', '', '_all')
@@ -473,7 +473,7 @@ def task_mask_prostate():
 
 def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
-    for case, scan in cases_scans():
+    for case, scan in cases_scans(MODE):
         try:
             yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65', 'dicoms_masked_T2', '', '_T2')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
