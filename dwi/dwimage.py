@@ -69,7 +69,7 @@ def load_hdf5(filename):
     a, d = dwi.hdf5.read_hdf5(filename)
     if a.ndim != 4:
         a = a.reshape(1,1,-1,a.shape[-1])
-    dwimage = DWImage(a, d['bset'])
+    dwimage = DWImage(a, d.get('bset') or range(a.shape[-1]))
     dwimage.filename = os.path.abspath(filename)
     dwimage.basename = os.path.basename(filename)
     dwimage.number = 0
