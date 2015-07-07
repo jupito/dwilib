@@ -85,8 +85,7 @@ def texture_winsizes(masktype, model=MODEL):
     if masktype in ['CA', 'N']:
         l = [3, 5]
     elif model in ['T2', 'T2w']:
-        #l = range(3, 36, 4)
-        l = range(3, 36, 2)
+        l = range(3, 30, 4)
     else:
         l = range(3, 16, 2)
     return ' '.join(map(str, l))
