@@ -529,7 +529,7 @@ def get_texture_map(img, call, winsize, mask=None):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
                 tmap = np.zeros(img.shape+(len(names),), dtype=np.float32)
-            np.rollaxis(feats, 0, 4)
+            feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
     return tmap, names
 
