@@ -509,7 +509,7 @@ _METHODS = collections.OrderedDict([
 
 def get_texture_all(img, call, mask=None):
     feats, names = call(img, mask=mask)
-    tmap = np.array(feats, dtype=np.float32, ndmin=4)
+    tmap = np.array(feats, ndmin=4)
     return tmap, names
 
 def get_texture_mbb(img, call, mask=None):
@@ -518,7 +518,7 @@ def get_texture_mbb(img, call, mask=None):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros((len(img), 1, 1, len(names)), dtype=np.float32)
+                tmap = np.zeros((len(img), 1, 1, len(names)))
             tmap[i, 0, 0, :] = feats
     return tmap, names
 
@@ -528,7 +528,7 @@ def get_texture_map(img, call, winsize, mask=None):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros(img.shape+(len(names),), dtype=np.float32)
+                tmap = np.zeros(img.shape+(len(names),))
             feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
     return tmap, names
@@ -547,6 +547,6 @@ def get_texture(img, method, winsize, mask=None):
     else:
         tmap, names = get_texture_map(img, call, winsize, mask)
         avg = np.mean(tmap[mask, :], axis=0)
-        tmap = np.array(avg, dtype=np.float32, ndmin=4)
+        tmap = np.array(avg, ndmin=4)
     names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
     return tmap, names
