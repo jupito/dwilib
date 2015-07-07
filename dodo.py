@@ -46,8 +46,9 @@ MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
 DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
                       Kurt='ADCk', KurtN='ADCkN',
                       T2='raw', T2w='raw')
-MODEL = get_var('model', 'Mono')
-PARAM = get_var('param', DEFAULT_PARAMS[MODEL])
+MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
+MODEL = MODE.model
+PARAM = MODE.param
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
