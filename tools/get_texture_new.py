@@ -127,7 +127,7 @@ def main():
                                                          args.std)
 
     if args.verbose:
-        print('Calculating texture features...')
+        print('Calculating {} texture features...').format(args.method)
     tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
                                           mask=pmask, avg=(args.voxel=='mean'))
 
