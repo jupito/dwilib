@@ -47,8 +47,6 @@ DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
                       Kurt='ADCk', KurtN='ADCkN',
                       T2='raw', T2w='raw')
 MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
-MODEL = MODE.model
-PARAM = MODE.param
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
 SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
@@ -61,7 +59,7 @@ FIND_ROI_PARAMS = [
     range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
     ]
 
-def texture_methods(model=MODEL):
+def texture_methods(model=MODE.model):
     return ' '.join([
         #'stats',
         #'haralick',
@@ -80,7 +78,7 @@ def texture_methods(model=MODEL):
         'stats_all',
         ])
 
-def texture_winsizes(masktype, model=MODEL):
+def texture_winsizes(masktype, model=MODE.model):
     if masktype in ('CA', 'N'):
         l = [3, 5]
     elif model in ('T2', 'T2w'):
@@ -242,10 +240,11 @@ def task_make_subregion():
             'clean': True,
             }
 
-def get_task_find_roi(case, scan, model, param, algparams):
+def get_task_find_roi(case, scan, mode, algparams):
     d = dict(prg=FIND_ROI, slf=samplelist_file(),
-             pd=pmapdir_dicom(model), srd=SUBREGION_DIR, m=model, p=param,
-             c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
+             pd=pmapdir_dicom(mode.model), srd=SUBREGION_DIR, m=mode.model,
+             p=mode.param, c=case, s=scan, ap=' '.join(algparams),
+             ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
@@ -270,11 +269,11 @@ def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
-            yield get_task_find_roi(case, scan, MODEL, PARAM, algparams)
+            yield get_task_find_roi(case, scan, MODE, algparams)
 
-def get_task_select_roi_manual(case, scan, model, param, masktype):
+def get_task_select_roi_manual(case, scan, mode, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(c=case, s=scan, m=model, p=param, mt=masktype)
+    d = dict(c=case, s=scan, m=mode.model, p=mode.param, mt=masktype)
     maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(**d)
@@ -294,9 +293,9 @@ def get_task_select_roi_manual(case, scan, model, param, masktype):
         'clean': True,
         }
 
-def get_task_select_roi_auto(case, scan, model, param, algparams):
+def get_task_select_roi_auto(case, scan, mode, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(c=case, s=scan, m=model, p=param, mt='auto',
+    d = dict(c=case, s=scan, m=mode.model, p=mode.param, mt='auto',
              ap_='_'.join(algparams))
     maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
@@ -321,8 +320,7 @@ def task_select_roi_manual():
     for masktype in ('CA', 'N'):
         for case, scan in cases_scans():
             try:
-                yield get_task_select_roi_manual(case, scan, MODEL, PARAM,
-                                                 masktype)
+                yield get_task_select_roi_manual(case, scan, MODE, masktype)
             except IOError, e:
                 print e
 
@@ -331,8 +329,7 @@ def task_select_roi_auto():
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans():
             try:
-                yield get_task_select_roi_auto(case, scan, MODEL, PARAM,
-                                               algparams)
+                yield get_task_select_roi_auto(case, scan, MODE, algparams)
             except IOError, e:
                 print e
 
@@ -343,10 +340,10 @@ def task_select_roi():
         'task_dep': ['select_roi_manual', 'select_roi_auto'],
         }
 
-def get_task_autoroi_auc(model, param, threshold):
+def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
     d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CALC_AUC,
-             m=model, p=param, t=threshold)
+             m=mode.model, p=mode.param, t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
@@ -362,11 +359,12 @@ def get_task_autoroi_auc(model, param, threshold):
         'clean': True,
         }
 
-def get_task_autoroi_correlation(model, param, thresholds):
+def get_task_autoroi_correlation(mode, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
     d = dict(sl=SAMPLELIST, slf=samplelist_file(), prg=CORRELATION,
-             m=model, p=param, t=thresholds, t_=thresholds.replace(' ', ','))
+             m=mode.model, p=mode.param, t=thresholds,
+             t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m}_{p}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations():
@@ -384,18 +382,19 @@ def get_task_autoroi_correlation(model, param, thresholds):
 
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability."""
-    yield get_task_autoroi_auc(MODEL, PARAM, '3+3')
-    yield get_task_autoroi_auc(MODEL, PARAM, '3+4')
-    yield get_task_autoroi_correlation(MODEL, PARAM, '3+3 3+4')
-    yield get_task_autoroi_correlation(MODEL, PARAM, '')
+    yield get_task_autoroi_auc(MODE, '3+3')
+    yield get_task_autoroi_auc(MODE, '3+4')
+    yield get_task_autoroi_correlation(MODE, '3+3 3+4')
+    yield get_task_autoroi_correlation(MODE, '')
 
-def get_task_texture_manual(model, param, masktype, case, scan, lesion, slices,
+def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                             portion):
     """Generate texture features."""
-    d = dict(methods=texture_methods(model),
-             winsizes=texture_winsizes(masktype, model),
-             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
-             s=scan, l=lesion, slices=slices, portion=portion)
+    d = dict(methods=texture_methods(mode.model),
+             winsizes=texture_winsizes(masktype, mode.model),
+             pd=pmapdir_dicom(mode.model), m=mode.model, p=mode.param,
+             mt=masktype, c=case, s=scan, l=lesion, slices=slices,
+             portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
@@ -408,15 +407,14 @@ def get_task_texture_manual(model, param, masktype, case, scan, lesion, slices,
         'clean': True,
         }
 
-def get_task_texture_auto(model, param, algparams, case, scan, lesion, slices,
-                          portion):
+def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
     masktype = 'auto'
-    d = dict(methods=texture_methods(model),
-             winsizes=texture_winsizes(masktype, model),
-             pd=pmapdir_dicom(model), m=model, p=param, mt=masktype, c=case,
-             s=scan, l=lesion, ap_='_'.join(algparams), slices=slices,
-             portion=portion)
+    d = dict(methods=texture_methods(mode.model),
+             winsizes=texture_winsizes(masktype, mode.model),
+             pd=pmapdir_dicom(mode.model), m=mode.model, p=mode.param,
+             mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
+             slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
     d['o'] = texture_path(d)
     cmd = get_texture_cmd(d)
@@ -432,16 +430,16 @@ def get_task_texture_auto(model, param, algparams, case, scan, lesion, slices,
 def task_texture():
     """Generate texture features."""
     for case, scan, lesion in lesions():
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 0)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'maxfirst', 1)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 0)
-        yield get_task_texture_manual(MODEL, PARAM, 'lesion', case, scan, lesion, 'all', 1)
-        if MODEL in ('T2', 'T2w'):
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 0)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 0)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 1)
+        if MODE.model in ('T2', 'T2w'):
             continue # Do only lesion for these.
-        yield get_task_texture_manual(MODEL, PARAM, 'CA', case, scan, lesion, 'maxfirst', 1)
-        yield get_task_texture_manual(MODEL, PARAM, 'N', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'CA', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'N', case, scan, lesion, 'maxfirst', 1)
         for ap in find_roi_param_combinations():
-            yield get_task_texture_auto(MODEL, PARAM, ap, case, scan, lesion, 'maxfirst', 1)
+            yield get_task_texture_auto(MODE, ap, case, scan, lesion, 'maxfirst', 1)
 
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
                            postfix, param='DICOM'):
