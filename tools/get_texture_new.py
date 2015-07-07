@@ -88,6 +88,7 @@ def main():
         if isinstance(mask, dwi.mask.Mask):
             mask = mask.convert_to_3d(img.shape[0])
     else:
+        # A default mask for testing.
         mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
         mask.array[9:-9, 50:-50, 50:-50] = True
 
