@@ -546,6 +546,7 @@ def get_texture(img, method, winsize, mask=None):
         tmap = np.mean(tmap, axis=0, keepdims=True)
     else:
         tmap, names = get_texture_map(img, call, winsize, mask)
-        tmap[mask, :] = np.mean(tmap[mask, :], axis=0)
+        avg = np.mean(tmap[mask, :], axis=0)
+        tmap = np.array(avg, dtype=np.float32, ndmin=4)
     names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
     return tmap, names
