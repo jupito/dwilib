@@ -533,7 +533,7 @@ def get_texture_map(img, call, winsize, mask=None):
             tmap[i, :, :, :] = feats
     return tmap, names
 
-def get_texture(img, method, winsize, mask=None):
+def get_texture(img, method, winsize, mask=None, avg=False):
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
@@ -541,12 +541,19 @@ def get_texture(img, method, winsize, mask=None):
     call = _METHODS[method]
     if method.endswith('_all'):
         tmap, names = get_texture_all(img, call, mask)
+        if not avg:
+            raise NotImplementedError()
     elif method.endswith('mbb'):
         tmap, names = get_texture_mbb(img, call, mask)
-        tmap = np.mean(tmap, axis=0, keepdims=True)
+        if avg:
+            tmap = np.mean(tmap, axis=0, keepdims=True)
+        else:
+            raise NotImplementedError()
     else:
         tmap, names = get_texture_map(img, call, winsize, mask)
-        avg = np.mean(tmap[mask, :], axis=0)
-        tmap = np.array(avg, ndmin=4)
+        if avg:
+            tmap = tmap[mask, :]
+            tmap = np.mean(tmap, axis=0)
+            tmap.shape = (1, 1, 1) + tmap.shape
     names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
     return tmap, names

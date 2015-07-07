@@ -121,7 +121,7 @@ def main():
     if args.verbose:
         print('Calculating texture features...')
     tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
-                                          mask=pmask)
+                                          mask=pmask, avg=True)
 
     if args.verbose:
         print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
