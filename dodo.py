@@ -106,7 +106,7 @@ def find_roi_param_combinations():
             yield [str(x) for x in t]
 
 def samplelist_file(mode, samplelist=SAMPLELIST):
-    return 'patients_{m}_{l}.txt'.format(m=mode.modality, l=samplelist)
+    return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
 
 def pmapdir_dicom(mode):
     s = 'dicoms_{m.model}_*'.format(m=mode)
@@ -114,7 +114,7 @@ def pmapdir_dicom(mode):
     return path
 
 def pmap_dicom(mode, case, scan):
-    s = 'results_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{mode.param}'
+    s = 'dicoms_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{m.param}'
     s = s.format(m=mode, c=case, s=scan)
     return dwi.util.sglob(s, typ='dir')
 
@@ -146,15 +146,17 @@ def mask_path(d):
         deps = [deps]
     return path, deps
 
-def texture_path(d):
+def texture_path(mode, case, scan, lesion, masktype, slices, portion,
+                 algparams=()):
     """Return path to texture file."""
-    if d['mt'] in ('lesion', 'CA', 'N'):
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{c}_{s}_{l}.txt'
-    elif d['mt'] == 'auto':
-        path = 'texture_{mt}_{m}_{p}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
+    if masktype in ('lesion', 'CA', 'N'):
+        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{c}_{s}_{l}.txt'
+    elif masktype == 'auto':
+        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
-    path = path.format(**d)
+    path = path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
+                       slices=slices, portion=portion, ap_='_'.join(algparams))
     return path
 
 def cases_scans(mode):
@@ -397,7 +399,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
              mt=masktype, c=case, s=scan, l=lesion, slices=slices,
              portion=portion)
     d['mask'], mask_deps = mask_path(d)
-    d['o'] = texture_path(d)
+    d['o'] = texture_path(mode, case, scan, lesion, masktype, slices, portion)
     cmd = get_texture_cmd(d)
     return {
         'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
@@ -417,7 +419,8 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
              mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
              slices=slices, portion=portion)
     d['mask'], mask_deps = mask_path(d)
-    d['o'] = texture_path(d)
+    d['o'] = texture_path(mode, case, scan, lesion, masktype, slices, portion,
+                          algparams)
     cmd = get_texture_cmd(d)
     return {
         'name': '{m}_{p}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
