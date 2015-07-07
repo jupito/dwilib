@@ -2,6 +2,7 @@
 
 from __future__ import division, print_function
 from functools import total_ordering
+from collections import namedtuple
 import os.path
 
 import numpy as np
@@ -9,6 +10,9 @@ import numpy as np
 import dwi.asciifile
 import dwi.files
 import dwi.util
+
+"""Image mode identifier, string representation would be like DWI-Mono-ADCm."""
+ImageMode = namedtuple('ImageMode', ('modality', 'model', 'param'))
 
 @total_ordering
 class GleasonScore(object):
