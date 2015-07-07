@@ -534,6 +534,7 @@ def get_texture_map(img, call, winsize, mask=None):
     return tmap, names
 
 def get_texture(img, method, winsize, mask=None, avg=False):
+    """General texture map layer."""
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
