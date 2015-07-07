@@ -100,7 +100,7 @@ def main():
         raise Exception('Invalid slice set specification', args.slices)
 
     img_slices = img[slice_indices]
-    mask_slices = mask.array[slice_indices]
+    mask_slices = mask.array[slice_indices] # TODO: Just set other slices to 0
     winshapes = [(1, w, w) for w in args.winsizes]
     pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
 
