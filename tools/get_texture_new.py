@@ -33,11 +33,11 @@ def parse_args():
                    help='mask file to use')
     p.add_argument('--std',
                    help='standardization file to use')
-    p.add_argument('--methods', metavar='METHOD', nargs='*',
-                   help='methods')
+    p.add_argument('--method', metavar='METHOD',
+                   help='method')
     p.add_argument('--slices', default='maxfirst',
                    help='slice selection (maxfirst, max, all)')
-    p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
+    p.add_argument('--winsize', type=int, default=5,
                    help='window side lengths')
     p.add_argument('--portion', type=float, required=False, default=0,
                    help='portion of selected voxels required for each window')
@@ -99,75 +99,34 @@ def main():
     else:
         raise Exception('Invalid slice set specification', args.slices)
 
-    img_slices = img[slice_indices]
-    mask_slices = mask.array[slice_indices] # TODO: Just set other slices to 0
-    winshapes = [(1, w, w) for w in args.winsizes]
-    pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
+    # Zero other slices in mask.
+    for i in range(len(mask.array)):
+        if i not in slice_indices:
+            mask.array[i] = 0
 
-    if args.verbose > 1:
-        d = dict(s=img.shape, i=slice_indices, n=np.count_nonzero(mask_slices),
-                 w=args.winsizes)
-        print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d))
+    winshape = (1, args.winsize, args.winsize)
+    pmask = portion_mask(mask.array, winshape, args.portion)
+
+    if args.verbose:
+        print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(
+            s=img.shape, i=slice_indices, n=np.count_nonzero(mask.array),
+            w=args.winsize))
 
     if args.std:
         if args.verbose:
             print('Standardizing...')
-        img_slices = dwi.standardize.standardize(img_slices, args.std)
+        img[slice_indices] = dwi.standardize.standardize(img[slice_indices],
+                                                         args.std)
 
     if args.verbose:
         print('Calculating texture features...')
-    feats = []
-    featnames = []
-    for method, call in dwi.texture.METHODS.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            for winsize, pmask_slices in zip(args.winsizes, pmasks):
-                tmaps_all = None
-                for img_slice, pmask_slice in zip(img_slices, pmask_slices):
-                    if np.count_nonzero(pmask_slice) == 0:
-                        continue # Skip slice with empty mask.
-                    tmaps, names = call(img_slice, winsize, mask=pmask_slice)
-                    tmaps = tmaps[:, pmask_slice]
-                    if tmaps_all is None:
-                        tmaps_all = tmaps
-                    else:
-                        tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
-                feats += [np.mean(x) for x in tmaps_all]
-                names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
-                featnames += names
-    for method, call in dwi.texture.METHODS_MBB.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            tmaps_all = None
-            for img_slice, mask_slice in zip(img_slices, mask_slices):
-                if np.count_nonzero(mask_slice) == 0:
-                    continue # Skip slice with empty mask.
-                tmaps, names = call(img_slice, mask=mask_slice)
-                tmaps = np.asarray(tmaps)
-                tmaps.shape += (1,)
-                if tmaps_all is None:
-                    tmaps_all = tmaps
-                else:
-                    tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
-            feats += [np.mean(x) for x in tmaps_all]
-            names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
-            featnames += names
-    for method, call in dwi.texture.METHODS_ALL.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            tmaps, names = call(img_slices, mask=mask_slices)
-            feats += list(tmaps)
-            names = ['{w}-{n}'.format(w='all', n=n) for n in names]
-            featnames += names
+    tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
+                                          mask=pmask)
 
     if args.verbose:
-        print('Writing %s features to %s' % (len(feats), args.output))
-    feats = np.array([feats], dtype=np.float32)
-    #dwi.asciifile.write_ascii_file(args.output, feats, featnames)
-    dwi.files.write_pmap(args.output, feats, featnames)
+        print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
+    tmap = np.array(tmap, dtype=np.float32)
+    dwi.files.write_pmap(args.output, tmap, names)
 
 if __name__ == '__main__':
     main()
