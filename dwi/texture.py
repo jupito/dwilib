@@ -528,25 +528,24 @@ def get_texture_map(img, call, winsize, mask=None):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros(img.shape+(len(names)), dtype=np.float32)
+                tmap = np.zeros(img.shape+(len(names),), dtype=np.float32)
             np.rollaxis(feats, 0, 4)
             tmap[i, :, :, :] = feats
     return tmap, names
 
-def get_texture(img, method, winspec, mask=None):
+def get_texture(img, method, winsize, mask=None):
     assert img.ndim == 3, img.ndim
-    assert isinstance(winspec, int) or winspec in ('mbb', 'all'), winspec
     if mask is not None:
         assert mask.dtype == bool
         assert img.shape == mask.shape, (img.shape, mask.shape)
     call = _METHODS[method]
-    if winspec == 'all':
+    if method.endswith('_all'):
         tmap, names = get_texture_all(img, call, mask)
-    elif winspec == 'mbb':
+    elif method.endswith('mbb'):
         tmap, names = get_texture_mbb(img, call, mask)
         tmap = np.mean(tmap, axis=0, keepdims=True)
     else:
-        tmap, names = get_texture_map(img, call, winspec, mask)
+        tmap, names = get_texture_map(img, call, winsize, mask)
         tmap[mask, :] = np.mean(tmap[mask, :], axis=0)
-    names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
+    names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
     return tmap, names
