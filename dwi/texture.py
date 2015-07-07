@@ -1,4 +1,14 @@
-"""Texture analysis."""
+"""Texture analysis.
+
+Texture methods are of three possible types: 'map' produces a texture map by
+using a sliding window, 'mbb' uses selected voxels to produce a single value
+for each slice, and 'all' produces a single value for selected voxels from all
+slices.
+
+Output type can be one of the following: 'map' just returns the map or spreads
+the single values over all selected voxels, 'mean' and 'median' return just the
+single values or reduces the map into a single average value.
+"""
 
 from __future__ import division, print_function
 import collections
@@ -477,3 +487,66 @@ def texture_map(method, img, winsize, mask=None):
     """General texture map using given method."""
     f = METHODS[method]
     return f(img, winsize, mask=mask)
+
+_METHODS = collections.OrderedDict([
+    ('stats', stats_map),
+    ('glcm', glcm_map),
+    ('haralick', haralick_map),
+    ('lbp', lbp_freq_map),
+    ('hog', hog_map),
+    ('gabor', gabor_map),
+    ('moment', moment_map),
+    ('haar', haar_map),
+    ('sobel', sobel_map),
+    ('hu', hu_map),
+    ('zernike', zernike_map),
+    ('stats_mbb', stats_mbb),
+    ('glcm_mbb', glcm_mbb),
+    ('haralick_mbb', haralick_mbb),
+    ('sobel_mbb', sobel_mbb),
+    ('stats_all', stats_mbb), # Use the same mbb function.
+    ])
+
+def get_texture_all(img, call, mask=None):
+    feats, names = call(img, mask=mask)
+    tmap = np.array(feats, dtype=np.float32, ndmin=4)
+    return tmap, names
+
+def get_texture_mbb(img, call, mask=None):
+    tmap = None
+    for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
+        if np.count_nonzero(mask_slice):
+            feats, names = call(img_slice, mask=mask_slice)
+            if tmap is None:
+                tmap = np.zeros((len(img), 1, 1, len(names)), dtype=np.float32)
+            tmap[i, 0, 0, :] = feats
+    return tmap, names
+
+def get_texture_map(img, call, winsize, mask=None):
+    tmap = None
+    for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
+        if np.count_nonzero(mask_slice):
+            feats, names = call(img_slice, winsize, mask=mask_slice)
+            if tmap is None:
+                tmap = np.zeros(img.shape+(len(names)), dtype=np.float32)
+            np.rollaxis(feats, 0, 4)
+            tmap[i, :, :, :] = feats
+    return tmap, names
+
+def get_texture(img, method, winspec, mask=None):
+    assert img.ndim == 3, img.ndim
+    assert isinstance(winspec, int) or winspec in ('mbb', 'all'), winspec
+    if mask is not None:
+        assert mask.dtype == bool
+        assert img.shape == mask.shape, (img.shape, mask.shape)
+    call = _METHODS[method]
+    if winspec == 'all':
+        tmap, names = get_texture_all(img, call, mask)
+    elif winspec == 'mbb':
+        tmap, names = get_texture_mbb(img, call, mask)
+        tmap = np.mean(tmap, axis=0, keepdims=True)
+    else:
+        tmap, names = get_texture_map(img, call, winspec, mask)
+        tmap[mask, :] = np.mean(tmap[mask, :], axis=0)
+    names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
+    return tmap, names
