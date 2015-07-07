@@ -107,8 +107,8 @@ def find_roi_param_combinations():
         if t[0] <= t[1] and t[2] == t[3]:
             yield [str(x) for x in t]
 
-def samplelist_file(samplelist=SAMPLELIST):
-    return 'patients_%s.txt' % samplelist
+def samplelist_file(mode=MODE, samplelist=SAMPLELIST):
+    return 'patients_{m}_{l}.txt'.format(m=mode.modality, l=samplelist)
 
 def pmapdir_dicom(model):
     s = 'dicoms_{m}_*'.format(m=model)
