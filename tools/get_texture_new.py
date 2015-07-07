@@ -81,11 +81,16 @@ def main():
         print('Reading data...')
     data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
     dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-    mask = dwi.mask.read_mask(args.mask)
-
     img = data[0]['image'].squeeze()
-    if isinstance(mask, dwi.mask.Mask):
-        mask = mask.convert_to_3d(img.shape[0])
+
+    if args.mask is not None:
+        mask = dwi.mask.read_mask(args.mask)
+        if isinstance(mask, dwi.mask.Mask):
+            mask = mask.convert_to_3d(img.shape[0])
+    else:
+        mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
+        mask.array[9:-9, 50:-50, 50:-50] = True
+
     if img.shape != mask.shape():
         raise Exception('Image shape {} does not match mask shape {}'.format(
             img.shape, mask.shape()))
