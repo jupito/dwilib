@@ -113,9 +113,10 @@ def pmapdir_dicom(mode):
     path = dwi.util.sglob(s, typ='dir')
     return path
 
-def pmap_dicom(**d):
-    s = 'results_{m}_combinedDICOM/{c}_*_{s}/{c}_*_{s}_{p}'
-    return dwi.util.sglob(s.format(**d), typ='dir')
+def pmap_dicom(mode, case, scan):
+    s = 'results_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{mode.param}'
+    s = s.format(m=mode, c=case, s=scan)
+    return dwi.util.sglob(s, typ='dir')
 
 def mask_path(d):
     """Return path and deps of masks of different types."""
@@ -276,7 +277,7 @@ def get_task_select_roi_manual(case, scan, mode, masktype):
     d = dict(c=case, s=scan, m=mode.model, p=mode.param, mt=masktype)
     maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    inpath = pmap_dicom(**d)
+    inpath = pmap_dicom(mode, case, scan)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
     args += ['-i "%s"' % inpath]
@@ -299,7 +300,7 @@ def get_task_select_roi_auto(case, scan, mode, algparams):
              ap_='_'.join(algparams))
     maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
-    inpath = pmap_dicom(**d)
+    inpath = pmap_dicom(mode, case, scan)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
     args += ['-i "%s"' % inpath]
