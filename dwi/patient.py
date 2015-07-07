@@ -172,7 +172,7 @@ def lesions(patients):
 THRESHOLDS_STANDARD = ('3+3', '3+4')
 
 def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
-               multiroi=False):
+               multiroi=False, dropok=False):
     """Read pmaps labeled by their Gleason score.
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
@@ -192,8 +192,16 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
         else:
             label = score_ord(gs, score)
         roi = lesion.index if multiroi else None
-        pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
-                                           voxel=voxel)
+        try:
+            pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
+                                               voxel=voxel)
+        except IOError:
+            if dropok:
+                print('Cannot read pmap for {}, dropping...'.format(
+                    (case, scan, roi)))
+                continue
+            else:
+                raise
         d = dict(case=case, scan=scan, roi=lesion.index, score=score,
                  label=label, pmap=pmap, params=params, pathname=pathname)
         data.append(d)
