@@ -507,12 +507,12 @@ _METHODS = collections.OrderedDict([
     ('stats_all', stats_mbb), # Use the same mbb function.
     ])
 
-def get_texture_all(img, call, mask=None):
+def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
     tmap = np.array(feats, ndmin=4)
     return tmap, names
 
-def get_texture_mbb(img, call, mask=None):
+def get_texture_mbb(img, call, mask):
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
@@ -522,7 +522,7 @@ def get_texture_mbb(img, call, mask=None):
             tmap[i, 0, 0, :] = feats
     return tmap, names
 
-def get_texture_map(img, call, winsize, mask=None):
+def get_texture_map(img, call, winsize, mask):
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
@@ -533,7 +533,7 @@ def get_texture_map(img, call, winsize, mask=None):
             tmap[i, :, :, :] = feats
     return tmap, names
 
-def get_texture(img, method, winsize, mask=None, avg=False):
+def get_texture(img, method, winsize, mask, avg=False):
     """General texture map layer."""
     assert img.ndim == 3, img.ndim
     if mask is not None:
