@@ -38,8 +38,8 @@ class Gui(object):
         self.image = image
         self.i = 0
         self.j = 0
-        self.update_x = False
-        self.update_y = False
+        self.update_x = True
+        self.update_y = True
         self.colormaps = dict(
             b='Blues_r',
             c='coolwarm',
