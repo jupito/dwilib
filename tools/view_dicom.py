@@ -133,6 +133,16 @@ def reverse_cmap(name):
     else:
         return name + '_r'
 
+def replace_nans(img):
+    """Set any NaN values to the global minimum. They are considered backgound.
+    Return the number of replaced voxels.
+    """
+    nans = np.isnan(img)
+    n = np.count_nonzero(nans)
+    if n:
+        img[nans] = np.nanmin(img)
+    return n
+
 def main():
     args = parse_args()
 
@@ -153,8 +163,13 @@ def main():
         # If we don't take a copy here, the normalization below fails. :I
         img = img[z0:z1, y0:y1, x0:x1, :].copy()
 
-    print('Image shape: {s}, voxels: {nv}, non-zero voxels: {nz}'.format(
-        s=img.shape, nv=img.size, nz=np.count_nonzero(img)))
+    n = replace_nans(img)
+    if n:
+        print('Replaced {} NaN voxels with global minimum'.format(n))
+
+    print('Image shape: {s}, type: {t}'.format(s=img.shape, t=img.dtype))
+    print('Voxels: {nv}, non-zero voxels: {nz}'.format(
+        nv=img.size, nz=np.count_nonzero(img)))
     print('Intensity range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.normalize:
