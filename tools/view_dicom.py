@@ -33,6 +33,13 @@ def parse_args():
     args = p.parse_args()
     return args
 
+def reverse_cmap(name):
+    """Return colormap name reversed."""
+    if name.endswith('_r'):
+        return name[:-2]
+    else:
+        return name + '_r'
+
 class Gui(object):
     def __init__(self, image):
         self.image = image
@@ -67,22 +74,16 @@ class Gui(object):
         if event.key == '2':
             self.update_y = not self.update_y
         if event.key == 'e':
-            self.set_cmap()
-            self.reverse_cmap = not self.reverse_cmap
-            self.set_cmap()
-        if event.key in self.cmaps:
-            self.set_cmap(name=self.cmaps[event.key])
-        self.redraw(event)
-
-    def set_cmap(self, name=None):
-        if name is None:
             name = plt.get_cmap().name
-        if self.reverse_cmap:
-            if name.endswith('_r'):
-                name = name[:-2]
-            else:
-                name = name + '_r'
-        plt.set_cmap(name)
+            name = reverse_cmap(name)
+            plt.set_cmap(name)
+            self.reverse_cmap = not self.reverse_cmap
+        if event.key in self.cmaps:
+            name = self.cmaps[event.key]
+            if self.reverse_cmap:
+                name = reverse_cmap(name)
+            plt.set_cmap(name)
+        self.redraw(event)
 
     def on_click(self, event):
         if event.button == 1:
