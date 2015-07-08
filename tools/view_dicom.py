@@ -168,8 +168,8 @@ def main():
         print('Replaced {} NaN voxels with global minimum'.format(n))
 
     print('Image shape: {s}, type: {t}'.format(s=img.shape, t=img.dtype))
-    print('Voxels: {nv}, non-zero voxels: {nz}'.format(
-        nv=img.size, nz=np.count_nonzero(img)))
+    print('Voxels: {nv}, non-zero: {nz}, non-NaN: {nn}'.format(
+        nv=img.size, nz=np.count_nonzero(img), nn=img.size-n))
     print('Intensity range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.normalize:
