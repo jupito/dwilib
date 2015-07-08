@@ -140,12 +140,14 @@ def main():
     else:
         dwimage = dwi.dwimage.load_dicom(args.files)[0]
 
-    if args.subwindow:
-        dwimage = dwimage.get_roi(args.subwindow, onebased=True)
-
     print(dwimage)
     print('Voxel spacing: {vs}'.format(vs=dwimage.voxel_spacing))
     img = dwimage.image
+
+    if args.subwindow:
+        # Use one-based indexing.
+        z0, z1, y0, y1, x0, x1 = [i-1 for i in args.subwindow]
+        img = img[z0:z1, y0:y1, x0:x1, :]
 
     if args.normalize:
         for si in img.reshape((-1, img.shape[-1])):
