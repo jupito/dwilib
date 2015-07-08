@@ -34,13 +34,14 @@ def parse_args():
     return args
 
 def reverse_cmap(name):
-    """Return colormap name reversed."""
+    """Return the name of the reverse version of given colormap."""
     if name.endswith('_r'):
         return name[:-2]
     else:
         return name + '_r'
 
 class Gui(object):
+    """A GUI widget for viewing 4D images (from DICOM etc.)."""
     def __init__(self, image):
         self.image = image
         self.i = 0
