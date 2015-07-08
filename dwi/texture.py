@@ -483,11 +483,6 @@ METHODS_ALL = collections.OrderedDict([
     ('stats_all', stats_mbb), # Use the same mbb function.
     ])
 
-def texture_map(method, img, winsize, mask=None):
-    """General texture map using given method."""
-    f = METHODS[method]
-    return f(img, winsize, mask=mask)
-
 _METHODS = collections.OrderedDict([
     ('stats', stats_map),
     ('glcm', glcm_map),
