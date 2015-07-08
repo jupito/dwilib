@@ -259,11 +259,13 @@ def distance(a, b):
 
 
 def normalize_si_curve(si):
-    """Normalize a signal intensity curve (divide all by SI(b0))."""
-    # TODO: Handle cases where first voxel is zero.
-    unit = si[0]
+    """Normalize a signal intensity curve (divide all by the first value).
+    
+    Note that this function does not manage error cases where the first value
+    is zero or the curve rises at some point. See normalize_si_curve_fix().
+    """
     for i in range(len(si)):
-        si[i] /= unit
+        si[i] /= si[0]
 
 def normalize_si_curve_fix(si):
     """Normalize a signal intensity curve (divide all by the first value).
