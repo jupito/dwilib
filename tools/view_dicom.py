@@ -104,9 +104,9 @@ class Gui(object):
 
     def redraw(self, event):
         if event.xdata and event.ydata:
-            s = '\rslice {s:2d}, row {r:3d}, column {c:3d}, b-value {b:2d} '
-            d = dict(r=int(event.ydata)+1, c=int(event.xdata)+1,
-                     s=self.i+1, b=self.j+1)
+            s = '\rPosition: {s:2d}, {r:3d}, {c:3d}, {b:2d} '
+            d = dict(r=int(event.ydata), c=int(event.xdata),
+                     s=self.i, b=self.j)
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[self.i,:,:,self.j]
@@ -126,6 +126,7 @@ class Gui(object):
     q: quit'''.format(cmap_keys=', '.join(self.cmaps.keys()),
                       cmap_names=', '.join(self.cmaps.values()))
         print(text)
+        print('Slices, rows, columns, b-values: {}'.format(self.image.shape))
 
 def main():
     args = parse_args()
