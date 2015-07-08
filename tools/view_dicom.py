@@ -144,21 +144,18 @@ def main():
         dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
     print(dwimage)
-    img = dwimage.image
+    print('Voxel spacing: {vs}'.format(vs=dwimage.voxel_spacing))
 
     if args.normalize:
         for si in dwimage.sis:
-            dwi.util.normalize_si_curve(si)
+            dwi.util.normalize_si_curve_fix(si)
 
+    img = dwimage.image
     if args.scale:
-        for i in range(img.shape[-1]):
-            img[..., i] -= img[..., i].min()
-            img[..., i] /= img[..., i].max()
+        img = dwi.util.scale(img)
 
-    d = dict(min=img.min(), max=img.max(),
-             vs=dwimage.voxel_spacing, nz=np.count_nonzero(img))
+    d = dict(min=img.min(), max=img.max(), nz=np.count_nonzero(img))
     print('Image intensity min/max: {min}/{max}'.format(**d))
-    print('Voxel spacing: {vs}'.format(**d))
     print('Non-zero voxels: {nz}'.format(**d))
 
     if not args.info:
