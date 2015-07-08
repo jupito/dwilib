@@ -143,6 +143,10 @@ def main():
         img = attrs['image']
         attrs['parameters'] = attrs['bvalues']
 
+    print('Attributes:')
+    for k, v in attrs.items():
+        print('    {k}: {v}'.format(k=k, v=v))
+
     if args.subwindow:
         # Use one-based indexing.
         z0, z1, y0, y1, x0, x1 = [i-1 for i in args.subwindow]
@@ -151,10 +155,7 @@ def main():
 
     print('Image shape: {s}, voxels: {nv}, non-zero voxels: {nz}'.format(
         s=img.shape, nv=img.size, nz=np.count_nonzero(img)))
-    print('Image intensity range: [{}, {}]'.format(img.min(), img.max()))
-    print('Image attributes:')
-    for k, v in attrs.items():
-        print('    {k}: {v}'.format(k=k, v=v))
+    print('Intensity range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.normalize:
         for si in img.reshape((-1, img.shape[-1])):
