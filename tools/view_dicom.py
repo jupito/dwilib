@@ -124,6 +124,8 @@ def parse_args():
                    help='be more verbose')
     p.add_argument('--normalize', '-n', action='store_true',
                    help='normalize signal intensity curves')
+    p.add_argument('--scale', action='store_true',
+                   help='scale each parameter independently')
     p.add_argument('--info', '-i', action='store_true',
                    help='show information only')
     args = p.parse_args()
@@ -140,20 +142,26 @@ def main():
     if args.subwindow:
         dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
+    print(dwimage)
+    img = dwimage.image
+
     if args.normalize:
         for si in dwimage.sis:
             dwi.util.normalize_si_curve(si)
 
-    print(dwimage)
-    d = dict(min=dwimage.image.min(), max=dwimage.image.max(),
-             vs=dwimage.voxel_spacing, nz=np.count_nonzero(dwimage.image))
+    if args.scale:
+        for i in range(img.shape[-1]):
+            img[..., i] /= img[..., i].max()
+
+    d = dict(min=img.min(), max=img.max(),
+             vs=dwimage.voxel_spacing, nz=np.count_nonzero(img))
     print('Image intensity min/max: {min}/{max}'.format(**d))
     print('Voxel spacing: {vs}'.format(**d))
     print('Non-zero voxels: {nz}'.format(**d))
 
     if not args.info:
         #plt.switch_backend('gtk')
-        Gui(dwimage.image)
+        Gui(img)
 
 if __name__ == '__main__':
     main()
