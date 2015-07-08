@@ -264,6 +264,7 @@ def normalize_si_curve(si):
     Note that this function does not manage error cases where the first value
     is zero or the curve rises at some point. See normalize_si_curve_fix().
     """
+    assert si.ndim == 1
     for i in range(len(si)):
         si[i] /= si[0]
 
