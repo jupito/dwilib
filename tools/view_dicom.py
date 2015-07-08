@@ -152,6 +152,7 @@ def main():
 
     if args.scale:
         for i in range(img.shape[-1]):
+            img[..., i] -= img[..., i].min()
             img[..., i] /= img[..., i].max()
 
     d = dict(min=img.min(), max=img.max(),
