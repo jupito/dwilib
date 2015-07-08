@@ -15,13 +15,6 @@ import matplotlib.pyplot as plt
 import dwi.dwimage
 import dwi.util
 
-HELPTEXT = '''Usage:
-    Click: toggle update mode on/off
-    Move left/right: change slice (in update mode)
-    Move up/down: change b-value (in update mode)
-    b/c/g/j/y: select colormap (blue/coolwarm/gray/jet/ygb)
-    q: quit'''
-
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
@@ -50,8 +43,8 @@ class Gui(object):
         self.colormaps = dict(
             b='Blues_r',
             c='coolwarm',
-            g='gray',
             j='jet',
+            r='gray',
             y='YlGnBu_r',
         )
         fig = plt.figure()
@@ -61,7 +54,7 @@ class Gui(object):
         view = self.image[self.i,:,:,self.j]
         self.im = plt.imshow(view, interpolation='none', vmin=self.image.min(),
                              vmax=self.image.max())
-        print(HELPTEXT)
+        self.show_help()
         plt.show()
 
     def on_key(self, event):
@@ -101,6 +94,19 @@ class Gui(object):
         view = self.image[self.i,:,:,self.j]
         self.im.set_data(view)
         event.canvas.draw()
+
+    def show_help(self):
+        text = '''Usage:
+    Horizontal mouse move: change slice (in update mode)
+    Vertical mouse move: change b-value (in update mode)
+    Click: toggle update mode
+    1: toggle horizontal update mode
+    2: toggle vertical update mode
+    g: toggle grid
+    {cmap_keys}: select colormap: {cmap_names}
+    q: quit'''.format(cmap_keys=', '.join(self.colormaps.keys()),
+                      cmap_names=', '.join(self.colormaps.values()))
+        print(text)
 
 def main():
     args = parse_args()
