@@ -40,7 +40,7 @@ class Gui(object):
         self.j = 0
         self.update_x = True
         self.update_y = True
-        self.colormaps = dict(
+        self.cmaps = dict(
             b='Blues_r',
             c='coolwarm',
             j='jet',
@@ -65,8 +65,8 @@ class Gui(object):
             self.update_y = not self.update_y
         if event.key == 'q':
             plt.close()
-        if event.key in self.colormaps:
-            plt.set_cmap(self.colormaps[event.key])
+        if event.key in self.cmaps:
+            plt.set_cmap(self.cmaps[event.key])
         self.redraw(event)
 
     def on_click(self, event):
@@ -105,8 +105,8 @@ class Gui(object):
     2: toggle vertical update mode
     g: toggle grid
     {cmap_keys}: select colormap: {cmap_names}
-    q: quit'''.format(cmap_keys=', '.join(self.colormaps.keys()),
-                      cmap_names=', '.join(self.colormaps.values()))
+    q: quit'''.format(cmap_keys=', '.join(self.cmaps.keys()),
+                      cmap_names=', '.join(self.cmaps.values()))
         print(text)
 
 def main():
