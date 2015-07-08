@@ -45,7 +45,8 @@ class Gui(object):
         self.image = image
         self.i = 0
         self.j = 0
-        self.update = False
+        self.update_x = False
+        self.update_y = False
         self.colormaps = dict(
                 b='Blues_r',
                 c='coolwarm',
@@ -64,6 +65,10 @@ class Gui(object):
         plt.show()
 
     def on_key(self, event):
+        if event.key == '1':
+            self.update_x = not self.update_x
+        if event.key == '2':
+            self.update_y = not self.update_y
         if event.key == 'q':
             plt.close()
         if event.key in self.colormaps:
@@ -72,14 +77,17 @@ class Gui(object):
 
     def on_click(self, event):
         if event.button == 1:
-            self.update = not self.update
+            self.update_x = not self.update_x
+            self.update_y = not self.update_y
 
     def on_motion(self, event):
-        if self.update and event.xdata and event.ydata:
+        if self.update_x and event.xdata:
             h, w = self.im.get_size()
             relx = event.xdata / w
-            rely = event.ydata / h
             self.i = int(relx * self.image.shape[0])
+        if self.update_y and event.ydata:
+            h, w = self.im.get_size()
+            rely = event.ydata / h
             self.j = int(rely * self.image.shape[-1])
         self.redraw(event)
 
