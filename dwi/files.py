@@ -161,3 +161,24 @@ def write_pmap(filename, pmap, params=None, fmt=None):
         dwi.asciifile.write_ascii_file(filename, pmap, params)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
+
+def read_pmap(pathname, fmt=None):
+    """Read a parametric map."""
+    if fmt is None:
+        fmt = os.path.splitext(pathname)[1][1:]
+    if fmt in ['hdf5', 'h5']:
+        import dwi.hdf5
+        pmap, attrs = dwi.hdf5.read_hdf5(pathname)
+    elif fmt in ['txt', 'ascii']:
+        import dwi.asciifile
+        attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
+    else:
+        import dwi.dicomfile
+        attrs = dwi.dicomfile.read_dir(pathname)
+        pmap = attrs.pop('image')
+        attrs['parameters'] = attrs['bvalues']
+    if pmap.ndim < 2:
+        raise Warning('Not enough dimensions: {}'.format(pmap.shape))
+    if 'parameters' not in attrs:
+        attrs['parameters'] = range(pmap.shape[-1])
+    return pmap, attrs
