@@ -146,10 +146,6 @@ def main():
     print(dwimage)
     print('Voxel spacing: {vs}'.format(vs=dwimage.voxel_spacing))
 
-    img = dwimage.image
-    d = dict(min=img.min(), max=img.max(), nz=np.count_nonzero(img))
-    print('Image intensity min/max: {min}/{max}'.format(**d))
-    print('Non-zero voxels: {nz}'.format(**d))
     if args.normalize:
         for si in dwimage.sis:
             dwi.util.normalize_si_curve_fix(si)
