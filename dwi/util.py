@@ -265,6 +265,23 @@ def normalize_si_curve(si):
     for i in range(len(si)):
         si[i] /= unit
 
+def normalize_si_curve_fix(si):
+    """Normalize a signal intensity curve (divide all by the first value).
+
+    This version handles some error cases. If the first value is zero, all
+    values are just set to zero. If any value is higher than the previous one,
+    it is set to the same value (curves are never supposed to rise).
+    """
+    assert si.ndim == 1
+    if si[0] == 0:
+        si[:] = 0
+    else:
+        for i in range(1, len(si)):
+            if si[i] > si[i-1]:
+                si[i] = si[i-1]
+        for i in range(len(si)):
+            si[i] /= si[0]
+
 def clip_pmap(img, params):
     """Clip pmap's parameter-specific intensity outliers in-place."""
     for i in range(img.shape[-1]):
