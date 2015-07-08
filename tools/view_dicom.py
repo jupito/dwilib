@@ -40,6 +40,7 @@ class Gui(object):
         self.j = 0
         self.update_x = True
         self.update_y = True
+        self.reverse_cmap = False
         self.cmaps = dict(
             b='Blues_r',
             c='coolwarm',
@@ -59,15 +60,29 @@ class Gui(object):
         plt.show()
 
     def on_key(self, event):
+        if event.key == 'q':
+            plt.close()
         if event.key == '1':
             self.update_x = not self.update_x
         if event.key == '2':
             self.update_y = not self.update_y
-        if event.key == 'q':
-            plt.close()
+        if event.key == 'e':
+            self.set_cmap()
+            self.reverse_cmap = not self.reverse_cmap
+            self.set_cmap()
         if event.key in self.cmaps:
-            plt.set_cmap(self.cmaps[event.key])
+            self.set_cmap(name=self.cmaps[event.key])
         self.redraw(event)
+
+    def set_cmap(self, name=None):
+        if name is None:
+            name = plt.get_cmap().name
+        if self.reverse_cmap:
+            if name.endswith('_r'):
+                name = name[:-2]
+            else:
+                name = name + '_r'
+        plt.set_cmap(name)
 
     def on_click(self, event):
         if event.button == 1:
@@ -103,6 +118,7 @@ class Gui(object):
     Click: toggle update mode
     1: toggle horizontal update mode
     2: toggle vertical update mode
+    e: toggle reverse colormap
     g: toggle grid
     {cmap_keys}: select colormap: {cmap_names}
     q: quit'''.format(cmap_keys=', '.join(self.cmaps.keys()),
