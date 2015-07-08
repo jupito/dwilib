@@ -12,7 +12,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-import dwi.dwimage
+import dwi.files
 import dwi.util
 
 def parse_args():
@@ -136,18 +136,21 @@ def main():
     args = parse_args()
 
     if len(args.files) == 1:
-        dwimage = dwi.dwimage.load(args.files[0])[0]
+        img, attrs = dwi.files.read_pmap(args.files[0])
     else:
-        dwimage = dwi.dwimage.load_dicom(args.files)[0]
+        attrs = dwi.dicomfile.read_files(args.files)
+        img = attrs['image']
+        attrs['parameters'] = attrs['bvalues']
 
-    print(dwimage)
-    print('Voxel spacing: {vs}'.format(vs=dwimage.voxel_spacing))
-    img = dwimage.image
+    print(img.shape)
+    for k, v in attrs.items():
+        print('{k}: {v}'.format(k=k, v=v))
 
     if args.subwindow:
         # Use one-based indexing.
         z0, z1, y0, y1, x0, x1 = [i-1 for i in args.subwindow]
-        img = img[z0:z1, y0:y1, x0:x1, :]
+        # If we don't take a copy here, the normalization below fails. :I
+        img = img[z0:z1, y0:y1, x0:x1, :].copy()
 
     if args.normalize:
         for si in img.reshape((-1, img.shape[-1])):
