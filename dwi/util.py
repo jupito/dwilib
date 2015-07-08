@@ -260,6 +260,7 @@ def distance(a, b):
 
 def normalize_si_curve(si):
     """Normalize a signal intensity curve (divide all by SI(b0))."""
+    # TODO: Handle cases where first voxel is zero.
     unit = si[0]
     for i in range(len(si)):
         si[i] /= unit
