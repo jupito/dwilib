@@ -44,6 +44,7 @@ class Gui(object):
             b='Blues_r',
             c='coolwarm',
             j='jet',
+            o='bone',
             r='gray',
             y='YlGnBu_r',
         )
