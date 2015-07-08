@@ -551,5 +551,8 @@ def get_texture(img, method, winsize, mask, avg=False):
             tmap = tmap[mask, :]
             tmap = np.mean(tmap, axis=0)
             tmap.shape = (1, 1, 1) + tmap.shape
+        else:
+            # Fill background with NaN.
+            tmap[-mask] = np.nan
     names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
     return tmap, names
