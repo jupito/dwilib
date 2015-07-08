@@ -265,8 +265,7 @@ def normalize_si_curve(si):
     is zero or the curve rises at some point. See normalize_si_curve_fix().
     """
     assert si.ndim == 1
-    for i in range(len(si)):
-        si[i] /= si[0]
+    si[:] /= si[0]
 
 def normalize_si_curve_fix(si):
     """Normalize a signal intensity curve (divide all by the first value).
@@ -282,8 +281,7 @@ def normalize_si_curve_fix(si):
         for i in range(1, len(si)):
             if si[i] > si[i-1]:
                 si[i] = si[i-1]
-        for i in range(len(si)):
-            si[i] /= si[0]
+        si[:] /= si[0]
 
 def scale(a):
     """Feature scaling. Bring all values to [0, 1] range."""
