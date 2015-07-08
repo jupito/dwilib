@@ -142,26 +142,27 @@ def main():
         img = attrs['image']
         attrs['parameters'] = attrs['bvalues']
 
-    print(img.shape)
-    for k, v in attrs.items():
-        print('{k}: {v}'.format(k=k, v=v))
-
     if args.subwindow:
         # Use one-based indexing.
         z0, z1, y0, y1, x0, x1 = [i-1 for i in args.subwindow]
         # If we don't take a copy here, the normalization below fails. :I
         img = img[z0:z1, y0:y1, x0:x1, :].copy()
 
+    print('Image shape: {s}, voxels: {nv}, non-zero voxels: {nz}'.format(
+        s=img.shape, nv=img.size, nz=np.count_nonzero(img)))
+    print('Image intensity range: [{}, {}]'.format(img.min(), img.max()))
+    print('Image attributes:')
+    for k, v in attrs.items():
+        print('    {k}: {v}'.format(k=k, v=v))
+
     if args.normalize:
         for si in img.reshape((-1, img.shape[-1])):
             dwi.util.normalize_si_curve_fix(si)
+        print('Normalized to range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.scale:
         img = dwi.util.scale(img)
-
-    d = dict(min=img.min(), max=img.max(), nz=np.count_nonzero(img))
-    print('Image intensity min/max: {min}/{max}'.format(**d))
-    print('Non-zero voxels: {nz}'.format(**d))
+        print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
 
     if not args.info:
         #plt.switch_backend('gtk')
