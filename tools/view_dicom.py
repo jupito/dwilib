@@ -26,17 +26,17 @@ def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--files', '-f', metavar='PATH',
-            nargs='+', default=[], required=True,
-            help='DICOM directory or file(s)')
+                   nargs='+', default=[], required=True,
+                   help='DICOM directory or file(s)')
     p.add_argument('--subwindow', '-s', metavar='i',
-            nargs=6, default=[], type=int,
-            help='ROI (6 integers, one-based)')
+                   nargs=6, default=[], type=int,
+                   help='ROI (6 integers, one-based)')
     p.add_argument('--verbose', '-v', action='count',
-            help='be more verbose')
+                   help='be more verbose')
     p.add_argument('--normalize', '-n', action='store_true',
-            help='normalize signal intensity curves')
+                   help='normalize signal intensity curves')
     p.add_argument('--info', '-i', action='store_true',
-            help='show information only')
+                   help='show information only')
     args = p.parse_args()
     return args
 
@@ -48,11 +48,11 @@ class Gui(object):
         self.update_x = False
         self.update_y = False
         self.colormaps = dict(
-                b='Blues_r',
-                c='coolwarm',
-                g='gray',
-                j='jet',
-                y='YlGnBu_r',
+            b='Blues_r',
+            c='coolwarm',
+            g='gray',
+            j='jet',
+            y='YlGnBu_r',
         )
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
@@ -60,7 +60,7 @@ class Gui(object):
         fig.canvas.mpl_connect('motion_notify_event', self.on_motion)
         view = self.image[self.i,:,:,self.j]
         self.im = plt.imshow(view, interpolation='none', vmin=self.image.min(),
-                vmax=self.image.max())
+                             vmax=self.image.max())
         print(HELPTEXT)
         plt.show()
 
@@ -93,40 +93,40 @@ class Gui(object):
 
     def redraw(self, event):
         if event.xdata and event.ydata:
-            d = dict(r=int(event.ydata)+1, c=int(event.xdata)+1,
-                    s=self.i+1, b=self.j+1)
             s = '\rslice {s:2d}, row {r:3d}, column {c:3d}, b-value {b:2d} '
+            d = dict(r=int(event.ydata)+1, c=int(event.xdata)+1,
+                     s=self.i+1, b=self.j+1)
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[self.i,:,:,self.j]
         self.im.set_data(view)
         event.canvas.draw()
 
+def main():
+    args = parse_args()
 
-args = parse_args()
+    if len(args.files) == 1:
+        dwimage = dwi.dwimage.load(args.files[0])[0]
+    else:
+        dwimage = dwi.dwimage.load_dicom(args.files)[0]
 
-if len(args.files) == 1:
-    dwimage = dwi.dwimage.load(args.files[0])[0]
-else:
-    dwimage = dwi.dwimage.load_dicom(args.files)[0]
+    if args.subwindow:
+        dwimage = dwimage.get_roi(args.subwindow, onebased=True)
 
-if args.subwindow:
-    dwimage = dwimage.get_roi(args.subwindow, onebased=True)
+    if args.normalize:
+        for si in dwimage.sis:
+            dwi.util.normalize_si_curve(si)
 
-if args.normalize:
-    for si in dwimage.sis:
-        dwi.util.normalize_si_curve(si)
+    print(dwimage)
+    d = dict(min=dwimage.image.min(), max=dwimage.image.max(),
+             vs=dwimage.voxel_spacing, nz=np.count_nonzero(dwimage.image))
+    print('Image intensity min/max: {min}/{max}'.format(**d))
+    print('Voxel spacing: {vs}'.format(**d))
+    print('Non-zero voxels: {nz}'.format(**d))
 
-print(dwimage)
-d = dict(min=dwimage.image.min(),
-        max=dwimage.image.max(),
-        vs=dwimage.voxel_spacing,
-        nz=np.count_nonzero(dwimage.image),
-        )
-print('Image intensity min/max: {min}/{max}'.format(**d))
-print('Voxel spacing: {vs}'.format(**d))
-print('Non-zero voxels: {nz}'.format(**d))
+    if not args.info:
+        #plt.switch_backend('gtk')
+        Gui(dwimage.image)
 
-if not args.info:
-    #plt.switch_backend('gtk')
-    Gui(dwimage.image)
+if __name__ == '__main__':
+    main()
