@@ -145,12 +145,12 @@ def main():
 
     print(dwimage)
     print('Voxel spacing: {vs}'.format(vs=dwimage.voxel_spacing))
+    img = dwimage.image
 
     if args.normalize:
-        for si in dwimage.sis:
+        for si in img.reshape((-1, img.shape[-1])):
             dwi.util.normalize_si_curve_fix(si)
 
-    img = dwimage.image
     if args.scale:
         img = dwi.util.scale(img)
 
