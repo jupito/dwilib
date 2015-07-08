@@ -37,9 +37,10 @@ def parse_args():
 
 class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
-    def __init__(self, image):
+    def __init__(self, image, params):
         assert image.ndim == 4
         self.image = image
+        self.params = params
         self.i = 0
         self.j = 0
         self.update_x = True
@@ -100,9 +101,9 @@ class Gui(object):
 
     def redraw(self, event):
         if event.xdata and event.ydata:
-            s = '\rPosition: {s:2d}, {r:3d}, {c:3d}, {b:2d} '
+            s = '\rPosition: {s:2d}, {r:3d}, {c:3d}, {b:2d} Param: {p} '
             d = dict(r=int(event.ydata), c=int(event.xdata),
-                     s=self.i, b=self.j)
+                     s=self.i, b=self.j, p=self.params[self.j])
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[self.i,:,:,self.j]
@@ -166,7 +167,7 @@ def main():
 
     if not args.info:
         #plt.switch_backend('gtk')
-        Gui(img)
+        Gui(img, attrs['parameters'])
 
 if __name__ == '__main__':
     main()
