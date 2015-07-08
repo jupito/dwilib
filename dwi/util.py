@@ -284,6 +284,12 @@ def normalize_si_curve_fix(si):
         for i in range(len(si)):
             si[i] /= si[0]
 
+def scale(a):
+    """Feature scaling. Bring all values to [0, 1] range."""
+    a = np.asanyarray(a)
+    min, max = a.min(), a.max()
+    return (a-min) / (max-min)
+
 def clip_pmap(img, params):
     """Clip pmap's parameter-specific intensity outliers in-place."""
     for i in range(img.shape[-1]):
