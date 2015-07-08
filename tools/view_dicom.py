@@ -15,31 +15,6 @@ import matplotlib.pyplot as plt
 import dwi.dwimage
 import dwi.util
 
-def parse_args():
-    """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--files', '-f', metavar='PATH',
-                   nargs='+', default=[], required=True,
-                   help='DICOM directory or file(s)')
-    p.add_argument('--subwindow', '-s', metavar='i',
-                   nargs=6, default=[], type=int,
-                   help='ROI (6 integers, one-based)')
-    p.add_argument('--verbose', '-v', action='count',
-                   help='be more verbose')
-    p.add_argument('--normalize', '-n', action='store_true',
-                   help='normalize signal intensity curves')
-    p.add_argument('--info', '-i', action='store_true',
-                   help='show information only')
-    args = p.parse_args()
-    return args
-
-def reverse_cmap(name):
-    """Return the name of the reverse version of given colormap."""
-    if name.endswith('_r'):
-        return name[:-2]
-    else:
-        return name + '_r'
-
 class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
     def __init__(self, image):
@@ -127,6 +102,32 @@ class Gui(object):
                       cmap_names=', '.join(self.cmaps.values()))
         print(text)
         print('Slices, rows, columns, b-values: {}'.format(self.image.shape))
+
+
+def reverse_cmap(name):
+    """Return the name of the reverse version of given colormap."""
+    if name.endswith('_r'):
+        return name[:-2]
+    else:
+        return name + '_r'
+
+def parse_args():
+    """Parse command-line arguments."""
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--files', '-f', metavar='PATH',
+                   nargs='+', default=[], required=True,
+                   help='DICOM directory or file(s)')
+    p.add_argument('--subwindow', '-s', metavar='i',
+                   nargs=6, default=[], type=int,
+                   help='ROI (6 integers, one-based)')
+    p.add_argument('--verbose', '-v', action='count',
+                   help='be more verbose')
+    p.add_argument('--normalize', '-n', action='store_true',
+                   help='normalize signal intensity curves')
+    p.add_argument('--info', '-i', action='store_true',
+                   help='show information only')
+    args = p.parse_args()
+    return args
 
 def main():
     args = parse_args()
