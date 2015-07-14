@@ -410,6 +410,93 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
         'clean': True,
         }
 
+###
+
+#def texture_methods_new(mode):
+#    return ' '.join([
+#        #'stats',
+#        #'haralick',
+#        #'moment',
+#        #'haralick_mbb',
+#
+#        'glcm',
+#        'glcm_mbb',
+#        'lbp',
+#        'hog',
+#        'gabor',
+#        'haar',
+#        'hu',
+#        'zernike',
+#        'sobel_mbb',
+#        'stats_all',
+#        ])
+#
+#def texture_winsizes_new(masktype, mode, method):
+#    if method.endswith('_all') or method.endswith('_mbb'):
+#        l = [0]
+#    elif masktype in ('CA', 'N'):
+#        l = [3, 5]
+#    elif mode.modality in ('T2', 'T2w'):
+#        l = range(3, 30, 4)
+#    else:
+#        l = range(3, 16, 2)
+#    return ' '.join(str(x) for x in l)
+#
+#def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
+#        method, winsize, algparams=()):
+#    """Return path to texture file."""
+#    if masktype in ('lesion', 'CA', 'N'):
+#        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{c}_{s}_{l}_{mth}_{ws}.txt'
+#    elif masktype == 'auto':
+#        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}_{mth}_{ws}.txt'
+#    else:
+#        raise Exception('Unknown mask type: {mt}'.format(**d))
+#    path = path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
+#                       slices=slices, portion=portion, mth=method, ws=winsize,
+#                       ap_='_'.join(algparams))
+#    return path
+#
+#def get_texture_cmd_new(d):
+#    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
+#    cmd = ('{prg} -v'
+#           ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'
+#           ' --slices {slices} --portion {portion}'
+#           ' --method {mth} --winsize {ws}'
+#           ' --output {o}')
+#    if d['m'] == 'T2w':
+#        cmd += ' --std stdcfg_{m}.txt'
+#    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
+#    return cmd
+#
+#def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
+#        portion, method, winsize):
+#    """Generate texture features."""
+#    d = dict(pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
+#             mt=masktype, c=case, s=scan, l=lesion, slices=slices,
+#             portion=portion, mth=method, ws=winsize)
+#    d['mask'], mask_deps = mask_path(d)
+#    d['o'] = texture_path_new(mode, case, scan, lesion, masktype, slices,
+#            portion, method, winsize)
+#    cmd = get_texture_cmd_new(d)
+#    return {
+#        'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
+#        'actions': [(create_folder, [dirname(d['o'])]),
+#                    cmd],
+#        'file_dep': mask_deps,
+#        'targets': [d['o']],
+#        'clean': True,
+#        }
+#
+#def task_texture_new():
+#    """Generate texture features."""
+#    for case, scan, lesion in lesions(MODE):
+#        for mth in texture_methods_new(MODE):
+#            for ws in texture_winsizes_new('lesion', MODE, mth):
+#                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
+#                        lesion, 'maxfirst', 0, mth, ws)
+
+###
+
 def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
     masktype = 'auto'
