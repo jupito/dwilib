@@ -36,7 +36,7 @@ class Mask(object):
     """
     def __init__(self, slice, array):
         if slice < 1:
-            raise Exception('Invalid slice: {}'.format(slice))
+            raise ValueError('Invalid slice: {}'.format(slice))
         self.slice = slice # Slice number, one-based indexing
         self.array = array.astype(bool) # 2D mask of one slice.
 
@@ -86,6 +86,10 @@ class Mask(object):
 
     def write(self, filename):
         """Write mask as an ASCII file."""
+        def line_to_text(line):
+            return ''.join(str(x) for x in line)
+        def mask_to_text(mask):
+            return '\n'.join(line_to_text(x) for x in mask)
         with open(filename, 'w') as f:
             f.write('slice: %s\n' % self.slice)
             f.write(mask_to_text(self.array.astype(int)))
@@ -100,7 +104,7 @@ class Mask3D(object):
     """
     def __init__(self, a):
         if a.ndim != 3:
-            raise 'Invalid mask dimensionality: %s' % a.shape
+            raise ValueError('Invalid mask dimensionality: {}'.format(a.shape))
         self.array = a.astype(bool)
 
     def __repr__(self):
@@ -178,11 +182,6 @@ class Mask3D(object):
         r = (mbb_size == self.n_selected())
         return r
 
-def mask_to_text(mask):
-    return '\n'.join(line_to_text(x) for x in mask)
-
-def line_to_text(line):
-    return ''.join(str(x) for x in line)
 
 def load_ascii(filename):
     """Read a mask as an ASCII file."""
