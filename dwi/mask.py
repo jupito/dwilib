@@ -6,7 +6,8 @@ boolean array that is set to True in those voxels that are selected. Class Mask
 contains a single-slice 2D array and a number denoting the slice index. It was
 used with older ASCII mask files -- Mask3D is used with new DICOM masks. The old
 ASCII mask files had one-based slice indices, that's why they are used here,
-too. If possible, use class Mask3D instead of Mask.
+too. If possible, use class Mask3D instead of Mask. However, there is no writing
+routine for Mask3D yet. One will be implemented for HDF5 format.
 
 Function read_mask() reads a mask file in either format and returns either a
 Mask or Mask3D object. A Mask object can be converted to a more functional
