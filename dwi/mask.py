@@ -9,9 +9,15 @@ ASCII mask files had one-based slice indices, that's why they are used here,
 too. If possible, use class Mask3D instead of Mask. However, there is no writing
 routine for Mask3D yet. One will be implemented for HDF5 format.
 
-Function read_mask() reads a mask file in either format and returns either a
-Mask or Mask3D object. A Mask object can be converted to a more functional
-Mask3D object with function convert_to_3d(), if you know the number of slices.
+Function read_mask() reads a mask file in ASCII or DICOM format and returns
+either a Mask or Mask3D object. A Mask object can be converted to a more
+functional Mask3D object with function convert_to_3d(), if you know the number
+of slices.
+
+Most often used functions are probably selected(), which returns the selected
+image voxels as a flat array; apply_mask(), which sets all unselected image
+voxels to zero (or other value); and bounding_box() which returns the
+coordinates of the minimum bounding box containing all selected voxels.
 """
 
 from __future__ import division, print_function
