@@ -37,6 +37,7 @@ class Mask(object):
         if onebased:
             coordinates = [i-1 for i in coordinates] # One-based indexing.
         z0, z1, y0, y1, x0, x1 = coordinates
+        assert z0 == z1-1, 'Multi-slice subwindow of single-slice mask.'
         slice = self.slice - z0
         array = self.array[y0:y1,x0:x1]
         return Mask(slice, array)
