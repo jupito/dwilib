@@ -12,9 +12,12 @@ Mask3D object with function convert_to_3d(), if you know the number of slices.
 """
 
 from __future__ import division, print_function
+import os.path
 import re
+
 import numpy as np
 
+import dwi.dicomfile
 import dwi.files
 import dwi.util
 
@@ -184,7 +187,6 @@ def load_ascii(filename):
 
 def read_dicom_mask(path):
     """Read a mask as a DICOM directory."""
-    import dwi.dicomfile
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
     image = image.squeeze(axis=3) # Remove single subvalue dimension.
@@ -193,7 +195,6 @@ def read_dicom_mask(path):
 
 def read_mask(path):
     """Read a mask either as a DICOM directory or an ASCII file."""
-    import os.path
     if os.path.isdir(path):
         return read_dicom_mask(path)
     else:
