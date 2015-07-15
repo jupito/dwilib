@@ -159,10 +159,10 @@ class Mask3D(object):
         return r
 
 def mask_to_text(mask):
-    return '\n'.join(map(line_to_text, mask))
+    return '\n'.join(line_to_text(x) for x in mask)
 
 def line_to_text(line):
-    return ''.join(map(str, line))
+    return ''.join(str(x) for x in line)
 
 def load_ascii(filename):
     """Read a mask as an ASCII file."""
