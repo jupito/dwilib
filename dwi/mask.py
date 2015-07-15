@@ -1,4 +1,15 @@
-"""ROI masks."""
+"""Image masks.
+
+Classes Mask and Mask3D represent image masks. They can be used to select
+regions, or groups of voxels from images. Class Mask3D contains a multi-slice
+boolean array that is set to True in those voxels that are selected. Class Mask
+contains a single-slice 2D array and a number denoting the slice index. It was
+used with older ASCII mask files -- Mask3D is used with new DICOM masks.
+
+Function read_mask() reads a mask file in either format and returns either a
+Mask or Mask3D object. A Mask object can be converted to a more functional
+Mask3D object with function convert_to_3d(), if you know the number of slices.
+"""
 
 from __future__ import division, print_function
 import re
@@ -153,7 +164,7 @@ def line_to_text(line):
     return ''.join(map(str, line))
 
 def load_ascii(filename):
-    """Read a ROI mask file."""
+    """Read a mask as an ASCII file."""
     p = re.compile(r'(\w+)\s*:\s*(.*)')
     slice = 1
     arrays = []
@@ -171,6 +182,7 @@ def load_ascii(filename):
         raise Exception('No mask found in %s' % filename)
 
 def read_dicom_mask(path):
+    """Read a mask as a DICOM directory."""
     import dwi.dicomfile
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
@@ -179,7 +191,7 @@ def read_dicom_mask(path):
     return mask
 
 def read_mask(path):
-    # Read mask either as a DICOM directory or ASCII file.
+    """Read a mask either as a DICOM directory or an ASCII file."""
     import os.path
     if os.path.isdir(path):
         return read_dicom_mask(path)
