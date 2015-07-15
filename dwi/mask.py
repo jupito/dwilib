@@ -67,14 +67,14 @@ class Mask(object):
         return np.count_nonzero(self.array)
 
     def selected(self, array):
-        """Return selected voxels as a flat array."""
+        """Return selected voxels of an array as a flat array."""
         if array.ndim == self.array.ndim:
             return array[self.array]
         else:
             return array[self.slice-1, self.array]
 
     def selected_slice(self, a):
-        """Return the selected slice."""
+        """Return the selected slice of an array."""
         indices = self.selected_slices()
         if len(indices) != 1:
             raise Exception('Exactly one slice not selected.')
@@ -128,7 +128,7 @@ class Mask3D(object):
         return np.count_nonzero(self.array)
 
     def selected(self, a):
-        """Return selected voxels."""
+        """Return the selected voxels of an array as a flat array."""
         return a[self.array]
 
     def selected_slices(self):
@@ -136,7 +136,7 @@ class Mask3D(object):
         return np.unique(self.array.nonzero()[0])
 
     def selected_slice(self, a):
-        """Return the selected slice."""
+        """Return the selected slice of an array."""
         indices = self.selected_slices()
         if len(indices) != 1:
             raise Exception('Exactly one slice not selected.')
@@ -158,7 +158,7 @@ class Mask3D(object):
         return Mask3D(array)
 
     def apply_mask(self, a, value=0):
-        """Cover masked voxels by zero or other value."""
+        """Cover masked voxels of an array by zero (or other value)."""
         copy = a.copy()
         copy[-self.array,...] = value
         return copy
