@@ -6,7 +6,7 @@ boolean array that is set to True in those voxels that are selected. Class Mask
 contains a single-slice 2D array and a number denoting the slice index. It was
 used with older ASCII mask files -- Mask3D is used with new DICOM masks. The old
 ASCII mask files had one-based slice indices, that's why they are used here,
-too.
+too. If possible, use class Mask3D instead of Mask.
 
 Function read_mask() reads a mask file in either format and returns either a
 Mask or Mask3D object. A Mask object can be converted to a more functional
@@ -24,7 +24,15 @@ import dwi.files
 import dwi.util
 
 class Mask(object):
-    """Mask for one slice in 3D image."""
+    """Single-slice mask for a 3D image. Deprecated, use Mask3D instead.
+
+    Variables
+    ---------
+    slice : integer
+        Slice index, one-based.
+    array : ndarray, shape = [height, width], dtype = bool
+        Two-dimensional array with selected voxels set to True.
+    """
     def __init__(self, slice, array):
         if slice < 1:
             raise Exception('Invalid slice: {}'.format(slice))
@@ -48,11 +56,11 @@ class Mask(object):
         return Mask(slice, array)
 
     def n_selected(self):
-        """Return number of selected voxels."""
+        """Return the number of selected voxels."""
         return np.count_nonzero(self.array)
 
     def selected(self, array):
-        """Get selected region as a flat array."""
+        """Return selected voxels as a flat array."""
         if array.ndim == self.array.ndim:
             return array[self.array]
         else:
@@ -66,7 +74,7 @@ class Mask(object):
         return a[indices[0]]
 
     def selected_slices(self):
-        """Return slice indices that have voxels selected."""
+        """Return zero-based slice indices that have voxels selected."""
         return [self.slice - 1]
 
     def convert_to_3d(self, n_slices):
@@ -82,7 +90,13 @@ class Mask(object):
             f.write(mask_to_text(self.array.astype(int)))
 
 class Mask3D(object):
-    """Image mask stored as a 3D array."""
+    """Multi-slice mask for a 3D image.
+
+    Variables
+    ---------
+    array : ndarray, shape = [depth, height, width], dtype = bool
+        Array with selected voxels set to True.
+    """
     def __init__(self, a):
         if a.ndim != 3:
             raise 'Invalid mask dimensionality: %s' % a.shape
