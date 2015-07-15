@@ -27,7 +27,7 @@ class Mask(object):
     """Mask for one slice in 3D image."""
     def __init__(self, slice, array):
         if slice < 1:
-            raise Exception('Invalid slice')
+            raise Exception('Invalid slice: {}'.format(slice))
         self.slice = slice # Slice number, one-based indexing
         self.array = array.astype(bool) # 2D mask of one slice.
 
