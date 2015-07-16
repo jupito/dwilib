@@ -461,7 +461,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #    cmd = ('{prg} -v'
 #           ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'
 #           ' --slices {slices} --portion {portion}'
-#           ' --method {mth} --winsize {ws}'
+#           ' --method {mth} --winsize {ws} --voxel mean'
 #           ' --output {o}')
 #    if d['m'] == 'T2w':
 #        cmd += ' --std stdcfg_{m}.txt'
