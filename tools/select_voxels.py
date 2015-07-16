@@ -84,42 +84,46 @@ def write(filename, dwimage, image, fmt=None):
     else:
         raise Exception('Unknown format: {}'.format(fmt))
 
-args = parse_args()
+def main():
+    args = parse_args()
 
-# Load image.
-if len(args.input) == 1:
-    dwimage = dwi.dwimage.load(args.input[0])[0]
-else:
-    dwimages = []
-    for infile in args.input:
-        dwimages.append(dwi.dwimage.load(infile)[0])
-    dwimage = merge_dwimages(dwimages)
-if args.verbose:
-    print(dwimage)
-
-# Select subwindow.
-if args.subwindow:
-    if args.verbose:
-        print('Using subwindow %s' % args.subwindow)
-    dwimage = dwimage.get_roi(args.subwindow, onebased=True)
-
-# Select sequence of voxels.
-image = dwimage.image
-if args.mask:
-    mask = dwi.mask.read_mask(args.mask)
-    if args.subwindow and args.subwindow_mask:
-        mask = mask.get_subwindow(args.subwindow)
-    if args.verbose:
-        print('Using mask %s' % mask)
-    if args.keep_masked:
-        image = mask.apply_mask(image)
+    # Load image.
+    if len(args.input) == 1:
+        dwimage = dwi.dwimage.load(args.input[0])[0]
     else:
-        image = mask.selected(image)
+        dwimages = []
+        for infile in args.input:
+            dwimages.append(dwi.dwimage.load(infile)[0])
+        dwimage = merge_dwimages(dwimages)
+    if args.verbose:
+        print(dwimage)
 
-# Write output voxels. Unless output filename is specified, one will be
-# constructed from (first) input filename.
-outfile = args.output or os.path.basename(args.input[0]) + '.txt'
-if args.verbose:
-    print('Writing {nv} voxels with {np} parameters to {of}'.format(
-        nv=image.size, np=image.shape[-1], of=outfile))
-write(outfile, dwimage, image)
+    # Select subwindow.
+    if args.subwindow:
+        if args.verbose:
+            print('Using subwindow %s' % args.subwindow)
+        dwimage = dwimage.get_roi(args.subwindow, onebased=True)
+
+    # Select sequence of voxels.
+    image = dwimage.image
+    if args.mask:
+        mask = dwi.mask.read_mask(args.mask)
+        if args.subwindow and args.subwindow_mask:
+            mask = mask.get_subwindow(args.subwindow)
+        if args.verbose:
+            print('Using mask %s' % mask)
+        if args.keep_masked:
+            image = mask.apply_mask(image)
+        else:
+            image = mask.selected(image)
+
+    # Write output voxels. Unless output filename is specified, one will be
+    # constructed from (first) input filename.
+    outfile = args.output or os.path.basename(args.input[0]) + '.txt'
+    if args.verbose:
+        print('Writing {nv} voxels with {np} parameters to {of}'.format(
+            nv=image.size, np=image.shape[-1], of=outfile))
+    write(outfile, dwimage, image)
+
+if __name__ == '__main__':
+    main()
