@@ -36,7 +36,7 @@ def parse_args():
     return p.parse_args()
 
 def merge_dwimages(dwimages):
-    # Merge multiple images of same size by overlaying the parameters.
+    """Merge multiple images of same size by overlaying the parameters."""
     images = [d.image for d in dwimages]
     bsets = [d.bset for d in dwimages]
     filenames = [d.filename for d in dwimages]
@@ -51,18 +51,20 @@ def merge_dwimages(dwimages):
     dwimage.voxel_spacing = dwimages[0].voxel_spacing
     return dwimage
 
-def write_pmap_ascii_head(dwi, model, params, f):
-    f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in dwi.subwindow))
-    f.write('number: %d\n' % dwi.number)
-    f.write('bset: [%s]\n' % ' '.join(str(x) for x in dwi.bset))
-    f.write('ROIslice: %s\n' % dwi.roislice)
-    f.write('name: %s\n' % dwi.name)
-    f.write('executiontime: %d s\n' % dwi.execution_time())
-    f.write('description: %s %s\n' % (dwi.filename, repr(model)))
+def write_pmap_ascii_head(dwimage, model, params, f):
+    """Write pmap ASCII header."""
+    f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in dwimage.subwindow))
+    f.write('number: %d\n' % dwimage.number)
+    f.write('bset: [%s]\n' % ' '.join(str(x) for x in dwimage.bset))
+    f.write('ROIslice: %s\n' % dwimage.roislice)
+    f.write('name: %s\n' % dwimage.name)
+    f.write('executiontime: %d s\n' % dwimage.execution_time())
+    f.write('description: %s %s\n' % (dwimage.filename, repr(model)))
     f.write('model: %s\n' % model)
     f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
 
 def write_pmap_ascii_body(pmap, f):
+    """Write pmap ASCII body."""
     for p in pmap:
         f.write(' '.join(repr(x) for x in p) + '\n')
 
