@@ -7,35 +7,33 @@ from __future__ import division, print_function
 import argparse
 import collections
 import os.path
+
 import numpy as np
 
 import dwi.dwimage
+import dwi.hdf5
 import dwi.mask
 import dwi.util
 
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description = __doc__)
-    p.add_argument('-v', '--verbose',
-            action='count',
-            help='increase verbosity')
-    p.add_argument('--input', '-i', metavar='INFILE',
-            nargs='+', required=True,
-            help='input parametric map files')
-    p.add_argument('--subwindow', '-s', metavar='I',
-            nargs=6, default=[], required=False, type=int,
-            help='use subwindow (specified by 6 one-based indices)')
-    p.add_argument('--mask', '-m', metavar='MASKFILE',
-            required=False,
-            help='mask file (applied within subwindow size)')
+    p.add_argument('-v', '--verbose', action='count',
+                   help='increase verbosity')
+    p.add_argument('--input', '-i', metavar='INFILE', nargs='+', required=True,
+                   help='input parametric map files')
+    p.add_argument('--subwindow', '-s', metavar='I', nargs=6, default=[],
+                   required=False, type=int,
+                   help='use subwindow (specified by 6 one-based indices)')
+    p.add_argument('--mask', '-m', metavar='MASKFILE', required=False,
+                   help='mask file (applied within subwindow size)')
     p.add_argument('--keep-masked', action='store_true',
-            help='keep masked voxels (as zeros)')
+                   help='keep masked voxels (as zeros)')
     p.add_argument('--subwindow-mask', action='store_true',
-            help='apply subwindow on mask, too')
+                   help='apply subwindow on mask, too')
     p.add_argument('--output', '-o', metavar='OUTFILE',
-            help='output parametric map file')
-    args = p.parse_args()
-    return args
+                   help='output parametric map file')
+    return p.parse_args()
 
 def merge_dwimages(dwimages):
     # Merge multiple images of same size by overlaying the parameters.
@@ -54,19 +52,19 @@ def merge_dwimages(dwimages):
     return dwimage
 
 def write_pmap_ascii_head(dwi, model, params, f):
-    f.write('subwindow: [%s]\n' % ' '.join(map(str, dwi.subwindow)))
+    f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in dwi.subwindow))
     f.write('number: %d\n' % dwi.number)
-    f.write('bset: [%s]\n' % ' '.join(map(str, dwi.bset)))
+    f.write('bset: [%s]\n' % ' '.join(str(x) for x in dwi.bset))
     f.write('ROIslice: %s\n' % dwi.roislice)
     f.write('name: %s\n' % dwi.name)
     f.write('executiontime: %d s\n' % dwi.execution_time())
     f.write('description: %s %s\n' % (dwi.filename, repr(model)))
     f.write('model: %s\n' % model)
-    f.write('parameters: %s\n' % ' '.join(map(str, params)))
+    f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
 
 def write_pmap_ascii_body(pmap, f):
     for p in pmap:
-        f.write(' '.join(map(repr, p)) + '\n')
+        f.write(' '.join(repr(x) for x in p) + '\n')
 
 def write(filename, dwimage, image, fmt=None):
     """Write output file."""
@@ -74,7 +72,6 @@ def write(filename, dwimage, image, fmt=None):
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
-        import dwi.hdf5
         attrs = collections.OrderedDict()
         attrs['bset'] = dwimage.bset
         attrs['parameters'] = params
@@ -123,6 +120,6 @@ if args.mask:
 # constructed from (first) input filename.
 outfile = args.output or os.path.basename(args.input[0]) + '.txt'
 if args.verbose:
-    print('Writing %i voxels with %i parameters to %s' % (image.size,
-            image.shape[-1], outfile))
+    print('Writing {nv} voxels with {np} parameters to {of}'.format(
+        nv=image.size, np=image.shape[-1], of=outfile))
 write(outfile, dwimage, image)
