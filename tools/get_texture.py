@@ -109,6 +109,10 @@ def main():
                  w=args.winsizes)
         print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d))
 
+    ###
+    print([(w, np.count_nonzero(m)) for w, m in zip(args.winsizes, pmasks)])
+    ###
+
     if args.std:
         if args.verbose:
             print('Standardizing...')
