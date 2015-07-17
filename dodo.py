@@ -181,9 +181,15 @@ def fit_cmd(model, subwindow, infiles, outfile):
     s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
     return s
 
-def get_texture_cmd(d):
-    cmd = ('{prg} -v --methods {methods} --winsizes {winsizes}'
+def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
+        maskpath, outpath):
+    d = dict(m=mode.model, p=mode.param, c=case, s=scan,
+             methods=methods, winsizes=winsizes,
+             slices=slices, portion=portion, pd=pmapdir_dicom(mode),
+             mask=maskpath, o=outpath)
+    cmd = ('{prg} -v'
            ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'
+           ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
     if d['m'] == 'T2w':
@@ -393,20 +399,20 @@ def task_evaluate_autoroi():
 def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                             portion):
     """Generate texture features."""
-    d = dict(methods=texture_methods(mode),
-             winsizes=texture_winsizes(masktype, mode),
-             pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
-             mt=masktype, c=case, s=scan, l=lesion, slices=slices,
-             portion=portion)
-    d['mask'], mask_deps = mask_path(d)
-    d['o'] = texture_path(mode, case, scan, lesion, masktype, slices, portion)
-    cmd = get_texture_cmd(d)
+    d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
+             slices=slices, portion=portion)
+    methods = texture_methods(mode)
+    winsizes = texture_winsizes(masktype, mode)
+    mask, mask_deps = mask_path(d)
+    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
+    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
+                          mask, outfile)
     return {
         'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
-        'actions': [(create_folder, [dirname(d['o'])]),
+        'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
         'file_dep': mask_deps,
-        'targets': [d['o']],
+        'targets': [outfile],
         'clean': True,
         }
 
@@ -500,21 +506,22 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
     masktype = 'auto'
-    d = dict(methods=texture_methods(mode),
-             winsizes=texture_winsizes(masktype, mode),
-             pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
+    d = dict(m=mode.model, p=mode.param,
              mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
              slices=slices, portion=portion)
-    d['mask'], mask_deps = mask_path(d)
-    d['o'] = texture_path(mode, case, scan, lesion, masktype, slices, portion,
+    methods = texture_methods(mode)
+    winsizes = texture_winsizes(masktype, mode)
+    mask, mask_deps = mask_path(d)
+    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                           algparams)
-    cmd = get_texture_cmd(d)
+    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
+                          mask, outfile)
     return {
         'name': '{m}_{p}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
-        'actions': [(create_folder, [dirname(d['o'])]),
+        'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
         'file_dep': mask_deps,
-        'targets': [d['o']],
+        'targets': [outfile],
         'clean': True,
         }
 
