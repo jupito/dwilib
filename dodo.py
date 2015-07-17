@@ -118,19 +118,21 @@ def pmap_dicom(mode, case, scan):
     s = s.format(m=mode, c=case, s=scan)
     return dwi.util.sglob(s, typ='dir')
 
-def mask_path(d):
+def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     """Return path and deps of masks of different types."""
+    d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
+            ap_='_'.join(algparams))
     do_glob = True
-    if d['mt'] == 'lesion':
-        if d['m'] in ('T2', 'T2w'):
+    if masktype == 'lesion':
+        if mode.model in ('T2', 'T2w'):
             path = 'masks_lesion_{m}/PCa_masks_{m}_{l}*/{c}_*{s}_*'
         else:
             path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
         deps = '{}/*'.format(path)
-    elif d['mt'] in ('CA', 'N'):
+    elif masktype in ('CA', 'N'):
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
         deps = '{}/*'.format(path)
-    elif d['mt'] == 'auto':
+    elif masktype == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
         path = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'
@@ -403,7 +405,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
              slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(d)
+    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
@@ -511,7 +513,8 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
              slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(d)
+    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion,
+                                algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                           algparams)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
