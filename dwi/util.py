@@ -1,8 +1,8 @@
 """Utility functionality."""
 
 from __future__ import division, print_function
+from itertools import ifilter, islice, product
 import collections
-import itertools
 import random
 
 import numpy as np
@@ -32,7 +32,7 @@ def fabricate_subwindow(size, height=None):
 
 def combinations(l):
     """Return combinations of list elements."""
-    return [x for x in itertools.product(*l)]
+    return [x for x in product(*l)]
 
 def chunks(seq, n):
     """Return sequence as chunks of n elements."""
@@ -362,7 +362,7 @@ def group_labels(groups, values):
 
 def take(n, iterable):
     """Return first n items of the iterable as a list."""
-    return list(itertools.islice(iterable, n))
+    return list(islice(iterable, n))
 
 def sole(it, desc=None):
     """Return the sole item of an iterable. Raise an exception if the number of
@@ -384,9 +384,9 @@ def iglob(path, typ='any'):
     if typ == 'any':
         pass
     elif typ == 'file':
-        it = itertools.ifilter(os.path.isfile, it)
+        it = ifilter(os.path.isfile, it)
     elif typ == 'dir':
-        it = itertools.ifilter(os.path.isdir, it)
+        it = ifilter(os.path.isdir, it)
     else:
         raise Exception('Invalid path type: {}'.format(typ))
     return it
