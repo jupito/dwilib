@@ -39,11 +39,6 @@ MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
 
 SUBREGION_DIR = 'subregions'
 
-MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
-          'Biexp BiexpN'.split())
-DEFAULT_PARAMS = dict(Mono='ADCm', MonoN='ADCmN',
-                      Kurt='ADCk', KurtN='ADCkN',
-                      T2='raw', T2w='raw')
 MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
 
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
@@ -250,6 +245,8 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 
 #def task_fit():
 #    """Fit models to imaging data."""
+#    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
+#              'Biexp BiexpN'.split())
 #    for case, scan in SUBWINDOWS.keys():
 #        subwindow = SUBWINDOWS[(case, scan)]
 #        d = dict(c=case, s=scan)
