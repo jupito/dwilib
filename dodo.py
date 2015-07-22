@@ -164,7 +164,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
     return path
 
 #def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
-#        method, winsize, algparams=()):
+#                     method, winsize, algparams=()):
 #    """Return path to texture file."""
 #    if masktype in ('lesion', 'CA', 'N'):
 #        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{c}_{s}_{l}_{mth}_{ws}.txt'
@@ -204,19 +204,23 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
-    if d['m'] == 'T2w':
+    if mode.model == 'T2w':
         cmd += ' --std stdcfg_{m}.txt'
     cmd = cmd.format(prg=GET_TEXTURE, **d)
     return cmd
 
-#def get_texture_cmd_new(d):
+#def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
+#                        maskpath, outpath):
 #    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
+#    d = dict(m=mode.model, p=mode.param, c=case, s=scan,
+#             slices=slices, portion=portion, pd=pmapdir_dicom(mode),
+#             mask=maskpath, mth=method, ws=winsize, o=outpath)
 #    cmd = ('{prg} -v'
 #           ' --pmapdir {pd} --param {p} --case {c} --scan {s} --mask {mask}'
 #           ' --slices {slices} --portion {portion}'
 #           ' --method {mth} --winsize {ws} --voxel mean'
 #           ' --output {o}')
-#    if d['m'] == 'T2w':
+#    if mode.model == 'T2w':
 #        cmd += ' --std stdcfg_{m}.txt'
 #    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
 #    return cmd
@@ -450,19 +454,19 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
 #        portion, method, winsize):
 #    """Generate texture features."""
-#    d = dict(pd=pmapdir_dicom(mode), m=mode.model, p=mode.param,
-#             mt=masktype, c=case, s=scan, l=lesion, slices=slices,
-#             portion=portion, mth=method, ws=winsize)
-#    d['mask'], mask_deps = mask_path(d)
-#    d['o'] = texture_path_new(mode, case, scan, lesion, masktype, slices,
-#            portion, method, winsize)
-#    cmd = get_texture_cmd_new(d)
+#    d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
+#             slices=slices, portion=portion, mth=method, ws=winsize)
+#    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
+#    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
+#                              portion, method, winsize)
+#    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
+#                          mask, outfile)
 #    return {
 #        'name': '{m}_{p}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
-#        'actions': [(create_folder, [dirname(d['o'])]),
+#        'actions': [(create_folder, [dirname(outfile)]),
 #                    cmd],
 #        'file_dep': mask_deps,
-#        'targets': [d['o']],
+#        'targets': [outfile],
 #        'clean': True,
 #        }
 
