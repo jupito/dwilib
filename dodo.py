@@ -129,7 +129,10 @@ def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
     do_glob = True
-    if masktype == 'lesion':
+    if masktype == 'prostate':
+        path = 'masks_prostate/{c}_*_{s}_*'
+        deps = '{}/*'.format(path)
+    elif masktype == 'lesion':
         if mode.model in ('T2', 'T2w'):
             path = 'masks_lesion_{m}/PCa_masks_{m}_{l}*/{c}_*{s}_*'
         else:
@@ -274,17 +277,16 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     for case, scan in cases_scans(MODE):
-        d = dict(prg=MASKTOOL, c=case, s=scan)
-        d.update(i='masks_prostate/{c}_*_{s}_*'.format(**d),
-                 o=subregion_path(MODE, case, scan))
-        file_deps = glob('{i}/*'.format(**d))
-        cmd = '{prg} -i {i} --pad 10 -s {o}'.format(**d)
+        mask, mask_deps = mask_path(MODE, 'prostate', case, scan, None)
+        subregion = subregion_path(MODE, case, scan)
+        cmd = '{prg} -i {m} --pad 10 -s {sr}'.format(prg=MASKTOOL, m=mask,
+                                                     sr=subregion)
         yield {
-            'name': '{c}_{s}'.format(**d),
-            'actions': [(create_folder, [dirname(d['o'])]),
+            'name': '{c}_{s}'.format(c=case, s=scan),
+            'actions': [(create_folder, [dirname(subregion)]),
                         cmd],
-            'file_dep': file_deps,
-            'targets': [d['o']],
+            'file_dep': mask_deps,
+            'targets': [subregion],
             'clean': True,
             }
 
