@@ -370,7 +370,7 @@ def task_select_roi_manual():
         for case, scan in cases_scans(MODE):
             try:
                 yield get_task_select_roi_manual(case, scan, MODE, masktype)
-            except IOError, e:
+            except IOError as e:
                 print(e)
 
 def task_select_roi_auto():
@@ -379,7 +379,7 @@ def task_select_roi_auto():
         for case, scan in cases_scans(MODE):
             try:
                 yield get_task_select_roi_auto(case, scan, MODE, algparams)
-            except IOError, e:
+            except IOError as e:
                 print(e)
 
 def task_select_roi():
@@ -547,7 +547,7 @@ def task_mask_prostate():
         try:
             yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms', 'dicoms_masked_DWI', '_hB', '')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate', 'new/for_jussi_data_missing_04_01_2015/SPAIR_f_12b_highb', 'dicoms_masked_DWI_missing', '', '_all')
-        except IOError, e:
+        except IOError as e:
             print(e)
 
 def task_mask_prostate_T2():
@@ -557,7 +557,7 @@ def task_mask_prostate_T2():
             yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65', 'dicoms_masked_T2', '', '_T2')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2w', 'dicoms_T2w_TSE_2.5m', 'dicoms_masked_T2w', '', '*')
-        except IOError, e:
+        except IOError as e:
             print(e)
 
 def task_all():
