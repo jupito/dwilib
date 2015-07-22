@@ -202,9 +202,9 @@ def lesions(mode):
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     maskpath, outpath):
     d = dict(m=mode, c=case, s=scan,
+             slices=slices, portion=portion,
              methods=' '.join(methods), winsizes=winsizes,
-             slices=slices, portion=portion, pd=pmapdir_dicom(mode),
-             mask=maskpath, o=outpath)
+             pd=pmapdir_dicom(mode), mask=maskpath, o=outpath)
     cmd = ('{prg} -v'
            ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
            ' --methods {methods} --winsizes {winsizes}'
@@ -212,15 +212,14 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --output {o}')
     if mode.model == 'T2w':
         cmd += ' --std stdcfg_{m.model}.txt'
-    cmd = cmd.format(prg=GET_TEXTURE, **d)
-    return cmd
+    return cmd.format(prg=GET_TEXTURE, **d)
 
 #def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
 #                        maskpath, outpath):
 #    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
 #    d = dict(m=mode, c=case, s=scan,
-#             slices=slices, portion=portion, pd=pmapdir_dicom(mode),
-#             mask=maskpath, mth=method, ws=winsize, o=outpath)
+#             slices=slices, portion=portion, mth=method, ws=winsize,
+#             pd=pmapdir_dicom(mode), mask=maskpath, o=outpath)
 #    cmd = ('{prg} -v'
 #           ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
 #           ' --slices {slices} --portion {portion}'
