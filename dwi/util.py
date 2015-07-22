@@ -165,12 +165,14 @@ def stem_and_leaf(values):
     """
     stems = {}
     for v in sorted(values):
-        a = stems.setdefault(int(v*10), [])
-        a.append(int((v*10 - int(v*10)) * 10))
-    strings = []
+        v = v*10
+        a = stems.setdefault(int(v), [])
+        a.append(int((v-int(v)) * 10))
+    lines = []
     for i in range(11):
-        strings.append('%i|%s' % (i, ''.join(map(str, stems.get(i, [])))))
-    return strings
+        leaves = ''.join(str(x) for x in stems.get(i, []))
+        lines.append('{i:2}|{l}'.format(i=i, l=leaves))
+    return lines
 
 def tilde(a):
     """Logical 'not' operator for NumPy objects that behaves like MATLAB
