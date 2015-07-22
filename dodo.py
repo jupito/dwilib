@@ -289,23 +289,22 @@ def task_make_subregion():
             'clean': True,
             }
 
-def get_task_find_roi(case, scan, mode, algparams):
-    d = dict(prg=FIND_ROI, slf=samplelist_file(mode),
-             pd=pmapdir_dicom(mode), srd=subregion_dir(mode), m=mode.model,
-             p=mode.param, c=case, s=scan, ap=' '.join(algparams),
-             ap_='_'.join(algparams))
-    maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
-    figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
+def get_task_find_roi(mode, case, scan, algparams):
+    d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
+             pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
+             c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
+    maskpath = 'masks_auto_{m.model}_{m.param}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+    figpath = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = []
     file_deps += [subregion_path(mode, case, scan)]
     file_deps += glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
-           '--param {p} --cases {c} --scans {s} --algparams {ap} '
+           '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
            '--outmask {mp} --outfig {fp}'.format(**d))
     return {
-        'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
+        'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(maskpath)]),
                     (create_folder, [dirname(figpath)]),
                     cmd],
@@ -318,7 +317,7 @@ def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans(MODE):
-            yield get_task_find_roi(case, scan, MODE, algparams)
+            yield get_task_find_roi(MODE, case, scan, algparams)
 
 def get_task_select_roi_manual(case, scan, mode, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
