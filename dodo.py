@@ -60,7 +60,7 @@ FIND_ROI_PARAMS = [
     ]
 
 def texture_methods(mode):
-    return ' '.join([
+    return [
         #'stats',
         #'haralick',
         #'moment',
@@ -76,7 +76,7 @@ def texture_methods(mode):
         'zernike',
         'sobel_mbb',
         'stats_all',
-        ])
+        ]
 
 def texture_winsizes(masktype, mode):
     if masktype in ('CA', 'N'):
@@ -403,7 +403,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     """Generate texture features."""
     d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
              slices=slices, portion=portion)
-    methods = texture_methods(mode)
+    methods = ' '.join(texture_methods(mode))
     winsizes = texture_winsizes(masktype, mode)
     mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
@@ -420,25 +420,6 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 
 ###
 
-#def texture_methods_new(mode):
-#    return ' '.join([
-#        #'stats',
-#        #'haralick',
-#        #'moment',
-#        #'haralick_mbb',
-#
-#        'glcm',
-#        'glcm_mbb',
-#        'lbp',
-#        'hog',
-#        'gabor',
-#        'haar',
-#        'hu',
-#        'zernike',
-#        'sobel_mbb',
-#        'stats_all',
-#        ])
-#
 #def texture_winsizes_new(masktype, mode, method):
 #    if method.endswith('_all') or method.endswith('_mbb'):
 #        l = [0]
@@ -498,7 +479,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #def task_texture_new():
 #    """Generate texture features."""
 #    for case, scan, lesion in lesions(MODE):
-#        for mth in texture_methods_new(MODE):
+#        for mth in texture_methods(MODE):
 #            for ws in texture_winsizes_new('lesion', MODE, mth):
 #                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
 #                        lesion, 'maxfirst', 0, mth, ws)
@@ -511,7 +492,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     d = dict(m=mode.model, p=mode.param,
              mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
              slices=slices, portion=portion)
-    methods = texture_methods(mode)
+    methods = ' '.join(texture_methods(mode))
     winsizes = texture_winsizes(masktype, mode)
     mask, mask_deps = mask_path(mode, masktype, case, scan, lesion,
                                 algparams=algparams)
