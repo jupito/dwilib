@@ -260,7 +260,7 @@ def distance(a, b):
 
 def normalize_si_curve(si):
     """Normalize a signal intensity curve (divide all by the first value).
-    
+
     Note that this function does not manage error cases where the first value
     is zero or the curve rises at some point. See normalize_si_curve_fix().
     """
