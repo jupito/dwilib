@@ -360,21 +360,21 @@ def group_labels(groups, values):
         group_ids.append(get_group_id(groups, value))
     return group_ids
 
-def sole(iterable, desc=None):
+def take(n, iterable):
+    """Return first n items of the iterable as a list."""
+    return list(itertools.islice(iterable, n))
+
+def sole(it, desc=None):
     """Return the sole item of an iterable. Raise an exception if the number of
     items is something else than exactly one."""
-    if desc is None:
-        desc = str(iterable)
-    it = iter(iterable)
-    try:
-        item = next(it)
-    except StopIteration:
-        raise IOError('No item: %s' % desc)
-    try:
-        next(it)
-    except StopIteration:
-        return item
-    raise IOError('More than one item: %s' % desc)
+    lst = take(2, it)
+    n = len(lst)
+    if n != 1:
+        if desc is None:
+            desc = str(lst)
+        raise IOError('Element count not exactly one, observed {}; {}'.format(
+            n, desc))
+    return lst[0]
 
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
