@@ -186,7 +186,7 @@ def fit_cmd(model, subwindow, infiles, outfile):
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     maskpath, outpath):
     d = dict(m=mode.model, p=mode.param, c=case, s=scan,
-             methods=methods, winsizes=winsizes,
+             methods=' '.join(methods), winsizes=winsizes,
              slices=slices, portion=portion, pd=pmapdir_dicom(mode),
              mask=maskpath, o=outpath)
     cmd = ('{prg} -v'
@@ -403,7 +403,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     """Generate texture features."""
     d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
              slices=slices, portion=portion)
-    methods = ' '.join(texture_methods(mode))
+    methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
     mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
@@ -492,7 +492,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     d = dict(m=mode.model, p=mode.param,
              mt=masktype, c=case, s=scan, l=lesion, ap_='_'.join(algparams),
              slices=slices, portion=portion)
-    methods = ' '.join(texture_methods(mode))
+    methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
     mask, mask_deps = mask_path(mode, masktype, case, scan, lesion,
                                 algparams=algparams)
