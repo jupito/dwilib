@@ -115,6 +115,10 @@ def pmapdir_dicom(mode):
 def subregion_dir(mode):
     return 'subregions'
 
+def subregion_path(mode, case, scan):
+    return '{d}/{c}_{s}_subregion10.txt'.format(d=subregion_dir(mode), c=case,
+                                                s=scan)
+
 def pmap_dicom(mode, case, scan):
     s = 'dicoms_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{m.param}'
     s = s.format(m=mode, c=case, s=scan)
@@ -272,7 +276,7 @@ def task_make_subregion():
     for case, scan in cases_scans(MODE):
         d = dict(prg=MASKTOOL, c=case, s=scan)
         d.update(i='masks_prostate/{c}_*_{s}_*'.format(**d),
-                 o='subregions/{c}_{s}_subregion10.txt'.format(**d))
+                 o=subregion_path(MODE, case, scan))
         file_deps = glob('{i}/*'.format(**d))
         cmd = '{prg} -i {i} --pad 10 -s {o}'.format(**d)
         yield {
