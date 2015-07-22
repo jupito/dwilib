@@ -319,11 +319,11 @@ def task_find_roi():
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
 
-def get_task_select_roi_manual(case, scan, mode, masktype):
+def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(c=case, s=scan, m=mode.model, p=mode.param, mt=masktype)
+    d = dict(m=mode, c=case, s=scan, mt=masktype)
     maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
-    outpath = 'rois_{mt}_{m}_{p}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    outpath = 'rois_{mt}_{m.model}_{m.param}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
@@ -331,7 +331,7 @@ def get_task_select_roi_manual(case, scan, mode, masktype):
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-        'name': '{m}_{p}_{mt}_{c}_{s}'.format(**d),
+        'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
         #'file_dep': [maskpath],
@@ -341,12 +341,11 @@ def get_task_select_roi_manual(case, scan, mode, masktype):
         'clean': True,
         }
 
-def get_task_select_roi_auto(case, scan, mode, algparams):
+def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(c=case, s=scan, m=mode.model, p=mode.param, mt='auto',
-             ap_='_'.join(algparams))
-    maskpath = 'masks_{mt}_{m}_{p}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
-    outpath = 'rois_{mt}_{m}_{p}/{ap_}/{c}_x_x_{s}_{m}_{p}_{mt}.txt'.format(**d)
+    d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
+    maskpath = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    outpath = 'rois_{mt}_{m.model}_{m.param}/{ap_}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
     args = [SELECT_VOXELS]
     args += ['-m %s' % maskpath]
@@ -354,7 +353,7 @@ def get_task_select_roi_auto(case, scan, mode, algparams):
     args += ['-o "%s"' % outpath]
     cmd = ' '.join(args)
     return {
-        'name': '{m}_{p}_{ap_}_{c}_{s}'.format(**d),
+        'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
         'file_dep': [maskpath],
@@ -368,7 +367,7 @@ def task_select_roi_manual():
     for masktype in ('CA', 'N'):
         for case, scan in cases_scans(MODE):
             try:
-                yield get_task_select_roi_manual(case, scan, MODE, masktype)
+                yield get_task_select_roi_manual(MODE, case, scan, masktype)
             except IOError as e:
                 print(e)
 
@@ -377,7 +376,7 @@ def task_select_roi_auto():
     for algparams in find_roi_param_combinations():
         for case, scan in cases_scans(MODE):
             try:
-                yield get_task_select_roi_auto(case, scan, MODE, algparams)
+                yield get_task_select_roi_auto(MODE, case, scan, algparams)
             except IOError as e:
                 print(e)
 
