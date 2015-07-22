@@ -193,12 +193,6 @@ def lesions(mode):
             for lesion in range(len(p.lesions)):
                 yield p.num, scan, lesion+1
 
-def fit_cmd(model, subwindow, infiles, outfile):
-    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
-             i=' '.join(infiles), o=outfile)
-    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
-    return s
-
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     maskpath, outpath):
     d = dict(m=mode.model, p=mode.param, c=case, s=scan,
@@ -227,8 +221,6 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
 #    return cmd
 
-# Tasks
-
 #def task_anonymize():
 #    """Anonymize imaging data."""
 #    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
@@ -241,6 +233,12 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #           #'file_dep': [f],
 #           }
 
+#def fit_cmd(model, subwindow, infiles, outfile):
+#    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
+#             i=' '.join(infiles), o=outfile)
+#    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
+#    return s
+#
 #def task_fit():
 #    """Fit models to imaging data."""
 #    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
