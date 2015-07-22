@@ -6,7 +6,7 @@ from itertools import product
 from os.path import dirname
 
 from doit import get_var
-from doit.tools import check_timestamp_unchanged, create_folder, result_dep
+from doit.tools import check_timestamp_unchanged, create_folder
 
 import dwi.files
 import dwi.patient
@@ -108,9 +108,13 @@ def samplelist_file(mode, samplelist=SAMPLELIST):
     return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
 
 def pmapdir_dicom(mode):
-    s = 'dicoms_{m.model}_*'.format(m=mode)
-    path = dwi.util.sglob(s, typ='dir')
-    return path
+    return dwi.util.sglob('dicoms_{m.model}_*'.format(m=mode), typ='dir')
+
+def pmap_dicom(mode, case, scan):
+    pd = pmapdir_dicom(mode)
+    path = '{pd}/{c}_*_{s}/{c}_*_{s}_{m.param}'.format(pd=pd, m=mode, c=case,
+                                                       s=scan)
+    return dwi.util.sglob(path, typ='dir')
 
 def subregion_dir(mode):
     return 'subregions'
@@ -118,11 +122,6 @@ def subregion_dir(mode):
 def subregion_path(mode, case, scan):
     return '{d}/{c}_{s}_subregion10.txt'.format(d=subregion_dir(mode), c=case,
                                                 s=scan)
-
-def pmap_dicom(mode, case, scan):
-    s = 'dicoms_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{m.param}'
-    s = s.format(m=mode, c=case, s=scan)
-    return dwi.util.sglob(s, typ='dir')
 
 def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     """Return path and deps of masks of different types."""
