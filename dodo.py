@@ -7,15 +7,12 @@ sqlite3: (experimental) very slow implementation, support concurrent access.
 """
 
 from __future__ import absolute_import, division, print_function
-import glob
+from glob import glob
 from itertools import product
 from os.path import dirname
 
 from doit import get_var
-#from doit.tools import Interactive
-from doit.tools import check_timestamp_unchanged
-from doit.tools import create_folder
-#from doit.tools import result_dep
+from doit.tools import check_timestamp_unchanged, create_folder, result_dep
 
 import dwi.files
 import dwi.patient
@@ -155,7 +152,7 @@ def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     deps = deps.format(**d)
     if do_glob:
         path = dwi.util.sglob(path)
-        deps = glob.glob(deps)
+        deps = glob(deps)
     else:
         deps = [deps]
     return path, deps
@@ -241,7 +238,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 
 #def task_anonymize():
 #    """Anonymize imaging data."""
-#    files = glob.glob('dicoms/*/DICOMDIR') + glob.glob('dicoms/*/DICOM/*')
+#    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
 #    files.sort()
 #    for f in files:
 #        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
@@ -256,7 +253,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    for case, scan in SUBWINDOWS.keys():
 #        subwindow = SUBWINDOWS[(case, scan)]
 #        d = dict(c=case, s=scan)
-#        infiles = sorted(glob.glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
+#        infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
 #        if len(infiles) == 0:
 #            continue
 #        for model in MODELS:
@@ -278,7 +275,7 @@ def task_make_subregion():
         d = dict(prg=MASKTOOL, c=case, s=scan)
         d.update(i='masks_prostate/{c}_*_{s}_*'.format(**d),
                  o='subregions/{c}_{s}_subregion10.txt'.format(**d))
-        file_deps = glob.glob('{i}/*'.format(**d))
+        file_deps = glob('{i}/*'.format(**d))
         cmd = '{prg} -i {i} --pad 10 -s {o}'.format(**d)
         yield {
             'name': '{c}_{s}'.format(**d),
@@ -299,8 +296,8 @@ def get_task_find_roi(case, scan, mode, algparams):
     d.update(mp=maskpath, fp=figpath)
     file_deps = []
     file_deps += ['{srd}/{c}_{s}_subregion10.txt'.format(**d)]
-    file_deps += glob.glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
-    file_deps += glob.glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+    file_deps += glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
+    file_deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
            '--param {p} --cases {c} --scans {s} --algparams {ap} '
            '--outmask {mp} --outfig {fp}'.format(**d))
