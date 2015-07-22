@@ -7,7 +7,7 @@ sqlite3: (experimental) very slow implementation, support concurrent access.
 """
 
 import glob
-import itertools
+from itertools import product
 from os.path import dirname
 
 from doit import get_var
@@ -100,7 +100,7 @@ def find_roi_param_combinations():
             #(2,3,5,5,500), # Kurt K: corr, auc
             ]
     else:
-        params = itertools.product(*FIND_ROI_PARAMS)
+        params = product(*FIND_ROI_PARAMS)
     for t in params:
         if t[0] <= t[1] and t[2] == t[3]:
             yield [str(x) for x in t]
