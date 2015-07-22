@@ -160,18 +160,17 @@ def fivenumd(a):
     return d
 
 def stem_and_leaf(values):
-    """A quick and dirty text mode stem-and-leaf diagram that only uses first
-    and second decimal places.
+    """A quick and dirty text mode stem-and-leaf diagram. Uses integer part as
+    stem and first decimal as leaf.
     """
     stems = defaultdict(list)
     for v in sorted(values):
-        v = v*10
         leaf = int((v-int(v)) * 10)
         stems[int(v)].append(leaf)
     lines = []
-    for i in range(11):
-        leaves = ''.join(str(x) for x in stems[i])
-        lines.append('{i:2}|{l}'.format(i=i, l=leaves))
+    for k, v in sorted(stems.items()):
+        leaves = ''.join(str(x) for x in v)
+        lines.append('{k:2}|{l}'.format(k=k, l=leaves))
     return lines
 
 def tilde(a):
