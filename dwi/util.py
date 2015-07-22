@@ -1,7 +1,7 @@
 """Utility functionality."""
 
 from __future__ import division, print_function
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice, product
 import random
 
@@ -163,14 +163,14 @@ def stem_and_leaf(values):
     """A quick and dirty text mode stem-and-leaf diagram that only uses first
     and second decimal places.
     """
-    stems = {}
+    stems = defaultdict(list)
     for v in sorted(values):
         v = v*10
-        a = stems.setdefault(int(v), [])
-        a.append(int((v-int(v)) * 10))
+        leaf = int((v-int(v)) * 10)
+        stems[int(v)].append(leaf)
     lines = []
     for i in range(11):
-        leaves = ''.join(str(x) for x in stems.get(i, []))
+        leaves = ''.join(str(x) for x in stems[i])
         lines.append('{i:2}|{l}'.format(i=i, l=leaves))
     return lines
 
