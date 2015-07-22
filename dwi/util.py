@@ -148,9 +148,8 @@ def resample_bootstrap_stratified(Y, X):
 
 def fivenum(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
-    from scipy.stats import scoreatpercentile
-    q1 = scoreatpercentile(a, 25)
-    q3 = scoreatpercentile(a, 75)
+    q1 = sp.stats.scoreatpercentile(a, 25)
+    q3 = sp.stats.scoreatpercentile(a, 75)
     return np.min(a), q1, np.median(a), q3, np.max(a)
 
 def fivenumd(a):
@@ -235,12 +234,11 @@ def bootstrap_aucs(y, x, n=2000):
 def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
     described in pROC software."""
-    import scipy.stats
     aucs1 = np.asarray(aucs1)
     aucs2 = np.asarray(aucs2)
     D = aucs1 - aucs2
     z = np.mean(D) / np.std(D)
-    p = 1.0 - scipy.stats.norm.cdf(abs(z))
+    p = 1.0 - sp.stats.norm.cdf(abs(z))
     return np.mean(D), z, p
 
 def ci(x, p=0.05):
@@ -299,10 +297,9 @@ def clip_pmap(img, params):
 
 def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
     """Clip outliers based on percentiles."""
-    from scipy.stats import scoreatpercentile
     a = np.asanyarray(a)
-    min_score = scoreatpercentile(a, min_pc)
-    max_score = scoreatpercentile(a, max_pc)
+    min_score = sp.stats.scoreatpercentile(a, min_pc)
+    max_score = sp.stats.scoreatpercentile(a, max_pc)
     return a.clip(min_score, max_score, out=out)
 
 def add_dummy_feature(X):
