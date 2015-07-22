@@ -121,7 +121,7 @@ def pmap_dicom(mode, case, scan):
 def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     """Return path and deps of masks of different types."""
     d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
-            ap_='_'.join(algparams))
+             ap_='_'.join(algparams))
     do_glob = True
     if masktype == 'lesion':
         if mode.model in ('T2', 'T2w'):
@@ -156,7 +156,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
     elif masktype == 'auto':
         path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
     else:
-        raise Exception('Unknown mask type: {mt}'.format(**d))
+        raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
     path = path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, ap_='_'.join(algparams))
     return path
@@ -184,7 +184,7 @@ def fit_cmd(model, subwindow, infiles, outfile):
     return s
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-        maskpath, outpath):
+                    maskpath, outpath):
     d = dict(m=mode.model, p=mode.param, c=case, s=scan,
              methods=methods, winsizes=winsizes,
              slices=slices, portion=portion, pd=pmapdir_dicom(mode),
@@ -516,7 +516,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     mask, mask_deps = mask_path(mode, masktype, case, scan, lesion,
                                 algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
-                          algparams)
+                           algparams)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
     return {
