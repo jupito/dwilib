@@ -1,10 +1,4 @@
-"""PyDoIt file for automating tasks.
-
-Backends:
-dbm: (default) It uses python dbm module.
-json: Plain text using a json structure, it is slow but good for debugging.
-sqlite3: (experimental) very slow implementation, support concurrent access.
-"""
+"""PyDoIt file for automating tasks."""
 
 from __future__ import absolute_import, division, print_function
 from glob import glob
@@ -17,6 +11,11 @@ from doit.tools import check_timestamp_unchanged, create_folder, result_dep
 import dwi.files
 import dwi.patient
 import dwi.util
+
+#Backends:
+#dbm: (default) It uses python dbm module.
+#json: Plain text using a json structure, it is slow but good for debugging.
+#sqlite3: (experimental) very slow implementation, support concurrent access.
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -37,12 +36,8 @@ MASKTOOL = DWILIB+'/masktool.py'
 GET_TEXTURE = DWILIB+'/get_texture.py'
 MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
 
-SUBREGION_DIR = 'subregions'
-
 MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
-
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
-SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
 
 FIND_ROI_PARAMS = [
     [1, 2, 3], # ROI depth min
@@ -116,6 +111,9 @@ def pmapdir_dicom(mode):
     s = 'dicoms_{m.model}_*'.format(m=mode)
     path = dwi.util.sglob(s, typ='dir')
     return path
+
+def subregion_dir(mode):
+    return 'subregions'
 
 def pmap_dicom(mode, case, scan):
     s = 'dicoms_{m.model}_*/{c}_*_{s}/{c}_*_{s}_{m.param}'
@@ -247,6 +245,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    """Fit models to imaging data."""
 #    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
 #              'Biexp BiexpN'.split())
+#    SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
 #    for case, scan in SUBWINDOWS.keys():
 #        subwindow = SUBWINDOWS[(case, scan)]
 #        d = dict(c=case, s=scan)
@@ -285,7 +284,7 @@ def task_make_subregion():
 
 def get_task_find_roi(case, scan, mode, algparams):
     d = dict(prg=FIND_ROI, slf=samplelist_file(mode),
-             pd=pmapdir_dicom(mode), srd=SUBREGION_DIR, m=mode.model,
+             pd=pmapdir_dicom(mode), srd=subregion_dir(mode), m=mode.model,
              p=mode.param, c=case, s=scan, ap=' '.join(algparams),
              ap_='_'.join(algparams))
     maskpath = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'.format(**d)
