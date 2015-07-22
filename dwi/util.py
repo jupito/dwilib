@@ -1,8 +1,8 @@
 """Utility functionality."""
 
 from __future__ import division, print_function
+from collections import OrderedDict
 from itertools import ifilter, islice, product
-import collections
 import random
 
 import numpy as np
@@ -157,7 +157,7 @@ def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
     keys = 'min q1 median q3 max'.split()
     values = fivenum(a)
-    d = collections.OrderedDict(zip(keys, values))
+    d = OrderedDict(zip(keys, values))
     return d
 
 def stem_and_leaf(values):
