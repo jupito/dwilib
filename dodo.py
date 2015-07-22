@@ -120,8 +120,8 @@ def subregion_dir(mode):
     return 'subregions'
 
 def subregion_path(mode, case, scan):
-    return '{d}/{c}_{s}_subregion10.txt'.format(d=subregion_dir(mode), c=case,
-                                                s=scan)
+    return '{srd}/{c}_{s}_subregion10.txt'.format(srd=subregion_dir(mode),
+                                                  c=case, s=scan)
 
 def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     """Return path and deps of masks of different types."""
@@ -298,7 +298,7 @@ def get_task_find_roi(case, scan, mode, algparams):
     figpath = 'find_roi_images_{m}_{p}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = []
-    file_deps += ['{srd}/{c}_{s}_subregion10.txt'.format(**d)]
+    file_deps += [subregion_path(mode, case, scan)]
     file_deps += glob('masks_prostate/{c}_*_{s}_*/*'.format(**d))
     file_deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
