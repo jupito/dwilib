@@ -125,15 +125,15 @@ def subregion_path(mode, case, scan):
 
 def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     """Return path and deps of masks of different types."""
-    d = dict(m=mode.model, p=mode.param, mt=masktype, c=case, s=scan, l=lesion,
+    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
     do_glob = True
     if masktype == 'prostate':
-        path = 'masks_prostate/{c}_*_{s}_*'
+        path = 'masks_prostate_{m.modality}/{c}_*_{s}*'
         deps = '{}/*'.format(path)
     elif masktype == 'lesion':
         if mode.model in ('T2', 'T2w'):
-            path = 'masks_lesion_{m}/PCa_masks_{m}_{l}*/{c}_*{s}_*'
+            path = 'masks_lesion_{m.model}/PCa_masks_{m.model}_{l}*/{c}_*{s}_*'
         else:
             path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
         deps = '{}/*'.format(path)
@@ -143,7 +143,7 @@ def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
     elif masktype == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
-        path = 'masks_auto_{m}_{p}/{ap_}/{c}_{s}_auto.mask'
+        path = 'masks_auto_{m.model}_{m.param}/{ap_}/{c}_{s}_auto.mask'
         deps = path
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
