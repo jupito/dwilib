@@ -6,6 +6,7 @@ json: Plain text using a json structure, it is slow but good for debugging.
 sqlite3: (experimental) very slow implementation, support concurrent access.
 """
 
+from __future__ import absolute_import, division, print_function
 import glob
 from itertools import product
 from os.path import dirname
@@ -370,7 +371,7 @@ def task_select_roi_manual():
             try:
                 yield get_task_select_roi_manual(case, scan, MODE, masktype)
             except IOError, e:
-                print e
+                print(e)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
@@ -379,7 +380,7 @@ def task_select_roi_auto():
             try:
                 yield get_task_select_roi_auto(case, scan, MODE, algparams)
             except IOError, e:
-                print e
+                print(e)
 
 def task_select_roi():
     """Select all ROIs task group."""
@@ -547,7 +548,7 @@ def task_mask_prostate():
             yield get_task_mask_prostate(case, scan, 'masks_prostate', 'dicoms', 'dicoms_masked_DWI', '_hB', '')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate', 'new/for_jussi_data_missing_04_01_2015/SPAIR_f_12b_highb', 'dicoms_masked_DWI_missing', '', '_all')
         except IOError, e:
-            print e
+            print(e)
 
 def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
@@ -557,7 +558,7 @@ def task_mask_prostate_T2():
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2', 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
             #yield get_task_mask_prostate(case, scan, 'masks_prostate_T2w', 'dicoms_T2w_TSE_2.5m', 'dicoms_masked_T2w', '', '*')
         except IOError, e:
-            print e
+            print(e)
 
 def task_all():
     """Do all essential things."""
