@@ -82,7 +82,7 @@ try:
     X = dwi.util.add_dummy_feature(X)
     X[:,-1] = X[:,i] / X[:,j]
     params += ('ADCk/K',)
-except ValueError, e:
+except ValueError as e:
     pass # Parameters not found.
 
 # Add parameter ADCkN/KN if possible.
@@ -91,7 +91,7 @@ try:
     X = dwi.util.add_dummy_feature(X)
     X[:,-1] = X[:,i] / X[:,j]
     params += ('ADCkN/KN',)
-except ValueError, e:
+except ValueError as e:
     pass # Parameters not found.
 
 # Print coefficients for each parameter.
