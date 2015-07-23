@@ -342,7 +342,6 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt=masktype)
     mask = mask_path(mode, masktype, case, scan)
-    path_deps(mask)  # Require existence.
     roi = roi_path(mode, masktype, case, scan)
     pmap = pmap_dicom(mode, case, scan)
     cmd = select_voxels_cmd(mask, pmap, roi)
@@ -350,10 +349,9 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
         'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
                     cmd],
-        #'file_dep': [mask],
+        'file_dep': path_deps(mask),
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(pmap),
-                     check_timestamp_unchanged(mask)],
+        'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
         }
 
@@ -368,7 +366,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
                     cmd],
-        'file_dep': [mask],
+        'file_dep': path_deps(mask),
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
