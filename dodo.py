@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from glob import glob
 from itertools import product
-from os.path import dirname
+from os.path import dirname, isdir
 
 from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
@@ -124,31 +124,32 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     do_glob = True
     if masktype == 'prostate':
         path = 'masks_prostate_{m.modality}/{c}_*_{s}*'
-        deps = '{}/*'.format(path)
     elif masktype == 'lesion':
         if mode.model in ('T2', 'T2w'):
             path = 'masks_lesion_{m.model}/PCa_masks_{m.model}_{l}*/{c}_*{s}_*'
         else:
             path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
-        deps = '{}/*'.format(path)
     elif masktype in ('CA', 'N'):
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
-        deps = '{}/*'.format(path)
     elif masktype == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
         path = 'masks_auto_{m.model}_{m.param}/{ap_}/{c}_{s}_auto.mask'
-        deps = path
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
-    deps = deps.format(**d)
     if do_glob:
         path = dwi.util.sglob(path)
-        deps = glob(deps)
+    return path
+
+def path_deps(path):
+    """Return list of path dependencies, i.e. the file itself or the
+    directory's contents.
+    """
+    if isdir(path):
+        return glob('{}/*'.format(path))
     else:
-        deps = [deps]
-    return path, deps
+        return [path]
 
 def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                  algparams=()):
@@ -271,7 +272,7 @@ def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     MASKTOOL = DWILIB+'/masktool.py'
     for case, scan in cases_scans(MODE):
-        mask, mask_deps = mask_path(MODE, 'prostate', case, scan)
+        mask = mask_path(MODE, 'prostate', case, scan)
         subregion = subregion_path(MODE, case, scan)
         cmd = '{prg} -i {msk} --pad 10 -s {sr}'.format(prg=MASKTOOL, msk=mask,
                                                        sr=subregion)
@@ -279,7 +280,7 @@ def task_make_subregion():
             'name': '{c}_{s}'.format(c=case, s=scan),
             'actions': [(create_folder, [dirname(subregion)]),
                         cmd],
-            'file_dep': mask_deps,
+            'file_dep': path_deps(mask),
             'targets': [subregion],
             'clean': True,
             }
@@ -289,7 +290,7 @@ def get_task_find_roi(mode, case, scan, algparams):
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
              pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
              c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
-    mask, _ = mask_path(mode, 'auto', case, scan, algparams=algparams)
+    mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mask=mask, fig=fig)
     subregion = subregion_path(mode, case, scan)
@@ -435,7 +436,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
              slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion)
+    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
@@ -443,7 +444,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
         'name': '{m.model}_{m.param}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
-        'file_dep': mask_deps,
+        'file_dep': path_deps(mask),
         'targets': [outfile],
         'clean': True,
         }
@@ -453,7 +454,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #    """Generate texture features."""
 #    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
 #             slices=slices, portion=portion, mth=method, ws=winsize)
-#    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion)
+#    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
 #    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
 #                              portion, method, winsize)
 #    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
@@ -462,7 +463,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #        'name': '{m.model}_{m.param}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
 #        'actions': [(create_folder, [dirname(outfile)]),
 #                    cmd],
-#        'file_dep': mask_deps,
+#        'file_dep': path_deps(mask),
 #        'targets': [outfile],
 #        'clean': True,
 #        }
@@ -474,8 +475,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
              ap_='_'.join(algparams), slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion,
-                                algparams=algparams)
+    mask = mask_path(mode, masktype, case, scan, lesion=lesion, algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            algparams)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
@@ -484,7 +484,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
         'name': '{m.model}_{m.param}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
-        'file_dep': mask_deps,
+        'file_dep': path_deps(mask),
         'targets': [outfile],
         'clean': True,
         }
