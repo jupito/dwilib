@@ -377,6 +377,7 @@ def sole(it, desc=None):
 
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
+    # FIXME: Misses symlinks.
     import glob
     import os.path
     it = glob.iglob(path)
