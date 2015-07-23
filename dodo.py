@@ -194,12 +194,12 @@ def lesions(mode):
                 yield p.num, scan, lesion+1
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-                    maskpath, outpath):
+                    mask, outpath):
     GET_TEXTURE = DWILIB+'/get_texture.py'
     d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
              slices=slices, portion=portion,
              methods=' '.join(methods), winsizes=winsizes,
-             pd=pmapdir_dicom(mode), mask=maskpath, o=outpath)
+             pd=pmapdir_dicom(mode), mask=mask, o=outpath)
     cmd = ('{prg} -v'
            ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
            ' --methods {methods} --winsizes {winsizes}'
@@ -210,11 +210,11 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
     return cmd.format(**d)
 
 #def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
-#                        maskpath, outpath):
+#                        mask, outpath):
 #    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
 #    d = dict(m=mode, c=case, s=scan,
 #             slices=slices, portion=portion, mth=method, ws=winsize,
-#             pd=pmapdir_dicom(mode), mask=maskpath, o=outpath)
+#             pd=pmapdir_dicom(mode), mask=mask, o=outpath)
 #    cmd = ('{prg} -v'
 #           ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
 #           ' --slices {slices} --portion {portion}'
@@ -291,23 +291,23 @@ def get_task_find_roi(mode, case, scan, algparams):
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
              pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
              c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
-    maskpath, deps = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    figpath = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
-    d.update(mp=maskpath, fp=figpath)
-    file_deps = deps
-    file_deps += [subregion_path(mode, case, scan)]
-    file_deps += glob('masks_prostate_{m.modality}/{c}_*_{s}_*/*'.format(**d))
-    file_deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+    mask, mask_deps = mask_path(mode, 'auto', case, scan, algparams=algparams)
+    fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
+    d.update(mask=mask, fig=fig)
+    deps = mask_deps
+    deps += [subregion_path(mode, case, scan)]
+    deps += glob('masks_prostate_{m.modality}/{c}_*_{s}_*/*'.format(**d))
+    deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
-           '--outmask {mp} --outfig {fp}'.format(**d))
+           '--outmask {mask} --outfig {fig}'.format(**d))
     return {
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(maskpath)]),
-                    (create_folder, [dirname(figpath)]),
+        'actions': [(create_folder, [dirname(mask)]),
+                    (create_folder, [dirname(fig)]),
                     cmd],
-        'file_dep': file_deps,
-        'targets': [maskpath, figpath],
+        'file_dep': deps,
+        'targets': [mask, fig],
         'clean': True,
         }
 
@@ -317,41 +317,41 @@ def task_find_roi():
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
 
-def select_voxels_cmd(maskpath, inpath, outpath):
+def select_voxels_cmd(mask, inpath, outpath):
     SELECT_VOXELS = DWILIB+'/select_voxels.py'
     return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
-        m=maskpath, i=inpath, o=outpath)
+        m=mask, i=inpath, o=outpath)
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt=masktype)
-    maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
+    mask = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m.model}_{m.param}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
-    cmd = select_voxels_cmd(maskpath, inpath, outpath)
+    cmd = select_voxels_cmd(mask, inpath, outpath)
     return {
         'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
-        #'file_dep': [maskpath],
+        #'file_dep': [mask],
         'targets': [outpath],
         'uptodate': [check_timestamp_unchanged(inpath),
-                     check_timestamp_unchanged(maskpath)],
+                     check_timestamp_unchanged(mask)],
         'clean': True,
         }
 
 def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
-    maskpath = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    mask = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m.model}_{m.param}/{ap_}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
-    cmd = select_voxels_cmd(maskpath, inpath, outpath)
+    cmd = select_voxels_cmd(mask, inpath, outpath)
     return {
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
                     cmd],
-        'file_dep': [maskpath],
+        'file_dep': [mask],
         'targets': [outpath],
         'uptodate': [check_timestamp_unchanged(inpath)],
         'clean': True,
