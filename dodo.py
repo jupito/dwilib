@@ -513,15 +513,16 @@ def task_texture():
 #                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
 #                        lesion, 'maxfirst', 0, mth, ws)
 
-def get_task_mask_prostate(modality, case, scan, imagedir, outdir, imagetype,
-                           postfix, param='DICOM'):
+def get_task_mask_prostate(modality, case, scan, outdir, imagetype, postfix,
+                           param='DICOM'):
     """Generate DICOM images with everything but prostate zeroed."""
     MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
+    imagedir = 'dicoms_{}'.format(modality)
     maskdir = 'masks_prostate_{}'.format(modality)
     d = dict(prg=MASK_OUT_DICOM, c=case, s=scan, md=maskdir, id=imagedir,
              od=outdir, it=imagetype, pox=postfix, p=param)
     d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}*'.format(**d))
-    d['img_src'] = dwi.util.sglob('{id}/{c}_*{it}_{s}{pox}/{p}'.format(**d))
+    d['img_src'] = dwi.util.sglob('{id}_*/{c}_*{it}_{s}{pox}/{p}'.format(**d))
     d['img_dst'] = '{od}/{c}{it}_{s}'.format(**d)
     cmd_rm = 'rm -Rf {img_dst}'.format(**d)
     cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
@@ -540,8 +541,8 @@ def task_mask_prostate():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            yield get_task_mask_prostate('DWI', case, scan, 'dicoms', 'dicoms_masked_DWI', '_hB', '')
-            #yield get_task_mask_prostate('DWI', case, scan, 'new/for_jussi_data_missing_04_01_2015/SPAIR_f_12b_highb', 'dicoms_masked_DWI_missing', '', '_all')
+            yield get_task_mask_prostate('DWI', case, scan, 'dicoms_masked_DWI', '_hB', '')
+            #yield get_task_mask_prostate('SPAIR', case, scan, 'dicoms_masked_DWI_missing', '', '_all')
         except IOError as e:
             print(e)
 
@@ -549,9 +550,9 @@ def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            yield get_task_mask_prostate('T2', case, scan, 'dicoms_T2_data_for_72cases_03_05_2015_no65', 'dicoms_masked_T2', '', '_T2')
-            #yield get_task_mask_prostate('T2', case, scan, 'dicoms_T2_data_for_72cases_03_05_2015_no65_FITTED', 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
-            #yield get_task_mask_prostate('T2w', case, scan, 'dicoms_T2w_TSE_2.5m', 'dicoms_masked_T2w', '', '*')
+            yield get_task_mask_prostate('T2', case, scan, 'dicoms_masked_T2', '', '_T2')
+            #yield get_task_mask_prostate('T2f', case, scan, 'dicoms_masked_T2_rho', '', '_T2', '*_Rho')
+            #yield get_task_mask_prostate('T2w', case, scan, 'dicoms_masked_T2w', '', '*')
         except IOError as e:
             print(e)
 
