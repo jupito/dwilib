@@ -102,8 +102,12 @@ def pmapdir_dicom(mode):
 
 def pmap_dicom(mode, case, scan):
     pd = pmapdir_dicom(mode)
-    path = '{pd}/{c}_*_{s}/{c}_*_{s}_{m.param}'.format(pd=pd, m=mode, c=case,
-                                                       s=scan)
+    if mode.param == 'raw':
+        # There's no actual parameter, only single 'raw' value (used for T2).
+        s = '{pd}/{c}_*_{s}*'
+    else:
+        s = '{pd}/{c}_*_{s}/{c}_*_{s}*_{m.param}'
+    path = s.format(pd=pd, m=mode, c=case, s=scan)
     return dwi.util.sglob(path, typ='dir')
 
 def subregion_dir(mode):
