@@ -123,7 +123,7 @@ def subregion_path(mode, case, scan):
     return '{srd}/{c}_{s}_subregion10.txt'.format(srd=subregion_dir(mode),
                                                   c=case, s=scan)
 
-def mask_path(mode, masktype, case, scan, lesion, algparams=[]):
+def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     """Return path and deps of masks of different types."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
@@ -275,7 +275,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     for case, scan in cases_scans(MODE):
-        mask, mask_deps = mask_path(MODE, 'prostate', case, scan, None)
+        mask, mask_deps = mask_path(MODE, 'prostate', case, scan)
         subregion = subregion_path(MODE, case, scan)
         cmd = '{prg} -i {msk} --pad 10 -s {sr}'.format(prg=MASKTOOL, msk=mask,
                                                        sr=subregion)
@@ -292,7 +292,7 @@ def get_task_find_roi(mode, case, scan, algparams):
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
              pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
              c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
-    maskpath, deps = mask_path(mode, 'auto', case, scan, None, algparams=algparams)
+    maskpath, deps = mask_path(mode, 'auto', case, scan, algparams=algparams)
     figpath = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mp=maskpath, fp=figpath)
     file_deps = deps
@@ -435,7 +435,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
              slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
+    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
@@ -453,7 +453,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #    """Generate texture features."""
 #    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
 #             slices=slices, portion=portion, mth=method, ws=winsize)
-#    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion)
+#    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion)
 #    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
 #                              portion, method, winsize)
 #    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
@@ -474,7 +474,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
              ap_='_'.join(algparams), slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion,
+    mask, mask_deps = mask_path(mode, masktype, case, scan, lesion=lesion,
                                 algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            algparams)
