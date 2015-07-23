@@ -76,23 +76,24 @@ def texture_winsizes(masktype, mode):
 #        l = range(3, 16, 2)
 #    return ' '.join(str(x) for x in l)
 
-def find_roi_param_combinations():
+def find_roi_param_combinations(mode):
     """Generate all find_roi.py parameter combinations."""
-    if SAMPLELIST == 'test':
-        params = [
-            (2,3,10,10,500),  # Mono: corr, auc
-            (2,3,10,10,1750),  # Mono: corr
-            (2,3,11,11,750),  # Mono: corr
-            #(2,3,2,2,250),  # Kurt: auc
-            #(2,3,9,9,1000),  # Kurt: corr
-            #(2,3,12,12,1750),  # Kurt: corr
-            #(2,3,5,5,500),  # Kurt K: corr, auc
-            ]
-    else:
-        params = product(*FIND_ROI_PARAMS)
-    for t in params:
-        if t[0] <= t[1] and t[2] == t[3]:
-            yield [str(x) for x in t]
+    if mode.modality == 'DWI':
+        if SAMPLELIST == 'test':
+            params = [
+                (2,3,10,10,500),  # Mono: corr, auc
+                (2,3,10,10,1750),  # Mono: corr
+                (2,3,11,11,750),  # Mono: corr
+                #(2,3,2,2,250),  # Kurt: auc
+                #(2,3,9,9,1000),  # Kurt: corr
+                #(2,3,12,12,1750),  # Kurt: corr
+                #(2,3,5,5,500),  # Kurt K: corr, auc
+                ]
+        else:
+            params = product(*FIND_ROI_PARAMS)
+        for t in params:
+            if t[0] <= t[1] and t[2] == t[3]:
+                yield [str(x) for x in t]
 
 def samplelist_file(mode, samplelist=SAMPLELIST):
     return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
@@ -142,14 +143,19 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
         path = dwi.util.sglob(path)
     return path
 
-def path_deps(path):
-    """Return list of path dependencies, i.e. the file itself or the
-    directory's contents.
+def path_deps(*paths):
+    """Return list of path dependencies, i.e. the file(s) itself or the
+    directory contents.
     """
-    if isdir(path):
-        return glob('{}/*'.format(path))
-    else:
-        return [path]
+    print(paths)
+    paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
+    deps = []
+    for path in paths:
+        if isdir(path):
+            deps += dwi.util.iglob('{}/*'.format(path), typ='file')
+        else:
+            deps.append(path)
+    return deps
 
 def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                  algparams=()):
@@ -294,9 +300,9 @@ def get_task_find_roi(mode, case, scan, algparams):
     fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mask=mask, fig=fig)
     subregion = subregion_path(mode, case, scan)
-    mask_deps_p = glob('masks_prostate_{m.modality}/{c}_*_{s}_*/*'.format(**d))
-    mask_deps_r = glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
-    deps = [subregion] + mask_deps_p + mask_deps_r
+    mask_p = 'masks_prostate_{m.modality}/{c}_*_{s}*'.format(**d)
+    mask_c = 'masks_rois/{c}_*_{s}_D_CA'.format(**d)
+    mask_n = 'masks_rois/{c}_*_{s}_D_N'.format(**d)
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
            '--outmask {mask} --outfig {fig}'.format(**d))
@@ -305,14 +311,14 @@ def get_task_find_roi(mode, case, scan, algparams):
         'actions': [(create_folder, [dirname(mask)]),
                     (create_folder, [dirname(fig)]),
                     cmd],
-        'file_dep': deps,
+        'file_dep': path_deps(subregion, mask_p, mask_c, mask_n),
         'targets': [mask, fig],
         'clean': True,
         }
 
 def task_find_roi():
     """Find a cancer ROI automatically."""
-    for algparams in find_roi_param_combinations():
+    for algparams in find_roi_param_combinations(MODE):
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
 
@@ -363,16 +369,16 @@ def task_select_roi_manual():
             try:
                 yield get_task_select_roi_manual(MODE, case, scan, masktype)
             except IOError as e:
-                print(e)
+                print('select_roi_manual', e)
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
-    for algparams in find_roi_param_combinations():
+    for algparams in find_roi_param_combinations(MODE):
         for case, scan in cases_scans(MODE):
             try:
                 yield get_task_select_roi_auto(MODE, case, scan, algparams)
             except IOError as e:
-                print(e)
+                print('select_roi_auto', e)
 
 def task_select_roi():
     """Select all ROIs task group."""
@@ -388,7 +394,7 @@ def get_task_autoroi_auc(mode, threshold):
              t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m.model}_{m.param}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
-    for algparams in find_roi_param_combinations():
+    for algparams in find_roi_param_combinations(MODE):
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m.model}_{m.param}/{ap_}'.format(**d)
         s = r'echo `{prg} --patients {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
@@ -409,7 +415,7 @@ def get_task_autoroi_correlation(mode, thresholds):
              m=mode, t=thresholds, t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m.model}_{m.param}_{sl}.txt'.format(**d)
     cmds = ['echo -n > {o}'.format(**d)]
-    for algparams in find_roi_param_combinations():
+    for algparams in find_roi_param_combinations(MODE):
         d['ap_'] = '_'.join(algparams)
         d['i'] = 'rois_auto_{m.model}_{m.param}/{ap_}'.format(**d)
         s = r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
@@ -500,7 +506,7 @@ def task_texture():
             continue  # Do only lesion for these.
         yield get_task_texture_manual(MODE, 'CA', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODE, 'N', case, scan, lesion, 'maxfirst', 1)
-        for ap in find_roi_param_combinations():
+        for ap in find_roi_param_combinations(MODE):
             yield get_task_texture_auto(MODE, ap, case, scan, lesion, 'maxfirst', 1)
 
 #def task_texture_new():
@@ -536,14 +542,14 @@ def get_task_mask_prostate(modality, case, scan, imagetype, postfix,
         #'targets':  # TODO
         }
 
-def task_mask_prostate():
+def task_mask_prostate_DWI():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
             yield get_task_mask_prostate('DWI', case, scan, '_hB', '')
             #yield get_task_mask_prostate('SPAIR', case, scan, '', '_all')
         except IOError as e:
-            print(e)
+            print('mask_prostate_DWI', e)
 
 def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
@@ -553,7 +559,7 @@ def task_mask_prostate_T2():
             #yield get_task_mask_prostate('T2f', case, scan, '', '*', '*_Rho')
             #yield get_task_mask_prostate('T2w', case, scan, '', '*')
         except IOError as e:
-            print(e)
+            print('mask_prostate_T2', e)
 
 def task_all():
     """Do all essential things."""
