@@ -159,9 +159,8 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
         path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
-    path = path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
+    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, ap_='_'.join(algparams))
-    return path
 
 #def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
 #                     method, winsize, algparams=()):
@@ -172,10 +171,9 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
 #        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}_{mth}_{ws}.txt'
 #    else:
 #        raise Exception('Unknown mask type: {mt}'.format(**d))
-#    path = path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
+#    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
 #                       slices=slices, portion=portion, mth=method, ws=winsize,
 #                       ap_='_'.join(algparams))
-#    return path
 
 def cases_scans(mode):
     """Generate all case, scan pairs."""
