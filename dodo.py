@@ -27,14 +27,14 @@ DOIT_CONFIG = {
 DWILIB = '~/src/dwilib/tools'
 
 MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
-SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
+SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
 FIND_ROI_PARAMS = [
-    [1, 2, 3], # ROI depth min
-    [1, 2, 3], # ROI depth max
-    range(2, 13), # ROI side min (3 was not good)
-    range(3, 13), # ROI side max
-    range(250, 2000, 250) + [50, 100, 150, 200], # Number of ROIs
+    [1, 2, 3],  # ROI depth min
+    [1, 2, 3],  # ROI depth max
+    range(2, 13),  # ROI side min (3 was not good)
+    range(3, 13),  # ROI side max
+    range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
     ]
 
 def texture_methods(mode):
@@ -80,13 +80,13 @@ def find_roi_param_combinations():
     """Generate all find_roi.py parameter combinations."""
     if SAMPLELIST == 'test':
         params = [
-            (2,3,10,10,500), # Mono: corr, auc
-            (2,3,10,10,1750), # Mono: corr
-            (2,3,11,11,750), # Mono: corr
-            #(2,3,2,2,250), # Kurt: auc
-            #(2,3,9,9,1000), # Kurt: corr
-            #(2,3,12,12,1750), # Kurt: corr
-            #(2,3,5,5,500), # Kurt K: corr, auc
+            (2,3,10,10,500),  # Mono: corr, auc
+            (2,3,10,10,1750),  # Mono: corr
+            (2,3,11,11,750),  # Mono: corr
+            #(2,3,2,2,250),  # Kurt: auc
+            #(2,3,9,9,1000),  # Kurt: corr
+            #(2,3,12,12,1750),  # Kurt: corr
+            #(2,3,5,5,500),  # Kurt K: corr, auc
             ]
     else:
         params = product(*FIND_ROI_PARAMS)
@@ -499,7 +499,7 @@ def task_texture():
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 0)
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 1)
         if MODE.model in ('T2', 'T2w'):
-            continue # Do only lesion for these.
+            continue  # Do only lesion for these.
         yield get_task_texture_manual(MODE, 'CA', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODE, 'N', case, scan, lesion, 'maxfirst', 1)
         for ap in find_roi_param_combinations():
@@ -531,11 +531,11 @@ def get_task_mask_prostate(modality, case, scan, imagetype, postfix,
     return {
         'name': '{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(d['img_dst'])]),
-                    cmd_rm, # Remove destination image dir
-                    cmd_cp, # Copy source image dir to destination
-                    cmd_mask], # Mask destination image
-        #'file_dep': # TODO
-        #'targets': # TODO
+                    cmd_rm,  # Remove destination image dir
+                    cmd_cp,  # Copy source image dir to destination
+                    cmd_mask],  # Mask destination image
+        #'file_dep':  # TODO
+        #'targets':  # TODO
         }
 
 def task_mask_prostate():
