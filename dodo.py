@@ -25,16 +25,6 @@ DOIT_CONFIG = {
     }
 
 DWILIB = '~/src/dwilib/tools'
-PMAP = DWILIB+'/pmap.py'
-ANON = DWILIB+'/anonymize_dicom.py'
-FIND_ROI = DWILIB+'/find_roi.py'
-COMPARE_MASKS = DWILIB+'/compare_masks.py'
-SELECT_VOXELS = DWILIB+'/select_voxels.py'
-CALC_AUC = DWILIB+'/roc_auc.py'
-CORRELATION = DWILIB+'/correlation.py'
-MASKTOOL = DWILIB+'/masktool.py'
-GET_TEXTURE = DWILIB+'/get_texture.py'
-MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
 
 MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
 SAMPLELIST = get_var('samplelist', 'all') # Sample list (train, test, etc)
@@ -201,7 +191,8 @@ def lesions(mode):
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     maskpath, outpath):
-    d = dict(m=mode, c=case, s=scan,
+    GET_TEXTURE = DWILIB+'/get_texture.py'
+    d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
              slices=slices, portion=portion,
              methods=' '.join(methods), winsizes=winsizes,
              pd=pmapdir_dicom(mode), mask=maskpath, o=outpath)
@@ -212,7 +203,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --output {o}')
     if mode.model == 'T2w':
         cmd += ' --std stdcfg_{m.model}.txt'
-    return cmd.format(prg=GET_TEXTURE, **d)
+    return cmd.format(**d)
 
 #def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
 #                        maskpath, outpath):
@@ -232,6 +223,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 
 #def task_anonymize():
 #    """Anonymize imaging data."""
+#    ANON = DWILIB+'/anonymize_dicom.py'
 #    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
 #    files.sort()
 #    for f in files:
@@ -243,6 +235,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #           }
 
 #def fit_cmd(model, subwindow, infiles, outfile):
+#    PMAP = DWILIB+'/pmap.py'
 #    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
 #             i=' '.join(infiles), o=outfile)
 #    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
@@ -274,6 +267,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
+    MASKTOOL = DWILIB+'/masktool.py'
     for case, scan in cases_scans(MODE):
         mask, mask_deps = mask_path(MODE, 'prostate', case, scan)
         subregion = subregion_path(MODE, case, scan)
@@ -289,6 +283,7 @@ def task_make_subregion():
             }
 
 def get_task_find_roi(mode, case, scan, algparams):
+    FIND_ROI = DWILIB+'/find_roi.py'
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
              pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
              c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
@@ -319,6 +314,7 @@ def task_find_roi():
             yield get_task_find_roi(MODE, case, scan, algparams)
 
 def select_voxels_cmd(maskpath, inpath, outpath):
+    SELECT_VOXELS = DWILIB+'/select_voxels.py'
     return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
         m=maskpath, i=inpath, o=outpath)
 
@@ -384,6 +380,7 @@ def task_select_roi():
 
 def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
+    CALC_AUC = DWILIB+'/roc_auc.py'
     d = dict(m=mode, sl=SAMPLELIST, slf=samplelist_file(mode), prg=CALC_AUC,
              t=threshold)
     d['o'] = 'autoroi_auc_{t}_{m.model}_{m.param}_{sl}.txt'.format(**d)
@@ -404,6 +401,7 @@ def get_task_autoroi_auc(mode, threshold):
 def get_task_autoroi_correlation(mode, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
+    CORRELATION = DWILIB+'/correlation.py'
     d = dict(sl=SAMPLELIST, slf=samplelist_file(mode), prg=CORRELATION,
              m=mode, t=thresholds, t_=thresholds.replace(' ', ','))
     d['o'] = 'autoroi_correlation_{t_}_{m.model}_{m.param}_{sl}.txt'.format(**d)
@@ -514,6 +512,7 @@ def task_texture():
 def get_task_mask_prostate(case, scan, maskdir, imagedir, outdir, imagetype,
                            postfix, param='DICOM'):
     """Generate DICOM images with everything but prostate zeroed."""
+    MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
     d = dict(prg=MASK_OUT_DICOM, c=case, s=scan, md=maskdir, id=imagedir,
              od=outdir, it=imagetype, pox=postfix, p=param)
     d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}*'.format(**d))
