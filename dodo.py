@@ -292,10 +292,10 @@ def get_task_find_roi(mode, case, scan, algparams):
     mask, mask_deps = mask_path(mode, 'auto', case, scan, algparams=algparams)
     fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mask=mask, fig=fig)
-    deps = mask_deps
-    deps += [subregion_path(mode, case, scan)]
-    deps += glob('masks_prostate_{m.modality}/{c}_*_{s}_*/*'.format(**d))
-    deps += glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+    subregion = subregion_path(mode, case, scan)
+    mask_deps_p = glob('masks_prostate_{m.modality}/{c}_*_{s}_*/*'.format(**d))
+    mask_deps_r = glob('masks_rois/{c}_*_{s}_*/*'.format(**d))
+    deps = mask_deps + [subregion] + mask_deps_p + mask_deps_p
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
            '--outmask {mask} --outfig {fig}'.format(**d))
