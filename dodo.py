@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from glob import glob
 from itertools import product
-from os.path import dirname, isdir
+from os.path import dirname, isdir, join
 
 from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
@@ -327,21 +327,32 @@ def select_voxels_cmd(mask, inpath, outpath):
     return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
         m=mask, i=inpath, o=outpath)
 
+def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
+    """Return whole ROI path or part of it."""
+    d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
+    components = ['rois_{mt}_{m.model}_{m.param}']
+    if algparams:
+        components.append('{ap_}')
+    if case is not None and scan is not None:
+        components.append('{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt')
+    components = [x.format(**d) for x in components]
+    return join(*components)
+
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt=masktype)
     mask = mask_path(mode, masktype, case, scan)
     path_deps(mask)  # Require existence.
-    outpath = 'rois_{mt}_{m.model}_{m.param}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
-    inpath = pmap_dicom(mode, case, scan)
-    cmd = select_voxels_cmd(mask, inpath, outpath)
+    roi = roi_path(mode, masktype, case, scan)
+    pmap = pmap_dicom(mode, case, scan)
+    cmd = select_voxels_cmd(mask, pmap, roi)
     return {
         'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(outpath)]),
+        'actions': [(create_folder, [dirname(roi)]),
                     cmd],
         #'file_dep': [mask],
-        'targets': [outpath],
-        'uptodate': [check_timestamp_unchanged(inpath),
+        'targets': [roi],
+        'uptodate': [check_timestamp_unchanged(pmap),
                      check_timestamp_unchanged(mask)],
         'clean': True,
         }
@@ -349,18 +360,17 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
 def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
-    mask = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    outpath = 'rois_{mt}_{m.model}_{m.param}/{ap_}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
-    inpath = pmap_dicom(mode, case, scan)
-    cmd = select_voxels_cmd(mask, inpath, outpath)
+    roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
+    pmap = pmap_dicom(mode, case, scan)
+    cmd = select_voxels_cmd(mask, pmap, roi)
     return {
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(outpath)]),
+        'actions': [(create_folder, [dirname(roi)]),
                     cmd],
         'file_dep': [mask],
-        'targets': [outpath],
-        'uptodate': [check_timestamp_unchanged(inpath)],
+        'targets': [roi],
+        'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
         }
 
@@ -398,7 +408,7 @@ def get_task_autoroi_auc(mode, threshold):
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations(MODE):
         d['ap_'] = '_'.join(algparams)
-        d['i'] = 'rois_auto_{m.model}_{m.param}/{ap_}'.format(**d)
+        d['i'] = roi_path(mode, 'auto', algparams=algparams)
         s = r'echo `{prg} --patients {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
@@ -419,7 +429,7 @@ def get_task_autoroi_correlation(mode, thresholds):
     cmds = ['echo -n > {o}'.format(**d)]
     for algparams in find_roi_param_combinations(MODE):
         d['ap_'] = '_'.join(algparams)
-        d['i'] = 'rois_auto_{m.model}_{m.param}/{ap_}'.format(**d)
+        d['i'] = roi_path(mode, 'auto', algparams=algparams)
         s = r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
