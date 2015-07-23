@@ -278,7 +278,7 @@ def task_make_subregion():
         mask, mask_deps = mask_path(MODE, 'prostate', case, scan, None)
         subregion = subregion_path(MODE, case, scan)
         cmd = '{prg} -i {msk} --pad 10 -s {sr}'.format(prg=MASKTOOL, msk=mask,
-                                                     sr=subregion)
+                                                       sr=subregion)
         yield {
             'name': '{c}_{s}'.format(c=case, s=scan),
             'actions': [(create_folder, [dirname(subregion)]),
@@ -318,17 +318,17 @@ def task_find_roi():
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
 
+def select_voxels_cmd(maskpath, inpath, outpath):
+    return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
+        m=maskpath, i=inpath, o=outpath)
+
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt=masktype)
     maskpath = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
     outpath = 'rois_{mt}_{m.model}_{m.param}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
-    args = [SELECT_VOXELS]
-    args += ['-m %s' % maskpath]
-    args += ['-i "%s"' % inpath]
-    args += ['-o "%s"' % outpath]
-    cmd = ' '.join(args)
+    cmd = select_voxels_cmd(maskpath, inpath, outpath)
     return {
         'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
@@ -346,11 +346,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     maskpath = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
     outpath = 'rois_{mt}_{m.model}_{m.param}/{ap_}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
-    args = [SELECT_VOXELS]
-    args += ['-m %s' % maskpath]
-    args += ['-i "%s"' % inpath]
-    args += ['-o "%s"' % outpath]
-    cmd = ' '.join(args)
+    cmd = select_voxels_cmd(maskpath, inpath, outpath)
     return {
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outpath)]),
