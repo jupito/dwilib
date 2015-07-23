@@ -143,19 +143,16 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
         path = dwi.util.sglob(path)
     return path
 
-def path_deps(*paths):
-    """Return list of path dependencies, i.e. the file(s) itself or the
-    directory contents.
-    """
-    #print(paths)
-    paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
-    deps = []
-    for path in paths:
-        if isdir(path):
-            deps += dwi.util.iglob('{}/*'.format(path), typ='file')
-        else:
-            deps.append(path)
-    return deps
+def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
+    """Return whole ROI path or part of it."""
+    d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
+    components = ['rois_{mt}_{m.model}_{m.param}']
+    if algparams:
+        components.append('{ap_}')
+    if case is not None and scan is not None:
+        components.append('{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt')
+    components = [x.format(**d) for x in components]
+    return join(*components)
 
 def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                  algparams=()):
@@ -197,6 +194,20 @@ def lesions(mode):
         for scan in p.scans:
             for lesion in range(len(p.lesions)):
                 yield p.num, scan, lesion+1
+
+def path_deps(*paths):
+    """Return list of path dependencies, i.e. the file(s) itself or the
+    directory contents.
+    """
+    #print(paths)
+    paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
+    deps = []
+    for path in paths:
+        if isdir(path):
+            deps += dwi.util.iglob('{}/*'.format(path), typ='file')
+        else:
+            deps.append(path)
+    return deps
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     mask, outpath):
@@ -326,17 +337,6 @@ def select_voxels_cmd(mask, inpath, outpath):
     SELECT_VOXELS = DWILIB+'/select_voxels.py'
     return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
         m=mask, i=inpath, o=outpath)
-
-def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
-    """Return whole ROI path or part of it."""
-    d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
-    components = ['rois_{mt}_{m.model}_{m.param}']
-    if algparams:
-        components.append('{ap_}')
-    if case is not None and scan is not None:
-        components.append('{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt')
-    components = [x.format(**d) for x in components]
-    return join(*components)
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
