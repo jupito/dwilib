@@ -330,7 +330,8 @@ def select_voxels_cmd(mask, inpath, outpath):
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt=masktype)
-    mask = dwi.util.sglob('masks_rois/{c}_*_{s}_D_{mt}'.format(**d))
+    mask = mask_path(mode, masktype, case, scan)
+    path_deps(mask)  # Require existence.
     outpath = 'rois_{mt}_{m.model}_{m.param}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
     cmd = select_voxels_cmd(mask, inpath, outpath)
@@ -349,6 +350,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
     mask = 'masks_{mt}_{m.model}_{m.param}/{ap_}/{c}_{s}_{mt}.mask'.format(**d)
+    mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     outpath = 'rois_{mt}_{m.model}_{m.param}/{ap_}/{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt'.format(**d)
     inpath = pmap_dicom(mode, case, scan)
     cmd = select_voxels_cmd(mask, inpath, outpath)
