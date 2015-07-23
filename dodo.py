@@ -147,7 +147,7 @@ def path_deps(*paths):
     """Return list of path dependencies, i.e. the file(s) itself or the
     directory contents.
     """
-    print(paths)
+    #print(paths)
     paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
     deps = []
     for path in paths:
@@ -300,9 +300,9 @@ def get_task_find_roi(mode, case, scan, algparams):
     fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
     d.update(mask=mask, fig=fig)
     subregion = subregion_path(mode, case, scan)
-    mask_p = 'masks_prostate_{m.modality}/{c}_*_{s}*'.format(**d)
-    mask_c = 'masks_rois/{c}_*_{s}_D_CA'.format(**d)
-    mask_n = 'masks_rois/{c}_*_{s}_D_N'.format(**d)
+    mask_p = mask_path(mode, 'prostate', case, scan)
+    mask_c = mask_path(mode, 'CA', case, scan)
+    mask_n = mask_path(mode, 'N', case, scan)
     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
            '--outmask {mask} --outfig {fig}'.format(**d))
