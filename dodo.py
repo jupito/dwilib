@@ -2,7 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 from glob import glob
-from itertools import product
+from itertools import chain, product
+import os
 from os.path import dirname, isdir, join
 
 from doit import get_var
@@ -199,15 +200,10 @@ def path_deps(*paths):
     """Return list of path dependencies, i.e. the file(s) itself or the
     directory contents.
     """
-    #print(paths)
     paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
-    deps = []
-    for path in paths:
-        if isdir(path):
-            deps += dwi.util.iglob('{}/*'.format(path), typ='file')
-        else:
-            deps.append(path)
-    return deps
+    paths = chain(f for p in paths for f in dwi.util.walker(p))
+    paths = list(paths)
+    return paths
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     mask, outpath):

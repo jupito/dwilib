@@ -395,6 +395,19 @@ def sglob(path, typ='any'):
     """Single glob: glob exactly one file."""
     return sole(iglob(path, typ), path)
 
+def walker(path):
+    """Yield all files in subdirectories with root path. Kind of like find."""
+    import os
+    if os.path.isdir(path):
+        def err(e):
+            print(e)
+            #raise
+        for root, dirs, files in os.walk(path, onerror=err, followlinks=True):
+            for f in files:
+                yield os.path.join(root, f)
+    else:
+        yield path
+
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
     import re
