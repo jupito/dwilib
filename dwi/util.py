@@ -1,9 +1,12 @@
 """Utility functionality."""
 
 from __future__ import division, print_function
+import glob
 from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice, product
+import os
 import random
+import re
 
 import numpy as np
 import scipy as sp
@@ -378,8 +381,6 @@ def sole(it, desc=None):
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
     # FIXME: Misses symlinks.
-    import glob
-    import os.path
     it = glob.iglob(path)
     if typ == 'any':
         pass
@@ -395,22 +396,21 @@ def sglob(path, typ='any'):
     """Single glob: glob exactly one file."""
     return sole(iglob(path, typ), path)
 
-def walker(path):
+def walker(top):
     """Yield all files in subdirectories with root path. Kind of like find."""
-    import os
-    if os.path.isdir(path):
+    if os.path.isdir(top):
         def err(e):
             print(e)
             #raise
-        for root, dirs, files in os.walk(path, onerror=err, followlinks=True):
-            for f in files:
-                yield os.path.join(root, f)
+        it = os.walk(top, onerror=err, followlinks=True)
+        for dirpath, dirnames, filenames in it:
+            for f in filenames:
+                yield os.path.join(dirpath, f)
     else:
-        yield path
+        yield top
 
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
-    import re
     #m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
     m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
     if m:
