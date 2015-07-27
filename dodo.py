@@ -575,27 +575,29 @@ def task_texture():
 #                        lesion, 'maxfirst', 0, mth, ws)
 
 
-def get_task_mask_prostate(modality, case, scan, imagetype, postfix,
+def mask_out_cmd(src, dst, mask):
+    MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
+    d = dict(prg=MASK_OUT_DICOM, src=src, dst=dst, mask=mask)
+    rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
+    cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source image
+    mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
+    return [rm, cp, mask]
+
+
+def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
                            param='DICOM'):
     """Generate DICOM images with everything but prostate zeroed."""
-    MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
-    imagedir = 'dicoms_{}'.format(modality)
-    maskdir = 'masks_prostate_{}'.format(modality)
-    outdir = 'dicoms_masked_{}'.format(modality)
-    d = dict(prg=MASK_OUT_DICOM, c=case, s=scan, md=maskdir, id=imagedir,
-             od=outdir, it=imagetype, pox=postfix, p=param)
-    d['mask'] = dwi.util.sglob('{md}/{c}_*_{s}*'.format(**d))
-    d['img_src'] = dwi.util.sglob('{id}_*/{c}_*{it}_{s}{pox}/{p}'.format(**d))
-    d['img_dst'] = '{od}/{c}{it}_{s}'.format(**d)
-    cmd_rm = 'rm -Rf {img_dst}'.format(**d)
-    cmd_cp = 'cp -R --no-preserve=all {img_src} {img_dst}'.format(**d)
-    cmd_mask = '{prg} --mask {mask} --image {img_dst}'.format(**d)
+    imagedir = 'dicoms_{}'.format(mode.modality)
+    outdir = 'dicoms_masked_{}'.format(mode.modality)
+    d = dict(c=case, s=scan, id=imagedir, od=outdir, it=imagetype, pox=postfix,
+             p=param)
+    mask = mask_path(mode, 'prostate', case, scan)
+    src = dwi.util.sglob('{id}_*/{c}_*{it}_{s}{pox}/{p}'.format(**d))
+    dst = '{od}/{c}{it}_{s}'.format(**d)
+    cmds = mask_out_cmd(src, dst, mask)
     return {
         'name': '{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(d['img_dst'])]),
-                    cmd_rm,  # Remove destination image dir
-                    cmd_cp,  # Copy source image dir to destination
-                    cmd_mask],  # Mask destination image
+        'actions': [(create_folder, [dirname(dst)])] + cmds,
         #'file_dep':  # TODO
         #'targets':  # TODO
         }
@@ -605,8 +607,10 @@ def task_mask_prostate_DWI():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            yield get_task_mask_prostate('DWI', case, scan, '_hB', '')
-            #yield get_task_mask_prostate('SPAIR', case, scan, '', '_all')
+            mode = dwi.patient.ImageMode('DWI')
+            yield get_task_mask_prostate(mode, case, scan, '_hB', '')
+            #mode = dwi.patient.ImageMode('SPAIR')
+            #yield get_task_mask_prostate(mode, case, scan, '', '_all')
         except IOError as e:
             print('mask_prostate_DWI', e)
 
@@ -615,9 +619,12 @@ def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            yield get_task_mask_prostate('T2', case, scan, '', '*')
-            #yield get_task_mask_prostate('T2f', case, scan, '', '*', '*_Rho')
-            #yield get_task_mask_prostate('T2w', case, scan, '', '*')
+            mode = dwi.patient.ImageMode('T2')
+            yield get_task_mask_prostate(mode, case, scan, '', '*')
+            #mode = dwi.patient.ImageMode('T2f')
+            #yield get_task_mask_prostate(mode, case, scan, '', '*', '*_Rho')
+            #mode = dwi.patient.ImageMode('T2w')
+            #yield get_task_mask_prostate(mode, case, scan, '', '*')
         except IOError as e:
             print('mask_prostate_T2', e)
 
