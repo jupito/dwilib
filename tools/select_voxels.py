@@ -1,11 +1,13 @@
 #!/usr/bin/env python2
 
 """Select voxels from image by subwindow, ROI, and write them into an ASCII
-file. Multiple same-size images may be combined by overlaying the parameters."""
+file. Multiple same-size images may be combined by overlaying the
+parameters.
+"""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
-import collections
+from collections import OrderedDict
 import os.path
 
 import numpy as np
@@ -15,9 +17,10 @@ import dwi.hdf5
 import dwi.mask
 import dwi.util
 
+
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description = __doc__)
+    p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
     p.add_argument('--input', '-i', metavar='INFILE', nargs='+', required=True,
@@ -35,6 +38,7 @@ def parse_args():
                    help='output parametric map file')
     return p.parse_args()
 
+
 def merge_dwimages(dwimages):
     """Merge multiple images of same size by overlaying the parameters."""
     images = [d.image for d in dwimages]
@@ -51,6 +55,7 @@ def merge_dwimages(dwimages):
     dwimage.voxel_spacing = dwimages[0].voxel_spacing
     return dwimage
 
+
 def write_pmap_ascii_head(dwimage, model, params, f):
     """Write pmap ASCII header."""
     f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in dwimage.subwindow))
@@ -63,10 +68,12 @@ def write_pmap_ascii_head(dwimage, model, params, f):
     f.write('model: %s\n' % model)
     f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
 
+
 def write_pmap_ascii_body(pmap, f):
     """Write pmap ASCII body."""
     for p in pmap:
         f.write(' '.join(repr(x) for x in p) + '\n')
+
 
 def write(filename, dwimage, image, fmt=None):
     """Write output file."""
@@ -74,7 +81,7 @@ def write(filename, dwimage, image, fmt=None):
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
-        attrs = collections.OrderedDict()
+        attrs = OrderedDict()
         attrs['bset'] = dwimage.bset
         attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, image, attrs)
@@ -85,6 +92,7 @@ def write(filename, dwimage, image, fmt=None):
             write_pmap_ascii_body(image, f)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
+
 
 def main():
     args = parse_args()
@@ -126,6 +134,7 @@ def main():
         print('Writing {nv} voxels with {np} parameters to {of}'.format(
             nv=image.size, np=image.shape[-1], of=outfile))
     write(outfile, dwimage, image)
+
 
 if __name__ == '__main__':
     main()
