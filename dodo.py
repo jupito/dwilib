@@ -200,7 +200,11 @@ def path_deps(*paths):
     """Return list of path dependencies, i.e. the file(s) itself or the
     directory contents.
     """
-    paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
+    # First make sure all exist.
+    #paths = [dwi.util.sglob(x) for x in paths]
+    for i, path in enumerate(paths):
+        if '*' in path or ('[' in path and ']' in path):
+            paths[i] = dwi.util.sglob(path)
     paths = chain(f for p in paths for f in dwi.util.walker(p))
     paths = list(paths)
     return paths
