@@ -12,7 +12,23 @@ import dwi.files
 import dwi.util
 
 """Image mode identifier, string representation would be like DWI-Mono-ADCm."""
-ImageMode = namedtuple('ImageMode', ('modality', 'model', 'param'))
+class ImageMode(object):
+    def __init__(self, modality, model='raw', param='raw'):
+        self.modality = modality
+        self.model = model
+        self.param = param
+
+    @staticmethod
+    def parse(s):
+        lst = s.split('-')
+        return ImageMode(*lst)
+
+    def __iter__(self):
+        return iter((self.modality, self.model, self.param))
+
+    def __repr__(self):
+        return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
+
 
 @total_ordering
 class GleasonScore(object):

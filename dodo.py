@@ -26,7 +26,7 @@ DOIT_CONFIG = {
 
 DWILIB = '~/src/dwilib/tools'
 
-MODE = dwi.patient.ImageMode(*get_var('mode', 'DWI-Mono-ADCm').split('-'))
+MODE = dwi.patient.ImageMode.parse(get_var('mode', 'DWI-Mono-ADCm'))
 SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
 FIND_ROI_PARAMS = [
