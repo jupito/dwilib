@@ -34,8 +34,7 @@ class ImageMode(object):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
 
     def __str__(self):
-        # return '-'.join(iter(self))  # TODO: Should be this
-        return '{}_{}'.format(self.model, self.param)  # TODO: Temporary
+        return '-'.join(iter(self))
 
 
 @total_ordering
