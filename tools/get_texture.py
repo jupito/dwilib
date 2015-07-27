@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
-"""Calculate texture properties for a masked area."""
+"""Calculate texture properties for a masked area.
+
+NOTE: This version is old, use get_texture_new.py instead.
+"""
 
 # TODO: pmap normalization for GLCM
 
