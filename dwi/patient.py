@@ -34,7 +34,7 @@ class ImageMode(object):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
 
     def __str__(self):
-        #return '-'.join(iter(self))
+        # return '-'.join(iter(self))  # TODO: Should be this
         return '{}_{}'.format(self.model, self.param)  # TODO: Temporary
 
 
@@ -56,6 +56,10 @@ class GleasonScore(object):
         if not len(s) == 3:
             raise Exception('Invalid gleason score: %s', score)
         self.score = s
+
+    @staticmethod
+    def parse(s):
+        return GleasonScore(int(x) for x in s.split('+'))
 
     def __iter__(self):
         score = self.score
