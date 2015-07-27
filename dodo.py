@@ -1,7 +1,6 @@
 """PyDoIt file for automating tasks."""
 
 from __future__ import absolute_import, division, print_function
-from glob import glob
 from itertools import chain, product
 from os.path import dirname, join
 
@@ -350,7 +349,7 @@ def get_task_find_roi(mode, case, scan, algparams):
     mask_n = mask_path(mode, 'N', case, scan)
     cmd = find_roi_cmd(mode, case, scan, algparams, outmask, outfig)
     return {
-        'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
+        'name': '{m}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(outmask)]),
                     (create_folder, [dirname(outfig)]),
                     cmd],
@@ -381,7 +380,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     pmap = pmap_dicom(mode, case, scan)
     cmd = select_voxels_cmd(mask, pmap, roi)
     return {
-        'name': '{m.model}_{m.param}_{mt}_{c}_{s}'.format(**d),
+        'name': '{m}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
                     cmd],
         'file_dep': path_deps(mask),
@@ -399,7 +398,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     pmap = pmap_dicom(mode, case, scan)
     cmd = select_voxels_cmd(mask, pmap, roi)
     return {
-        'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
+        'name': '{m}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
                     cmd],
         'file_dep': [mask],
@@ -450,7 +449,7 @@ def get_task_autoroi_auc(mode, threshold):
         s = r'echo `{prg} --patients {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-        'name': 'autoroi_auc_{sl}_{m.model}_{m.param}_{t}'.format(**d),
+        'name': 'autoroi_auc_{sl}_{m}_{t}'.format(**d),
         'actions': cmds,
         'task_dep': ['select_roi_auto'],
         'targets': [d['o']],
@@ -472,7 +471,7 @@ def get_task_autoroi_correlation(mode, thresholds):
         s = r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
         cmds.append(s.format(**d))
     return {
-        'name': 'autoroi_correlation_{sl}_{m.model}_{m.param}_{t_}'.format(**d),
+        'name': 'autoroi_correlation_{sl}_{m}_{t_}'.format(**d),
         'actions': cmds,
         'task_dep': ['select_roi_auto'],
         'targets': [d['o']],
@@ -500,7 +499,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
     return {
-        'name': '{m.model}_{m.param}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
+        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
         'file_dep': path_deps(mask),
@@ -520,7 +519,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
 #                          mask, outfile)
 #    return {
-#        'name': '{m.model}_{m.param}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
+#        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
 #        'actions': [(create_folder, [dirname(outfile)]),
 #                    cmd],
 #        'file_dep': path_deps(mask),
@@ -542,7 +541,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                           mask, outfile)
     return {
-        'name': '{m.model}_{m.param}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
+        'name': '{m}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
         'file_dep': [mask],
