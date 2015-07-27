@@ -137,7 +137,7 @@ def main():
 
     if args.verbose:
         print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
-    tmap = np.array(tmap, dtype=np.float32)
+    #tmap = np.array(tmap, dtype=np.float32)
     dwi.files.write_pmap(args.output, tmap, names)
 
 if __name__ == '__main__':
