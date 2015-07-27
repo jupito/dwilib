@@ -2,7 +2,6 @@
 
 from __future__ import division, print_function
 from functools import total_ordering
-from collections import namedtuple
 import os.path
 
 import numpy as np
@@ -60,9 +59,6 @@ class GleasonScore(object):
 
     def __hash__(self):
         return hash(self.score)
-
-    def __iter__(self):
-        return iter(self.score)
 
     def __eq__(self, other):
         return self.score == other.score
