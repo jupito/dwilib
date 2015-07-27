@@ -144,7 +144,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     elif masktype == 'auto':
         # Don't require existence, can be generated.
         do_glob = False
-        path = 'masks_auto_{m.model}_{m.param}/{ap_}/{c}_{s}_auto.mask'
+        path = 'masks_auto_{m}/{ap_}/{c}_{s}_auto.mask'
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
@@ -156,7 +156,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
 def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
     """Return whole ROI path or part of it."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
-    components = ['rois_{mt}_{m.model}_{m.param}']
+    components = ['rois_{mt}_{m}']
     if algparams:
         components.append('{ap_}')
     if case is not None and scan is not None:
@@ -343,7 +343,7 @@ def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
 def get_task_find_roi(mode, case, scan, algparams):
     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    outfig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(
+    outfig = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(
         **d)
     subregion = subregion_path(mode, case, scan)
     mask_p = mask_path(mode, 'prostate', case, scan)
