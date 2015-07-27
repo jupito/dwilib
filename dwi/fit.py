@@ -1,9 +1,17 @@
 """Parametric model classes and fitting functionality."""
 
+from itertools import product
+
 import numpy as np
 
 import util
 import fit_one_by_one as fit_module
+
+
+def combinations(l):
+    """Return combinations of list elements."""
+    return [x for x in product(*l)]
+
 
 class Parameter(object):
     """Parameter used in model definitions."""
@@ -81,7 +89,7 @@ class Model(object):
 
     def guesses(self):
         """Return all combinations of initial guesses."""
-        return util.combinations(map(lambda p: p.guesses(), self.params))
+        return combinations(map(lambda p: p.guesses(), self.params))
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""

@@ -3,7 +3,7 @@
 from __future__ import division, print_function
 import glob
 from collections import defaultdict, OrderedDict
-from itertools import ifilter, islice, product
+from itertools import ifilter, islice
 import os
 import random
 import re
@@ -35,11 +35,6 @@ def fabricate_subwindow(size, height=None):
     """Fabricate a subwindow specification."""
     height, width = make2d(size, height=height)
     return 0, height, 0, width
-
-
-def combinations(l):
-    """Return combinations of list elements."""
-    return [x for x in product(*l)]
 
 
 def chunks(seq, n):
