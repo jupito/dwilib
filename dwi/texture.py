@@ -11,8 +11,8 @@ single values or reduces the map into a single average value.
 """
 
 from __future__ import absolute_import, division, print_function
-import collections
-import itertools
+from collections import OrderedDict
+from itertools import product
 
 import numpy as np
 import scipy as sp
@@ -56,7 +56,7 @@ def abbrev(name):
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
-    d = collections.OrderedDict()
+    d = OrderedDict()
     d['mean'] = np.mean(img)
     d['stddev'] = np.std(img)
     d['range'] = np.max(img) - np.min(img)
@@ -113,7 +113,7 @@ def glcm_props(img, names=PROPNAMES, distances=(1,2,3,4), ignore_zeros=False):
     if ignore_zeros and np.min(img) == 0:
         # Drop information on the first grey-level if it's zero (background).
         glcm = glcm[1:,1:,...]
-    d = collections.OrderedDict()
+    d = OrderedDict()
     for name in names:
         feats = greycoprops(glcm, name)  # Returns array (distance, angle).
         feats = np.mean(feats, axis=1)  # Average over angles.
@@ -261,7 +261,7 @@ def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
         feats[i,j,k,0] = real.mean()
         feats[i,j,k,1] = real.var()
     feats = np.mean(feats, axis=0)  # Average over directions.
-    d = collections.OrderedDict()
+    d = OrderedDict()
     for (i, j, k), value in np.ndenumerate(feats):
         key = sigmas[i], freqs[j], ('mean', 'var')[k]
         d[key] = value
@@ -328,8 +328,8 @@ def moment(img, p, q):
 def moments(img, max_order=2):
     """Image moments of order up to p+q <= max_order."""
     r = range(max_order+1)
-    tuples = (t for t in itertools.product(r, r) if sum(t) <= max_order)
-    d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
+    tuples = (t for t in product(r, r) if sum(t) <= max_order)
+    d = OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
 
 
@@ -446,7 +446,7 @@ def haar_levels(img, nlevels=4, drop_approx=False):
 
 def haar_features(win):
     """Haar texture features of a single level."""
-    d = collections.OrderedDict()
+    d = OrderedDict()
     d['aav'] = np.mean(np.abs(win))
     d['std'] = np.std(win)
     return d
@@ -502,7 +502,7 @@ def sobel_mbb(img, mask):
 
 
 # Methods that consider an n*n window.
-METHODS = collections.OrderedDict([
+METHODS = OrderedDict([
     ('stats', stats_map),
     ('glcm', glcm_map),
     ('haralick', haralick_map),
@@ -517,7 +517,7 @@ METHODS = collections.OrderedDict([
     ])
 
 # Methods that consider a minimum bounding box of selected voxels.
-METHODS_MBB = collections.OrderedDict([
+METHODS_MBB = OrderedDict([
     ('stats_mbb', stats_mbb),
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
@@ -525,11 +525,11 @@ METHODS_MBB = collections.OrderedDict([
     ])
 
 # Methods that consider all selected voxels.
-METHODS_ALL = collections.OrderedDict([
+METHODS_ALL = OrderedDict([
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
 
-_METHODS = collections.OrderedDict([
+_METHODS = OrderedDict([
     ('stats', stats_map),
     ('glcm', glcm_map),
     ('haralick', haralick_map),
