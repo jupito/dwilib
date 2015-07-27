@@ -170,27 +170,6 @@ def load_files(patients, filenames, pairs=False):
     return pmaps, ids, params
 
 
-def load_labels(patients, nums, labeltype='score'):
-    """Load labels according to patient numbers."""
-    gs = get_gleason_scores(patients)
-    scores = [get_patient(patients, n).score for n in nums]
-    if labeltype == 'score':
-        # Use Gleason score.
-        labels = scores
-    elif labeltype == 'ord':
-        # Use ordinal.
-        labels = [score_ord(gs, s) for s in scores]
-    elif labeltype == 'bin':
-        # Is aggressive? (ROI1.)
-        labels = [s > GleasonScore('3+4') for s in scores]
-    elif labeltype == 'cancer':
-        # Is cancer? (ROI1 vs 2, all true for ROI1.)
-        labels = [1] * len(scores)
-    else:
-        raise Exception('Invalid parameter: %s' % labeltype)
-    return labels
-
-
 def cases_scans(patients, cases=None, scans=None):
     """Generate all case, scan combinations, with optional whitelists."""
     for p in patients:
