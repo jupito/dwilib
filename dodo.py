@@ -118,13 +118,11 @@ def pmap_dicom(mode, case, scan):
     return dwi.util.sglob(path, typ='dir')
 
 
-def subregion_dir(mode):
-    return 'subregions'
-
-
-def subregion_path(mode, case, scan):
-    return '{srd}/{c}_{s}_subregion10.txt'.format(srd=subregion_dir(mode),
-                                                  c=case, s=scan)
+def subregion_path(mode, case=None, scan=None):
+    path = 'subregions'
+    if case is not None and scan is not None:
+        path += '/{c}_{s}_subregion10.txt'.format(c=case, s=scan)
+    return path
 
 
 def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
@@ -135,10 +133,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     if masktype == 'prostate':
         path = 'masks_prostate_{m.modality}/{c}_*_{s}*'
     elif masktype == 'lesion':
-        if mode.model in ('T2', 'T2w'):
-            path = 'masks_lesion_{m.model}/PCa_masks_{m.model}_{l}*/{c}_*{s}_*'
-        else:
-            path = 'masks_lesion_DWI/PCa_masks_DWI_{l}*/{c}_*{s}_*'
+        path = 'masks_lesion_{m.modality}/PCa_masks_{m.modality}_{l}*/{c}_*{s}_*'
     elif masktype in ('CA', 'N'):
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
     elif masktype == 'auto':
@@ -168,10 +163,11 @@ def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                  algparams=()):
     """Return path to texture file."""
+    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
     if masktype in ('lesion', 'CA', 'N'):
-        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{c}_{s}_{l}.txt'
+        path += '/{c}_{s}_{l}.txt'
     elif masktype == 'auto':
-        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}.txt'
+        path += '/{ap_}/{c}_{s}_{l}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
@@ -181,10 +177,11 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
 #def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
 #                     method, winsize, algparams=()):
 #    """Return path to texture file."""
+#    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
 #    if masktype in ('lesion', 'CA', 'N'):
-#        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{c}_{s}_{l}_{mth}_{ws}.txt'
+#        path += '/{c}_{s}_{l}_{mth}_{ws}.txt'
 #    elif masktype == 'auto':
-#        path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}/{ap_}/{c}_{s}_{l}_{mth}_{ws}.txt'
+#        path += '/{ap_}/{c}_{s}_{l}_{mth}_{ws}.txt'
 #    else:
 #        raise Exception('Unknown mask type: {mt}'.format(**d))
 #    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
@@ -237,8 +234,8 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
-    if mode.model == 'T2w':
-        cmd += ' --std stdcfg_{m.model}.txt'
+    if mode.modality == 'T2w':
+        cmd += ' --std stdcfg_{m.modality}.txt'
     return cmd.format(**d)
 
 
@@ -254,8 +251,8 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #           ' --slices {slices} --portion {portion}'
 #           ' --method {mth} --winsize {ws} --voxel mean'
 #           ' --output {o}')
-#    if mode.model == 'T2w':
-#        cmd += ' --std stdcfg_{m.model}.txt'
+#    if mode.modality == 'T2w':
+#        cmd += ' --std stdcfg_{m.modality}.txt'
 #    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
 #    return cmd
 
@@ -332,7 +329,7 @@ def task_make_subregion():
 def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
     FIND_ROI = DWILIB+'/find_roi.py'
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
-             pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
+             pd=pmapdir_dicom(mode), srd=subregion_path(mode),
              c=case, s=scan, ap=' '.join(algparams), outmask=outmask,
              outfig=outfig)
     return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
@@ -529,7 +526,8 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
 #                          mask, outfile)
 #    return {
-#        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(**d),
+#        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(
+#            **d),
 #        'actions': [(create_folder, [dirname(outfile)]),
 #                    cmd],
 #        'file_dep': path_deps(mask),
@@ -569,8 +567,8 @@ def task_texture():
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 0)
         yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 1)
-        if MODE.model in ('T2', 'T2w'):
-            continue  # Do only lesion for these.
+        if MODE.modality in ('T2', 'T2w'):
+            continue  # Do only lesion for those.
         yield get_task_texture_manual(MODE, 'CA', case, scan, lesion, 'maxfirst', 1)
         yield get_task_texture_manual(MODE, 'N', case, scan, lesion, 'maxfirst', 1)
         for ap in find_roi_param_combinations(MODE):
