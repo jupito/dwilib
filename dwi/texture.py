@@ -589,7 +589,7 @@ def get_texture(img, method, winsize, mask, avg=False):
         tmap, names = get_texture_all(img, call, mask)
         if not avg:
             raise NotImplementedError()
-    elif method.endswith('mbb'):
+    elif method.endswith('_mbb'):
         tmap, names = get_texture_mbb(img, call, mask)
         if avg:
             tmap = np.mean(tmap, axis=0, keepdims=True)
