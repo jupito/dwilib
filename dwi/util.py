@@ -11,10 +11,12 @@ import re
 import numpy as np
 import scipy as sp
 
+
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal."""
     a = np.asarray(a)
     return a.min() == a.max()
+
 
 def make2d(size, height=None):
     """Turn 1d size into 2d shape by growing the height until it fits."""
@@ -28,14 +30,17 @@ def make2d(size, height=None):
     else:
         return make2d(size, int(np.sqrt(size)))
 
+
 def fabricate_subwindow(size, height=None):
     """Fabricate a subwindow specification."""
     height, width = make2d(size, height=height)
     return 0, height, 0, width
 
+
 def combinations(l):
     """Return combinations of list elements."""
     return [x for x in product(*l)]
+
 
 def chunks(seq, n):
     """Return sequence as chunks of n elements."""
@@ -43,11 +48,13 @@ def chunks(seq, n):
         raise Exception('Sequence length not divisible.')
     return (seq[i:i+n] for i in xrange(0, len(seq), n))
 
+
 def pairs(seq):
     """Return sequence split in two, each containing every second item."""
     if len(seq) % 2:
         raise Exception('Sequence length not even.')
     return seq[0::2], seq[1::2]
+
 
 def get_indices(seq, val):
     """Return indices of elements containing given value in a sequence."""
@@ -56,6 +63,7 @@ def get_indices(seq, val):
         if v == val:
             r.append(i)
     return r
+
 
 def crop_image(image, subwindow, onebased=False):
     """Get a view of image subwindow defined as Python-like start:stop
@@ -66,19 +74,21 @@ def crop_image(image, subwindow, onebased=False):
     view = image[z1:z2, y1:y2, x1:x2]
     return view
 
+
 def subwindow_shape(subwindow):
     """Return subwindow shape."""
     return tuple(b-a for a, b in chunks(subwindow, 2))
+
 
 def sliding_window(a, winshape, mask=None):
     """Multidimensional sliding window iterator with arbitrary window shape.
 
     Yields window origin (center) and view to window. Window won't overlap
-    image border. If a mask array is provided, windows are skipped unless origin
-    is selected in mask.
+    image border. If a mask array is provided, windows are skipped unless
+    origin is selected in mask.
     """
     if isinstance(winshape, int):
-        winshape = (winshape,) * a.ndim # Can give single value for window size.
+        winshape = (winshape,) * a.ndim  # Expand single value to window side.
     if len(winshape) != a.ndim:
         raise Exception('Invalid window dimensionality: {}'.format(winshape))
     if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
@@ -91,6 +101,7 @@ def sliding_window(a, winshape, mask=None):
             slices = [slice(i, i+w) for i, w in zip(indices, winshape)]
             window = np.squeeze(a[slices])
             yield origin, window
+
 
 def bounding_box(array, pad=0):
     """Return the minimum bounding box with optional padding.
@@ -105,8 +116,9 @@ def bounding_box(array, pad=0):
         x = max(min(a)-p, 0)
         y = min(max(a)+1+p, l)
         r.append((x, y))
-    #return tuple(map(int, r))
+    # return tuple(map(int, r))
     return tuple(r)
+
 
 def median(a, axis=None, keepdims=False, dtype=None):
     """Added keepdims parameter for NumPy 1.8 median. See numpy.mean."""
@@ -124,15 +136,18 @@ def median(a, axis=None, keepdims=False, dtype=None):
         r = r.astype(dtype)
     return r
 
+
 def resample_bootstrap_single(a):
     """Get a bootstrap resampled group for single array."""
     indices = [random.randint(0, len(a)-1) for _ in a]
     return a[indices]
 
+
 def resample_bootstrap(Y, X):
     """Get a bootstrap resampled group without stratification."""
     indices = [random.randint(0, len(Y)-1) for _ in Y]
     return Y[indices], X[indices]
+
 
 def resample_bootstrap_stratified(Y, X):
     """Get a bootstrap resampled group with stratification.
@@ -149,11 +164,13 @@ def resample_bootstrap_stratified(Y, X):
             indices.append(v)
     return Y[indices], X[indices]
 
+
 def fivenum(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
     q1 = sp.stats.scoreatpercentile(a, 25)
     q3 = sp.stats.scoreatpercentile(a, 75)
     return np.min(a), q1, np.median(a), q3, np.max(a)
+
 
 def fivenumd(a):
     """Tukey five-number summary (min, q1, median, q3, max)."""
@@ -161,6 +178,7 @@ def fivenumd(a):
     values = fivenum(a)
     d = OrderedDict(zip(keys, values))
     return d
+
 
 def stem_and_leaf(values):
     """A quick and dirty text mode stem-and-leaf diagram for non-negative real
@@ -177,44 +195,13 @@ def stem_and_leaf(values):
         lines.append('{i:2}|{l}'.format(i=i, l=leaves))
     return lines
 
+
 def tilde(a):
     """Logical 'not' operator for NumPy objects that behaves like MATLAB
     tilde."""
     typ = a.dtype
     return (~a.astype(bool)).astype(typ)
 
-# Note: These are obsolete. use calculate_roc_auc() instead of roc(), roc_auc().
-#
-#def roc(truths, scores):
-#    """Calculate ROC curve. Based on HM's matlab implementation."""
-#    truths = np.array(truths)
-#    scores = np.array(scores)
-#    indices_sorted = scores.argsort()
-#    scores = scores[indices_sorted]
-#    truths = truths[indices_sorted]
-#    values = np.unique(scores)
-#    tp = np.array(values)
-#    tn = np.array(values)
-#    fp = np.array(values)
-#    fn = np.array(values)
-#    for i, value in enumerate(values):
-#        c = np.ones_like(scores)
-#        c[scores >= value] = 0 # Set classifications.
-#        tp[i] = sum(c * truths)
-#        tn[i] = sum(tilde(c) * tilde(truths))
-#        fp[i] = sum(c * tilde(truths))
-#        fn[i] = sum(tilde(c) * truths)
-#    fpr = fp / (fp+tn)
-#    tpr = tp / (tp+fn)
-#    acc = np.mean((tp+tn) / (tp+fp+fn+tn))
-#    return fpr, tpr, acc
-#
-#def roc_auc(fpr, tpr):
-#    """Calculate ROC AUC from false and true positive rates."""
-#    area = 0
-#    for i in range(len(fpr))[1:]:
-#        area += abs(fpr[i]-fpr[i-1]) * (tpr[i]+tpr[i-1]) / 2
-#    return area
 
 def calculate_roc_auc(y, x, autoflip=False):
     """Calculate ROC and AUC from data points and their classifications."""
@@ -227,6 +214,7 @@ def calculate_roc_auc(y, x, autoflip=False):
         fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
     return fpr, tpr, auc
 
+
 def bootstrap_aucs(y, x, n=2000):
     """Produce an array of bootstrapped ROC AUCs."""
     aucs = np.zeros(n)
@@ -235,6 +223,7 @@ def bootstrap_aucs(y, x, n=2000):
         _, _, auc = calculate_roc_auc(yb, xb)
         aucs[i] = auc
     return aucs
+
 
 def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
@@ -246,6 +235,7 @@ def compare_aucs(aucs1, aucs2):
     p = 1.0 - sp.stats.norm.cdf(abs(z))
     return np.mean(D), z, p
 
+
 def ci(x, p=0.05):
     """Confidence interval of a normally distributed array."""
     x = sorted(x)
@@ -255,6 +245,7 @@ def ci(x, p=0.05):
     ci1 = x[i1]
     ci2 = x[i2]
     return ci1, ci2
+
 
 def distance(a, b):
     """Return the Euclidean distance of two vectors."""
@@ -269,6 +260,7 @@ def normalize_si_curve(si):
     """
     assert si.ndim == 1
     si[:] /= si[0]
+
 
 def normalize_si_curve_fix(si):
     """Normalize a signal intensity curve (divide all by the first value).
@@ -286,19 +278,22 @@ def normalize_si_curve_fix(si):
                 si[i] = si[i-1]
         si[:] /= si[0]
 
+
 def scale(a):
     """Feature scaling. Bring all values to [0, 1] range."""
     a = np.asanyarray(a)
     min, max = a.min(), a.max()
     return (a-min) / (max-min)
 
+
 def clip_pmap(img, params):
     """Clip pmap's parameter-specific intensity outliers in-place."""
     for i in range(img.shape[-1]):
         if params[i].startswith('ADC'):
-            img[...,i].clip(0, 0.002, out=img[...,i])
+            img[..., i].clip(0, 0.002, out=img[..., i])
         elif params[i].startswith('K'):
-            img[...,i].clip(0, 2, out=img[...,i])
+            img[..., i].clip(0, 2, out=img[..., i])
+
 
 def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
     """Clip outliers based on percentiles."""
@@ -307,11 +302,13 @@ def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
     max_score = sp.stats.scoreatpercentile(a, max_pc)
     return a.clip(min_score, max_score, out=out)
 
+
 def add_dummy_feature(X):
     """Add an extra dummy feature to an array of samples."""
     r = np.ones((X.shape[0], X.shape[1]+1), dtype=X.dtype)
-    r[:,:-1] = X
+    r[:, :-1] = X
     return r
+
 
 def split_roi(pmaps):
     """Split samples to ROI1 and 2."""
@@ -323,6 +320,7 @@ def split_roi(pmaps):
         pmaps1 = pmaps
         pmaps2 = []
     return pmaps1, pmaps2
+
 
 def select_measurements(pmaps, numsscans, meas):
     """Select measurement baselines to use."""
@@ -338,6 +336,7 @@ def select_measurements(pmaps, numsscans, meas):
         raise Exception('Invalid measurement identifier: %s' % meas)
     return r
 
+
 def baseline_mean(pmaps, numsscans):
     """Take means of each pair of pmaps."""
     baselines = np.array(pairs(pmaps))
@@ -345,12 +344,14 @@ def baseline_mean(pmaps, numsscans):
     numsscans = pairs(numsscans)[0]
     return pmaps, numsscans
 
+
 def get_group_id(groups, value):
     """Get group id of a single value."""
     for i, group in enumerate(groups):
         if value in group:
             return i
     return len(groups)
+
 
 def group_labels(groups, values):
     """Replace labels with group id's.
@@ -362,9 +363,11 @@ def group_labels(groups, values):
         group_ids.append(get_group_id(groups, value))
     return group_ids
 
+
 def take(n, iterable):
     """Return first n items of the iterable as a list."""
     return list(islice(iterable, n))
+
 
 def sole(it, desc=None):
     """Return the sole item of an iterable. Raise an exception if the number of
@@ -377,6 +380,7 @@ def sole(it, desc=None):
         raise IOError('Element count not exactly one, observed {}; {}'.format(
             n, desc))
     return lst[0]
+
 
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
@@ -392,16 +396,17 @@ def iglob(path, typ='any'):
         raise Exception('Invalid path type: {}'.format(typ))
     return it
 
+
 def sglob(path, typ='any'):
     """Single glob: glob exactly one file."""
     return sole(iglob(path, typ), path)
+
 
 def walker(top):
     """Yield all files in subdirectories with root path. Kind of like find."""
     if os.path.isdir(top):
         def err(e):
             print(e)
-            #raise
         it = os.walk(top, onerror=err, followlinks=True)
         for dirpath, dirnames, filenames in it:
             for f in filenames:
@@ -409,9 +414,10 @@ def walker(top):
     else:
         yield top
 
+
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
-    #m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
+    # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
     m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
     if m:
         num, name, scan = m.groups()
@@ -421,20 +427,24 @@ def parse_filename(filename):
         return num, name, scan
     raise Exception('Cannot parse filename: {}'.format(filename))
 
+
 def parse_num_scan(filename):
     """Like parse_filename() but return only num, scan."""
     num, _, scan = parse_filename(filename)
     return num, scan
 
+
 def scan_pairs(afs):
-    """Check that the ascii files are correctly paired as scan baselines. Return
-    list of (patient number, scan 1, scan 2) tuples."""
+    """Check that the ascii files are correctly paired as scan baselines.
+    Return list of (patient number, scan 1, scan 2) tuples.
+    """
     baselines = pairs(afs)
     r = []
     for af1, af2 in zip(*baselines):
         num1, scan1 = parse_num_scan(af1.basename)
         num2, scan2 = parse_num_scan(af2.basename)
         if num1 != num2 or scan1[0] != scan2[0]:
-            raise Exception('Not a pair: %s, %s' % (af1.basename, af2.basename))
+            raise Exception('Not a pair: {}, {}'.format(af1.basename,
+                                                        af2.basename))
         r.append((num1, scan1, scan2))
     return r
