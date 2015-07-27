@@ -438,45 +438,53 @@ def task_select_roi():
         }
 
 
+def auc_cmd(mode, threshold, algparams, outfile):
+    CALC_AUC = DWILIB+'/roc_auc.py'
+    d = dict(prg=CALC_AUC, m=mode, slf=samplelist_file(mode), t=threshold,
+             i=roi_path(mode, 'auto', algparams=algparams),
+             ap_='_'.join(algparams), o=outfile)
+    return (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
+            '--autoflip --pmapdir {i}` {ap_} >> {o}'.format(**d))
+
+
 def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
-    CALC_AUC = DWILIB+'/roc_auc.py'
-    d = dict(m=mode, sl=SAMPLELIST, slf=samplelist_file(mode), prg=CALC_AUC,
-             t=threshold)
-    d['o'] = 'autoroi_auc_{t}_{m.model}_{m.param}_{sl}.txt'.format(**d)
-    cmds = ['echo -n > {o}'.format(**d)]
-    for algparams in find_roi_param_combinations(MODE):
-        d['ap_'] = '_'.join(algparams)
-        d['i'] = roi_path(mode, 'auto', algparams=algparams)
-        s = r'echo `{prg} --patients {slf} --threshold {t} --voxel mean --autoflip --pmapdir {i}` {ap_} >> {o}'
-        cmds.append(s.format(**d))
+    d = dict(m=mode, sl=SAMPLELIST, t=threshold)
+    outfile = 'autoroi_auc_{t}_{m}_{sl}.txt'.format(**d)
+    cmds = ['echo -n > {o}'.format(o=outfile)]
+    for algparams in find_roi_param_combinations(mode):
+        cmds.append(auc_cmd(mode, threshold, algparams, outfile))
     return {
         'name': 'autoroi_auc_{sl}_{m}_{t}'.format(**d),
         'actions': cmds,
         'task_dep': ['select_roi_auto'],
-        'targets': [d['o']],
+        'targets': [outfile],
         'clean': True,
         }
+
+
+def correlation_cmd(mode, thresholds, algparams, outfile):
+    CORRELATION = DWILIB+'/correlation.py'
+    d = dict(prg=CORRELATION, m=mode, slf=samplelist_file(mode),
+             t=thresholds, i=roi_path(mode, 'auto', algparams=algparams),
+             ap_='_'.join(algparams), o=outfile)
+    return (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
+            '--pmapdir {i}` {ap_} >> {o}'.format(**d))
 
 
 def get_task_autoroi_correlation(mode, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
     score."""
-    CORRELATION = DWILIB+'/correlation.py'
-    d = dict(sl=SAMPLELIST, slf=samplelist_file(mode), prg=CORRELATION,
-             m=mode, t=thresholds, t_=thresholds.replace(' ', ','))
-    d['o'] = 'autoroi_correlation_{t_}_{m.model}_{m.param}_{sl}.txt'.format(**d)
-    cmds = ['echo -n > {o}'.format(**d)]
-    for algparams in find_roi_param_combinations(MODE):
-        d['ap_'] = '_'.join(algparams)
-        d['i'] = roi_path(mode, 'auto', algparams=algparams)
-        s = r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean --pmapdir {i}` {ap_} >> {o}'
-        cmds.append(s.format(**d))
+    d = dict(m=mode, sl=SAMPLELIST, t_=thresholds.replace(' ', ','))
+    outfile = 'autoroi_correlation_{t_}_{m}_{sl}.txt'.format(**d)
+    cmds = ['echo -n > {o}'.format(o=outfile)]
+    for algparams in find_roi_param_combinations(mode):
+        cmds.append(correlation_cmd(mode, thresholds, algparams, outfile))
     return {
         'name': 'autoroi_correlation_{sl}_{m}_{t_}'.format(**d),
         'actions': cmds,
         'task_dep': ['select_roi_auto'],
-        'targets': [d['o']],
+        'targets': [outfile],
         'clean': True,
         }
 
