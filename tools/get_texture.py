@@ -2,9 +2,9 @@
 
 """Calculate texture properties for a masked area."""
 
-#TODO pmap normalization for GLCM
+# TODO: pmap normalization for GLCM
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 import collections
 
@@ -15,6 +15,7 @@ import dwi.mask
 import dwi.standardize
 import dwi.texture
 import dwi.util
+
 
 def parse_args():
     """Parse command-line arguments."""
@@ -45,6 +46,7 @@ def parse_args():
                    help='output ASCII file')
     return p.parse_args()
 
+
 def max_mask(mask, winsize):
     """Return a mask that has the voxels selected that have the maximum number
     of surrounding voxels selected in the original mask.
@@ -56,6 +58,7 @@ def max_mask(mask, winsize):
     for pos in d[max(d)]:
         r[pos] = True
     return r
+
 
 def portion_mask(mask, winsize, portion=1., resort_to_max=True):
     """Return a mask that selects (only) voxels that have the window at each
@@ -72,6 +75,7 @@ def portion_mask(mask, winsize, portion=1., resort_to_max=True):
     if resort_to_max and np.count_nonzero(r) == 0:
         r = max_mask(mask, winsize)
     return r
+
 
 def main():
     args = parse_args()
@@ -100,7 +104,7 @@ def main():
         raise Exception('Invalid slice set specification', args.slices)
 
     img_slices = img[slice_indices]
-    mask_slices = mask.array[slice_indices] # TODO: Just set other slices to 0
+    mask_slices = mask.array[slice_indices]  # TODO: Just set other slices to 0
     winshapes = [(1, w, w) for w in args.winsizes]
     pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
 
@@ -130,7 +134,7 @@ def main():
                 tmaps_all = None
                 for img_slice, pmask_slice in zip(img_slices, pmask_slices):
                     if np.count_nonzero(pmask_slice) == 0:
-                        continue # Skip slice with empty mask.
+                        continue  # Skip slice with empty mask.
                     tmaps, names = call(img_slice, winsize, mask=pmask_slice)
                     tmaps = tmaps[:, pmask_slice]
                     if tmaps_all is None:
@@ -147,7 +151,7 @@ def main():
             tmaps_all = None
             for img_slice, mask_slice in zip(img_slices, mask_slices):
                 if np.count_nonzero(mask_slice) == 0:
-                    continue # Skip slice with empty mask.
+                    continue  # Skip slice with empty mask.
                 tmaps, names = call(img_slice, mask=mask_slice)
                 tmaps = np.asarray(tmaps)
                 tmaps.shape += (1,)
@@ -169,10 +173,11 @@ def main():
 
     if args.verbose:
         print('Writing %s features to %s' % (len(feats), args.output))
-    #feats = np.array([feats], dtype=np.float32)
+    # feats = np.array([feats], dtype=np.float32)
     feats = np.array([feats])
-    #dwi.asciifile.write_ascii_file(args.output, feats, featnames)
+    # dwi.asciifile.write_ascii_file(args.output, feats, featnames)
     dwi.files.write_pmap(args.output, feats, featnames)
+
 
 if __name__ == '__main__':
     main()

@@ -2,9 +2,9 @@
 
 """Calculate texture properties for a masked area."""
 
-#TODO pmap normalization for GLCM
+# TODO: pmap normalization for GLCM
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 import collections
 
@@ -15,6 +15,7 @@ import dwi.mask
 import dwi.standardize
 import dwi.texture
 import dwi.util
+
 
 def parse_args():
     """Parse command-line arguments."""
@@ -47,6 +48,7 @@ def parse_args():
                    help='output ASCII file')
     return p.parse_args()
 
+
 def max_mask(mask, winsize):
     """Return a mask that has the voxels selected that have the maximum number
     of surrounding voxels selected in the original mask.
@@ -58,6 +60,7 @@ def max_mask(mask, winsize):
     for pos in d[max(d)]:
         r[pos] = True
     return r
+
 
 def portion_mask(mask, winsize, portion=1., resort_to_max=True):
     """Return a mask that selects (only) voxels that have the window at each
@@ -75,6 +78,7 @@ def portion_mask(mask, winsize, portion=1., resort_to_max=True):
         r = max_mask(mask, winsize)
     return r
 
+
 def main():
     args = parse_args()
     if args.verbose:
@@ -90,7 +94,7 @@ def main():
     else:
         # A default mask for testing.
         mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
-        #mask.array[9:-9, 50:-50, 50:-50] = True
+        # mask.array[9:-9, 50:-50, 50:-50] = True
         tuples = dwi.util.bounding_box(img)
         print('Using minimum bounding box as mask: {}'.format(tuples))
         slices = [slice(*t) for t in tuples]
@@ -132,13 +136,15 @@ def main():
 
     if args.verbose:
         print('Calculating {} texture features...'.format(args.method))
+    avg = (args.voxel == 'mean')
     tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
-                                          mask=pmask, avg=(args.voxel=='mean'))
+                                          mask=pmask, avg=avg)
 
     if args.verbose:
         print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
-    #tmap = np.array(tmap, dtype=np.float32)
+    # tmap = np.array(tmap, dtype=np.float32)
     dwi.files.write_pmap(args.output, tmap, names)
+
 
 if __name__ == '__main__':
     main()
