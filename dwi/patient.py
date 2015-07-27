@@ -2,6 +2,7 @@
 
 from __future__ import division, print_function
 from functools import total_ordering
+import glob
 import os.path
 
 import numpy as np
@@ -10,8 +11,12 @@ import dwi.asciifile
 import dwi.files
 import dwi.util
 
-"""Image mode identifier, string representation would be like DWI-Mono-ADCm."""
+# Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
+THRESHOLDS_STANDARD = ('3+3', '3+4')
+
+
 class ImageMode(object):
+    """Image mode identifier."""
     def __init__(self, modality, model='raw', param='raw'):
         self.modality = modality
         self.model = model
@@ -43,7 +48,7 @@ class GleasonScore(object):
             s = score
         s = tuple(int(x) for x in s)
         if len(s) == 2:
-            s += (0,) # Internal representation always has three digits.
+            s += (0,)  # Internal representation always has three digits.
         if not len(s) == 3:
             raise Exception('Invalid gleason score: %s', score)
         self.score = s
@@ -51,7 +56,7 @@ class GleasonScore(object):
     def __iter__(self):
         score = self.score
         if not score[-1]:
-            score = score[0:-1] # Drop trailing zero.
+            score = score[0:-1]  # Drop trailing zero.
         return iter(score)
 
     def __repr__(self):
@@ -66,15 +71,17 @@ class GleasonScore(object):
     def __lt__(self, other):
         return self.score < other.score
 
+
 class Lesion(object):
     """Lesion is a lump of cancer tissue."""
     def __init__(self, index, score, location):
-        self.index = index # No. in patient.
-        self.score = score # Gleason score.
-        self.location = location # PZ or CZ.
+        self.index = index  # No. in patient.
+        self.score = score  # Gleason score.
+        self.location = location  # PZ or CZ.
 
     def __repr__(self):
         return repr((self.index, self.score, self.location))
+
 
 @total_ordering
 class Patient(object):
@@ -84,7 +91,7 @@ class Patient(object):
         self.name = name
         self.scans = scans
         self.lesions = lesions
-        self.score = lesions[0].score # For backwards compatibility.
+        self.score = lesions[0].score  # For backwards compatibility.
 
     def __repr__(self):
         return repr(self.tuple())
@@ -101,12 +108,14 @@ class Patient(object):
     def tuple(self):
         return self.num, self.name, self.scans, self.lesions
 
+
 def scan_in_patients(patients, num, scan):
     """Is this scan listed in the patients sequence?"""
     for p in patients:
         if p.num == num and scan in p.scans:
             return True
     return False
+
 
 def get_patient(patients, num):
     """Search a patient from sequence by patient number."""
@@ -115,24 +124,26 @@ def get_patient(patients, num):
             return p
     raise Exception('Patient not found: {}'.format(num))
 
+
 def get_gleason_scores(patients):
     """Get all separate Gleason scores, sorted."""
-    #return sorted({p.score for p in patients})
+    # return sorted({p.score for p in patients})
     scores = set()
     for p in patients:
         scores.update(l.score for l in p.lesions)
     return sorted(scores)
 
+
 def score_ord(scores, score):
     """Get Gleason score's ordinal number."""
     return sorted(scores).index(score)
+
 
 def load_files(patients, filenames, pairs=False):
     """Load pmap files."""
     pmapfiles = []
     if len(filenames) == 1:
         # Workaround for platforms without shell-level globbing.
-        import glob
         l = glob.glob(filenames[0])
         if len(l) > 0:
             filenames = l
@@ -148,9 +159,8 @@ def load_files(patients, filenames, pairs=False):
     pmaps = np.array(pmaps)
     params = afs[0].params()
     assert pmaps.shape[-1] == len(params), 'Parameter name mismatch.'
-    #print('Filenames: %i, loaded: %i, lines: %i, columns: %i'
-    #        % (len(filenames), pmaps.shape[0], pmaps.shape[1], pmaps.shape[2]))
     return pmaps, ids, params
+
 
 def load_labels(patients, nums, labeltype='score'):
     """Load labels according to patient numbers."""
@@ -172,6 +182,7 @@ def load_labels(patients, nums, labeltype='score'):
         raise Exception('Invalid parameter: %s' % labeltype)
     return labels
 
+
 def cases_scans(patients, cases=None, scans=None):
     """Generate all case, scan combinations, with optional whitelists."""
     for p in patients:
@@ -180,6 +191,7 @@ def cases_scans(patients, cases=None, scans=None):
                 if scans is None or s in scans:
                     yield p.num, s
 
+
 def lesions(patients):
     """Generate all case, scan, lesion combinations."""
     for p in patients:
@@ -187,8 +199,6 @@ def lesions(patients):
             for l in p.lesions:
                 yield p, s, l
 
-# Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
-THRESHOLDS_STANDARD = ('3+3', '3+4')
 
 def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
                multiroi=False, dropok=False):
@@ -196,7 +206,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
     of score if no thresholds provided."""
-    # TODO Support for selecting measurements over scan pairs
+    # TODO: Support for selecting measurements over scan pairs
     thresholds = tuple(GleasonScore(x) for x in thresholds)
     patients = dwi.files.read_patients_file(patients_file)
     gs = get_gleason_scores(patients)
@@ -230,6 +240,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
             raise Exception('Irregular params: %s' % pathname)
     return data
 
+
 def grouping(data):
     """Return different scores, grouped scores, and their sample sizes.
 
@@ -245,6 +256,7 @@ def grouping(data):
     group_sizes = [len(g) for g in groups]
     return different_scores, group_scores, group_sizes
 
+
 def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan, r=roi)
@@ -258,19 +270,19 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     pmap = af.a
     params = af.params()
     if pmap.shape[-1] != len(params):
-        # TODO Move to Asciifile initializer?
+        # TODO: Move to Asciifile initializer?
         raise Exception('Number of parameters mismatch: %s' % af.filename)
     # Select voxel to use.
     if voxel == 'all':
-        pass # Use all voxels.
+        pass  # Use all voxels.
     elif voxel == 'sole':
         # Use sole voxel (raise exception if more found).
         if len(pmap) != 1:
             raise Exception('Too many voxels: {}'.format(len(pmap)))
     elif voxel == 'mean':
-        pmap = np.mean(pmap, axis=0, keepdims=True) # Use mean voxel.
+        pmap = np.mean(pmap, axis=0, keepdims=True)  # Use mean voxel.
     elif voxel == 'median':
-        pmap = dwi.util.median(pmap, axis=0, keepdims=True) # Use median voxel.
+        pmap = dwi.util.median(pmap, axis=0, keepdims=True)  # Use median.
     else:
-        pmap = pmap[[int(voxel)]] # Use single voxel only.
+        pmap = pmap[[int(voxel)]]  # Use single voxel only.
     return pmap, params, af.filename
