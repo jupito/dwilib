@@ -10,7 +10,7 @@ the single values over all selected voxels, 'mean' and 'median' return just the
 single values or reduces the map into a single average value.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import collections
 import itertools
 
@@ -22,6 +22,7 @@ import skimage.feature
 import skimage.filter
 
 import dwi.util
+
 
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
@@ -42,13 +43,16 @@ def normalize(pmap, levels=128):
     pmap /= (256/levels)
     return pmap
 
+
 def abbrev(name):
     """Abbreviate multiword feature name."""
     if ' ' in name:
         name = ''.join(word[0] for word in name.split())
     return name
 
+
 # Basic statistical features
+
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
@@ -63,6 +67,7 @@ def stats(img):
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
 
+
 def stats_map(img, winsize, names=None, mask=None, output=None):
     """Statistical texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
@@ -76,6 +81,7 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
     names = ['stats({})'.format(n) for n in names]
     return output, names
 
+
 def stats_mbb(img, mask):
     """Statistical texture features unified over a masked area."""
     voxels = img[mask]
@@ -84,9 +90,11 @@ def stats_mbb(img, mask):
     names = ['stats({})'.format(k) for k in feats.keys()]
     return output, names
 
+
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
+
 
 def glcm_props(img, names=PROPNAMES, distances=(1,2,3,4), ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features.
@@ -107,12 +115,13 @@ def glcm_props(img, names=PROPNAMES, distances=(1,2,3,4), ignore_zeros=False):
         glcm = glcm[1:,1:,...]
     d = collections.OrderedDict()
     for name in names:
-        feats = greycoprops(glcm, name) # Returns array (distance, angle).
-        feats = np.mean(feats, axis=1) # Average over angles.
+        feats = greycoprops(glcm, name)  # Returns array (distance, angle).
+        feats = np.mean(feats, axis=1)  # Average over angles.
         for dist, feat in zip(distances, feats):
             d[(name, dist)] = feat
         d[(name, 'avg')] = np.mean(feats)
     return d
+
 
 def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
              output=None):
@@ -127,6 +136,7 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
     names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
+
 def glcm_mbb(img, mask):
     """Single GLCM features for selected area inside minimum bounding box."""
     img = normalize(img)
@@ -139,6 +149,7 @@ def glcm_mbb(img, mask):
     output = feats.values()
     names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
+
 
 def haralick(img, ignore_zeros=False):
     """Haralick texture features.
@@ -155,6 +166,7 @@ def haralick(img, ignore_zeros=False):
     a = np.mean(a, axis=0)
     return a, mahotas.features.texture.haralick_labels
 
+
 def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     """Haralick texture feature map."""
     img = normalize(img)
@@ -167,6 +179,7 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
              enumerate(names)]
     return output, names
+
 
 def haralick_mbb(img, mask):
     """Haralick features for selected area inside minimum bounding box."""
@@ -181,7 +194,9 @@ def haralick_mbb(img, mask):
              enumerate(names)]
     return feats, names
 
+
 # Local Binary Pattern (LBP) features
+
 
 def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
     """Local Binary Pattern (LBP) frequency histogram map.
@@ -195,6 +210,7 @@ def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
                                               roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
+
 def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     """Local Binary Pattern (LBP) frequency histogram map."""
     if radius is None:
@@ -202,9 +218,10 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
     output = np.rollaxis(freqs, -1)
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
-    if not mask is None:
+    if mask is not None:
         output[:,-mask] = 0
     return output, names
+
 
 def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
     """Measure the distance of two LBP frequency histograms.
@@ -225,7 +242,9 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
         raise Exception('Unknown distance measure: %s' % method)
     return r
 
+
 # Gabor features
+
 
 def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
     """Gabor features.
@@ -241,12 +260,13 @@ def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
         real, _ = skimage.filter.gabor_filter(img, **kwargs)
         feats[i,j,k,0] = real.mean()
         feats[i,j,k,1] = real.var()
-    feats = np.mean(feats, axis=0) # Average over directions.
+    feats = np.mean(feats, axis=0)  # Average over directions.
     d = collections.OrderedDict()
     for (i, j, k), value in np.ndenumerate(feats):
         key = sigmas[i], freqs[j], ('mean', 'var')[k]
         d[key] = value
     return d
+
 
 def gabor_map(img, winsize, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4),
               mask=None, output=None):
@@ -260,7 +280,9 @@ def gabor_map(img, winsize, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4),
     names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
+
 # Histogram of Oriented Gradients (HOG)
+
 
 def hog(img):
     """Histogram of oriented gradients (HOG).
@@ -274,6 +296,7 @@ def hog(img):
     feats = skimage.feature.hog(img, **kwargs)
     return np.mean(feats)
 
+
 def hog_map(img, winsize, mask=None, output=None):
     """Histogram of oriented gradients (HOG) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
@@ -285,7 +308,9 @@ def hog_map(img, winsize, mask=None, output=None):
     names = ['hog']
     return output, names
 
+
 # Image moments
+
 
 def moment(img, p, q):
     """Image moment. See Tuceryan 1994: Moment Based Texture Segmentation."""
@@ -294,10 +319,11 @@ def moment(img, p, q):
         raise Exception('Image not square: {}'.format(img.shape))
     width = img.shape[0]
     center = width//2
-    nc = lambda pos: (pos-center) / (width/2) # Normalized coordinates [-1,1]
+    nc = lambda pos: (pos-center) / (width/2)  # Normalized coordinates [-1,1]
     f = lambda m, n: img[m,n] * nc(m)**p * nc(n)**q
     a = np.fromfunction(f, img.shape, dtype=int)
     return a.sum()
+
 
 def moments(img, max_order=2):
     """Image moments of order up to p+q <= max_order."""
@@ -305,6 +331,7 @@ def moments(img, max_order=2):
     tuples = (t for t in itertools.product(r, r) if sum(t) <= max_order)
     d = collections.OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
     return d
+
 
 def moment_map(img, winsize, max_order=12, mask=None, output=None):
     """Image moment map."""
@@ -317,7 +344,9 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
     names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
+
 # Hu moments.
+
 
 def hu(img, postproc=True):
     """The seven moments of Hu.
@@ -333,12 +362,13 @@ def hu(img, postproc=True):
     m = skimage.measure.moments_normalized(m)
     m = skimage.measure.moments_hu(m)
     if postproc:
-        m = abs(m) # Last one changes sign on reflection.
-        m[m==0] = 1 # Required by log.
-        m = np.log(m) # They are small, usually logarithms are used.
-    m = np.nan_to_num(m) # Not sure why there are sometimes NaN values.
+        m = abs(m)  # Last one changes sign on reflection.
+        m[m==0] = 1  # Required by log.
+        m = np.log(m)  # They are small, usually logarithms are used.
+    m = np.nan_to_num(m)  # Not sure why there are sometimes NaN values.
     assert m.shape == (7,)
     return m
+
 
 def hu_map(img, winsize, mask=None, output=None):
     """Hu moment map."""
@@ -351,7 +381,9 @@ def hu_map(img, winsize, mask=None, output=None):
     names = ['hu({})'.format(i) for i in range(len(feats))]
     return output, names
 
+
 # Zernike moments.
+
 
 def zernike(img, radius, degree=8, cm=None):
     """Zernike moments.
@@ -366,6 +398,7 @@ def zernike(img, radius, degree=8, cm=None):
     feats = mahotas.features.zernike_moments(img, radius, degree=degree, cm=cm)
     return feats
 
+
 def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
     """Zernike moment map."""
     if radius is None:
@@ -379,7 +412,9 @@ def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
     names = ['zernike({})'.format(i) for i in range(len(feats))]
     return output, names
 
+
 # Haar transformation
+
 
 def haar(img):
     """Haar wavelet transform."""
@@ -396,16 +431,18 @@ def haar(img):
     coeffs = [sp.ndimage.interpolation.zoom(l, 2.) for l in coeffs]
     return coeffs
 
+
 def haar_levels(img, nlevels=4, drop_approx=False):
     """Multi-level Haar wavelet transform."""
     levels = []
     for _ in range(nlevels):
         coeffs = haar(img)
         levels.append(coeffs)
-        img = coeffs[0] # Set source for next iteration step.
+        img = coeffs[0]  # Set source for next iteration step.
     if drop_approx:
         levels = [l[1:] for l in levels]
     return levels
+
 
 def haar_features(win):
     """Haar texture features of a single level."""
@@ -413,6 +450,7 @@ def haar_features(win):
     d['aav'] = np.mean(np.abs(win))
     d['std'] = np.std(win)
     return d
+
 
 def haar_map(img, winsize, nlevels=4, mask=None, output=None):
     """Haar texture feature map."""
@@ -433,21 +471,25 @@ def haar_map(img, winsize, nlevels=4, mask=None, output=None):
     output.shape = (-1,) + levels[0][0].shape
     return output, names
 
+
 # Sobel.
+
 
 def sobel(img, mask=None):
     """Sobel edge descriptor."""
     output = skimage.filter.sobel(img, mask=mask)
     return output
 
+
 def sobel_map(img, winsize=None, mask=None):
     """Sobel edge descriptor map.
 
     Parameter winsize is not used, it is there for API compatibility."""
-    assert winsize == None
+    assert winsize is None
     output = np.array([sobel(img), sobel(img, mask=mask)])
     names = ['sobel', 'sobel_mask']
     return output, names
+
 
 def sobel_mbb(img, mask):
     """Sobel edge descriptor map."""
@@ -455,7 +497,9 @@ def sobel_mbb(img, mask):
     names = ['sobel']
     return output, names
 
+
 # General texture map.
+
 
 # Methods that consider an n*n window.
 METHODS = collections.OrderedDict([
@@ -471,6 +515,7 @@ METHODS = collections.OrderedDict([
     ('hu', hu_map),
     ('zernike', zernike_map),
     ])
+
 # Methods that consider a minimum bounding box of selected voxels.
 METHODS_MBB = collections.OrderedDict([
     ('stats_mbb', stats_mbb),
@@ -478,9 +523,10 @@ METHODS_MBB = collections.OrderedDict([
     ('haralick_mbb', haralick_mbb),
     ('sobel_mbb', sobel_mbb),
     ])
+
 # Methods that consider all selected voxels.
 METHODS_ALL = collections.OrderedDict([
-    ('stats_all', stats_mbb), # Use the same mbb function.
+    ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
 
 _METHODS = collections.OrderedDict([
@@ -499,13 +545,15 @@ _METHODS = collections.OrderedDict([
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
     ('sobel_mbb', sobel_mbb),
-    ('stats_all', stats_mbb), # Use the same mbb function.
+    ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
+
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
     tmap = np.array(feats, ndmin=4)
     return tmap, names
+
 
 def get_texture_mbb(img, call, mask):
     tmap = None
@@ -517,6 +565,7 @@ def get_texture_mbb(img, call, mask):
             tmap[i, 0, 0, :] = feats
     return tmap, names
 
+
 def get_texture_map(img, call, winsize, mask):
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
@@ -527,6 +576,7 @@ def get_texture_map(img, call, winsize, mask):
             feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
     return tmap, names
+
 
 def get_texture(img, method, winsize, mask, avg=False):
     """General texture map layer."""
