@@ -392,7 +392,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
                     cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': [mask],
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
@@ -535,7 +535,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
         'name': '{m.model}_{m.param}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
                     cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': [mask],
         'targets': [outfile],
         'clean': True,
         }
