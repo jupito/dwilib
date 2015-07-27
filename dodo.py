@@ -134,9 +134,8 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     elif masktype in ('CA', 'N'):
         path = 'masks_rois/{c}_*_{s}_D_{mt}'
     elif masktype == 'auto':
-        # Don't require existence, can be generated.
-        do_glob = False
         path = 'masks_auto_{m}/{ap_}/{c}_{s}_auto.mask'
+        do_glob = False  # Don't require existence, can be generated.
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
