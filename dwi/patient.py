@@ -49,11 +49,14 @@ class GleasonScore(object):
             raise Exception('Invalid gleason score: %s', score)
         self.score = s
 
+    def __iter__(self):
+        score = self.score
+        if not score[-1]:
+            score = score[0:-1] # Drop trailing zero.
+        return iter(score)
+
     def __repr__(self):
-        s = self.score
-        if not s[-1]:
-            s = s[0:-1] # Drop trailing zero.
-        return '+'.join(str(x) for x in s)
+        return '+'.join(str(x) for x in iter(self))
 
     def __hash__(self):
         return hash(self.score)
