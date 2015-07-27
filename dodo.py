@@ -3,8 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from glob import glob
 from itertools import chain, product
-import os
-from os.path import dirname, isdir, join
+from os.path import dirname, join
 
 from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
@@ -13,10 +12,10 @@ import dwi.files
 import dwi.patient
 import dwi.util
 
-#Backends:
-#dbm: (default) It uses python dbm module.
-#json: Plain text using a json structure, it is slow but good for debugging.
-#sqlite3: (experimental) very slow implementation, support concurrent access.
+# Backends:
+# dbm: (default) It uses python dbm module.
+# json: Plain text using a json structure, it is slow but good for debugging.
+# sqlite3: (experimental) very slow implementation, support concurrent access.
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -38,6 +37,7 @@ FIND_ROI_PARAMS = [
     range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
     ]
 
+
 def texture_methods(mode):
     return [
         #'stats',
@@ -57,6 +57,7 @@ def texture_methods(mode):
         'stats_all',
         ]
 
+
 def texture_winsizes(masktype, mode):
     if masktype in ('CA', 'N'):
         l = [3, 5]
@@ -65,6 +66,7 @@ def texture_winsizes(masktype, mode):
     else:
         l = range(3, 16, 2)
     return ' '.join(str(x) for x in l)
+
 
 #def texture_winsizes_new(masktype, mode, method):
 #    if method.endswith('_all') or method.endswith('_mbb'):
@@ -76,6 +78,7 @@ def texture_winsizes(masktype, mode):
 #    else:
 #        l = range(3, 16, 2)
 #    return ' '.join(str(x) for x in l)
+
 
 def find_roi_param_combinations(mode):
     """Generate all find_roi.py parameter combinations."""
@@ -96,11 +99,14 @@ def find_roi_param_combinations(mode):
             if t[0] <= t[1] and t[2] == t[3]:
                 yield [str(x) for x in t]
 
+
 def samplelist_file(mode, samplelist=SAMPLELIST):
     return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
 
+
 def pmapdir_dicom(mode):
     return dwi.util.sglob('dicoms_{m.model}_*'.format(m=mode), typ='dir')
+
 
 def pmap_dicom(mode, case, scan):
     pd = pmapdir_dicom(mode)
@@ -112,12 +118,15 @@ def pmap_dicom(mode, case, scan):
     path = s.format(pd=pd, m=mode, c=case, s=scan)
     return dwi.util.sglob(path, typ='dir')
 
+
 def subregion_dir(mode):
     return 'subregions'
+
 
 def subregion_path(mode, case, scan):
     return '{srd}/{c}_{s}_subregion10.txt'.format(srd=subregion_dir(mode),
                                                   c=case, s=scan)
+
 
 def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     """Return path and deps of masks of different types."""
@@ -144,6 +153,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
         path = dwi.util.sglob(path)
     return path
 
+
 def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
     """Return whole ROI path or part of it."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
@@ -154,6 +164,7 @@ def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
         components.append('{c}_x_x_{s}_{m.model}_{m.param}_{mt}.txt')
     components = [x.format(**d) for x in components]
     return join(*components)
+
 
 def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                  algparams=()):
@@ -166,6 +177,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
         raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, ap_='_'.join(algparams))
+
 
 #def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
 #                     method, winsize, algparams=()):
@@ -180,6 +192,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
 #                       slices=slices, portion=portion, mth=method, ws=winsize,
 #                       ap_='_'.join(algparams))
 
+
 def cases_scans(mode):
     """Generate all case, scan pairs."""
     samples = dwi.files.read_sample_list(samplelist_file(mode))
@@ -188,6 +201,7 @@ def cases_scans(mode):
         for scan in sample['scans']:
             yield case, scan
 
+
 def lesions(mode):
     """Generate all case, scan, lesion# (1-based) combinations."""
     patients = dwi.files.read_patients_file(samplelist_file(mode))
@@ -195,6 +209,7 @@ def lesions(mode):
         for scan in p.scans:
             for lesion in range(len(p.lesions)):
                 yield p.num, scan, lesion+1
+
 
 def path_deps(*paths):
     """Return list of path dependencies, i.e. the file(s) itself or the
@@ -208,6 +223,7 @@ def path_deps(*paths):
     paths = chain(f for p in paths for f in dwi.util.walker(p))
     paths = list(paths)
     return paths
+
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     mask, outpath):
@@ -225,6 +241,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
         cmd += ' --std stdcfg_{m.model}.txt'
     return cmd.format(**d)
 
+
 #def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
 #                        mask, outpath):
 #    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
@@ -241,6 +258,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
 #    return cmd
 
+
 #def task_anonymize():
 #    """Anonymize imaging data."""
 #    ANON = DWILIB+'/anonymize_dicom.py'
@@ -254,6 +272,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #           #'file_dep': [f],
 #           }
 
+
 #def fit_cmd(model, subwindow, infiles, outfile):
 #    PMAP = DWILIB+'/pmap.py'
 #    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
@@ -261,6 +280,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
 #    return s
 #
+
 #def task_fit():
 #    """Fit models to imaging data."""
 #    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
@@ -285,6 +305,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #               'clean': True,
 #               }
 
+
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     MASKTOOL = DWILIB+'/masktool.py'
@@ -301,6 +322,7 @@ def task_make_subregion():
             'targets': [subregion],
             'clean': True,
             }
+
 
 def get_task_find_roi(mode, case, scan, algparams):
     FIND_ROI = DWILIB+'/find_roi.py'
@@ -327,16 +349,19 @@ def get_task_find_roi(mode, case, scan, algparams):
         'clean': True,
         }
 
+
 def task_find_roi():
     """Find a cancer ROI automatically."""
     for algparams in find_roi_param_combinations(MODE):
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
 
+
 def select_voxels_cmd(mask, inpath, outpath):
     SELECT_VOXELS = DWILIB+'/select_voxels.py'
-    return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS,
-        m=mask, i=inpath, o=outpath)
+    return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS, m=mask,
+                                                   i=inpath, o=outpath)
+
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
@@ -355,6 +380,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
         'clean': True,
         }
 
+
 def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
     d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
@@ -372,6 +398,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
         'clean': True,
         }
 
+
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
     for masktype in ('CA', 'N'):
@@ -380,6 +407,7 @@ def task_select_roi_manual():
                 yield get_task_select_roi_manual(MODE, case, scan, masktype)
             except IOError as e:
                 print('select_roi_manual', e)
+
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
@@ -390,12 +418,14 @@ def task_select_roi_auto():
             except IOError as e:
                 print('select_roi_auto', e)
 
+
 def task_select_roi():
     """Select all ROIs task group."""
     return {
         'actions': None,
         'task_dep': ['select_roi_manual', 'select_roi_auto'],
         }
+
 
 def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
@@ -416,6 +446,7 @@ def get_task_autoroi_auc(mode, threshold):
         'targets': [d['o']],
         'clean': True,
         }
+
 
 def get_task_autoroi_correlation(mode, thresholds):
     """Evaluate auto-ROI prediction ability by correlation with Gleason
@@ -438,12 +469,14 @@ def get_task_autoroi_correlation(mode, thresholds):
         'clean': True,
         }
 
+
 def task_evaluate_autoroi():
     """Evaluate auto-ROI prediction ability."""
     yield get_task_autoroi_auc(MODE, '3+3')
     yield get_task_autoroi_auc(MODE, '3+4')
     yield get_task_autoroi_correlation(MODE, '3+3 3+4')
     yield get_task_autoroi_correlation(MODE, '')
+
 
 def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                             portion):
@@ -465,6 +498,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
         'clean': True,
         }
 
+
 #def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
 #        portion, method, winsize):
 #    """Generate texture features."""
@@ -483,6 +517,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #        'targets': [outfile],
 #        'clean': True,
 #        }
+
 
 def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
     """Generate texture features."""
@@ -505,6 +540,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
         'clean': True,
         }
 
+
 def task_texture():
     """Generate texture features."""
     for case, scan, lesion in lesions(MODE):
@@ -519,6 +555,7 @@ def task_texture():
         for ap in find_roi_param_combinations(MODE):
             yield get_task_texture_auto(MODE, ap, case, scan, lesion, 'maxfirst', 1)
 
+
 #def task_texture_new():
 #    """Generate texture features."""
 #    for case, scan, lesion in lesions(MODE):
@@ -526,6 +563,7 @@ def task_texture():
 #            for ws in texture_winsizes_new('lesion', MODE, mth):
 #                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
 #                        lesion, 'maxfirst', 0, mth, ws)
+
 
 def get_task_mask_prostate(modality, case, scan, imagetype, postfix,
                            param='DICOM'):
@@ -552,6 +590,7 @@ def get_task_mask_prostate(modality, case, scan, imagetype, postfix,
         #'targets':  # TODO
         }
 
+
 def task_mask_prostate_DWI():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
@@ -560,6 +599,7 @@ def task_mask_prostate_DWI():
             #yield get_task_mask_prostate('SPAIR', case, scan, '', '_all')
         except IOError as e:
             print('mask_prostate_DWI', e)
+
 
 def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
@@ -570,6 +610,7 @@ def task_mask_prostate_T2():
             #yield get_task_mask_prostate('T2w', case, scan, '', '*')
         except IOError as e:
             print('mask_prostate_T2', e)
+
 
 def task_all():
     """Do all essential things."""
