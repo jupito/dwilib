@@ -120,8 +120,11 @@ def main():
         if i not in slice_indices:
             mask.array[i] = 0
 
-    winshape = (1, args.winsize, args.winsize)
-    pmask = portion_mask(mask.array, winshape, args.portion)
+    if args.winsize:
+        winshape = (1, args.winsize, args.winsize)
+        pmask = portion_mask(mask.array, winshape, args.portion)
+    else:
+        pmask = mask.array  # Some methods don't use window.
 
     if args.verbose:
         print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(
