@@ -306,14 +306,18 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #               }
 
 
+def make_subregion_cmd(mask, subregion):
+    MASKTOOL = DWILIB+'/masktool.py'
+    return '{prg} -i {mask} --pad 10 -s {sr}'.format(prg=MASKTOOL, mask=mask,
+                                                     sr=subregion)
+
+
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
-    MASKTOOL = DWILIB+'/masktool.py'
     for case, scan in cases_scans(MODE):
         mask = mask_path(MODE, 'prostate', case, scan)
         subregion = subregion_path(MODE, case, scan)
-        cmd = '{prg} -i {msk} --pad 10 -s {sr}'.format(prg=MASKTOOL, msk=mask,
-                                                       sr=subregion)
+        cmd = make_subregion_cmd(mask, subregion)
         yield {
             'name': '{c}_{s}'.format(c=case, s=scan),
             'actions': [(create_folder, [dirname(subregion)]),
@@ -324,28 +328,34 @@ def task_make_subregion():
             }
 
 
-def get_task_find_roi(mode, case, scan, algparams):
+def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
     FIND_ROI = DWILIB+'/find_roi.py'
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
              pd=pmapdir_dicom(mode), srd=subregion_dir(mode),
-             c=case, s=scan, ap=' '.join(algparams), ap_='_'.join(algparams))
-    mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    fig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(**d)
-    d.update(mask=mask, fig=fig)
+             c=case, s=scan, ap=' '.join(algparams), outmask=outmask,
+             outfig=outfig)
+    return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
+            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
+            '--outmask {outmask} --outfig {outfig}'.format(**d))
+
+
+def get_task_find_roi(mode, case, scan, algparams):
+    d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
+    outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
+    outfig = 'find_roi_images_{m.model}_{m.param}/{ap_}/{c}_{s}.png'.format(
+        **d)
     subregion = subregion_path(mode, case, scan)
     mask_p = mask_path(mode, 'prostate', case, scan)
     mask_c = mask_path(mode, 'CA', case, scan)
     mask_n = mask_path(mode, 'N', case, scan)
-    cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
-           '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
-           '--outmask {mask} --outfig {fig}'.format(**d))
+    cmd = find_roi_cmd(mode, case, scan, algparams, outmask, outfig)
     return {
         'name': '{m.model}_{m.param}_{ap_}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(mask)]),
-                    (create_folder, [dirname(fig)]),
+        'actions': [(create_folder, [dirname(outmask)]),
+                    (create_folder, [dirname(outfig)]),
                     cmd],
         'file_dep': path_deps(subregion, mask_p, mask_c, mask_n),
-        'targets': [mask, fig],
+        'targets': [outmask, outfig],
         'clean': True,
         }
 
