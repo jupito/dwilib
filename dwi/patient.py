@@ -33,6 +33,9 @@ class ImageMode(object):
     def __repr__(self):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
 
+    def __str__(self):
+        return '_'.join(iter(self))  # TODO: Change _ to - when ready.
+
 
 @total_ordering
 class GleasonScore(object):
