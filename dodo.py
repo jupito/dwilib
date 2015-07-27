@@ -103,18 +103,15 @@ def samplelist_file(mode, samplelist=SAMPLELIST):
     return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
 
 
-def pmapdir_dicom(mode):
-    return dwi.util.sglob('dicoms_{m.model}_*'.format(m=mode), typ='dir')
-
-
-def pmap_dicom(mode, case, scan):
-    pd = pmapdir_dicom(mode)
-    if mode.param == 'raw':
-        # There's no actual parameter, only single 'raw' value (used for T2).
-        s = '{pd}/{c}_*_{s}*'
-    else:
-        s = '{pd}/{c}_*_{s}/{c}_*_{s}*_{m.param}'
-    path = s.format(pd=pd, m=mode, c=case, s=scan)
+def pmap_path(mode, case=None, scan=None):
+    path = dwi.util.sglob('dicoms_{m.model}_*'.format(m=mode), typ='dir')
+    if case is not None and scan is not None:
+        if mode.param == 'raw':
+            # There's no actual parameter, only single 'raw' value (for T2).
+            s = '/{c}_*_{s}*'
+        else:
+            s = '/{c}_*_{s}/{c}_*_{s}*_{m.param}'
+        path += s.format(m=mode, c=case, s=scan)
     return dwi.util.sglob(path, typ='dir')
 
 
@@ -227,7 +224,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
     d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
              slices=slices, portion=portion,
              methods=' '.join(methods), winsizes=winsizes,
-             pd=pmapdir_dicom(mode), mask=mask, o=outpath)
+             pd=pmap_path(mode), mask=mask, o=outpath)
     cmd = ('{prg} -v'
            ' --pmapdir {pd} --param {m.param}'
            ' --case {c} --scan {s} --mask {mask}'
@@ -244,7 +241,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
 #    d = dict(m=mode, c=case, s=scan,
 #             slices=slices, portion=portion, mth=method, ws=winsize,
-#             pd=pmapdir_dicom(mode), mask=mask, o=outpath)
+#             pd=pmap_path(mode), mask=mask, o=outpath)
 #    cmd = ('{prg} -v'
 #           ' --pmapdir {pd} --param {m.param}'
 #           ' --case {c} --scan {s} --mask {mask}'
@@ -329,7 +326,7 @@ def task_make_subregion():
 def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
     FIND_ROI = DWILIB+'/find_roi.py'
     d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
-             pd=pmapdir_dicom(mode), srd=subregion_path(mode),
+             pd=pmap_path(mode), srd=subregion_path(mode),
              c=case, s=scan, ap=' '.join(algparams), outmask=outmask,
              outfig=outfig)
     return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
@@ -376,7 +373,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     d = dict(m=mode, c=case, s=scan, mt=masktype)
     mask = mask_path(mode, masktype, case, scan)
     roi = roi_path(mode, masktype, case, scan)
-    pmap = pmap_dicom(mode, case, scan)
+    pmap = pmap_path(mode, case, scan)
     cmd = select_voxels_cmd(mask, pmap, roi)
     return {
         'name': '{m}_{mt}_{c}_{s}'.format(**d),
@@ -394,7 +391,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
-    pmap = pmap_dicom(mode, case, scan)
+    pmap = pmap_path(mode, case, scan)
     cmd = select_voxels_cmd(mask, pmap, roi)
     return {
         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
