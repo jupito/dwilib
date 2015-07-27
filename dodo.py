@@ -232,7 +232,8 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
              methods=' '.join(methods), winsizes=winsizes,
              pd=pmapdir_dicom(mode), mask=mask, o=outpath)
     cmd = ('{prg} -v'
-           ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
+           ' --pmapdir {pd} --param {m.param}'
+           ' --case {c} --scan {s} --mask {mask}'
            ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
@@ -248,7 +249,8 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
 #             slices=slices, portion=portion, mth=method, ws=winsize,
 #             pd=pmapdir_dicom(mode), mask=mask, o=outpath)
 #    cmd = ('{prg} -v'
-#           ' --pmapdir {pd} --param {m.param} --case {c} --scan {s} --mask {mask}'
+#           ' --pmapdir {pd} --param {m.param}'
+#           ' --case {c} --scan {s} --mask {mask}'
 #           ' --slices {slices} --portion {portion}'
 #           ' --method {mth} --winsize {ws} --voxel mean'
 #           ' --output {o}')
@@ -528,14 +530,16 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 #        }
 
 
-def get_task_texture_auto(mode, algparams, case, scan, lesion, slices, portion):
+def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
+                          portion):
     """Generate texture features."""
     masktype = 'auto'
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams), slices=slices, portion=portion)
     methods = texture_methods(mode)
     winsizes = texture_winsizes(masktype, mode)
-    mask = mask_path(mode, masktype, case, scan, lesion=lesion, algparams=algparams)
+    mask = mask_path(mode, masktype, case, scan, lesion=lesion,
+                     algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            algparams)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
