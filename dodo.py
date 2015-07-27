@@ -67,16 +67,15 @@ def texture_winsizes(masktype, mode):
     return ' '.join(str(x) for x in l)
 
 
-#def texture_winsizes_new(masktype, mode, method):
-#    if method.endswith('_all') or method.endswith('_mbb'):
-#        l = [0]
-#    elif masktype in ('CA', 'N'):
-#        l = [3, 5]
-#    elif mode.modality in ('T2', 'T2w'):
-#        l = range(3, 30, 4)
-#    else:
-#        l = range(3, 16, 2)
-#    return ' '.join(str(x) for x in l)
+def texture_winsizes_new(masktype, mode, method):
+    if method.endswith('_all') or method.endswith('_mbb'):
+        return [0]  # These use no window.
+    elif masktype in ('CA', 'N'):
+        return [3, 5]
+    elif mode.modality in ('T2', 'T2w'):
+        return range(3, 30, 4)
+    else:
+        return range(3, 16, 2)
 
 
 def find_roi_param_combinations(mode):
@@ -170,19 +169,19 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
                        slices=slices, portion=portion, ap_='_'.join(algparams))
 
 
-#def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
-#                     method, winsize, algparams=()):
-#    """Return path to texture file."""
-#    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
-#    if masktype in ('lesion', 'CA', 'N'):
-#        path += '/{c}_{s}_{l}_{mth}_{ws}.txt'
-#    elif masktype == 'auto':
-#        path += '/{ap_}/{c}_{s}_{l}_{mth}_{ws}.txt'
-#    else:
-#        raise Exception('Unknown mask type: {mt}'.format(**d))
-#    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
-#                       slices=slices, portion=portion, mth=method, ws=winsize,
-#                       ap_='_'.join(algparams))
+def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
+                     method, winsize, algparams=()):
+    """Return path to texture file."""
+    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
+    if masktype in ('lesion', 'CA', 'N'):
+        path += '/{c}_{s}_{l}_{ws}-{mth}.txt'
+    elif masktype == 'auto':
+        path += '/{ap_}/{c}_{s}_{l}_{ws}-{mth}.txt'
+    else:
+        raise Exception('Unknown mask type: {mt}'.format(**d))
+    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
+                       slices=slices, portion=portion, mth=method, ws=winsize,
+                       ap_='_'.join(algparams))
 
 
 def cases_scans(mode):
@@ -235,22 +234,22 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
     return cmd.format(**d)
 
 
-#def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
-#                        mask, outpath):
-#    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
-#    d = dict(m=mode, c=case, s=scan,
-#             slices=slices, portion=portion, mth=method, ws=winsize,
-#             pd=pmap_path(mode), mask=mask, o=outpath)
-#    cmd = ('{prg} -v'
-#           ' --pmapdir {pd} --param {m.param}'
-#           ' --case {c} --scan {s} --mask {mask}'
-#           ' --slices {slices} --portion {portion}'
-#           ' --method {mth} --winsize {ws} --voxel mean'
-#           ' --output {o}')
-#    if mode.modality == 'T2w':
-#        cmd += ' --std stdcfg_{m.modality}.txt'
-#    cmd = cmd.format(prg=GET_TEXTURE_NEW, **d)
-#    return cmd
+def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
+                        mask, outpath):
+    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
+    d = dict(prg=GET_TEXTURE_NEW, m=mode, c=case, s=scan,
+             slices=slices, portion=portion, mth=method, ws=winsize,
+             pd=pmap_path(mode), mask=mask, o=outpath)
+    cmd = ('{prg} -v'
+           ' --pmapdir {pd} --param {m.param}'
+           ' --case {c} --scan {s} --mask {mask}'
+           ' --slices {slices} --portion {portion}'
+           ' --method {mth} --winsize {ws} --voxel mean'
+           ' --output {o}')
+    if mode.modality == 'T2w':
+        cmd += ' --std stdcfg_{m.modality}.txt'
+    cmd = cmd.format(**d)
+    return cmd
 
 
 #def task_anonymize():
@@ -511,25 +510,25 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
         }
 
 
-#def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
-#        portion, method, winsize):
-#    """Generate texture features."""
-#    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-#             slices=slices, portion=portion, mth=method, ws=winsize)
-#    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
-#    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
-#                              portion, method, winsize)
-#    cmd = get_texture_cmd(mode, case, scan, method, winsize, slices, portion,
-#                          mask, outfile)
-#    return {
-#        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(
-#            **d),
-#        'actions': [(create_folder, [dirname(outfile)]),
-#                    cmd],
-#        'file_dep': path_deps(mask),
-#        'targets': [outfile],
-#        'clean': True,
-#        }
+def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
+                                portion, method, winsize):
+    """Generate texture features."""
+    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
+             slices=slices, portion=portion, mth=method, ws=winsize)
+    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
+    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
+                              portion, method, winsize)
+    cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
+                              portion, mask, outfile)
+    return {
+        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(
+            **d),
+        'actions': [(create_folder, [dirname(outfile)]),
+                    cmd],
+        'file_dep': path_deps(mask),
+        'targets': [outfile],
+        'clean': True,
+        }
 
 
 def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
@@ -571,13 +570,13 @@ def task_texture():
             yield get_task_texture_auto(MODE, ap, case, scan, lesion, 'maxfirst', 1)
 
 
-#def task_texture_new():
-#    """Generate texture features."""
-#    for case, scan, lesion in lesions(MODE):
-#        for mth in texture_methods(MODE):
-#            for ws in texture_winsizes_new('lesion', MODE, mth):
-#                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
-#                        lesion, 'maxfirst', 0, mth, ws)
+def task_texture_new():
+    """Generate texture features."""
+    for case, scan, lesion in lesions(MODE):
+        for mth in texture_methods(MODE):
+            for ws in texture_winsizes_new('lesion', MODE, mth):
+                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
+                        lesion, 'maxfirst', 1, mth, ws)
 
 
 def mask_out_cmd(src, dst, mask):
