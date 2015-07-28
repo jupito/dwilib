@@ -172,6 +172,8 @@ def read_pmap(pathname, fmt=None):
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
+        if 'parameters' in attrs:
+            attrs['parameters'] = attrs['parameters'].split()
     else:
         import dwi.dicomfile
         attrs = dwi.dicomfile.read_dir(pathname)
