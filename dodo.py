@@ -576,6 +576,8 @@ def task_texture_new():
         for mth in texture_methods(MODE):
             for ws in texture_winsizes_new('lesion', MODE, mth):
                 yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
+                        lesion, 'maxfirst', 0, mth, ws)
+                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
                         lesion, 'maxfirst', 1, mth, ws)
 
 
