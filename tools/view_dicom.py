@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dwi.files
+import dwi.standardize
 import dwi.util
 
 
@@ -118,6 +119,8 @@ def parse_args():
                    help='ROI (6 integers, one-based)')
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
+    p.add_argument('--std',
+                   help='standardization file to use')
     p.add_argument('--normalize', '-n', action='store_true',
                    help='normalize signal intensity curves')
     p.add_argument('--scale', action='store_true',
@@ -168,6 +171,11 @@ def main():
     n = replace_nans(img)
     if n:
         print('Replaced {} NaN voxels with global minimum'.format(n))
+
+    if args.std:
+        if args.verbose:
+            print('Standardizing...')
+        img = dwi.standardize.standardize(img, args.std)
 
     print('Image shape: {s}, type: {t}'.format(s=img.shape, t=img.dtype))
     print('Voxels: {nv}, non-zero: {nz}, non-NaN: {nn}'.format(
