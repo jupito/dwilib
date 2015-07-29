@@ -5,7 +5,7 @@
 # TODO Take only one path as argument.
 # TODO Rename to general image viewer, not just dicom.
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 import sys
 
@@ -15,25 +15,6 @@ import matplotlib.pyplot as plt
 import dwi.files
 import dwi.util
 
-def parse_args():
-    """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--files', '-f', metavar='PATH',
-                   nargs='+', default=[], required=True,
-                   help='DICOM directory or file(s)')
-    p.add_argument('--subwindow', '-s', metavar='i',
-                   nargs=6, default=[], type=int,
-                   help='ROI (6 integers, one-based)')
-    p.add_argument('--verbose', '-v', action='count',
-                   help='be more verbose')
-    p.add_argument('--normalize', '-n', action='store_true',
-                   help='normalize signal intensity curves')
-    p.add_argument('--scale', action='store_true',
-                   help='scale each parameter independently')
-    p.add_argument('--info', '-i', action='store_true',
-                   help='show information only')
-    args = p.parse_args()
-    return args
 
 class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
@@ -58,7 +39,7 @@ class Gui(object):
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
         fig.canvas.mpl_connect('motion_notify_event', self.on_motion)
-        view = self.image[self.i,:,:,self.j]
+        view = self.image[self.i, :, :, self.j]
         self.im = plt.imshow(view, interpolation='none', vmin=self.image.min(),
                              vmax=self.image.max())
         self.show_help()
@@ -106,7 +87,7 @@ class Gui(object):
                      s=self.i, b=self.j, p=self.params[self.j])
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
-        view = self.image[self.i,:,:,self.j]
+        view = self.image[self.i, :, :, self.j]
         self.im.set_data(view)
         event.canvas.draw()
 
@@ -126,12 +107,34 @@ class Gui(object):
         print('Slices, rows, columns, b-values: {}'.format(self.image.shape))
 
 
+def parse_args():
+    """Parse command-line arguments."""
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--files', '-f', metavar='PATH',
+                   nargs='+', default=[], required=True,
+                   help='DICOM directory or file(s)')
+    p.add_argument('--subwindow', '-s', metavar='i',
+                   nargs=6, default=[], type=int,
+                   help='ROI (6 integers, one-based)')
+    p.add_argument('--verbose', '-v', action='count',
+                   help='be more verbose')
+    p.add_argument('--normalize', '-n', action='store_true',
+                   help='normalize signal intensity curves')
+    p.add_argument('--scale', action='store_true',
+                   help='scale each parameter independently')
+    p.add_argument('--info', '-i', action='store_true',
+                   help='show information only')
+    args = p.parse_args()
+    return args
+
+
 def reverse_cmap(name):
     """Return the name of the reverse version of given colormap."""
     if name.endswith('_r'):
         return name[:-2]
     else:
         return name + '_r'
+
 
 def replace_nans(img):
     """Set any NaN values to the global minimum. They are considered backgound.
@@ -142,6 +145,7 @@ def replace_nans(img):
     if n:
         img[nans] = np.nanmin(img)
     return n
+
 
 def main():
     args = parse_args()
@@ -180,7 +184,7 @@ def main():
         print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
 
     if not args.info:
-        #plt.switch_backend('gtk')
+        # plt.switch_backend('gtk')
         Gui(img, attrs['parameters'])
 
 if __name__ == '__main__':
