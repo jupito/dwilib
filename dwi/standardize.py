@@ -20,7 +20,7 @@ See also tools/standardize.py.
 [1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import collections
 
 import numpy as np
@@ -28,11 +28,13 @@ import numpy as np
 import dwi.files
 import dwi.util
 
+
 DEFAULT_CONFIGURATION = dict(
-        pc=(0., 99.8), # Min, max percentiles.
-        landmarks=[i*10 for i in range(1, 10)], # Landmark percentiles.
-        scale=(1, 4095), # Min, max intensities on standard scale.
-        )
+    pc=(0., 99.8),  # Min, max percentiles.
+    landmarks=[i*10 for i in range(1, 10)],  # Landmark percentiles.
+    scale=(1, 4095),  # Min, max intensities on standard scale.
+    )
+
 
 def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     """Get scores at histogram landmarks.
@@ -65,6 +67,7 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     scores = [scoreatpercentile(img, i) for i in landmarks]
     return p1, p2, scores
 
+
 def map_onto_scale(p1, p2, s1, s2, v):
     """Map value v from original scale [p1, p2] onto standard scale [s1, s2].
 
@@ -90,6 +93,7 @@ def map_onto_scale(p1, p2, s1, s2, v):
     f = (v-p1) / (p2-p1)
     r = f * (s2-s1) + s1
     return r
+
 
 def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     """Transform image onto standard scale.
@@ -120,8 +124,9 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
         slot = sum(v > s for s in scores)
         slot = np.clip(slot, 1, len(scores)-1)
         r[pos] = map_onto_scale(scores[slot-1], scores[slot],
-                mapped_scores[slot-1], mapped_scores[slot], v)
+                                mapped_scores[slot-1], mapped_scores[slot], v)
     return r
+
 
 def standardize(img, cfg):
     """Transform an image based on a configuration (file).
@@ -145,8 +150,9 @@ def standardize(img, cfg):
     img = transform(img, p1, p2, scores, d['s1'], d['s2'], d['mapped_scores'])
     return img
 
+
 def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
-        mapped_scores):
+                                        mapped_scores):
     """Write image standardization configuration file.
 
     Parameters
@@ -168,6 +174,7 @@ def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         f.write(dwi.files.toline([s1, s2]))
         f.write(dwi.files.toline(mapped_scores))
 
+
 def read_standardization_configuration(filename):
     """Read image standardization configuration file.
 
@@ -184,10 +191,10 @@ def read_standardization_configuration(filename):
     lines = list(dwi.files.valid_lines(filename))[:4]
     lines = [l.split() for l in lines]
     d = collections.OrderedDict()
-    d['pc1'], d['pc2'] = map(float, lines[0])
-    d['landmarks'] = map(float, lines[1])
-    d['s1'], d['s2'] = map(int, lines[2])
-    d['mapped_scores'] = map(int, lines[3])
+    d['pc1'], d['pc2'] = [float(x) for x in lines[0]]
+    d['landmarks'] = [float(x) for x in lines[1]]
+    d['s1'], d['s2'] = [int(x) for x in lines[2]]
+    d['mapped_scores'] = [int(x) for x in lines[3]]
     if len(d['landmarks']) != len(d['mapped_scores']):
         raise Exception('Invalid standardization file: {}'.format(filename))
     return d
