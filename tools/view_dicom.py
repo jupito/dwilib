@@ -158,10 +158,8 @@ def main():
         print('    {k}: {v}'.format(k=k, v=v))
 
     if args.subwindow:
-        # Use one-based indexing.
-        z0, z1, y0, y1, x0, x1 = [i-1 for i in args.subwindow]
         # If we don't take a copy here, the normalization below fails. :I
-        img = img[z0:z1, y0:y1, x0:x1, :].copy()
+        img = dwi.util.crop_image(img, args.subwindow, onebased=True).copy()
 
     n = replace_nans(img)
     if n:
