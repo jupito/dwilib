@@ -1,17 +1,20 @@
 """Operations regarding miscellaneous files."""
 
-from __future__ import division, print_function
-import collections
+from __future__ import absolute_import, division, print_function
+from collections import OrderedDict
 import os.path
 import re
 
 import numpy as np
 
+
 COMMENT_PREFIX = '#'
+
 
 def toline(iterable):
     """Convert an iterable into a line."""
     return ' '.join(str(x) for x in iterable) + '\n'
+
 
 def valid_lines(filename):
     """Read and yield lines that are neither empty nor comments."""
@@ -21,6 +24,7 @@ def valid_lines(filename):
             if line and not line.startswith(COMMENT_PREFIX):
                 yield line
 
+
 def read_subwindows(filename):
     """Read a list of subwindows from file, return in a dictionary."""
     r = {}
@@ -28,9 +32,11 @@ def read_subwindows(filename):
         words = line.split()
         if len(words) != 8:
             raise Exception('Cannot parse subwindow: %s' % line)
-        case, scan, subwindow = int(words[0]), words[1], map(int, words[2:])
+        case, scan = int(words[0]), words[1]
+        subwindow = [int(x) for x in words[2:]]
         r[(case, scan)] = subwindow
     return r
+
 
 def read_patients_file(filename, include_lines=False):
     """Load a list of patients.
@@ -75,6 +81,7 @@ def read_patients_file(filename, include_lines=False):
             raise Exception('Invalid line in patients file: %s', line)
     return sorted(patients)
 
+
 def read_sample_list(filename):
     """Read a list of samples from file."""
     entries = []
@@ -90,6 +97,7 @@ def read_sample_list(filename):
             entries.append(d)
     return entries
 
+
 def read_mask_file(filename):
     """Read a ROI mask file. XXX: Deprecated, use dwi.mask module instead."""
     arrays = []
@@ -100,36 +108,39 @@ def read_mask_file(filename):
     mask = np.array(arrays)
     return mask
 
+
 def read_subregion_file(filename):
     """Read a subregion definition from file.
 
-    It's formatted as one voxel index per line, zero-based, in order of y_first,
-    y_last, x_first, x_last, z_first, z_last. The "last" ones need +1 to get
-    Python-like start:stop indices. They are returned as (z_start, z_stop,
-    y_start, y_stop, x_start, x_stop).
+    It's formatted as one voxel index per line, zero-based, in order of
+    y_first, y_last, x_first, x_last, z_first, z_last. The "last" ones need +1
+    to get Python-like start:stop indices. They are returned as (z_start,
+    z_stop, y_start, y_stop, x_start, x_stop).
     """
     entries = []
     for line in valid_lines(filename):
         entries.append(int(float(line)))
     if len(entries) != 6:
         raise Exception('Invalid subregion file: %s' % filename)
-    entries = entries[4:6] + entries[0:4] # Move z indices to front.
+    entries = entries[4:6] + entries[0:4]  # Move z indices to front.
     # Add one to "last" indices get Python-like start:stop indices.
     entries[1] += 1
     entries[3] += 1
     entries[5] += 1
     return tuple(entries)
 
+
 def write_comment(f, text):
     """Write zero or more lines to file with comment prefix."""
     for line in text.splitlines():
         f.write('{p} {s}\n'.format(p=COMMENT_PREFIX, s=line))
 
+
 def write_subregion_file(filename, win, comment=''):
     """Write a subregion definition to file.
 
-    It's formatted as one voxel index per line, zero-based, in order of y_first,
-    y_last, x_first, x_last, z_first, z_last.
+    It's formatted as one voxel index per line, zero-based, in order of
+    y_first, y_last, x_first, x_last, z_first, z_last.
     """
     if len(win) != 6:
         raise Exception('Invalid subregion: %s' % win)
@@ -139,28 +150,30 @@ def write_subregion_file(filename, win, comment=''):
         for entry in entries:
             f.write('%i\n' % entry)
 
+
 def write_pmap(filename, pmap, params=None, fmt=None):
     """Write parametric map file either as HDF5 or ASCII."""
     pmap = np.asanyarray(pmap)
     if pmap.ndim < 2:
         raise Exception('Not enough dimensions: {}'.format(pmap.shape))
     if params is None:
-        params = map(str, range(pmap.shape[-1]))
+        params = [str(i) for i in range(pmap.shape[-1])]
     if pmap.shape[-1] != len(params):
         raise Exception('Number of values and parameters mismatch')
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
-        attrs = collections.OrderedDict()
+        attrs = OrderedDict()
         attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
-        pmap = pmap.reshape((-1, pmap.shape[-1])) # Can't keep shape.
+        pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
         dwi.asciifile.write_ascii_file(filename, pmap, params)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
+
 
 def read_pmap(pathname, fmt=None):
     """Read a parametric map."""
