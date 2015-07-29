@@ -195,5 +195,6 @@ def main():
         # plt.switch_backend('gtk')
         Gui(img, attrs['parameters'])
 
+
 if __name__ == '__main__':
     main()
