@@ -78,9 +78,9 @@ def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
     """Return path to texture file."""
     path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
     if masktype in ('lesion', 'CA', 'N'):
-        path += '/{c}_{s}_{l}_{ws}-{mth}.txt'
+        path += '/{c}_{s}_{l}_{mth}-{ws}.txt'
     elif masktype == 'auto':
-        path += '/{ap_}/{c}_{s}_{l}_{ws}-{mth}.txt'
+        path += '/{ap_}/{c}_{s}_{l}_{mth}-{ws}.txt'
     else:
         raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
