@@ -75,9 +75,15 @@ def texture_winsizes_new(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]
     elif mode.modality in ('T2', 'T2w'):
-        return range(3, 30, 4)
+        return xrange(3, 30, 4)
     else:
-        return range(3, 16, 2)
+        return xrange(3, 16, 2)
+
+
+def texture_methods_winsizes_new(mode, masktype):
+    for method in texture_methods(mode):
+        for winsize in texture_winsizes_new(masktype, mode, method):
+            yield method, winsize
 
 
 def find_roi_param_combinations(mode):
@@ -493,12 +499,11 @@ def task_texture():
 def task_texture_new():
     """Generate texture features."""
     for case, scan, lesion in lesions(MODE):
-        for mth in texture_methods(MODE):
-            for ws in texture_winsizes_new('lesion', MODE, mth):
-                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
-                    lesion, 'maxfirst', 0, mth, ws)
-                yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
-                    lesion, 'maxfirst', 1, mth, ws)
+        for mth, ws in texture_methods_winsizes_new(MODE, 'lesion'):
+            yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
+                lesion, 'maxfirst', 0, mth, ws)
+            yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
+                lesion, 'maxfirst', 1, mth, ws)
 
 
 def mask_out_cmd(src, dst, mask):
