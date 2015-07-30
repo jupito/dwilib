@@ -39,10 +39,6 @@ def parse_args():
     p.add_argument('--scale', metavar='I', nargs=2, type=int,
             default=DEF_CFG['scale'],
             help='standard scale minimum and maximum')
-    p.add_argument('--cases', metavar='I', nargs='*', type=int, default=[],
-            help='case numbers')
-    p.add_argument('--scans', metavar='S', nargs='*', default=[],
-            help='scan identifiers')
     p.add_argument('--outconf',
             help='output file for standardization configuration')
     p.add_argument('--inconf',
@@ -115,7 +111,7 @@ def main():
         s1, s2 = args.scale
         landmarks = DEF_CFG['landmarks']
         data = []
-        for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
+        for case, scan in dwi.patient.cases_scans(patients):
             img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
             p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
                     landmarks)
@@ -148,7 +144,7 @@ def main():
         image_rows = []
         histograms = []
         histograms_scaled = []
-        for case, scan in dwi.patient.cases_scans(patients, args.cases, args.scans):
+        for case, scan in dwi.patient.cases_scans(patients):
             img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan, args.param)
             p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
                     landmarks)
