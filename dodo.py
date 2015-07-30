@@ -286,10 +286,14 @@ def task_find_roi():
             yield get_task_find_roi(MODE, case, scan, algparams)
 
 
-def select_voxels_cmd(mask, inpath, outpath):
+def select_voxels_cmd(inpath, outpath, mask=None):
     SELECT_VOXELS = DWILIB+'/select_voxels.py'
-    return '{prg} -m {m} -i "{i}" -o "{o}"'.format(prg=SELECT_VOXELS, m=mask,
-                                                   i=inpath, o=outpath)
+    cmd = ('{prg} '
+           ' -i {i}'
+           ' -o {o}')
+    if mask is not None:
+        cmd += ' -m {m}'
+    return cmd.format(prg=SELECT_VOXELS, i=inpath, o=outpath, m=mask)
 
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
@@ -298,7 +302,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     mask = mask_path(mode, masktype, case, scan)
     roi = roi_path(mode, masktype, case, scan)
     pmap = pmap_path(mode, case, scan)
-    cmd = select_voxels_cmd(mask, pmap, roi)
+    cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': '{m}_{mt}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
@@ -316,7 +320,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
     pmap = pmap_path(mode, case, scan)
-    cmd = select_voxels_cmd(mask, pmap, roi)
+    cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(roi)]),
@@ -504,6 +508,29 @@ def task_texture_new():
                 lesion, 'maxfirst', 0, mth, ws)
             yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
                 lesion, 'maxfirst', 1, mth, ws)
+
+
+def task_merge_textures():
+    """Merge texture methods into singe file per case/scan/lesion."""
+    mode = MODE
+    masktype = 'lesion'
+    slices = 'maxfirst'
+    portion = 1
+    for case, scan, lesion in lesions(mode):
+        infiles = [texture_path_new(mode, case, scan, lesion, masktype, slices,
+                                    portion, mth, ws) for mth, ws in
+                   texture_methods_winsizes_new(mode, masktype)]
+        outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
+                                   portion, 'all', 'all')
+        cmd = select_voxels_cmd(' '.join(infiles), outfile)
+        yield {
+            'name': '{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(c=case, s=scan,
+                                                        l=lesion, mt=masktype,
+                                                        sl=slices, pr=portion),
+            'actions': [cmd],
+            'file_dep': infiles,
+            'targets': [outfile],
+        }
 
 
 def mask_out_cmd(src, dst, mask):
