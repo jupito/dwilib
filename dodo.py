@@ -86,6 +86,12 @@ def texture_methods_winsizes_new(mode, masktype):
             yield method, winsize
 
 
+def texture_params(mode):
+    for slices in ('maxfirst', 'all'):
+        for portion in (1, 0):
+            yield 'lesion', slices, portion
+
+
 def find_roi_param_combinations(mode):
     """Generate all find_roi.py parameter combinations."""
     if mode.modality == 'DWI':
@@ -513,25 +519,24 @@ def task_texture_new():
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
     mode = MODE
-    masktype = 'lesion'
-    slices = 'maxfirst'
-    portion = 1
-    for case, scan, lesion in lesions(mode):
-        infiles = [texture_path_new(mode, case, scan, lesion, masktype, slices,
-                                    portion, mth, ws) for mth, ws in
-                   texture_methods_winsizes_new(mode, masktype)]
-        outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
-                                   portion, 'all', 'all')
-        outfile = 'merged_' + outfile
-        cmd = select_voxels_cmd(' '.join(infiles), outfile)
-        yield {
-            'name': '{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(c=case, s=scan,
-                                                        l=lesion, mt=masktype,
-                                                        sl=slices, pr=portion),
-            'actions': [cmd],
-            'file_dep': infiles,
-            'targets': [outfile],
-        }
+    for mt, slices, portion in texture_params(mode):
+        for case, scan, lesion in lesions(mode):
+            infiles = [texture_path_new(mode, case, scan, lesion, mt, slices,
+                                        portion, mth, ws) for mth, ws in
+                       texture_methods_winsizes_new(mode, mt)]
+            outfile = texture_path_new(mode, case, scan, lesion, mt, slices,
+                                       portion, 'all', 'all')
+            outfile = 'merged_' + outfile
+            cmd = select_voxels_cmd(' '.join(infiles), outfile)
+            d = dict(m=mode, c=case, s=scan, l=lesion, mt=mt, sl=slices,
+                     pr=portion)
+            yield {
+                'name': '{m}_{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(**d),
+                'actions': [(create_folder, [dirname(outfile)]),
+                            cmd],
+                'file_dep': infiles,
+                'targets': [outfile],
+            }
 
 
 def mask_out_cmd(src, dst, mask):
