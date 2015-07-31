@@ -6,6 +6,10 @@ import os.path
 import dwi.util
 
 
+def samplelist_path(mode, samplelist):
+    return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
+
+
 def pmap_path(mode, case=None, scan=None):
     path = dwi.util.sglob('dicoms_{m.model}_*'.format(m=mode), typ='dir')
     if case is not None and scan is not None:

@@ -8,10 +8,11 @@ from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
 
 import dwi.files
-from dwi.paths import (pmap_path, subregion_path, mask_path, roi_path,
-                       texture_path, texture_path_new)
+from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
+                       roi_path, texture_path, texture_path_new)
 import dwi.patient
 import dwi.util
+
 
 # Backends:
 # dbm: (default) It uses python dbm module.
@@ -111,13 +112,9 @@ def find_roi_param_combinations(mode):
                 yield [str(x) for x in t]
 
 
-def samplelist_file(mode, samplelist=SAMPLELIST):
-    return 'patients_{m.modality}_{l}.txt'.format(m=mode, l=samplelist)
-
-
 def cases_scans(mode):
     """Generate all case, scan pairs."""
-    samples = dwi.files.read_sample_list(samplelist_file(mode))
+    samples = dwi.files.read_sample_list(samplelist_path(mode, SAMPLELIST))
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
@@ -126,7 +123,7 @@ def cases_scans(mode):
 
 def lesions(mode):
     """Generate all case, scan, lesion# (1-based) combinations."""
-    patients = dwi.files.read_patients_file(samplelist_file(mode))
+    patients = dwi.files.read_patients_file(samplelist_path(mode, SAMPLELIST))
     for p in patients:
         for scan in p.scans:
             for lesion in range(len(p.lesions)):
@@ -254,7 +251,7 @@ def task_make_subregion():
 
 def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
     FIND_ROI = DWILIB+'/find_roi.py'
-    d = dict(prg=FIND_ROI, m=mode, slf=samplelist_file(mode),
+    d = dict(prg=FIND_ROI, m=mode, slf=samplelist_path(mode, SAMPLELIST),
              pd=pmap_path(mode), srd=subregion_path(mode),
              c=case, s=scan, ap=' '.join(algparams), outmask=outmask,
              outfig=outfig)
@@ -367,8 +364,8 @@ def task_select_roi():
 
 def auc_cmd(mode, threshold, algparams, outfile):
     CALC_AUC = DWILIB+'/roc_auc.py'
-    d = dict(prg=CALC_AUC, m=mode, slf=samplelist_file(mode), t=threshold,
-             i=roi_path(mode, 'auto', algparams=algparams),
+    d = dict(prg=CALC_AUC, m=mode, slf=samplelist_path(mode, SAMPLELIST),
+             t=threshold, i=roi_path(mode, 'auto', algparams=algparams),
              ap_='_'.join(algparams), o=outfile)
     return (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
             '--autoflip --pmapdir {i}` {ap_} >> {o}'.format(**d))
@@ -392,7 +389,7 @@ def get_task_autoroi_auc(mode, threshold):
 
 def correlation_cmd(mode, thresholds, algparams, outfile):
     CORRELATION = DWILIB+'/correlation.py'
-    d = dict(prg=CORRELATION, m=mode, slf=samplelist_file(mode),
+    d = dict(prg=CORRELATION, m=mode, slf=samplelist_path(mode, SAMPLELIST),
              t=thresholds, i=roi_path(mode, 'auto', algparams=algparams),
              ap_='_'.join(algparams), o=outfile)
     return (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
