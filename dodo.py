@@ -54,12 +54,12 @@ def texture_methods(mode):
 
 def texture_winsizes(masktype, mode):
     if masktype in ('CA', 'N'):
-        l = [3, 5]
+        seq = [3, 5]
     elif mode.modality in ('T2', 'T2w'):
-        l = range(3, 30, 4)
+        seq = xrange(3, 30, 4)
     else:
-        l = range(3, 16, 2)
-    return ' '.join(str(x) for x in l)
+        seq = xrange(3, 16, 2)
+    return ' '.join(str(x) for x in seq)
 
 
 def texture_winsizes_new(masktype, mode, method):
@@ -80,9 +80,10 @@ def texture_methods_winsizes_new(mode, masktype):
 
 
 def texture_params(mode):
-    for slices in ('maxfirst', 'all'):
-        for portion in (1, 0):
-            yield 'lesion', slices, portion
+    lesion = ['lesion']
+    slices = ['maxfirst', 'all']
+    portion = [1, 0]
+    return product(lesion, slices, portion)
 
 
 def find_roi_param_combinations(mode):
@@ -90,8 +91,8 @@ def find_roi_param_combinations(mode):
     find_roi_params = [
         [1, 2, 3],  # ROI depth min
         [1, 2, 3],  # ROI depth max
-        range(2, 13),  # ROI side min (3 was not good)
-        range(3, 13),  # ROI side max
+        xrange(2, 13),  # ROI side min (3 was not good)
+        xrange(3, 13),  # ROI side max
         range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
         ]
     if mode.modality == 'DWI':
