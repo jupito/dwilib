@@ -522,6 +522,7 @@ def task_merge_textures():
                    texture_methods_winsizes_new(mode, masktype)]
         outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
                                    portion, 'all', 'all')
+        outfile = 'merged_' + outfile
         cmd = select_voxels_cmd(' '.join(infiles), outfile)
         yield {
             'name': '{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(c=case, s=scan,
