@@ -30,14 +30,6 @@ DWILIB = '~/src/dwilib/tools'
 MODE = dwi.patient.ImageMode.parse(get_var('mode', 'DWI-Mono-ADCm'))
 SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
-FIND_ROI_PARAMS = [
-    [1, 2, 3],  # ROI depth min
-    [1, 2, 3],  # ROI depth max
-    range(2, 13),  # ROI side min (3 was not good)
-    range(3, 13),  # ROI side max
-    range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
-    ]
-
 
 def texture_methods(mode):
     return [
@@ -94,6 +86,13 @@ def texture_params(mode):
 
 def find_roi_param_combinations(mode):
     """Generate all find_roi.py parameter combinations."""
+    find_roi_params = [
+        [1, 2, 3],  # ROI depth min
+        [1, 2, 3],  # ROI depth max
+        range(2, 13),  # ROI side min (3 was not good)
+        range(3, 13),  # ROI side max
+        range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
+        ]
     if mode.modality == 'DWI':
         if SAMPLELIST == 'test':
             params = [
@@ -106,7 +105,7 @@ def find_roi_param_combinations(mode):
                 #(2, 3, 5, 5, 500),  # Kurt K: corr, auc
                 ]
         else:
-            params = product(*FIND_ROI_PARAMS)
+            params = product(*find_roi_params)
         for t in params:
             if t[0] <= t[1] and t[2] == t[3]:
                 yield [str(x) for x in t]
