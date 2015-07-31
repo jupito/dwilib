@@ -505,12 +505,12 @@ def task_texture():
 
 def task_texture_new():
     """Generate texture features."""
-    for case, scan, lesion in lesions(MODE):
-        for mth, ws in texture_methods_winsizes_new(MODE, 'lesion'):
-            yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
-                lesion, 'maxfirst', 0, mth, ws)
-            yield get_task_texture_manual_new(MODE, 'lesion', case, scan,
-                lesion, 'maxfirst', 1, mth, ws)
+    mode = MODE
+    for mt, slices, portion in texture_params(mode):
+        for case, scan, lesion in lesions(mode):
+            for mth, ws in texture_methods_winsizes_new(mode, 'lesion'):
+                yield get_task_texture_manual_new(mode, mt, case, scan, lesion,
+                                                  slices, portion, mth, ws)
 
 
 def task_merge_textures():
