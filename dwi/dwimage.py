@@ -1,12 +1,13 @@
 """Utilities for handling DWI images."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import os
 from time import time
 
 import numpy as np
 
 import dwi.util
+
 
 def load(filename, nrois=1, varname='ROIdata'):
     """Load images from a file or directory."""
@@ -20,21 +21,22 @@ def load(filename, nrois=1, varname='ROIdata'):
     else:
         return load_dicom([filename])
 
+
 def load_matlab(filename, varname='ROIdata'):
     """Load images from a MATLAB file."""
     import scipy.io
     mat = scipy.io.loadmat(filename, struct_as_record=False)
     r = []
     for window in mat[varname][0]:
-        win = window[0,0]
+        win = window[0, 0]
         sis = win.SIs.T
         bset = win.bset[0]
         dwi = DWImage(sis, bset)
         dwi.filename = filename
         dwi.basename = os.path.basename(filename)
-        dwi.roislice = '-' # Not implemented.
-        dwi.name = '-' # Not implemented.
-        dwi.number = int(win.number[0,0])
+        dwi.roislice = '-'  # Not implemented.
+        dwi.name = '-'  # Not implemented.
+        dwi.number = int(win.number[0, 0])
         try:
             dwi.subwindow = tuple(map(int, win.subwindow[0]))
         except:
@@ -43,11 +45,12 @@ def load_matlab(filename, varname='ROIdata'):
         r.append(dwi)
     return r
 
+
 def load_ascii(filename, nrois=1):
     """Load images from an ASCII file."""
     import dwi.asciifile
     af = dwi.asciifile.AsciiFile(filename)
-    a = af.a.reshape(nrois,-1,af.a.shape[-1])
+    a = af.a.reshape(nrois, -1, af.a.shape[-1])
     r = []
     for i in range(nrois):
         sis = a[i]
@@ -63,12 +66,13 @@ def load_ascii(filename, nrois=1):
         r.append(dwi)
     return r
 
+
 def load_hdf5(filename):
     """Load image from an HDF5 file."""
     import dwi.hdf5
     a, d = dwi.hdf5.read_hdf5(filename)
     if a.ndim != 4:
-        a = a.reshape(1,1,-1,a.shape[-1])
+        a = a.reshape(1, 1, -1, a.shape[-1])
     dwimage = DWImage(a, d.get('bset') or range(a.shape[-1]))
     dwimage.filename = os.path.abspath(filename)
     dwimage.basename = os.path.basename(filename)
@@ -77,6 +81,7 @@ def load_hdf5(filename):
     dwimage.voxel_spacing = (1.0, 1.0, 1.0)
     return [dwimage]
 
+
 def load_dicom(filenames):
     """Load a 3d image from DICOM files with slices combined.
 
@@ -84,9 +89,9 @@ def load_dicom(filenames):
     """
     import dwi.dicomfile
     if len(filenames) == 1 and os.path.isdir(filenames[0]):
-        d = dwi.dicomfile.read_dir(filenames[0]) # Directory.
+        d = dwi.dicomfile.read_dir(filenames[0])  # Directory.
     else:
-        d = dwi.dicomfile.read_files(filenames) # File list.
+        d = dwi.dicomfile.read_files(filenames)  # File list.
     bset = d['bvalues']
     image = d['image']
     dwi = DWImage(image, bset)
@@ -98,6 +103,7 @@ def load_dicom(filenames):
     dwi.subwindow = (0, image.shape[0], 0, image.shape[1], 0, image.shape[2])
     dwi.voxel_spacing = d['voxel_spacing']
     return [dwi]
+
 
 class DWImage(object):
     """DWI image, a single slice of signal intensities at several b-values.
@@ -124,8 +130,8 @@ class DWImage(object):
         """
         self.image = np.array(image, dtype=float, ndmin=4)
         self.sis = self.image.view()
-        self.sis.shape = (-1,self.image.shape[-1])
-        #self.bset = np.array(sorted(set(bset)), dtype=float)
+        self.sis.shape = (-1, self.image.shape[-1])
+        # self.bset = np.array(sorted(set(bset)), dtype=float)
         self.bset = np.array(bset, dtype=float)
         self.start_time = self.end_time = -1
         if len(self.image.shape) != 4:
@@ -137,15 +143,14 @@ class DWImage(object):
         return '%s:%i' % (self.filename, self.number)
 
     def __str__(self):
-        d = dict(fn=self.filename, n=self.number,
-                nb=len(self.bset), b=list(self.bset),
-                size=self.size(), shape=self.shape(),
-                w=self.subwindow, ws=self.subwindow_shape())
+        d = dict(fn=self.filename, n=self.number, nb=len(self.bset),
+                 b=list(self.bset), size=self.size(), shape=self.shape(),
+                 w=self.subwindow, ws=self.subwindow_shape())
         s = ('File: {fn}\n'
-                'Number: {n}\n'
-                'B-values: {nb}: {b}\n'
-                'Voxels: {size}, {shape}\n'
-                'Window: {w}, {ws}'.format(**d))
+             'Number: {n}\n'
+             'B-values: {nb}: {b}\n'
+             'Voxels: {size}, {shape}\n'
+             'Window: {w}, {ws}'.format(**d))
         return s
 
     def subwindow_shape(self):
@@ -162,24 +167,23 @@ class DWImage(object):
     def get_roi(self, position, bvalues=None, onebased=True):
         """Get a view of a specific ROI (region of interest)."""
         if onebased:
-            position = [i-1 for i in position] # One-based indexing.
+            position = [i-1 for i in position]  # One-based indexing.
         z0, z1, y0, y1, x0, x1 = position
         if bvalues is None:
             bvalues = range(len(self.bset))
-        image = self.image[z0:z1,y0:y1,x0:x1,bvalues]
+        image = self.image[z0:z1, y0:y1, x0:x1, bvalues]
         bset = self.bset[bvalues]
         dwimage = DWImage(image, bset)
         dwimage.filename = self.filename
         dwimage.roislice = self.roislice
         dwimage.name = self.name
         dwimage.number = self.number
-        dwimage.subwindow = (
-                self.subwindow[0] + z0,
-                self.subwindow[0] + z1,
-                self.subwindow[2] + y0,
-                self.subwindow[2] + y1,
-                self.subwindow[4] + x0,
-                self.subwindow[4] + x1)
+        dwimage.subwindow = (self.subwindow[0] + z0,
+                             self.subwindow[0] + z1,
+                             self.subwindow[2] + y0,
+                             self.subwindow[2] + y1,
+                             self.subwindow[4] + x0,
+                             self.subwindow[4] + x1)
         if onebased:
             dwimage.subwindow = tuple([i+1 for i in dwimage.subwindow])
         dwimage.voxel_spacing = self.voxel_spacing
@@ -215,7 +219,7 @@ class DWImage(object):
         self.start_execution()
         xdata = self.bset
         ydatas = self.sis
-        if average == 'mean' or average == True:
+        if average == 'mean' or average is True:
             ydatas = np.mean(ydatas, axis=0, keepdims=True)
         elif average == 'median':
             ydatas = dwi.util.median(ydatas, axis=0, keepdims=True)
