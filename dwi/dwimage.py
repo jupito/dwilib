@@ -1,4 +1,8 @@
-"""Utilities for handling DWI images."""
+"""Utilities for handling DWI images.
+
+Class DWImage contains a DWI image, with some functionality like fitting. Use
+load() to load an image from DICOM, ASCII, HDF5, or MATLAB source.
+"""
 
 from __future__ import absolute_import, division, print_function
 import os
@@ -7,6 +11,131 @@ from time import time
 import numpy as np
 
 import dwi.util
+
+
+class DWImage(object):
+    """DWI image, a single slice of signal intensities at several b-values.
+
+    Variables
+    ---------
+    image : ndarray, shape = [depth, height, width, n_bvalues]
+        Array of voxels.
+    sis : ndarray, shape = [depth * height * width, n_bvalues]
+        Flattened view of the image.
+    bset : ndarray, shape = [n_bvalues]
+        Different b-values.
+    """
+
+    def __init__(self, image, bset):
+        """Create a new DWI image.
+
+        Parameters
+        ----------
+        image : array_like, shape = [((depth,) height,) width, n_bvalues]
+            Array of signal intensities at different b-values.
+        bset : sequence
+            Different b-values.
+        """
+        self.image = np.array(image, dtype=float, ndmin=4)
+        self.sis = self.image.view()
+        self.sis.shape = (-1, self.image.shape[-1])
+        # self.bset = np.array(sorted(set(bset)), dtype=float)
+        self.bset = np.array(bset, dtype=float)
+        self.start_time = self.end_time = -1
+        if len(self.image.shape) != 4:
+            raise Exception('Invalid image dimensions.')
+        if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
+            raise Exception('Image size does not match with b-values.')
+
+    def __repr__(self):
+        return '%s:%i' % (self.filename, self.number)
+
+    def __str__(self):
+        d = dict(fn=self.filename, n=self.number, nb=len(self.bset),
+                 b=list(self.bset), size=self.size(), shape=self.shape(),
+                 w=self.subwindow, ws=self.subwindow_shape())
+        s = ('File: {fn}\n'
+             'Number: {n}\n'
+             'B-values: {nb}: {b}\n'
+             'Voxels: {size}, {shape}\n'
+             'Window: {w}, {ws}'.format(**d))
+        return s
+
+    def subwindow_shape(self):
+        return dwi.util.subwindow_shape(self.subwindow)
+
+    def shape(self):
+        """Return image height and width."""
+        return self.image.shape[0:-1]
+
+    def size(self):
+        """Return number of voxels."""
+        return len(self.sis)
+
+    def get_roi(self, position, bvalues=None, onebased=True):
+        """Get a view of a specific ROI (region of interest)."""
+        if onebased:
+            position = [i-1 for i in position]  # One-based indexing.
+        z0, z1, y0, y1, x0, x1 = position
+        if bvalues is None:
+            bvalues = range(len(self.bset))
+        image = self.image[z0:z1, y0:y1, x0:x1, bvalues]
+        bset = self.bset[bvalues]
+        dwimage = DWImage(image, bset)
+        dwimage.filename = self.filename
+        dwimage.roislice = self.roislice
+        dwimage.name = self.name
+        dwimage.number = self.number
+        dwimage.subwindow = (self.subwindow[0] + z0,
+                             self.subwindow[0] + z1,
+                             self.subwindow[2] + y0,
+                             self.subwindow[2] + y1,
+                             self.subwindow[4] + x0,
+                             self.subwindow[4] + x1)
+        if onebased:
+            dwimage.subwindow = tuple(i+1 for i in dwimage.subwindow)
+        dwimage.voxel_spacing = self.voxel_spacing
+        return dwimage
+
+    def start_execution(self):
+        """Start taking time for an operation."""
+        self.start_time = time()
+
+    def end_execution(self):
+        """End taking time for an operation."""
+        self.end_time = time()
+
+    def execution_time(self):
+        """Return time consumed by previous operation."""
+        return self.end_time - self.start_time
+
+    def fit(self, model, average=False):
+        """Fit model to whole image.
+
+        Parameters
+        ----------
+        model : dwi.fit.Model
+            Model used for fitting.
+        average : bool, optional
+            Fit just the mean of all voxels.
+
+        Returns
+        -------
+        pmap : ndarray
+            Result parameters and RMSE.
+        """
+        self.start_execution()
+        xdata = self.bset
+        ydatas = self.sis
+        if average == 'mean' or average is True:
+            ydatas = np.mean(ydatas, axis=0, keepdims=True)
+        elif average == 'median':
+            ydatas = dwi.util.median(ydatas, axis=0, keepdims=True)
+        elif average:
+            raise Exception('Invalid averaging method: {}'.format(average))
+        pmap = model.fit(xdata, ydatas)
+        self.end_execution()
+        return pmap
 
 
 def load(filename, nrois=1, varname='ROIdata'):
@@ -103,128 +232,3 @@ def load_dicom(filenames):
     dwi.subwindow = (0, image.shape[0], 0, image.shape[1], 0, image.shape[2])
     dwi.voxel_spacing = d['voxel_spacing']
     return [dwi]
-
-
-class DWImage(object):
-    """DWI image, a single slice of signal intensities at several b-values.
-
-    Variables
-    ---------
-    image : ndarray, shape = [depth, height, width, n_bvalues]
-        Array of voxels.
-    sis : ndarray, shape = [depth * height * width, n_bvalues]
-        Flattened view of the image.
-    bset : ndarray, shape = [n_bvalues]
-        Different b-values.
-    """
-
-    def __init__(self, image, bset):
-        """Create a new DWI image.
-
-        Parameters
-        ----------
-        image : array_like, shape = [((depth,) height,) width, n_bvalues]
-            Array of signal intensities at different b-values.
-        bset : sequence
-            Different b-values.
-        """
-        self.image = np.array(image, dtype=float, ndmin=4)
-        self.sis = self.image.view()
-        self.sis.shape = (-1, self.image.shape[-1])
-        # self.bset = np.array(sorted(set(bset)), dtype=float)
-        self.bset = np.array(bset, dtype=float)
-        self.start_time = self.end_time = -1
-        if len(self.image.shape) != 4:
-            raise Exception('Invalid image dimensions.')
-        if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
-            raise Exception('Image size does not match with b-values.')
-
-    def __repr__(self):
-        return '%s:%i' % (self.filename, self.number)
-
-    def __str__(self):
-        d = dict(fn=self.filename, n=self.number, nb=len(self.bset),
-                 b=list(self.bset), size=self.size(), shape=self.shape(),
-                 w=self.subwindow, ws=self.subwindow_shape())
-        s = ('File: {fn}\n'
-             'Number: {n}\n'
-             'B-values: {nb}: {b}\n'
-             'Voxels: {size}, {shape}\n'
-             'Window: {w}, {ws}'.format(**d))
-        return s
-
-    def subwindow_shape(self):
-        return dwi.util.subwindow_shape(self.subwindow)
-
-    def shape(self):
-        """Return image height and width."""
-        return self.image.shape[0:-1]
-
-    def size(self):
-        """Return number of voxels."""
-        return len(self.sis)
-
-    def get_roi(self, position, bvalues=None, onebased=True):
-        """Get a view of a specific ROI (region of interest)."""
-        if onebased:
-            position = [i-1 for i in position]  # One-based indexing.
-        z0, z1, y0, y1, x0, x1 = position
-        if bvalues is None:
-            bvalues = range(len(self.bset))
-        image = self.image[z0:z1, y0:y1, x0:x1, bvalues]
-        bset = self.bset[bvalues]
-        dwimage = DWImage(image, bset)
-        dwimage.filename = self.filename
-        dwimage.roislice = self.roislice
-        dwimage.name = self.name
-        dwimage.number = self.number
-        dwimage.subwindow = (self.subwindow[0] + z0,
-                             self.subwindow[0] + z1,
-                             self.subwindow[2] + y0,
-                             self.subwindow[2] + y1,
-                             self.subwindow[4] + x0,
-                             self.subwindow[4] + x1)
-        if onebased:
-            dwimage.subwindow = tuple([i+1 for i in dwimage.subwindow])
-        dwimage.voxel_spacing = self.voxel_spacing
-        return dwimage
-
-    def start_execution(self):
-        """Start taking time for an operation."""
-        self.start_time = time()
-
-    def end_execution(self):
-        """End taking time for an operation."""
-        self.end_time = time()
-
-    def execution_time(self):
-        """Return time consumed by previous operation."""
-        return self.end_time - self.start_time
-
-    def fit(self, model, average=False):
-        """Fit model to whole image.
-
-        Parameters
-        ----------
-        model : dwi.fit.Model
-            Model used for fitting.
-        average : bool, optional
-            Fit just the mean of all voxels.
-
-        Returns
-        -------
-        pmap : ndarray
-            Result parameters and RMSE.
-        """
-        self.start_execution()
-        xdata = self.bset
-        ydatas = self.sis
-        if average == 'mean' or average is True:
-            ydatas = np.mean(ydatas, axis=0, keepdims=True)
-        elif average == 'median':
-            ydatas = dwi.util.median(ydatas, axis=0, keepdims=True)
-        elif average:
-            raise Exception('Invalid averaging method: {}'.format(average))
-        pmap = model.fit(xdata, ydatas)
-        self.end_execution()
-        return pmap
