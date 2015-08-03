@@ -1,6 +1,9 @@
-"""Handle signal intensity and parameter map files as ASCII."""
+"""Handle signal intensity and parameter map files as ASCII.
 
-from __future__ import division, print_function
+Use read_ascii_file() and write_ascii_file() to read and write.
+"""
+
+from __future__ import absolute_import, division, print_function
 import os
 import re
 
@@ -8,6 +11,7 @@ import numpy as np
 
 import dwi.files
 import dwi.util
+
 
 class AsciiFile(object):
     def __init__(self, filename):
@@ -26,10 +30,10 @@ class AsciiFile(object):
         a = re.findall(r'\d+', self.d.get('subwindow', ''))
         if not a:
             a = dwi.util.fabricate_subwindow(len(self.a))
-        return tuple(map(int, a))
+        return tuple(int(x) for x in a)
 
     def subwinsize(self):
-        # XXX: Remove in favor of subwindow_shape()?
+        # TODO: Remove in favor of subwindow_shape()?
         a = self.subwindow()
         r = []
         for i in range(len(a)//2):
@@ -44,11 +48,11 @@ class AsciiFile(object):
         a = re.findall(r'[\d.]+', self.d.get('bset', ''))
         if not a:
             a = range(len(self.a[0]))
-        return tuple(map(float, a))
+        return tuple(float(x) for x in a)
 
     def params(self):
         r = range(self.a.shape[1])
-        r = map(str, r)
+        r = [str(x) for x in r]
         a = re.findall(r'\S+', self.d.get('parameters', ''))
         for i, s in enumerate(a):
             r[i] = s
@@ -64,6 +68,7 @@ class AsciiFile(object):
     def name(self):
         return self.d.get('name', '')
 
+
 def read_ascii_file(filename):
     d = {}
     rows = []
@@ -73,22 +78,18 @@ def read_ascii_file(filename):
         if var:
             d[var.group(1)] = var.group(2)
         else:
-            try:
-                nums = map(float, line.split())
-            except ValueError as e:
-                #print(e)
-                #continue
-                raise
+            nums = [float(x) for x in line.split()]
             if nums:
                 rows.append(nums)
     rows = np.array(rows, dtype=np.float)
     return d, rows
 
+
 def write_ascii_file(filename, pmap, params):
     """Write parametric map in ASCII format."""
     with open(filename, 'w') as f:
-        f.write('parameters: %s\n' % ' '.join(map(str, params)))
+        f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
         for values in pmap:
             if len(values) != len(params):
                 raise Exception('Number of values and parameters mismatch')
-            f.write(' '.join(map(repr, values)) + '\n')
+            f.write(' '.join(repr(x) for x in values) + '\n')
