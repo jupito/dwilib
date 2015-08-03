@@ -1,14 +1,16 @@
 """Support for reading DWI data from DICOM files."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
+import os.path
 
 import numpy as np
+
 import dicom
+
 
 def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
-    import os.path
     # Sometimes the files reside in an additional 'DICOM' subdirectory.
     path = os.path.join(dirname, 'DICOM')
     if os.path.isdir(path):
@@ -17,13 +19,14 @@ def read_dir(dirname):
     pathnames = [os.path.join(dirname, f) for f in filenames]
     return read_files(pathnames)
 
+
 def read_files(filenames):
     """Read a bunch of files, each containing a single slice with one b-value,
     and construct a 4d image array.
 
     The slices are sorted simply by their position as it is, assuming it only
-    changes in one dimension. In case there are more than one scan of a position
-    and a b-value, the files are averaged by mean.
+    changes in one dimension. In case there are more than one scan of
+    a position and a b-value, the files are averaged by mean.
 
     DICOM files without pixel data are silently skipped.
     """
@@ -32,10 +35,10 @@ def read_files(filenames):
     voxel_spacing = None
     positions = set()
     bvalues = set()
-    slices = dict() # Lists of single slices indexed by (position, bvalue).
+    slices = dict()  # Lists of single slices indexed by (position, bvalue).
     for f in filenames:
         d = dicom.read_file(f)
-        if not 'PixelData' in d:
+        if 'PixelData' not in d:
             continue
         orientation = orientation or d.ImageOrientationPatient
         if d.ImageOrientationPatient != orientation:
@@ -60,6 +63,7 @@ def read_files(filenames):
     d = dict(bvalues=bvalues, voxel_spacing=voxel_spacing, image=image)
     return d
 
+
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
     w, h = slices.values()[0].shape
@@ -69,10 +73,11 @@ def construct_image(slices, positions, bvalues):
     for k, v in slices.iteritems():
         i = positions.index(k[0])
         j = bvalues.index(k[1])
-        image[i,:,:,j] = v
+        image[i, :, :, j] = v
     if np.isnan(np.min(image)):
         raise Exception('Slices missing from shape {:s}.'.format(shape))
     return image
+
 
 def get_bvalue(d):
     """Return image b-value. It may also be stored as frame second."""
@@ -86,15 +91,17 @@ def get_bvalue(d):
         raise AttributeError('DICOM file does not contain a b-value')
     return r
 
+
 def get_pixels(d):
     """Return rescaled pixel array from DICOM object."""
     pixels = d.pixel_array.astype(float)
     pixels = pixels * d.RescaleSlope + d.RescaleIntercept
-    ## Clipping should not be done.
-    #lowest = d.WindowCenter - d.WindowWidth/2
-    #highest = d.WindowCenter + d.WindowWidth/2
-    #pixels = pixels.clip(lowest, highest, out=pixels)
+    # # Clipping should not be done.
+    # lowest = d.WindowCenter - d.WindowWidth/2
+    # highest = d.WindowCenter + d.WindowWidth/2
+    # pixels = pixels.clip(lowest, highest, out=pixels)
     return pixels
+
 
 def get_voxel_spacing(d):
     """Return voxel spacing in millimeters as (z, y, x)."""
