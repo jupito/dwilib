@@ -14,9 +14,12 @@ with some tweaking.
 NOTE: Bounds are not supported, and are thus ignored.
 """
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 
 import dwi.minimize
+
 
 def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
     """Fit curves to data with multiple initializations.
@@ -38,10 +41,10 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
     step : step size
         Task-specific step size used in minimization
 
-    For each signal intensity curve, the resulting parameters with best fit will
-    be placed in the output array, along with an RMSE value (root mean square
-    error). In case of error, curve parameters will be set to NaN and RMSE to
-    infinite.
+    For each signal intensity curve, the resulting parameters with best fit
+    will be placed in the output array, along with an RMSE value (root mean
+    square error). In case of error, curve parameters will be set to NaN and
+    RMSE to infinite.
 
     See files fit.py and models.py for more information on usage.
     """
@@ -52,6 +55,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
             out_pmap[i, :-1] = d['x']
         else:
             out_pmap[i, :-1].fill(np.nan)
+
 
 def fit_curve_mi(f, xdata, ydata, guesses, bounds, step=1.0e-7):
     """Fit a curve to data with multiple initializations.
@@ -67,16 +71,17 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds, step=1.0e-7):
             best = d
     return best
 
+
 def fit_curve(f, xdata, ydata, guess, bounds, step=1.0e-7):
     """Fit a curve to data."""
     residual = lambda p, x, y: rmse(f, p, xdata, ydata)
     d = dwi.minimize.gradient_descent(residual, init=guess, step=step,
-            args=[xdata, ydata])
+                                      args=[xdata, ydata])
     return d
+
 
 def rmse(f, p, xdata, ydata):
     """Root-mean-square error."""
     results = np.asarray([f(p, x) for x in xdata])
     sqerr = (results - ydata)**2
     return np.sqrt(sqerr.mean())
-

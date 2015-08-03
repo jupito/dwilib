@@ -1,7 +1,11 @@
 """Fitting implementation that fits curves simply one by one in serial."""
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
+
 from leastsqbound import leastsqbound
+
 
 def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
     """Fit curves to data with multiple initializations.
@@ -21,10 +25,10 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
     out_pmap : ndarray, shape = [n_curves, n_parameters+1]
         Output array
 
-    For each signal intensity curve, the resulting parameters with best fit will
-    be placed in the output array, along with an RMSE value (root mean square
-    error). In case of error, curve parameters will be set to NaN and RMSE to
-    infinite.
+    For each signal intensity curve, the resulting parameters with best fit
+    will be placed in the output array, along with an RMSE value (root mean
+    square error). In case of error, curve parameters will be set to NaN and
+    RMSE to infinite.
 
     See files fit.py and models.py for more information on usage.
     """
@@ -35,6 +39,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
             out_pmap[i, :-1] = params
         else:
             out_pmap[i, :-1].fill(np.nan)
+
 
 def fit_curve_mi(f, xdata, ydata, guesses, bounds):
     """Fit a curve to data with multiple initializations.
@@ -52,16 +57,18 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds):
             best_err = err
     return best_params, best_err
 
+
 def fit_curve(f, xdata, ydata, guess, bounds):
     """Fit a curve to data."""
     residual = lambda p, x, y: f(p, x) - y
     params, ier = leastsqbound(residual, guess, args=(xdata, ydata),
-            bounds=bounds)
+                               bounds=bounds)
     if 0 < ier < 5:
         err = rmse(f, params, xdata, ydata)
     else:
         err = np.inf
     return params, err
+
 
 def rmse(f, p, xdata, ydata):
     """Root-mean-square error."""
