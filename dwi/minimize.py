@@ -1,13 +1,17 @@
 """Minimization functions."""
 
+from __future__ import absolute_import, division, print_function
+
 import numpy as np
 import scipy.optimize
 
 epsilon = np.sqrt(np.finfo(np.float).eps)
 
+
 def gradient(f, x, args=[], eps=epsilon):
     """Approximate gradient of f at x."""
     return scipy.optimize.approx_fprime(x, f, eps, *args)
+
 
 def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
     """Minimize f by gradient descent.
@@ -23,8 +27,9 @@ def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
         x_prev = x
         x = x - dfx*step
     d = dict(x=x, y=f(x, *args), grad=dfx, nit=i+1, init=init, step=step,
-            args=args, maxiter=maxiter)
+             args=args, maxiter=maxiter)
     return d
+
 
 def gradient_descent_mi(f, inits, **kwargs):
     """Gradient descent with multiple initializations."""
@@ -35,6 +40,7 @@ def gradient_descent_mi(f, inits, **kwargs):
             best = d
     return best
 
+
 def line_search(f, x, args, rho=0.4, c=0.4, alpha0=0.4):
     """Backtracking line search. Nodecal & Wright 1999 pg41."""
     alpha = alpha0
@@ -44,11 +50,14 @@ def line_search(f, x, args, rho=0.4, c=0.4, alpha0=0.4):
         alpha = rho*alpha
     return alpha
 
+
 def fletcher_reeves(x, x_):
     return np.dot(x, x) / np.dot(x_, x_)
 
+
 def polak_ribiere(x, x_):
     return np.dot(x, (x-x_)) / np.dot(x_, x_)
+
 
 def cg(f, x0, args=[], maxiter=10000):
     """Nonlinear conjugate gradient method. Nocedel & Wright 1999 pg120."""
@@ -63,11 +72,12 @@ def cg(f, x0, args=[], maxiter=10000):
         x = x + alpha*p
         dfx = gradient(f, x, args)
         beta = fletcher_reeves(dfx, dfx_prev)
-        #beta = max(0, polak_ribiere(dfx, dfx_prev))
+        # beta = max(0, polak_ribiere(dfx, dfx_prev))
         p = -dfx + beta*p
         k = k+1
     d = dict(x=x, y=f(x, *args), nit=k)
     return d
+
 
 def cg_old(f, x0, args=[], maxiter=1000):
     x0 = np.atleast_1d(np.asarray(x0, dtype=float))
