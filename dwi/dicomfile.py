@@ -42,10 +42,10 @@ def read_files(filenames):
             continue
         orientation = orientation or d.ImageOrientationPatient
         if d.ImageOrientationPatient != orientation:
-            raise Exception("Orientation mismatch.")
+            raise Exception('Orientation mismatch.')
         shape = shape or d.pixel_array.shape
         if d.pixel_array.shape != shape:
-            raise Exception("Shape mismatch.")
+            raise Exception('Shape mismatch.')
         voxel_spacing = voxel_spacing or get_voxel_spacing(d)
         position = tuple(map(float, d.ImagePositionPatient))
         bvalue = get_bvalue(d)
@@ -105,7 +105,7 @@ def get_pixels(d):
 
 def get_voxel_spacing(d):
     """Return voxel spacing in millimeters as (z, y, x)."""
-    # XXX: Some manufacturers misinterpret SpacingBetweenSlices, it would be
+    # Note: Some manufacturers misinterpret SpacingBetweenSlices, it would be
     # better to calculate this from ImageOrientationPatient and
     # ImagePositionPatient.
     z = d.SpacingBetweenSlices if 'SpacingBetweenSlices' in d else 1.
