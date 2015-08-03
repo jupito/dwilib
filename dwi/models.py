@@ -1,5 +1,12 @@
 """Parametric model definitions used for signal decay curve fitting."""
 
+from __future__ import absolute_import, division, print_function
+
+import numpy as np
+
+from dwi.fit import Parameter, Model
+import dwi.util
+
 """
 Im Matlab, we are using lsqnonlin and following initializations:
 1. Mono-exponential model:
@@ -28,10 +35,6 @@ Df      0.001 mm2/ms to 0.009 mm2/ms with step size of 0.0002 mm2/ms;
 Ds      0.000 mm2/ms to 0.004 mm2/ms with step size of 0.00002 mm2/ms;
 """
 
-import numpy as np
-
-from fit import Parameter, Model
-import util
 
 def biexp_flip(params):
     """If Df < Ds, flip them."""
@@ -49,12 +52,14 @@ def adcm(b, ADCm, C=1):
     """
     return C * np.exp(-b * ADCm)
 
+
 def adck(b, ADCk, K, C=1):
     """ADC kurtosis: K reflects deviation from Gaussian shape.
 
     C * exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)
     """
-    return C * np.exp(-b * ADCk + 1./6. * b**2 * ADCk**2 * K)
+    return C * np.exp(-b * ADCk + 1/6 * b**2 * ADCk**2 * K)
+
 
 def adcs(b, ADCs, alpha, C=1):
     """ADC stretched.
@@ -62,6 +67,7 @@ def adcs(b, ADCs, alpha, C=1):
     C * exp(-(b * ADCs)^alpha)
     """
     return C * np.exp(-(b * ADCs)**alpha)
+
 
 def biexp(b, Af, Df, Ds, C=1):
     """Bi-exponential.
@@ -74,87 +80,87 @@ def biexp(b, Af, Df, Ds, C=1):
 # Model definitions.
 
 # General C parameter used in non-normalized models.
-#ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
+# ParamC = Parameter('C', (0.5, 1.25, 0.25), (0, 2), relative=True)
 ParamC = Parameter('C', (500, 1250, 250), (0, 1e9))
 
 Models = []
 
 Models.append(Model('Si',
-        'Signal intensity values',
-        None,
-        []))
+    'Signal intensity values',
+    None,
+    []))
 Models.append(Model('SiN',
-        'Normalized signal intensity values',
-        None,
-        [],
-        preproc=util.normalize_si_curve))
+    'Normalized signal intensity values',
+    None,
+    [],
+    preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model('Mono',
-        'ADC monoexponential',
-        lambda p, x: adcm(x, *p),
-        [
-            Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
-            ParamC
-        ]))
+    'ADC monoexponential',
+    lambda p, x: adcm(x, *p),
+    [
+        Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
+        ParamC
+    ]))
 Models.append(Model('MonoN',
-        'Normalized ADC monoexponential',
-        lambda p, x: adcm(x, *p),
-        [
-            Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
-        ],
-        preproc=util.normalize_si_curve))
+    'Normalized ADC monoexponential',
+    lambda p, x: adcm(x, *p),
+    [
+        Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
+    ],
+    preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model('Kurt',
-        'ADC kurtosis',
-        lambda p, x: adck(x, *p),
-        [
-            Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
-            Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
-            ParamC
-        ]))
+    'ADC kurtosis',
+    lambda p, x: adck(x, *p),
+    [
+        Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
+        Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
+        ParamC
+    ]))
 Models.append(Model('KurtN',
-        'Normalized ADC kurtosis',
-        lambda p, x: adck(x, *p),
-        [
-            Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
-            Parameter('KN', (0.0, 2.0, 0.1), (0, 10)),
-        ],
-        preproc=util.normalize_si_curve))
+    'Normalized ADC kurtosis',
+    lambda p, x: adck(x, *p),
+    [
+        Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
+        Parameter('KN', (0.0, 2.0, 0.1), (0, 10)),
+    ],
+    preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model('Stretched',
-        'ADC stretched',
-        lambda p, x: adcs(x, *p),
-        [
-            Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
-            Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
-            ParamC
-        ]))
+    'ADC stretched',
+    lambda p, x: adcs(x, *p),
+    [
+        Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
+        Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
+        ParamC
+    ]))
 Models.append(Model('StretchedN',
-        'Normalized ADC stretched',
-        lambda p, x: adcs(x, *p),
-        [
-            Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
-            Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1)),
-        ],
-        preproc=util.normalize_si_curve))
+    'Normalized ADC stretched',
+    lambda p, x: adcs(x, *p),
+    [
+        Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
+        Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1)),
+    ],
+    preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model('Biexp',
-        'Bi-exponential',
-        lambda p, x: biexp(x, *p),
-        [
-            Parameter('Af', (0.2, 1.0, 0.1), (0, 1)),
-            Parameter('Df', (0.001, 0.009, 0.0002), (0, 1)),
-            Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1)),
-            ParamC
-        ],
-        postproc=biexp_flip))
+    'Bi-exponential',
+    lambda p, x: biexp(x, *p),
+    [
+        Parameter('Af', (0.2, 1.0, 0.1), (0, 1)),
+        Parameter('Df', (0.001, 0.009, 0.0002), (0, 1)),
+        Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1)),
+        ParamC
+    ],
+    postproc=biexp_flip))
 Models.append(Model('BiexpN',
-        'Normalized Bi-exponential',
-        lambda p, x: biexp(x, *p),
-        [
-            Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
-            Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1)),
-            Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1)),
-        ],
-        preproc=util.normalize_si_curve,
-        postproc=biexp_flip))
+    'Normalized Bi-exponential',
+    lambda p, x: biexp(x, *p),
+    [
+        Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
+        Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1)),
+        Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1)),
+    ],
+    preproc=dwi.util.normalize_si_curve,
+    postproc=biexp_flip))
