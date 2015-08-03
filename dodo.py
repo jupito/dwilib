@@ -32,6 +32,11 @@ MODE = dwi.patient.ImageMode.parse(get_var('mode', 'DWI-Mono-ADCm'))
 SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
 
+def folders_for(*paths):
+    """A PyDoIt action that creates the folders for given file names """
+    return [(create_folder, [dirname(x)]) for x in paths]
+
+
 def texture_methods(mode):
     return [
         #'stats',
@@ -529,8 +534,9 @@ def task_merge_textures():
                      pr=portion)
             yield {
                 'name': '{m}_{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(**d),
-                'actions': [(create_folder, [dirname(outfile)]),
-                            cmd],
+                #'actions': [(create_folder, [dirname(outfile)]),
+                #            cmd],
+                'actions': folders_for(outfile) + [cmd],
                 'file_dep': infiles,
                 'targets': [outfile],
             }
