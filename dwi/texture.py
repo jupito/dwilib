@@ -31,8 +31,9 @@ def normalize(pmap, levels=128):
     in_range = (0, 0.005)
     #in_range = (0, 0.002)
     #in_range = (pmap.min(), pmap.max())
-    #from scipy.stats import scoreatpercentile
-    #in_range = (0, scoreatpercentile(pmap, 99.8))
+    #in_range = (0, sp.stats.scoreatpercentile(pmap, 99.8))
+    in_range = (sp.stats.scoreatpercentile(pmap, 0.8),
+                sp.stats.scoreatpercentile(pmap, 99.2))
     if pmap.dtype == np.int:
         # The rescaler cannot handle int32.
         pmap = np.asarray(pmap, dtype=np.int16)
