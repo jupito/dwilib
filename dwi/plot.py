@@ -1,14 +1,14 @@
 """Plotting."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 import pylab as pl
 
 import dwi.util
 
+
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
-        outfile=None):
+                outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
     pl.rcParams['image.cmap'] = 'gray'
     pl.rcParams['image.aspect'] = 'equal'
@@ -30,6 +30,7 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
     else:
         pl.show()
     pl.close()
+
 
 def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     """Plot multiple ROCs."""
