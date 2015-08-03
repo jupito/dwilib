@@ -4,10 +4,10 @@ Classes Mask and Mask3D represent image masks. They can be used to select
 regions, or groups of voxels from images. Class Mask3D contains a multi-slice
 boolean array that is set to True in those voxels that are selected. Class Mask
 contains a single-slice 2D array and a number denoting the slice index. It was
-used with older ASCII mask files -- Mask3D is used with new DICOM masks. The old
-ASCII mask files had one-based slice indices, that's why they are used here,
-too. If possible, use class Mask3D instead of Mask. However, there is no writing
-routine for Mask3D yet. One will be implemented for HDF5 format.
+used with older ASCII mask files -- Mask3D is used with new DICOM masks. The
+old ASCII mask files had one-based slice indices, that's why they are used
+here, too. If possible, use class Mask3D instead of Mask. However, there is no
+writing routine for Mask3D yet. One will be implemented for HDF5 format.
 
 Function read_mask() reads a mask file in ASCII or DICOM format and returns
 either a Mask or Mask3D object. A Mask object can be converted to a more
@@ -20,7 +20,7 @@ voxels to zero (or other value); and bounding_box() which returns the
 coordinates of the minimum bounding box containing all selected voxels.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import os.path
 import re
 
@@ -29,6 +29,7 @@ import numpy as np
 import dwi.dicomfile
 import dwi.files
 import dwi.util
+
 
 class Mask(object):
     """Single-slice mask for a 3D image. Deprecated, use Mask3D instead.
@@ -43,8 +44,8 @@ class Mask(object):
     def __init__(self, slice, array):
         if slice < 1:
             raise ValueError('Invalid slice: {}'.format(slice))
-        self.slice = slice # Slice number, one-based indexing
-        self.array = array.astype(bool) # 2D mask of one slice.
+        self.slice = slice  # Slice number, one-based indexing
+        self.array = array.astype(bool)  # 2D mask of one slice.
 
     def __repr__(self):
         return repr((self.slice, self.array.shape))
@@ -55,11 +56,11 @@ class Mask(object):
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
         if onebased:
-            coordinates = [i-1 for i in coordinates] # One-based indexing.
+            coordinates = [i-1 for i in coordinates]  # One-based indexing.
         z0, z1, y0, y1, x0, x1 = coordinates
         assert z0 == z1-1, 'Multi-slice subwindow of single-slice mask.'
         slice = self.slice - z0
-        array = self.array[y0:y1,x0:x1]
+        array = self.array[y0:y1, x0:x1]
         return Mask(slice, array)
 
     def n_selected(self):
@@ -87,18 +88,21 @@ class Mask(object):
     def convert_to_3d(self, n_slices):
         """Convert a 2D mask to a 3D mask with given number of slices."""
         a = np.zeros((n_slices,) + self.array.shape)
-        a[self.slice-1,:,:] = self.array
+        a[self.slice-1, :, :] = self.array
         return Mask3D(a)
 
     def write(self, filename):
         """Write mask as an ASCII file."""
         def line_to_text(line):
             return ''.join(str(x) for x in line)
+
         def mask_to_text(mask):
             return '\n'.join(line_to_text(x) for x in mask)
+
         with open(filename, 'w') as f:
             f.write('slice: %s\n' % self.slice)
             f.write(mask_to_text(self.array.astype(int)))
+
 
 class Mask3D(object):
     """Multi-slice mask for a 3D image.
@@ -160,7 +164,7 @@ class Mask3D(object):
     def apply_mask(self, a, value=0):
         """Cover masked voxels of an array by zero (or other value)."""
         copy = a.copy()
-        copy[-self.array,...] = value
+        copy[-self.array, ...] = value
         return copy
 
     def where(self):
@@ -207,13 +211,15 @@ def load_ascii(filename):
     else:
         raise Exception('No mask found in %s' % filename)
 
+
 def read_dicom_mask(path):
     """Read a mask as a DICOM directory."""
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
-    image = image.squeeze(axis=3) # Remove single subvalue dimension.
+    image = image.squeeze(axis=3)  # Remove single subvalue dimension.
     mask = Mask3D(image)
     return mask
+
 
 def read_mask(path):
     """Read a mask either as a DICOM directory or an ASCII file."""
