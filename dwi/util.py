@@ -1,6 +1,6 @@
 """Utility functionality."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import glob
 from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice
