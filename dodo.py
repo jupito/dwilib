@@ -235,8 +235,7 @@ def task_fit():
             cmd = fit_cmd(model, subwindow, infiles, outfile)
             yield {
                'name': '{c}_{s}_{m}'.format(**d),
-               'actions': [(create_folder, [dirname(outfile)]),
-                           cmd],
+               'actions': folders(outfile) + [cmd],
                'file_dep': infiles,
                'targets': [outfile],
                'clean': True,
@@ -258,8 +257,7 @@ def task_make_subregion():
         cmd = make_subregion_cmd(mask, subregion)
         yield {
             'name': '{c}_{s}'.format(c=case, s=scan),
-            'actions': [(create_folder, [dirname(subregion)]),
-                        cmd],
+            'actions': folders(subregion) + [cmd],
             'file_dep': path_deps(mask),
             'targets': [subregion],
             'clean': True,
@@ -289,9 +287,7 @@ def get_task_find_roi(mode, case, scan, algparams):
     cmd = find_roi_cmd(mode, case, scan, algparams, outmask, outfig)
     return {
         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(outmask)]),
-                    (create_folder, [dirname(outfig)]),
-                    cmd],
+        'actions': folders(outmask, outfig) + [cmd],
         'file_dep': path_deps(subregion, mask_p, mask_c, mask_n),
         'targets': [outmask, outfig],
         'clean': True,
@@ -324,8 +320,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': '{m}_{mt}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(roi)]),
-                    cmd],
+        'actions': folders(roi) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
@@ -342,8 +337,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(roi)]),
-                    cmd],
+        'actions': folders(roi) + [cmd],
         'file_dep': [mask],
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
@@ -452,8 +446,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                           portion, mask, outfile)
     return {
         'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
-        'actions': [(create_folder, [dirname(outfile)]),
-                    cmd],
+        'actions': folders(outfile) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [outfile],
         'clean': True,
@@ -473,8 +466,7 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
     return {
         'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(
             **d),
-        'actions': [(create_folder, [dirname(outfile)]),
-                    cmd],
+        'actions': folders(outfile) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [outfile],
         'clean': True,
@@ -497,8 +489,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
                           portion, mask, outfile)
     return {
         'name': '{m}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
-        'actions': [(create_folder, [dirname(outfile)]),
-                    cmd],
+        'actions': folders(outfile) + [cmd],
         'file_dep': [mask],
         'targets': [outfile],
         'clean': True,
@@ -580,7 +571,7 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
     cmds = mask_out_cmd(src, dst, mask)
     return {
         'name': '{c}_{s}'.format(**d),
-        'actions': [(create_folder, [dirname(dst)])] + cmds,
+        'actions': folders(dst) + cmds,
         # 'file_dep':  # TODO
         # 'targets':  # TODO
         }
