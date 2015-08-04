@@ -97,7 +97,8 @@ def stats_mbb(img, mask):
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
 
-def glcm_props(img, names=PROPNAMES, distances=(1,2,3,4), ignore_zeros=False):
+def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
+               ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features.
 
     Six features provided by scikit-image. Averaged over 4 directions for
@@ -113,7 +114,7 @@ def glcm_props(img, names=PROPNAMES, distances=(1,2,3,4), ignore_zeros=False):
                         normed=True)
     if ignore_zeros and np.min(img) == 0:
         # Drop information on the first grey-level if it's zero (background).
-        glcm = glcm[1:,1:,...]
+        glcm = glcm[1:, 1:, ...]
     d = OrderedDict()
     for name in names:
         feats = greycoprops(glcm, name)  # Returns array (distance, angle).
@@ -220,7 +221,7 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     output = np.rollaxis(freqs, -1)
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
     if mask is not None:
-        output[:,-mask] = 0
+        output[:, -mask] = 0
     return output, names
 
 
@@ -259,8 +260,8 @@ def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
         t, s, f = thetas[i], sigmas[j], freqs[k]
         kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
         real, _ = skimage.filter.gabor_filter(img, **kwargs)
-        feats[i,j,k,0] = real.mean()
-        feats[i,j,k,1] = real.var()
+        feats[i, j, k, 0] = real.mean()
+        feats[i, j, k, 1] = real.var()
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
     for (i, j, k), value in np.ndenumerate(feats):
@@ -321,7 +322,7 @@ def moment(img, p, q):
     width = img.shape[0]
     center = width//2
     nc = lambda pos: (pos-center) / (width/2)  # Normalized coordinates [-1,1]
-    f = lambda m, n: img[m,n] * nc(m)**p * nc(n)**q
+    f = lambda m, n: img[m, n] * nc(m)**p * nc(n)**q
     a = np.fromfunction(f, img.shape, dtype=int)
     return a.sum()
 
@@ -364,7 +365,7 @@ def hu(img, postproc=True):
     m = skimage.measure.moments_hu(m)
     if postproc:
         m = abs(m)  # Last one changes sign on reflection.
-        m[m==0] = 1  # Required by log.
+        m[m == 0] = 1  # Required by log.
         m = np.log(m)  # They are small, usually logarithms are used.
     m = np.nan_to_num(m)  # Not sure why there are sometimes NaN values.
     assert m.shape == (7,)
@@ -423,12 +424,12 @@ def haar(img):
     assert img.ndim == 2
     #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
     # Prune possible odd borders.
-    newshape = [x-x%2 for x in img.shape]
+    newshape = [x - x % 2 for x in img.shape]
     img = img[:newshape[0], :newshape[1]]
     a = mahotas.haar(img)
     h, w = [x//2 for x in a.shape]
-    coeffs = [a[:h,:w], a[:h,w:],
-              a[h:,:w], a[h:,w:]]
+    coeffs = [a[:h, :w], a[:h, w:],
+              a[h:, :w], a[h:, w:]]
     coeffs = [sp.ndimage.interpolation.zoom(l, 2.) for l in coeffs]
     return coeffs
 
