@@ -38,17 +38,17 @@ def name(*items):
     return s.format(*items)
 
 
-def folders_for(*paths):
+def folders(*paths):
     """A PyDoIt action that creates the folders for given file names """
     return [(create_folder, [dirname(x)]) for x in paths]
 
 
-def texture_methods(mode):
+def texture_methods():
     return [
-        #'stats',
-        #'haralick',
-        #'moment',
-        #'haralick_mbb',
+        # 'stats',
+        # 'haralick',
+        # 'moment',
+        # 'haralick_mbb',
 
         'glcm',
         'glcm_mbb',
@@ -85,12 +85,12 @@ def texture_winsizes_new(masktype, mode, method):
 
 
 def texture_methods_winsizes_new(mode, masktype):
-    for method in texture_methods(mode):
+    for method in texture_methods():
         for winsize in texture_winsizes_new(masktype, mode, method):
             yield method, winsize
 
 
-def texture_params(mode):
+def texture_params():
     lesion = ['lesion']
     slices = ['maxfirst', 'all']
     portion = [1, 0]
@@ -112,10 +112,10 @@ def find_roi_param_combinations(mode):
                 (2, 3, 10, 10, 500),  # Mono: corr, auc
                 (2, 3, 10, 10, 1750),  # Mono: corr
                 (2, 3, 11, 11, 750),  # Mono: corr
-                #(2, 3, 2, 2, 250),  # Kurt: auc
-                #(2, 3, 9, 9, 1000),  # Kurt: corr
-                #(2, 3, 12, 12, 1750),  # Kurt: corr
-                #(2, 3, 5, 5, 500),  # Kurt K: corr, auc
+                # (2, 3, 2, 2, 250),  # Kurt: auc
+                # (2, 3, 9, 9, 1000),  # Kurt: corr
+                # (2, 3, 12, 12, 1750),  # Kurt: corr
+                # (2, 3, 5, 5, 500),  # Kurt K: corr, auc
                 ]
         else:
             params = product(*find_roi_params)
@@ -146,8 +146,7 @@ def path_deps(*paths):
     """Return list of path dependencies, i.e. the file(s) itself or the
     directory contents.
     """
-    # First make sure all exist.
-    #paths = [dwi.util.sglob(x) for x in paths]
+    # paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
     for i, path in enumerate(paths):
         if '*' in path or ('[' in path and ']' in path):
             paths[i] = dwi.util.sglob(path)
@@ -192,51 +191,57 @@ def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
     return cmd
 
 
-#def task_anonymize():
-#    """Anonymize imaging data."""
-#    ANON = DWILIB+'/anonymize_dicom.py'
-#    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
-#    files.sort()
-#    for f in files:
-#        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
-#        yield {
-#           'name': f,
-#           'actions': [cmd],
-#           #'file_dep': [f],
-#           }
+'''
+def task_anonymize():
+    """Anonymize imaging data."""
+    ANON = DWILIB+'/anonymize_dicom.py'
+    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
+    files.sort()
+    for f in files:
+        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
+        yield {
+           'name': f,
+           'actions': [cmd],
+           #'file_dep': [f],
+           }
+'''
 
 
-#def fit_cmd(model, subwindow, infiles, outfile):
-#    PMAP = DWILIB+'/pmap.py'
-#    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
-#             i=' '.join(infiles), o=outfile)
-#    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
-#    return s
-#
+'''
+def fit_cmd(model, subwindow, infiles, outfile):
+    PMAP = DWILIB+'/pmap.py'
+    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
+             i=' '.join(infiles), o=outfile)
+    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
+    return s
+'''
 
-#def task_fit():
-#    """Fit models to imaging data."""
-#    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
-#              'Biexp BiexpN'.split())
-#    SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
-#    for case, scan in SUBWINDOWS.keys():
-#        subwindow = SUBWINDOWS[(case, scan)]
-#        d = dict(c=case, s=scan)
-#        infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
-#        if len(infiles) == 0:
-#            continue
-#        for model in MODELS:
-#            d['m'] = model
-#            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
-#            cmd = fit_cmd(model, subwindow, infiles, outfile)
-#            yield {
-#               'name': '{c}_{s}_{m}'.format(**d),
-#               'actions': [(create_folder, [dirname(outfile)]),
-#                           cmd],
-#               'file_dep': infiles,
-#               'targets': [outfile],
-#               'clean': True,
-#               }
+
+'''
+def task_fit():
+    """Fit models to imaging data."""
+    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
+              'Biexp BiexpN'.split())
+    SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
+    for case, scan in SUBWINDOWS.keys():
+        subwindow = SUBWINDOWS[(case, scan)]
+        d = dict(c=case, s=scan)
+        infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
+        if len(infiles) == 0:
+            continue
+        for model in MODELS:
+            d['m'] = model
+            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
+            cmd = fit_cmd(model, subwindow, infiles, outfile)
+            yield {
+               'name': '{c}_{s}_{m}'.format(**d),
+               'actions': [(create_folder, [dirname(outfile)]),
+                           cmd],
+               'file_dep': infiles,
+               'targets': [outfile],
+               'clean': True,
+               }
+'''
 
 
 def make_subregion_cmd(mask, subregion):
@@ -438,12 +443,13 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     """Generate texture features."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              slices=slices, portion=portion)
-    methods = texture_methods(mode)
+    methods = texture_methods()
     winsizes = texture_winsizes(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
-    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion)
-    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-                          mask, outfile)
+    outfile = texture_path(mode, case, scan, lesion, masktype, slices,
+                           portion)
+    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
+                          portion, mask, outfile)
     return {
         'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
@@ -481,14 +487,14 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
     masktype = 'auto'
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams), slices=slices, portion=portion)
-    methods = texture_methods(mode)
+    methods = texture_methods()
     winsizes = texture_winsizes(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion,
                      algparams=algparams)
-    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
-                           algparams)
-    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-                          mask, outfile)
+    outfile = texture_path(mode, case, scan, lesion, masktype, slices,
+                           portion, algparams)
+    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
+                          portion, mask, outfile)
     return {
         'name': '{m}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
         'actions': [(create_folder, [dirname(outfile)]),
@@ -502,32 +508,40 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
 def task_texture():
     """Generate texture features."""
     for case, scan, lesion in lesions(MODE):
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 0)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 0)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion, 'all', 1)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
+                                      'maxfirst', 0)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
+                                      'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
+                                      'all', 0)
+        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
+                                      'all', 1)
         if MODE.modality in ('T2', 'T2w'):
             continue  # Do only lesion for those.
-        yield get_task_texture_manual(MODE, 'CA', case, scan, lesion, 'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'N', case, scan, lesion, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'CA', case, scan, lesion,
+                                      'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'N', case, scan, lesion,
+                                      'maxfirst', 1)
         for ap in find_roi_param_combinations(MODE):
-            yield get_task_texture_auto(MODE, ap, case, scan, lesion, 'maxfirst', 1)
+            yield get_task_texture_auto(MODE, ap, case, scan, lesion,
+                                        'maxfirst', 1)
 
 
 def task_texture_new():
     """Generate texture features."""
     mode = MODE
-    for mt, slices, portion in texture_params(mode):
+    for mt, slices, portion in texture_params():
         for case, scan, lesion in lesions(mode):
             for mth, ws in texture_methods_winsizes_new(mode, 'lesion'):
-                yield get_task_texture_manual_new(mode, mt, case, scan, lesion,
-                                                  slices, portion, mth, ws)
+                yield get_task_texture_manual_new(mode, mt, case, scan,
+                                                  lesion, slices, portion,
+                                                  mth, ws)
 
 
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
     mode = MODE
-    for mt, slices, portion in texture_params(mode):
+    for mt, slices, portion in texture_params():
         for case, scan, lesion in lesions(mode):
             infiles = [texture_path_new(mode, case, scan, lesion, mt, slices,
                                         portion, mth, ws) for mth, ws in
@@ -536,14 +550,9 @@ def task_merge_textures():
                                        portion, 'all', 'all')
             outfile = 'merged_' + outfile
             cmd = select_voxels_cmd(' '.join(infiles), outfile)
-            d = dict(m=mode, c=case, s=scan, l=lesion, mt=mt, sl=slices,
-                     pr=portion)
             yield {
-                #'name': '{m}_{c}_{s}_{l}_{mt}_{sl}_{pr}'.format(**d),
                 'name': name(mode, case, scan, lesion, mt, slices, portion),
-                #'actions': [(create_folder, [dirname(outfile)]),
-                #            cmd],
-                'actions': folders_for(outfile) + [cmd],
+                'actions': folders(outfile) + [cmd],
                 'file_dep': infiles,
                 'targets': [outfile],
             }
@@ -553,7 +562,7 @@ def mask_out_cmd(src, dst, mask):
     MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
     d = dict(prg=MASK_OUT_DICOM, src=src, dst=dst, mask=mask)
     rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
-    cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source image
+    cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source
     mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
     return [rm, cp, mask]
 
@@ -563,8 +572,8 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
     """Generate DICOM images with everything but prostate zeroed."""
     imagedir = 'dicoms_{}'.format(mode.modality)
     outdir = 'dicoms_masked_{}'.format(mode.modality)
-    d = dict(c=case, s=scan, id=imagedir, od=outdir, it=imagetype, pox=postfix,
-             p=param)
+    d = dict(c=case, s=scan, id=imagedir, od=outdir, it=imagetype,
+             pox=postfix, p=param)
     mask = mask_path(mode, 'prostate', case, scan)
     src = dwi.util.sglob('{id}_*/{c}_*{it}_{s}{pox}/{p}'.format(**d))
     dst = '{od}/{c}{it}_{s}'.format(**d)
@@ -572,8 +581,8 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
     return {
         'name': '{c}_{s}'.format(**d),
         'actions': [(create_folder, [dirname(dst)])] + cmds,
-        #'file_dep':  # TODO
-        #'targets':  # TODO
+        # 'file_dep':  # TODO
+        # 'targets':  # TODO
         }
 
 
@@ -583,8 +592,8 @@ def task_mask_prostate_DWI():
         try:
             mode = dwi.patient.ImageMode('DWI')
             yield get_task_mask_prostate(mode, case, scan, '_hB', '')
-            #mode = dwi.patient.ImageMode('SPAIR')
-            #yield get_task_mask_prostate(mode, case, scan, '', '_all')
+            # mode = dwi.patient.ImageMode('SPAIR')
+            # yield get_task_mask_prostate(mode, case, scan, '', '_all')
         except IOError as e:
             print('mask_prostate_DWI', e)
 
@@ -595,10 +604,10 @@ def task_mask_prostate_T2():
         try:
             mode = dwi.patient.ImageMode('T2')
             yield get_task_mask_prostate(mode, case, scan, '', '*')
-            #mode = dwi.patient.ImageMode('T2f')
-            #yield get_task_mask_prostate(mode, case, scan, '', '*', '*_Rho')
-            #mode = dwi.patient.ImageMode('T2w')
-            #yield get_task_mask_prostate(mode, case, scan, '', '*')
+            # mode = dwi.patient.ImageMode('T2f')
+            # yield get_task_mask_prostate(mode, case, scan, '', '*', '*_Rho')
+            # mode = dwi.patient.ImageMode('T2w')
+            # yield get_task_mask_prostate(mode, case, scan, '', '*')
         except IOError as e:
             print('mask_prostate_T2', e)
 
