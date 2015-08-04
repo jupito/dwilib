@@ -1,5 +1,6 @@
 """Dataset, directory and file structures."""
 
+from __future__ import absolute_import, division, print_function
 import glob
 
 import numpy as np
@@ -10,6 +11,7 @@ import dwi.mask
 import dwi.patient
 import dwi.util
 
+
 def read_subregion(directory, case, scan):
     """Read subregion definition."""
     d = dict(d=directory, c=case, s=scan)
@@ -17,11 +19,12 @@ def read_subregion(directory, case, scan):
     subregion = dwi.files.read_subregion_file(path)
     return subregion
 
+
 def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
     """Read cancer and normal ROI masks.
 
-    Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2' for
-    an optional second cancer ROI.
+    Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2'
+    for an optional second cancer ROI.
 
     A dictionary is returned, with the ending as key and mask as value.
     """
@@ -37,6 +40,7 @@ def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
         raise Exception('Mask for cancer or normal ROI was not found: %s' % s)
     return masks
 
+
 def read_prostate_mask(directory, case, scan):
     """Read 3D prostate mask in DICOM format.
 
@@ -51,6 +55,7 @@ def read_prostate_mask(directory, case, scan):
             return mask
     raise Exception('Multi-slice prostate mask not found: %s' % s)
 
+
 def read_lesion_masks(directory, case, scan):
     """Read 3D prostate mask in DICOM format.
 
@@ -64,6 +69,7 @@ def read_lesion_masks(directory, case, scan):
     masks = [dwi.mask.read_mask(p) for p in paths]
     return masks
 
+
 def read_dicom_pmap(directory, case, scan, param):
     """Read a single-parameter pmap in DICOM format."""
     d = dict(d=directory, c=case, s=scan, p=param)
@@ -75,11 +81,13 @@ def read_dicom_pmap(directory, case, scan, param):
     path = dwi.util.sglob(s.format(**d))
     d = dwi.dicomfile.read_dir(path)
     image = d['image']
-    #image = image.squeeze(axis=3) # Remove single subvalue dimension.
+    # image = image.squeeze(axis=3)  # Remove single subvalue dimension.
     return image
 
+
 #def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
-#        prostate_mask_dir, roi_mask_dir, param, cases=[], scans=[], clip=False):
+#                     prostate_mask_dir, roi_mask_dir, param, cases=[],
+#                     scans=[], clip=False):
 #    """Read pmaps in DICOM format and other data."""
 #    # XXX Obsolete
 #    samples = dwi.files.read_sample_list(samplelist_file)
@@ -122,6 +130,7 @@ def read_dicom_pmap(directory, case, scan, param):
 #                    d['normal_mask'].array.shape)
 #    return data
 
+
 def dataset_read_samplelist(samplelist_file, cases=None, scans=None):
     """Create a new dataset from a sample list file, optionally including only
     mentioned cases and scans."""
@@ -129,18 +138,20 @@ def dataset_read_samplelist(samplelist_file, cases=None, scans=None):
     data = []
     for sample in samples:
         case = sample['case']
-        if cases and not case in cases:
+        if cases and case not in cases:
             continue
         for scan in sample['scans']:
-            if scans and not scan in scans:
+            if scans and scan not in scans:
                 continue
             data.append(dict(case=case, scan=scan))
     return data
+
 
 def dataset_read_samples(cases_scans):
     """Create a new dataset from a list of (sample, scan) tuples."""
     data = [dict(case=c, scan=s) for c, s in cases_scans]
     return data
+
 
 def dataset_read_patientinfo(data, patients_file):
     """Add patient info to dataset."""
@@ -148,10 +159,12 @@ def dataset_read_patientinfo(data, patients_file):
     for d in data:
         d['score'] = dwi.patient.get_patient(patientsinfo, d['case']).score
 
+
 def dataset_read_subregions(data, subregion_dir):
     """Add subregions to dataset."""
     for d in data:
         d['subregion'] = read_subregion(subregion_dir, d['case'], d['scan'])
+
 
 def dataset_read_pmaps(data, image_dir, params):
     """Add pmaps to dataset (after optional subregions)."""
@@ -165,6 +178,7 @@ def dataset_read_pmaps(data, image_dir, params):
             images.append(image)
         d['image'] = np.concatenate(images, axis=-1)
 
+
 def dataset_read_prostate_masks(data, prostate_mask_dir):
     """Add prostate masks to dataset (after pmaps)."""
     for d in data:
@@ -175,6 +189,7 @@ def dataset_read_prostate_masks(data, prostate_mask_dir):
         roi = mask.selected(d['image'])
         d.update(prostate_mask=mask, prostate_roi=roi)
 
+
 def dataset_read_lesion_masks(data, mask_dir):
     """Add lesion masks to dataset (after pmaps)."""
     for d in data:
@@ -184,6 +199,7 @@ def dataset_read_lesion_masks(data, mask_dir):
         for m in masks:
             assert d['image'].shape[0:3] == m.array.shape
         d.update(lesion_masks=masks)
+
 
 def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
     """Add ROI masks to dataset (after pmaps)."""
@@ -203,4 +219,4 @@ def dataset_read_roi_masks(data, roi_mask_dir, shape=None):
             croi.shape = shape
             nroi.shape = shape
         d.update(cancer_mask=cmask, normal_mask=nmask, cancer_roi=croi,
-                normal_roi=nroi)
+                 normal_roi=nroi)
