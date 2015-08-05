@@ -256,7 +256,7 @@ def task_make_subregion():
         subregion = subregion_path(MODE, case, scan)
         cmd = make_subregion_cmd(mask, subregion)
         yield {
-            'name': '{c}_{s}'.format(c=case, s=scan),
+            'name': name(case, scan),
             'actions': folders(subregion) + [cmd],
             'file_dep': path_deps(mask),
             'targets': [subregion],
@@ -278,8 +278,7 @@ def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
 def get_task_find_roi(mode, case, scan, algparams):
     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    outfig = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(
-        **d)
+    outfig = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(**d)
     subregion = subregion_path(mode, case, scan)
     mask_p = mask_path(mode, 'prostate', case, scan)
     mask_c = mask_path(mode, 'CA', case, scan)
@@ -313,13 +312,12 @@ def select_voxels_cmd(inpath, outpath, mask=None):
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(m=mode, c=case, s=scan, mt=masktype)
     mask = mask_path(mode, masktype, case, scan)
     roi = roi_path(mode, masktype, case, scan)
     pmap = pmap_path(mode, case, scan)
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
-        'name': '{m}_{mt}_{c}_{s}'.format(**d),
+        'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [roi],
@@ -330,13 +328,13 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
 
 def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
-    d = dict(m=mode, c=case, s=scan, mt='auto', ap_='_'.join(algparams))
+    ap_ = '_'.join(algparams)
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
     pmap = pmap_path(mode, case, scan)
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
-        'name': '{m}_{ap_}_{c}_{s}'.format(**d),
+        'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
         'file_dep': [mask],
         'targets': [roi],
@@ -435,8 +433,6 @@ def task_evaluate_autoroi():
 def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                             portion):
     """Generate texture features."""
-    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-             slices=slices, portion=portion)
     methods = texture_methods()
     winsizes = texture_winsizes(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
@@ -445,7 +441,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
                           portion, mask, outfile)
     return {
-        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
+        'name': name(mode, masktype, slices, portion, case, scan, lesion),
         'actions': folders(outfile) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [outfile],
@@ -456,16 +452,14 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
                                 portion, method, winsize):
     """Generate texture features."""
-    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-             slices=slices, portion=portion, mth=method, ws=winsize)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
                                portion, method, winsize)
     cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
                               portion, mask, outfile)
     return {
-        'name': '{m}_{mt}_{slices}_{portion}_{c}_{s}_{l}_{mth}_{ws}'.format(
-            **d),
+        'name': name(mode, masktype, slices, portion, case, scan, lesion,
+                     method, winsize),
         'actions': folders(outfile) + [cmd],
         'file_dep': path_deps(mask),
         'targets': [outfile],
@@ -477,8 +471,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
                           portion):
     """Generate texture features."""
     masktype = 'auto'
-    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-             ap_='_'.join(algparams), slices=slices, portion=portion)
+    ap_ = '_'.join(algparams)
     methods = texture_methods()
     winsizes = texture_winsizes(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion,
@@ -488,7 +481,7 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
                           portion, mask, outfile)
     return {
-        'name': '{m}_{ap_}_{slices}_{portion}_{c}_{s}_{l}'.format(**d),
+        'name': name(mode, ap_, slices, portion, case, scan, lesion),
         'actions': folders(outfile) + [cmd],
         'file_dep': [mask],
         'targets': [outfile],
@@ -570,7 +563,7 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
     dst = '{od}/{c}{it}_{s}'.format(**d)
     cmds = mask_out_cmd(src, dst, mask)
     return {
-        'name': '{c}_{s}'.format(**d),
+        'name': name(case, scan),
         'actions': folders(dst) + cmds,
         # 'file_dep':  # TODO
         # 'targets':  # TODO
