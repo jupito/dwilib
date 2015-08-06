@@ -156,6 +156,10 @@ def path_deps(*paths):
 
 
 def standardize_cmd(mode, cfgfile, samplelist='all'):
+    """Standardize MRI images.
+
+    Pay attention to the sample list: probably all data should be used.
+    """
     d = dict(prg=DWILIB+'/standardize.py', m=mode, o=cfgfile,
              slf=samplelist_path(mode, samplelist), pd=pmap_path(mode))
     cmd = ('{prg} --patients {slf} --pmapdir {pd}'
