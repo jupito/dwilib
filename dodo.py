@@ -168,7 +168,7 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
-    if mode.modality == 'T2w':
+    if mode.standardize:
         cmd += ' --std stdcfg_{m}.txt'
     return cmd.format(**d)
 
@@ -185,7 +185,7 @@ def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winsize {ws} --voxel mean'
            ' --output {o}')
-    if mode.modality == 'T2w':
+    if mode.standardize:
         cmd += ' --std stdcfg_{m}.txt'
     cmd = cmd.format(**d)
     return cmd

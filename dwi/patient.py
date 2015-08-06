@@ -21,6 +21,7 @@ class ImageMode(object):
         self.modality = modality
         self.model = model
         self.param = param
+        self.standardize = (modality == 'T2w')
 
     @staticmethod
     def parse(s):
