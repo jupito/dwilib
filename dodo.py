@@ -155,8 +155,16 @@ def path_deps(*paths):
     return paths
 
 
+def standardize_cmd(mode, cfgfile, samplelist='all'):
+    d = dict(prg=DWILIB+'/standardize.py', m=mode, o=cfgfile,
+             slf=samplelist_path(mode, samplelist), pd=pmap_path(mode))
+    cmd = ('{prg} --patients {slf} --pmapdir {pd}'
+           ' --param {m.param} --outconf {o}')
+    return cmd.format(**d)
+
+
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-                    mask, outpath):
+                    mask, outpath, std_cfg):
     GET_TEXTURE = DWILIB+'/get_texture.py'
     d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
              slices=slices, portion=portion,
@@ -168,13 +176,13 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
            ' --methods {methods} --winsizes {winsizes}'
            ' --slices {slices} --portion {portion}'
            ' --output {o}')
-    if mode.standardize:
-        cmd += ' --std {}'.format(dwi.paths.std_cfg_path(mode))
+    if std_cfg:
+        cmd += ' --std {}'.format(std_cfg)
     return cmd.format(**d)
 
 
 def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
-                        mask, outpath):
+                        mask, outpath, std_cfg):
     GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
     d = dict(prg=GET_TEXTURE_NEW, m=mode, c=case, s=scan,
              slices=slices, portion=portion, mth=method, ws=winsize,
@@ -185,8 +193,8 @@ def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winsize {ws} --voxel mean'
            ' --output {o}')
-    if mode.standardize:
-        cmd += ' --std {}'.format(dwi.paths.std_cfg_path(mode))
+    if std_cfg:
+        cmd += ' --std {}'.format(std_cfg)
     cmd = cmd.format(**d)
     return cmd
 
@@ -247,6 +255,18 @@ def make_subregion_cmd(mask, subregion):
     MASKTOOL = DWILIB+'/masktool.py'
     return '{prg} -i {mask} --pad 10 -s {sr}'.format(prg=MASKTOOL, mask=mask,
                                                      sr=subregion)
+
+
+def task_standardize():
+    """Standardize MRI images."""
+    for mode in [MODE]:
+        cfgfile = dwi.paths.std_cfg_path(mode)
+        yield {
+            'name': name(mode),
+            'actions': [standardize_cmd(mode, cfgfile)],
+            'targets': [cfgfile],
+            'clean': True,
+            }
 
 
 def task_make_subregion():
@@ -438,12 +458,17 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices,
                            portion)
+    std_cfg = None
+    deps = path_deps(mask)
+    if mode.standardize:
+        std_cfg = dwi.paths.std_cfg_path(mode)
+        deps.append(std_cfg)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
-                          portion, mask, outfile)
+                          portion, mask, outfile, std_cfg)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion),
         'actions': folders(outfile) + [cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': deps,
         'targets': [outfile],
         'clean': True,
         }
@@ -455,13 +480,18 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
                                portion, method, winsize)
+    std_cfg = None
+    deps = path_deps(mask)
+    if mode.standardize:
+        std_cfg = dwi.paths.std_cfg_path(mode)
+        deps.append(std_cfg)
     cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
-                              portion, mask, outfile)
+                              portion, mask, outfile, std_cfg)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize),
         'actions': folders(outfile) + [cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': deps,
         'targets': [outfile],
         'clean': True,
         }
@@ -478,12 +508,17 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
                      algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices,
                            portion, algparams)
+    std_cfg = None
+    deps = [mask]
+    if mode.standardize:
+        std_cfg = dwi.paths.std_cfg_path(mode)
+        deps.append(std_cfg)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
-                          portion, mask, outfile)
+                          portion, mask, outfile, std_cfg)
     return {
         'name': name(mode, ap_, slices, portion, case, scan, lesion),
         'actions': folders(outfile) + [cmd],
-        'file_dep': [mask],
+        'file_dep': deps,
         'targets': [outfile],
         'clean': True,
         }
