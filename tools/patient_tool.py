@@ -78,7 +78,7 @@ def main():
     thresholds = args.thresholds or scores
     label_lesions(patients, thresholds)
 
-    # for p, s, l in dwi.patient.lesions(patients):
+    # for p, s, l in dwi.patient.iterlesions(patients):
     #     print(p.num, l.index, l.score, l.label)
 
     all_lesions = list(itertools.chain(*(p.lesions for p in patients)))

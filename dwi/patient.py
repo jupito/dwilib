@@ -170,7 +170,7 @@ def cases_scans(patients, cases=None, scans=None):
                     yield p.num, s
 
 
-def lesions(patients):
+def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
     for p in patients:
         for s in p.scans:
@@ -188,7 +188,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     thresholds = tuple(GleasonScore(x) for x in thresholds)
     patients = dwi.files.read_patients_file(patients_file)
     data = []
-    for patient, scan, lesion in lesions(patients):
+    for patient, scan, lesion in iterlesions(patients):
         if not multiroi and lesion.index != 0:
             continue
         case = patient.num
