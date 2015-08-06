@@ -29,11 +29,12 @@ import dwi.files
 import dwi.util
 
 
-DEFAULT_CONFIGURATION = dict(
-    pc=(0., 99.8),  # Min, max percentiles.
-    landmarks=[i*10 for i in range(1, 10)],  # Landmark percentiles.
-    scale=(1, 4095),  # Min, max intensities on standard scale.
-    )
+def default_configuration():
+    return dict(
+        pc=(0., 99.8),  # Min, max percentiles.
+        landmarks=[i*10 for i in range(1, 10)],  # Landmark percentiles.
+        scale=(1, 4095),  # Min, max intensities on standard scale.
+        )
 
 
 def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
@@ -143,7 +144,7 @@ def standardize(img, cfg):
     img : ndarray of integers
         Transformed image.
     """
-    if isinstance(cfg, str) or isinstance(cfg, unicode):
+    if isinstance(cfg, basestring):
         cfg = read_standardization_configuration(cfg)
     d = cfg
     p1, p2, scores = landmark_scores(img, d['pc1'], d['pc2'], d['landmarks'])

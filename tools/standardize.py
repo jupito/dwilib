@@ -17,7 +17,7 @@ import dwi.util
 import dwi.standardize
 
 
-DEF_CFG = dwi.standardize.DEFAULT_CONFIGURATION
+DEF_CFG = dwi.standardize.default_configuration()
 
 
 def parse_args():
