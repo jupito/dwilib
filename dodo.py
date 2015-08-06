@@ -28,7 +28,7 @@ DOIT_CONFIG = {
 
 DWILIB = '~/src/dwilib/tools'
 
-MODE = dwi.patient.ImageMode.parse(get_var('mode', 'DWI-Mono-ADCm'))
+MODE = dwi.patient.ImageMode(get_var('mode', 'DWI-Mono-ADCm'))
 SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
 
@@ -607,9 +607,9 @@ def task_mask_prostate_DWI():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            mode = dwi.patient.ImageMode('DWI')
+            mode = dwi.patient.ImageMode('DWI-SI-raw')
             yield get_task_mask_prostate(mode, case, scan, '_hB', '')
-            # mode = dwi.patient.ImageMode('SPAIR')
+            # mode = dwi.patient.ImageMode('SPAIR-SPAIR-raw')
             # yield get_task_mask_prostate(mode, case, scan, '', '_all')
         except IOError as e:
             print('mask_prostate_DWI', e)
@@ -619,11 +619,11 @@ def task_mask_prostate_T2():
     """Generate DICOM images with everything but prostate zeroed."""
     for case, scan in cases_scans(MODE):
         try:
-            mode = dwi.patient.ImageMode('T2')
+            mode = dwi.patient.ImageMode('T2-T2-raw')
             yield get_task_mask_prostate(mode, case, scan, '', '*')
-            # mode = dwi.patient.ImageMode('T2f')
+            # mode = dwi.patient.ImageMode('T2f-T2f-raw')
             # yield get_task_mask_prostate(mode, case, scan, '', '*', '*_Rho')
-            # mode = dwi.patient.ImageMode('T2w')
+            # mode = dwi.patient.ImageMode('T2w-T2w-raw')
             # yield get_task_mask_prostate(mode, case, scan, '', '*')
         except IOError as e:
             print('mask_prostate_T2', e)

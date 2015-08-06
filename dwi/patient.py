@@ -17,16 +17,15 @@ THRESHOLDS_STANDARD = ('3+3', '3+4')
 
 class ImageMode(object):
     """Image mode identifier."""
-    def __init__(self, modality, model='raw', param='raw'):
-        self.modality = modality
-        self.model = model
-        self.param = param
-        self.standardize = (modality == 'T2w')
-
-    @staticmethod
-    def parse(s):
-        lst = s.split('-')
-        return ImageMode(*lst)
+    def __init__(self, value):
+        """Initialize with a string or a sequence."""
+        if isinstance(value, basestring):
+            value = value.split('-')
+        value = tuple(value)
+        if len(value) != 3:
+            raise ValueError('Invalid image mode: {}'.format(value))
+        self.modality, self.model, self.param = value
+        self.standardize = (self.modality == 'T2w')
 
     def __iter__(self):
         return iter((self.modality, self.model, self.param))
@@ -45,7 +44,8 @@ class GleasonScore(object):
     """
     def __init__(self, score):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
-        optional)."""
+        optional).
+        """
         if isinstance(score, basestring):
             s = score.split('+')
         else:
@@ -53,8 +53,8 @@ class GleasonScore(object):
         s = tuple(int(x) for x in s)
         if len(s) == 2:
             s += (0,)  # Internal representation always has three digits.
-        if not len(s) == 3:
-            raise Exception('Invalid gleason score: %s', score)
+        if len(s) != 3:
+            raise ValueError('Invalid gleason score: {}'.format(score))
         self.score = s
 
     @staticmethod
