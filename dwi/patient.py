@@ -142,11 +142,6 @@ def get_gleason_scores(patients):
     return sorted(scores)
 
 
-def score_ord(scores, score):
-    """Get Gleason score's ordinal number."""
-    return sorted(scores).index(score)
-
-
 def load_files(patients, filenames, pairs=False):
     """Load pmap files."""
     pmapfiles = []
@@ -196,17 +191,13 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     # TODO: Support for selecting measurements over scan pairs
     thresholds = tuple(GleasonScore(x) for x in thresholds)
     patients = dwi.files.read_patients_file(patients_file)
-    gs = get_gleason_scores(patients)
     data = []
     for patient, scan, lesion in lesions(patients):
         if not multiroi and lesion.index != 0:
             continue
         case = patient.num
         score = lesion.score
-        if thresholds:
-            label = sum(score > t for t in thresholds)
-        else:
-            label = score_ord(gs, score)
+        label = sum(score > t for t in thresholds)
         roi = lesion.index if multiroi else None
         try:
             pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
