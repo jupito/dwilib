@@ -5,7 +5,7 @@
 See Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 
 import numpy as np
@@ -129,13 +129,12 @@ def main():
                                 dtype=mapped_scores.dtype)
         mapped_scores = list(mapped_scores)
         print(mapped_scores)
-        dwi.standardize.write_standardization_configuration(args.outconf, pc1,
-                                                            pc2, landmarks, s1,
-                                                            s2, mapped_scores)
+        dwi.standardize.write_std_cfg(args.outconf, pc1, pc2, landmarks, s1,
+                                      s2, mapped_scores)
 
     # Read configuration, standardize images, plot them.
     if args.inconf:
-        d = dwi.standardize.read_standardization_configuration(args.inconf)
+        d = dwi.standardize.read_std_cfg(args.inconf)
         pc1 = d['pc1']
         pc2 = d['pc2']
         landmarks = d['landmarks']

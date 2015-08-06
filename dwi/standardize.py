@@ -8,10 +8,10 @@ Learning:
     - Use map_onto_scale() to map landmark scores to the standard scale.
     - Average mapped landmarks to get standard landmarks. TODO: This should be
       implemented here somehow.
-    - Use write_standardization_configuration() to output configuration.
+    - Use write_std_cfg() to output configuration.
 
 Standardizing:
-    - Use read_standardization_configuration() to input configuration.
+    - Use read_std_cfg() to input configuration.
     - Use standardize() to standardize images according to configuration.
     - You can also use transform() to do this more free-form.
 
@@ -30,9 +30,10 @@ import dwi.util
 
 
 def default_configuration():
+    """Default standardization configuration."""
     return dict(
         pc=(0., 99.8),  # Min, max percentiles.
-        landmarks=[i*10 for i in range(1, 10)],  # Landmark percentiles.
+        landmarks=tuple(range(10, 100, 10)),  # Landmark percentiles.
         scale=(1, 4095),  # Min, max intensities on standard scale.
         )
 
@@ -46,7 +47,7 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
         Model used for fitting.
     pc1, pc2 : number
         Minimum and maximum percentiles.
-    landmarks : iterable
+    landmarks : iterable of numbers
         Landmark percentiles.
     thresholding : bool, optional
         Whether to threshold by mean (default True). This includes only values
@@ -56,7 +57,7 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     -------
     p1, p2 : float
         Minimum and maximum percentile scores.
-    scores : array of floats
+    scores : tuple of floats
         Landmark percentile scores.
     """
     from scipy.stats import scoreatpercentile
@@ -65,7 +66,7 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
         img = img[img > threshold]
     p1 = scoreatpercentile(img, pc1)
     p2 = scoreatpercentile(img, pc2)
-    scores = [scoreatpercentile(img, i) for i in landmarks]
+    scores = tuple(scoreatpercentile(img, i) for i in landmarks)
     return p1, p2, scores
 
 
@@ -105,11 +106,11 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
         Image to transform.
     p1, p2 : number
         Minimum and maximum percentile scores.
-    scores : array of numbers
+    scores : iterable of numbers
         Landmark percentile scores.
     s1, s2 : number
         Minimum and maximum intensities on the standard scale.
-    mapped_scores : array of numbers
+    mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
 
     Returns
@@ -145,15 +146,14 @@ def standardize(img, cfg):
         Transformed image.
     """
     if isinstance(cfg, basestring):
-        cfg = read_standardization_configuration(cfg)
+        cfg = read_std_cfg(cfg)
     d = cfg
     p1, p2, scores = landmark_scores(img, d['pc1'], d['pc2'], d['landmarks'])
     img = transform(img, p1, p2, scores, d['s1'], d['s2'], d['mapped_scores'])
     return img
 
 
-def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
-                                        mapped_scores):
+def write_std_cfg(filename, pc1, pc2, landmarks, s1, s2, mapped_scores):
     """Write image standardization configuration file.
 
     Parameters
@@ -162,21 +162,21 @@ def write_standardization_configuration(filename, pc1, pc2, landmarks, s1, s2,
         Output filename.
     pc1, pc2 : number
         Minimum and maximum percentiles.
-    landmarks : array of numbers
+    landmarks : iterable of numbers
         Landmark percentiles.
     s1, s2 : number
         Minimum and maximum intensities on the standard scale.
-    mapped_scores : array of numbers
+    mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
     """
     with open(filename, 'w') as f:
-        f.write(dwi.files.toline([pc1, pc2]))
+        f.write(dwi.files.toline((pc1, pc2)))
         f.write(dwi.files.toline(landmarks))
-        f.write(dwi.files.toline([s1, s2]))
+        f.write(dwi.files.toline((s1, s2)))
         f.write(dwi.files.toline(mapped_scores))
 
 
-def read_standardization_configuration(filename):
+def read_std_cfg(filename):
     """Read image standardization configuration file.
 
     Parameters
@@ -192,10 +192,10 @@ def read_standardization_configuration(filename):
     lines = list(dwi.files.valid_lines(filename))[:4]
     lines = [l.split() for l in lines]
     d = collections.OrderedDict()
-    d['pc1'], d['pc2'] = [float(x) for x in lines[0]]
-    d['landmarks'] = [float(x) for x in lines[1]]
-    d['s1'], d['s2'] = [int(x) for x in lines[2]]
-    d['mapped_scores'] = [int(x) for x in lines[3]]
+    d['pc1'], d['pc2'] = (float(x) for x in lines[0])
+    d['landmarks'] = tuple(float(x) for x in lines[1])
+    d['s1'], d['s2'] = (int(x) for x in lines[2])
+    d['mapped_scores'] = tuple(int(x) for x in lines[3])
     if len(d['landmarks']) != len(d['mapped_scores']):
         raise Exception('Invalid standardization file: {}'.format(filename))
     return d
