@@ -90,3 +90,8 @@ def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, mth=method, ws=winsize,
                        ap_='_'.join(algparams))
+
+
+def std_cfg_path(mode):
+    """Return path to standardization configuration file."""
+    return 'stdcfg_{m}.txt'.format(m=mode)
