@@ -580,25 +580,27 @@ def get_texture_map(img, call, winsize, mask):
     return tmap, names
 
 
-def get_texture(img, method, winsize, mask, avg=False):
+def get_texture(img, method, winspec, mask, avg=False):
     """General texture map layer."""
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
         assert img.shape == mask.shape, (img.shape, mask.shape)
     call = _METHODS[method]
-    if method.endswith('_all'):
+    if winspec == 'all':
+        assert method.endswith('_all')
         tmap, names = get_texture_all(img, call, mask)
         if not avg:
             raise NotImplementedError()
-    elif method.endswith('_mbb'):
+    elif winspec == 'mbb':
+        assert method.endswith('_mbb')
         tmap, names = get_texture_mbb(img, call, mask)
         if avg:
             tmap = np.mean(tmap, axis=0, keepdims=True)
         else:
             raise NotImplementedError()
     else:
-        tmap, names = get_texture_map(img, call, winsize, mask)
+        tmap, names = get_texture_map(img, call, int(winspec), mask)
         if avg:
             tmap = tmap[mask, :]
             tmap = np.mean(tmap, axis=0)
@@ -606,5 +608,5 @@ def get_texture(img, method, winsize, mask, avg=False):
         else:
             # Fill background with NaN.
             tmap[-mask] = np.nan
-    names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
+    names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
     return tmap, names

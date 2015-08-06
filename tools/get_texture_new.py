@@ -38,8 +38,8 @@ def parse_args():
                    help='method')
     p.add_argument('--slices', default='maxfirst',
                    help='slice selection (maxfirst, max, all)')
-    p.add_argument('--winsize', type=int, default=5,
-                   help='window side lengths')
+    p.add_argument('--winspec', default='5',
+                   help='window specification (side length, all, mbb)')
     p.add_argument('--portion', type=float, required=False, default=0,
                    help='portion of selected voxels required for each window')
     p.add_argument('--voxel', choices=('all', 'mean'), default='all',
@@ -120,16 +120,21 @@ def main():
         if i not in slice_indices:
             mask.array[i] = 0
 
-    if args.winsize:
-        winshape = (1, args.winsize, args.winsize)
+    # Get portion mask.
+    if args.winspec in ('all', 'mbb'):
+        pmask = mask.array  # Some methods don't use window.
+    elif args.winspec.isdigit():
+        winsize = int(args.winspec)
+        assert winsize > 0
+        winshape = (1, winsize, winsize)
         pmask = portion_mask(mask.array, winshape, args.portion)
     else:
-        pmask = mask.array  # Some methods don't use window.
+        raise ValueError('Invalid window spec: {}'.format(args.winspec))
 
     if args.verbose:
-        print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(
+        print('Image: {s}, slice: {i}, voxels: {n}, window: {w}'.format(
             s=img.shape, i=slice_indices, n=np.count_nonzero(mask.array),
-            w=args.winsize))
+            w=args.winspec))
 
     if args.std:
         if args.verbose:
@@ -140,7 +145,7 @@ def main():
     if args.verbose:
         print('Calculating {} texture features...'.format(args.method))
     avg = (args.voxel == 'mean')
-    tmap, names = dwi.texture.get_texture(img, args.method, args.winsize,
+    tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg)
 
     if args.verbose:

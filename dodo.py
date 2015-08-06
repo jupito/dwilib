@@ -9,7 +9,7 @@ from doit.tools import check_timestamp_unchanged, create_folder
 
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
-                       roi_path, texture_path, texture_path_new)
+                       roi_path, std_cfg_path, texture_path, texture_path_new)
 import dwi.patient
 import dwi.util
 
@@ -74,8 +74,10 @@ def texture_winsizes(masktype, mode):
 
 
 def texture_winsizes_new(masktype, mode, method):
-    if method.endswith('_all') or method.endswith('_mbb'):
-        return [0]  # These use no window.
+    if method.endswith('_all'):
+        return ['all']
+    elif method.endswith('_mbb'):
+        return ['mbb']
     elif masktype in ('CA', 'N'):
         return [3, 5]
     elif mode.modality in ('T2', 'T2w'):
@@ -195,7 +197,7 @@ def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
            ' --pmapdir {pd} --param {m.param}'
            ' --case {c} --scan {s} --mask {mask}'
            ' --slices {slices} --portion {portion}'
-           ' --method {mth} --winsize {ws} --voxel mean'
+           ' --method {mth} --winspec {ws} --voxel mean'
            ' --output {o}')
     if std_cfg:
         cmd += ' --std {}'.format(std_cfg)
@@ -264,11 +266,12 @@ def make_subregion_cmd(mask, subregion):
 def task_standardize():
     """Standardize MRI images."""
     for mode in [MODE]:
-        std_cfg = dwi.paths.std_cfg_path(mode)
+        std_cfg = std_cfg_path(mode)
         yield {
             'name': name(mode),
             'actions': [standardize_cmd(mode, std_cfg)],
             'targets': [std_cfg],
+            'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
             'clean': True,
             }
 
@@ -463,7 +466,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
-        std_cfg = dwi.paths.std_cfg_path(mode)
+        std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
                           portion, mask, outfile, std_cfg)
@@ -485,7 +488,7 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
     std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
-        std_cfg = dwi.paths.std_cfg_path(mode)
+        std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
     cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
                               portion, mask, outfile, std_cfg)
@@ -503,7 +506,6 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
                           portion):
     """Generate texture features."""
     masktype = 'auto'
-    ap_ = '_'.join(algparams)
     methods = texture_methods()
     winsizes = texture_winsizes(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion,
@@ -513,12 +515,13 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
     std_cfg = None
     deps = [mask]
     if mode.standardize:
-        std_cfg = dwi.paths.std_cfg_path(mode)
+        std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
     cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
                           portion, mask, outfile, std_cfg)
     return {
-        'name': name(mode, ap_, slices, portion, case, scan, lesion),
+        'name': name(mode, '_'.join(algparams), slices, portion, case, scan,
+                     lesion),
         'actions': folders(outfile) + [cmd],
         'file_dep': deps,
         'targets': [outfile],
@@ -561,7 +564,7 @@ def task_merge_textures():
                                         portion, mth, ws) for mth, ws in
                        texture_methods_winsizes_new(mode, mt)]
             outfile = texture_path_new(mode, case, scan, lesion, mt, slices,
-                                       portion, 'all', 'all')
+                                       portion, 'merged', 'merged')
             outfile = 'merged_' + outfile
             cmd = select_voxels_cmd(' '.join(infiles), outfile)
             yield {
