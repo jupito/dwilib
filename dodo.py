@@ -264,11 +264,11 @@ def make_subregion_cmd(mask, subregion):
 def task_standardize():
     """Standardize MRI images."""
     for mode in [MODE]:
-        cfgfile = dwi.paths.std_cfg_path(mode)
+        std_cfg = dwi.paths.std_cfg_path(mode)
         yield {
             'name': name(mode),
-            'actions': [standardize_cmd(mode, cfgfile)],
-            'targets': [cfgfile],
+            'actions': [standardize_cmd(mode, std_cfg)],
+            'targets': [std_cfg],
             'clean': True,
             }
 
@@ -326,10 +326,8 @@ def task_find_roi():
 
 def select_voxels_cmd(inpath, outpath, mask=None):
     SELECT_VOXELS = DWILIB+'/select_voxels.py'
-    cmd = ('{prg} '
-           ' -i {i}'
-           ' -o {o}')
-    if mask is not None:
+    cmd = '{prg} -i {i} -o {o}'
+    if mask:
         cmd += ' -m {m}'
     return cmd.format(prg=SELECT_VOXELS, i=inpath, o=outpath, m=mask)
 
