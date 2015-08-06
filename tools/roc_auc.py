@@ -90,10 +90,10 @@ def main():
         auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
         avg = np.mean(auc_bs)
         ci1, ci2 = dwi.util.ci(auc_bs)
-        d = dict(param=param, auc=auc, avg=avg, ci1=ci1, ci2=ci2)
+        d = dict(param=param, auc=auc, avg=avg, ci1=ci1, ci2=ci2,
+                 l=params_maxlen)
         if args.verbose:
-            s = ('{param:%i}  {auc:.3f}  {avg:.3f}  {ci1:.3f}  {ci2:.3f}' %
-                 params_maxlen)
+            s = '{param:{l}}  {auc:.3f}  {avg:.3f}  {ci1:.3f}  {ci2:.3f}'
         else:
             s = '{auc:f}'
         print(s.format(**d))
