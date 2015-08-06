@@ -3,13 +3,14 @@
 """Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally compare
 AUCs and draw the ROC curves into a file."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 import numpy as np
 
 import dwi.patient
 import dwi.plot
 import dwi.util
+
 
 def parse_args():
     """Parse command-line arguments."""
@@ -38,15 +39,17 @@ def parse_args():
                    help='output figure file')
     return p.parse_args()
 
+
 def main():
     args = parse_args()
+    thresholds = [args.threshold]
 
     # Collect all parameters.
     X, Y = [], []
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.patient.read_pmaps(args.patients, pmapdir, [args.threshold],
+        data = dwi.patient.read_pmaps(args.patients, pmapdir, thresholds,
                                       voxel=args.voxel,
                                       multiroi=args.multilesion,
                                       dropok=args.dropok)
@@ -105,7 +108,7 @@ def main():
             for j, param_j in enumerate(Params):
                 if i == j or (i, j) in done or (j, i) in done:
                     continue
-                done.append((i,j))
+                done.append((i, j))
                 d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
                 print('%s  %s  %+0.4f  %+0.4f  %0.4f' %
                       (param_i, param_j, d, z, p))
@@ -116,6 +119,7 @@ def main():
             print('Plotting to {}...'.format(args.figure))
         dwi.plot.plot_rocs(X, Y, params=Params, autoflip=args.autoflip,
                            outfile=args.figure)
+
 
 if __name__ == '__main__':
     main()

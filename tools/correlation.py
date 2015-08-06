@@ -2,7 +2,7 @@
 
 """Calculate correlation for parametric maps vs. Gleason scores."""
 
-from __future__ import division, print_function
+from __future__ import absolute_import, division, print_function
 import argparse
 import math
 import numpy as np
@@ -10,6 +10,7 @@ import scipy.stats
 
 import dwi.patient
 import dwi.util
+
 
 def parse_args():
     """Parse command-line arguments."""
@@ -30,14 +31,15 @@ def parse_args():
                    help='allow dropping of files not found')
     return p.parse_args()
 
+
 def correlation(x, y):
     """Calculate correlation with p-value and confidence interval."""
     assert len(x) == len(y)
     if dwi.util.all_equal(x):
         r = p = lower = upper = np.nan
     else:
-        #r, p = scipy.stats.pearsonr(x, y)
-        #r, p = scipy.stats.kendalltau(x, y)
+        # r, p = scipy.stats.pearsonr(x, y)
+        # r, p = scipy.stats.kendalltau(x, y)
         r, p = scipy.stats.spearmanr(x, y)
         n = len(x)
         stderr = 1 / math.sqrt(n-3)
@@ -46,14 +48,17 @@ def correlation(x, y):
         upper = math.tanh(math.atanh(r) + delta)
     return dict(r=r, p=p, lower=lower, upper=upper)
 
+
 def main():
     # Collect all parameters.
     args = parse_args()
+    thresholds = args.thresholds
+
     X, Y = [], []
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.patient.read_pmaps(args.patients, pmapdir, args.thresholds,
+        data = dwi.patient.read_pmaps(args.patients, pmapdir, thresholds,
                                       voxel=args.voxel,
                                       multiroi=args.multilesion,
                                       dropok=args.dropok)
@@ -93,6 +98,7 @@ def main():
         else:
             s = '{r:+.3f}'
         print(s.format(**d))
+
 
 if __name__ == '__main__':
     main()
