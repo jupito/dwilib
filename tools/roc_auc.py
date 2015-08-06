@@ -23,8 +23,8 @@ def parse_args():
                    help='input pmap directory')
     p.add_argument('--threshold', default='3+3',
                    help='classification threshold (maximum negative)')
-    p.add_argument('--nboot', type=int, default=2000,
-                   help='number of bootstraps')
+    p.add_argument('--nboot', type=int,
+                   help='number of bootstraps (try 2000)')
     p.add_argument('--voxel', default='all',
                    help='index of voxel to use, or all, sole, mean, median')
     p.add_argument('--multilesion', action='store_true',
@@ -86,21 +86,22 @@ def main():
         if args.autoflip and auc < 0.5:
             x = -x
             _, _, auc = dwi.util.calculate_roc_auc(y, x)
-        # Note: x may now be negated (ROC flipped).
-        auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
-        avg = np.mean(auc_bs)
-        ci1, ci2 = dwi.util.ci(auc_bs)
-        d = dict(param=param, auc=auc, avg=avg, ci1=ci1, ci2=ci2,
-                 l=params_maxlen)
+        d = dict(param=param, l=params_maxlen, auc=auc)
+        fields = ['{auc:.3f}']
         if args.verbose:
-            s = '{param:{l}}  {auc:.3f}  {avg:.3f}  {ci1:.3f}  {ci2:.3f}'
-        else:
-            s = '{auc:f}'
-        print(s.format(**d))
-        Auc_bs.append(auc_bs)
+            fields = ['{param:{l}}'] + fields
+        if args.nboot:
+            # Note: x may now be negated (ROC flipped).
+            auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
+            avg = np.mean(auc_bs)
+            ci1, ci2 = dwi.util.ci(auc_bs)
+            d.update(avg=avg, ci1=ci1, ci2=ci2)
+            Auc_bs.append(auc_bs)
+            fields += ['{avg:.3f}', '{ci1:.3f}', '{ci2:.3f}']
+        print('  '.join(fields).format(**d))
 
     # Print bootstrapped AUC comparisons.
-    if args.compare:
+    if args.nboot and args.compare:
         if args.verbose > 1:
             print('# param1  param2  diff  Z  p')
         done = []
