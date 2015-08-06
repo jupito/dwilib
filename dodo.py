@@ -530,24 +530,17 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
 
 def task_texture():
     """Generate texture features."""
-    for case, scan, lesion in lesions(MODE):
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
-                                      'maxfirst', 0)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
-                                      'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
-                                      'all', 0)
-        yield get_task_texture_manual(MODE, 'lesion', case, scan, lesion,
-                                      'all', 1)
+    for c, s, l in lesions(MODE):
+        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'maxfirst', 0)
+        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'all', 0)
+        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'all', 1)
         if MODE.modality in ('T2', 'T2w'):
             continue  # Do only lesion for those.
-        yield get_task_texture_manual(MODE, 'CA', case, scan, lesion,
-                                      'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'N', case, scan, lesion,
-                                      'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'CA', c, s, l, 'maxfirst', 1)
+        yield get_task_texture_manual(MODE, 'N', c, s, l, 'maxfirst', 1)
         for ap in find_roi_param_combinations(MODE):
-            yield get_task_texture_auto(MODE, ap, case, scan, lesion,
-                                        'maxfirst', 1)
+            yield get_task_texture_auto(MODE, ap, c, s, l, 'maxfirst', 1)
 
 
 def task_texture_new():
