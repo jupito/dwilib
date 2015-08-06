@@ -50,10 +50,10 @@ def correlation(x, y):
 
 
 def main():
-    # Collect all parameters.
     args = parse_args()
     thresholds = args.thresholds
 
+    # Collect all parameters.
     X, Y = [], []
     Params = []
     scores = None

@@ -68,7 +68,7 @@ def main():
     # Print info.
     if args.verbose > 1:
         d = dict(n=len(X[0]),
-                 ns=len(scores), s=sorted(scores),
+                 ns=len(scores), s=scores,
                  ng=len(groups), g=' '.join(str(x) for x in groups),
                  gs=', '.join(str(x) for x in group_sizes))
         print('Samples: {n}'.format(**d))

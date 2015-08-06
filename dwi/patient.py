@@ -220,7 +220,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
 
 
 def grouping(data):
-    """Return different scores, grouped scores, and their sample sizes.
+    """Return different scores sorted, grouped scores, and their sample sizes.
 
     See read_pmaps()."""
     scores = [d['score'] for d in data]
