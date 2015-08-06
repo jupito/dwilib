@@ -111,8 +111,9 @@ def main():
                     continue
                 done.append((i, j))
                 d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
-                print('%s  %s  %+0.4f  %+0.4f  %0.4f' %
-                      (param_i, param_j, d, z, p))
+                s = '{pi:{l}}  {pj:{l}}  {d:+.4f}  {z:+.4f}  {p:.4f}'
+                print(s.format(pi=param_i, pj=param_j, d=d, z=z, p=p,
+                               l=params_maxlen))
 
     # Plot the ROCs.
     if args.figure:
