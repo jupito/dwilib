@@ -57,10 +57,6 @@ class GleasonScore(object):
             raise ValueError('Invalid gleason score: {}'.format(score))
         self.score = s
 
-    @staticmethod
-    def parse(s):
-        return GleasonScore(int(x) for x in s.split('+'))
-
     def __iter__(self):
         score = self.score
         if not score[-1]:
