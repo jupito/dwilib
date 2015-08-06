@@ -46,7 +46,7 @@ class GleasonScore(object):
     def __init__(self, score):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional)."""
-        if isinstance(score, str) or isinstance(score, unicode):
+        if isinstance(score, basestring):
             s = score.split('+')
         else:
             s = score
