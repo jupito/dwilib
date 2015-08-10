@@ -563,7 +563,8 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros((len(img), 1, 1, len(names)))
+                tmap = np.empty((len(img), 1, 1, len(names)))
+                tmap.fill(np.nan)
             tmap[i, 0, 0, :] = feats
     return tmap, names
 
@@ -596,7 +597,7 @@ def get_texture(img, method, winspec, mask, avg=False):
         assert method.endswith('_mbb')
         tmap, names = get_texture_mbb(img, call, mask)
         if avg:
-            tmap = np.mean(tmap, axis=0, keepdims=True)
+            tmap = np.nanmean(tmap, axis=0, keepdims=True)
         else:
             raise NotImplementedError()
     else:
