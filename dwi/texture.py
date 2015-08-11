@@ -27,11 +27,11 @@ import dwi.util
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
-    #in_range = (0, 0.03)
+    # in_range = (0, 0.03)
     in_range = (0, 0.005)
-    #in_range = (0, 0.002)
-    #in_range = (pmap.min(), pmap.max())
-    #in_range = (0, sp.stats.scoreatpercentile(pmap, 99.8))
+    # in_range = (0, 0.002)
+    # in_range = (pmap.min(), pmap.max())
+    # in_range = (0, sp.stats.scoreatpercentile(pmap, 99.8))
     in_range = (sp.stats.scoreatpercentile(pmap, 0.8),
                 sp.stats.scoreatpercentile(pmap, 99.2))
     if pmap.dtype == np.int:
@@ -107,7 +107,7 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     from skimage.feature import greycomatrix, greycoprops
     assert img.ndim == 2
     assert img.dtype == np.ubyte
-    #distances = [x for x in distances if x <= min(img.shape)-1]
+    # distances = [x for x in distances if x <= min(img.shape)-1]
     angles = (0, np.pi/4, np.pi/2, 3*np.pi/4)
     levels = img.max() + 1
     glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
@@ -422,7 +422,7 @@ def haar(img):
     """Haar wavelet transform."""
     import mahotas
     assert img.ndim == 2
-    #assert img.shape[0] % 2 == img.shape[1] % 2 == 0
+    # assert img.shape[0] % 2 == img.shape[1] % 2 == 0
     # Prune possible odd borders.
     newshape = [x - x % 2 for x in img.shape]
     img = img[:newshape[0], :newshape[1]]
