@@ -27,8 +27,6 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--patients',
                    help='sample list file')
-    p.add_argument('--subregiondir',
-                   help='subregion bounding box directory')
     p.add_argument('--pmapdir', default='dicoms_Mono_combinedDICOM',
                    help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
