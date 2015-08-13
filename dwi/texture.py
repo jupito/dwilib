@@ -28,12 +28,12 @@ def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
     # in_range = (0, 0.03)
-    in_range = (0, 0.005)
+    in_range = (0, 0.005)  # For ADC.
     # in_range = (0, 0.002)
     # in_range = (pmap.min(), pmap.max())
     # in_range = (0, sp.stats.scoreatpercentile(pmap, 99.8))
-    in_range = (sp.stats.scoreatpercentile(pmap, 0.8),
-                sp.stats.scoreatpercentile(pmap, 99.2))
+    # in_range = (sp.stats.scoreatpercentile(pmap, 0.8),
+    #             sp.stats.scoreatpercentile(pmap, 99.2))
     if pmap.dtype == np.int:
         # The rescaler cannot handle int32.
         pmap = np.asarray(pmap, dtype=np.int16)
