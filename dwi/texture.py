@@ -553,7 +553,10 @@ _METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    tmap = np.array(feats, ndmin=4)
+    # tmap = np.array(feats, ndmin=4)
+    tmap = np.empty(img.shape + (len(names),))
+    tmap.fill(np.nan)
+    tmap[mask, :] = feats
     return tmap, names
 
 
@@ -563,9 +566,10 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                tmap = np.empty((len(img), 1, 1, len(names)))
+                # tmap = np.empty((len(img), 1, 1, len(names)))
+                tmap = np.empty(img.shape + (len(names),))
                 tmap.fill(np.nan)
-            tmap[i, 0, 0, :] = feats
+            tmap[i, mask_slice, :] = feats
     return tmap, names
 
 
@@ -575,9 +579,10 @@ def get_texture_map(img, call, winsize, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros(img.shape+(len(names),))
+                tmap = np.zeros(img.shape + (len(names),))
             feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
+    tmap[-mask] = np.nan  # Fill background with NaN.
     return tmap, names
 
 
@@ -591,23 +596,22 @@ def get_texture(img, method, winspec, mask, avg=False):
     if winspec == 'all':
         assert method.endswith('_all')
         tmap, names = get_texture_all(img, call, mask)
-        if not avg:
-            raise NotImplementedError()
+        if avg:
+            # It's all the same value.
+            tmap = np.nanmean(tmap, axis=(0, 1, 2), keepdims=True)
     elif winspec == 'mbb':
         assert method.endswith('_mbb')
         tmap, names = get_texture_mbb(img, call, mask)
         if avg:
+            # Take average of each slice; slice-wise they are the same value.
+            # tmap = np.nanmean(tmap, axis=0, keepdims=True)
+            tmap = np.nanmean(tmap, axis=(1, 2), keepdims=True)
             tmap = np.nanmean(tmap, axis=0, keepdims=True)
-        else:
-            raise NotImplementedError()
     else:
         tmap, names = get_texture_map(img, call, int(winspec), mask)
         if avg:
             tmap = tmap[mask, :]
             tmap = np.mean(tmap, axis=0)
             tmap.shape = (1, 1, 1) + tmap.shape
-        else:
-            # Fill background with NaN.
-            tmap[-mask] = np.nan
     names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
     return tmap, names
