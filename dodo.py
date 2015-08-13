@@ -480,21 +480,21 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 
 
 def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
-                                portion, method, winsize):
+                                portion, method, winsize, voxel):
     """Generate texture features."""
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
-                               portion, method, winsize)
+                               portion, method, winsize, voxel=voxel)
     std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
         std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
     cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
-                              portion, mask, outfile, std_cfg, 'mean')
+                              portion, mask, outfile, std_cfg, voxel)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
-                     method, winsize),
+                     method, winsize, voxel),
         'actions': folders(outfile) + [cmd],
         'file_dep': deps,
         'targets': [outfile],
@@ -552,7 +552,10 @@ def task_texture_new():
             for mth, ws in texture_methods_winsizes_new(mode, 'lesion'):
                 yield get_task_texture_manual_new(mode, mt, case, scan,
                                                   lesion, slices, portion,
-                                                  mth, ws)
+                                                  mth, ws, 'mean')
+                yield get_task_texture_manual_new(mode, mt, case, scan,
+                                                  lesion, slices, portion,
+                                                  mth, ws, 'all')
 
 
 def task_merge_textures():

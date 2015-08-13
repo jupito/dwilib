@@ -78,18 +78,22 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
 
 
 def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
-                     method, winsize, algparams=()):
+                     method, winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
-    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
+    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}_{vx}'
+    if voxel == 'mean':
+        ext = 'txt'
+    else:
+        ext = 'h5'
     if masktype in ('lesion', 'CA', 'N'):
-        path += '/{c}_{s}_{l}_{mth}-{ws}.txt'
+        path += '/{c}_{s}_{l}_{mth}-{ws}.{ext}'
     elif masktype == 'auto':
-        path += '/{ap_}/{c}_{s}_{l}_{mth}-{ws}.txt'
+        path += '/{ap_}/{c}_{s}_{l}_{mth}-{ws}.{ext}'
     else:
         raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, mth=method, ws=winsize,
-                       ap_='_'.join(algparams))
+                       ap_='_'.join(algparams), vx=voxel, ext=ext)
 
 
 def std_cfg_path(mode):
