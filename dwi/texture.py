@@ -553,7 +553,6 @@ _METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    # tmap = np.array(feats, ndmin=4)
     tmap = np.empty(img.shape + (len(names),))
     tmap.fill(np.nan)
     tmap[mask, :] = feats
@@ -604,7 +603,6 @@ def get_texture(img, method, winspec, mask, avg=False):
         tmap, names = get_texture_mbb(img, call, mask)
         if avg:
             # Take average of each slice; slice-wise they are the same value.
-            # tmap = np.nanmean(tmap, axis=0, keepdims=True)
             tmap = np.nanmean(tmap, axis=(1, 2), keepdims=True)
             tmap = np.nanmean(tmap, axis=0, keepdims=True)
     else:
