@@ -278,8 +278,8 @@ def normalize_si_curve_fix(si):
 def scale(a):
     """Feature scaling. Bring all values to [0, 1] range."""
     a = np.asanyarray(a)
-    min, max = a.min(), a.max()
-    return (a-min) / (max-min)
+    mn, mx = a.min(), a.max()
+    return (a-mn) / (mx-mn)
 
 
 def clip_pmap(img, params):
