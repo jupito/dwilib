@@ -63,7 +63,8 @@ def get_indices(seq, val):
 
 def crop_image(image, subwindow, onebased=False):
     """Get a view of image subwindow defined as Python-like start:stop
-    indices."""
+    indices.
+    """
     if onebased:
         subwindow = [i-1 for i in subwindow]
     z1, z2, y1, y2, x1, x2 = subwindow
@@ -163,7 +164,7 @@ def resample_bootstrap_stratified(Y, X):
 
 def fivenum(a):
     """Return the Tukey five-number summary (minimum, quartile 1, median,
-    quartile 3, maximum) while ignoring nan values.
+    quartile 3, maximum), while ignoring nan values.
     """
     return tuple(np.nanpercentile(a, (0, 25, 50, 75, 100)))
 
@@ -193,7 +194,8 @@ def stem_and_leaf(values):
 
 def tilde(a):
     """Logical 'not' operator for NumPy objects that behaves like MATLAB
-    tilde."""
+    tilde.
+    """
     typ = a.dtype
     return (~a.astype(bool)).astype(typ)
 
@@ -222,7 +224,8 @@ def bootstrap_aucs(y, x, n=2000):
 
 def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
-    described in pROC software."""
+    described in pROC software.
+    """
     aucs1 = np.asarray(aucs1)
     aucs2 = np.asarray(aucs2)
     D = aucs1 - aucs2
@@ -355,7 +358,8 @@ def group_labels(groups, values):
     """Replace labels with group id's.
 
     Parameter groups is a sequence of sequences that indicate labels belonging
-    to each group. Default group will be len(groups)."""
+    to each group. Default group will be len(groups).
+    """
     group_ids = []
     for value in values:
         group_ids.append(get_group_id(groups, value))
@@ -369,7 +373,8 @@ def take(n, iterable):
 
 def sole(it, desc=None):
     """Return the sole item of an iterable. Raise an exception if the number of
-    items is something else than exactly one."""
+    items is something else than exactly one.
+    """
     lst = take(2, it)
     n = len(lst)
     if n != 1:
