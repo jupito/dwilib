@@ -14,9 +14,11 @@ import scipy.stats
 
 
 def all_equal(a):
-    """Tell whether all members of (multidimensional) array are equal."""
+    """Tell whether all members of (multidimensional) array are equal, while
+    ignoring nan values.
+    """
     a = np.asarray(a)
-    return a.min() == a.max()
+    return np.nanmin(a) == np.nanmax(a)
 
 
 def make2d(size, height=None):
