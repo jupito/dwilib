@@ -27,6 +27,9 @@ def parse_args():
                    help='number of bootstraps (try 2000)')
     p.add_argument('--voxel', default='all',
                    help='index of voxel to use, or all, sole, mean, median')
+    p.add_argument('--normalvoxel', type=int,
+                   help='index of voxel to use as Gleason score zero: '
+                   'implies --voxel=all, ignores --threshold')
     p.add_argument('--multilesion', action='store_true',
                    help='use all lesions, not just first for each')
     p.add_argument('--autoflip', action='store_true',
@@ -42,6 +45,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if args.normalvoxel is not None and args.voxel != 'all':
+        raise ValueError('Argument --normalvoxel implies --voxel=all')
     thresholds = [args.threshold]
 
     # Collect all parameters.
@@ -58,9 +63,12 @@ def main():
         for j, param in enumerate(data[0]['params']):
             x, y = [], []
             for d in data:
-                for v in d['pmap']:
+                for k, v in enumerate(d['pmap']):
+                    label = d['label']
+                    if args.normalvoxel is not None:
+                        label = int(k == args.normalvoxel)
                     x.append(v[j])
-                    y.append(d['label'])
+                    y.append(label)
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
             Params.append('%i:%s' % (i, param))
