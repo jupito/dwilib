@@ -188,7 +188,8 @@ def main():
         print('Normalized to range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.scale:
-        img = dwi.util.scale(img)
+        for i, _ in enumerate(attrs['parameters']):
+            img[:, :, :, i] = dwi.util.scale(img[:, :, :, i])
         print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
 
     if not args.info:
