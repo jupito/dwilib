@@ -120,7 +120,7 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     """
     scores = [p1] + list(scores) + [p2]
     mapped_scores = [s1] + list(mapped_scores) + [s2]
-    r = np.zeros_like(img, dtype=np.int)
+    r = np.zeros_like(img, dtype=np.int16)
     for pos, v in np.ndenumerate(img):
         # Select slot where to map.
         slot = sum(v > s for s in scores)
