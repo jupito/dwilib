@@ -162,18 +162,17 @@ def resample_bootstrap_stratified(Y, X):
 
 
 def fivenum(a):
-    """Tukey five-number summary (min, q1, median, q3, max)."""
-    q1 = sp.stats.scoreatpercentile(a, 25)
-    q3 = sp.stats.scoreatpercentile(a, 75)
-    return np.min(a), q1, np.median(a), q3, np.max(a)
+    """Return the Tukey five-number summary (minimum, quartile 1, median,
+    quartile 3, maximum) while ignoring nan values.
+    """
+    return tuple(np.nanpercentile(a, (0, 25, 50, 75, 100)))
 
 
 def fivenumd(a):
-    """Tukey five-number summary (min, q1, median, q3, max)."""
-    keys = 'min q1 median q3 max'.split()
-    values = fivenum(a)
-    d = OrderedDict(zip(keys, values))
-    return d
+    """Return the Tukey five-number summary (minimum, quartile 1, median,
+    quartile 3, maximum) as an ordered dictionary, while ignoring nan values.
+    """
+    return OrderedDict(zip('min q1 median q3 max'.split(), fivenum(a)))
 
 
 def stem_and_leaf(values):
