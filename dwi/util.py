@@ -276,10 +276,10 @@ def normalize_si_curve_fix(si):
 
 
 def scale(a):
-    """Feature scaling. Bring all values to [0, 1] range."""
+    """Feature scaling: bring all values to [0, 1] range. Can contain NaNs."""
     # TODO: Allow in-place, takes lots of memory.
     a = np.asanyarray(a)
-    mn, mx = a.min(), a.max()
+    mn, mx = np.nanmin(a), np.nanmax(a)
     return (a-mn) / (mx-mn)
 
 
