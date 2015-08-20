@@ -277,6 +277,7 @@ def normalize_si_curve_fix(si):
 
 def scale(a):
     """Feature scaling. Bring all values to [0, 1] range."""
+    # TODO: Allow in-place, takes lots of memory.
     a = np.asanyarray(a)
     mn, mx = a.min(), a.max()
     return (a-mn) / (mx-mn)
