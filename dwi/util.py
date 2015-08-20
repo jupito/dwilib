@@ -299,10 +299,10 @@ def clip_pmap(img, params):
 
 
 def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
-    """Clip outliers based on percentiles."""
+    """Clip percentile outliers, while ignoring nan values."""
     a = np.asanyarray(a)
-    min_score = sp.stats.scoreatpercentile(a, min_pc)
-    max_score = sp.stats.scoreatpercentile(a, max_pc)
+    min_score = np.nanpercentile(a, min_pc)
+    max_score = np.nanpercentile(a, max_pc)
     return a.clip(min_score, max_score, out=out)
 
 
