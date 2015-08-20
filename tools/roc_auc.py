@@ -66,7 +66,7 @@ def main():
                 for k, v in enumerate(d['pmap']):
                     label = d['label']
                     if args.normalvoxel is not None:
-                        label = int(k == args.normalvoxel)
+                        label = int(k != args.normalvoxel)
                     x.append(v[j])
                     y.append(label)
             X.append(np.asarray(x))
