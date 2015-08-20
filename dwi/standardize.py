@@ -20,6 +20,9 @@ See also tools/standardize.py.
 [1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
+# TODO: Mention that the whole image must be included when standardizing.
+# TODO: Replace scoreatpercentile() with np.percentile().
+
 from __future__ import absolute_import, division, print_function
 import collections
 
