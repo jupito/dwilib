@@ -177,7 +177,7 @@ def main():
     # feats = np.array([feats], dtype=np.float32)
     feats = np.array([feats])
     # dwi.asciifile.write_ascii_file(args.output, feats, featnames)
-    dwi.files.write_pmap(args.output, feats, featnames)
+    dwi.files.write_pmap(args.output, feats, dict(parameters=featnames))
 
 
 if __name__ == '__main__':

@@ -79,8 +79,7 @@ def main():
     if args.verbose:
         print('Writing {nv} voxels with {np} parameters to {of}'.format(
             nv=image.size, np=image.shape[-1], of=outfile))
-    dwi.files.write_pmap(outfile, image, params=attrs['parameters'],
-                         attrs=attrs)
+    dwi.files.write_pmap(outfile, image, attrs)
 
 
 if __name__ == '__main__':

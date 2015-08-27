@@ -151,28 +151,24 @@ def write_subregion_file(filename, win, comment=''):
             f.write('%i\n' % entry)
 
 
-def write_pmap(filename, pmap, params=None, attrs=None, fmt=None):
+def write_pmap(filename, pmap, attrs, fmt=None):
     """Write parametric map file either as HDF5 or ASCII."""
     pmap = np.asanyarray(pmap)
     if pmap.ndim < 2:
         raise Exception('Not enough dimensions: {}'.format(pmap.shape))
-    if params is None:
-        params = [str(i) for i in range(pmap.shape[-1])]
-    if pmap.shape[-1] != len(params):
+    if 'parameters' not in attrs:
+        attrs['parameters'] = [str(i) for i in range(pmap.shape[-1])]
+    if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
-        if attrs is None:
-            attrs = OrderedDict()
-        if params is not None:
-            attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
-        dwi.asciifile.write_ascii_file(filename, pmap, params)
+        dwi.asciifile.write_ascii_file(filename, pmap, attrs['parameters'])
     else:
         raise Exception('Unknown format: {}'.format(fmt))
 
