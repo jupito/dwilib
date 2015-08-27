@@ -37,6 +37,8 @@ def parse_args():
                    help='keep masked voxels (as zeros)')
     p.add_argument('--subwindow-mask', action='store_true',
                    help='apply subwindow on mask, too')
+    p.add_argument('--rename_params', metavar='NAME', nargs='+',
+                   help='parameter rename list')
     p.add_argument('--output', '-o', metavar='OUTFILE',
                    help='output parametric map file')
     return p.parse_args()
@@ -72,6 +74,10 @@ def main():
             image = mask.apply_mask(image)
         else:
             image = mask.selected(image)
+
+    # Rename parameters.
+    if args.rename_params:
+        attrs['parameters'] = args.rename_params
 
     # Write output voxels. Unless output filename is specified, one will be
     # constructed from (first) input filename.
