@@ -94,7 +94,7 @@ def get_bvalue(d):
 
 def get_pixels(d):
     """Return rescaled pixel array from DICOM object."""
-    pixels = d.pixel_array.astype(float)
+    pixels = d.pixel_array.astype(float)  # XXX: How about float32?
     pixels = pixels * d.RescaleSlope + d.RescaleIntercept
     # # Clipping should not be done.
     # lowest = d.WindowCenter - d.WindowWidth/2
