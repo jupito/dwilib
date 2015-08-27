@@ -284,7 +284,7 @@ def task_standardize_transform():
             continue
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
-            inpath = pmap_path(mode, case, scan)
+            inpath = pmap_path(mode, case, scan, new=False)
             outpath = pmap_path(mode.modality + '-std', case, scan, new=True)
             cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
             yield {
