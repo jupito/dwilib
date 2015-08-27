@@ -139,8 +139,9 @@ def main():
     if args.std:
         if args.verbose:
             print('Standardizing...')
-        img[slice_indices] = dwi.standardize.standardize(img[slice_indices],
-                                                         args.std)
+        # img[slice_indices] = dwi.standardize.standardize(img[slice_indices],
+        #                                                  args.std)
+        img = dwi.standardize.standardize(img, args.std)
 
     if args.verbose:
         print('Calculating {} texture features...'.format(args.method))
