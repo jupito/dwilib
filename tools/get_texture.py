@@ -121,6 +121,7 @@ def main():
     if args.std:
         if args.verbose:
             print('Standardizing...')
+        # XXX: Should standardize whole image, not part of it.
         img_slices = dwi.standardize.standardize(img_slices, args.std)
 
     if args.verbose:
