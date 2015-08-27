@@ -106,8 +106,13 @@ def main():
     else:
         raise Exception('Invalid slice set specification', args.slices)
 
+    if args.std:
+        if args.verbose:
+            print('Standardizing...')
+        img = dwi.standardize.standardize(img, args.std)
+
     img_slices = img[slice_indices]
-    mask_slices = mask.array[slice_indices]  # TODO: Just set other slices to 0
+    mask_slices = mask.array[slice_indices]
     winshapes = [(1, w, w) for w in args.winsizes]
     pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
 
@@ -117,12 +122,6 @@ def main():
         print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d))
         print([(w, np.count_nonzero(m)) for w, m in zip(args.winsizes,
                                                         pmasks)])
-
-    if args.std:
-        if args.verbose:
-            print('Standardizing...')
-        # XXX: Should standardize whole image, not part of it.
-        img_slices = dwi.standardize.standardize(img_slices, args.std)
 
     if args.verbose:
         print('Calculating texture features...')
