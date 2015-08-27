@@ -22,8 +22,6 @@ def parse_args():
                    help='input files')
     p.add_argument('--param', type=int, default=0,
                    help='image parameter index to use')
-    p.add_argument('--std',
-                   help='standardization configuration file')
     p.add_argument('--fig', required=True,
                    help='output figure file')
     return p.parse_args()
@@ -70,11 +68,8 @@ def plot_histograms(Histograms, outfile):
 def main():
     args = parse_args()
 
-    std_cfg = None
-    if args.std:
-        std_cfg = dwi.standardize.read_std_cfg(args.std)
-        for k, v in std_cfg.items():
-            print(k, v)
+    d = dwi.standardize.default_configuration()
+    s1, s2 = d['scale']
 
     histograms = []
     histograms_std = []
@@ -83,12 +78,8 @@ def main():
         img = img[..., args.param]
         if args.verbose:
             print('Read {s} from {p}...'.format(s=img.shape, p=path))
-        if std_cfg:
-            img_std = dwi.standardize.standardize(img, std_cfg)
         histograms.append(histogram(img, None, None))
-        if std_cfg:
-            s1, s2 = std_cfg['s1'], std_cfg['s2']
-            histograms_std.append(histogram(img_std, s1, s2))
+        histograms_std.append(histogram(img, s1, s2))
     plot_histograms([histograms, histograms_std], args.fig)
 
 
