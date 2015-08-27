@@ -171,8 +171,9 @@ def standardize_train_cmd(mode, cfgfile, samplelist='all'):
 
 def standardize_transform_cmd(cfgpath, inpath, outpath):
     """Standardize MRI images: transform phase."""
-    return '{prg} -v --transform {c} {i} {o}'.format(
-        prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath, o=outpath)
+    return '{prg} --transform {c} {i} {o}'.format(prg=DWILIB+'/standardize.py',
+                                                  c=cfgpath, i=inpath,
+                                                  o=outpath)
 
 
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
