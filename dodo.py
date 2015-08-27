@@ -285,9 +285,7 @@ def task_standardize_transform():
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
             inpath = pmap_path(mode, case, scan)
-            # TODO: Make a function for this later.
-            outpath = 'images/{m}-std/{c}-{s}.h5'.format(m=mode, c=case,
-                                                         s=scan)
+            outpath = pmap_path(mode.modality + '-std', case, scan, new=True)
             cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
             yield {
                 'name': name(case, scan),
