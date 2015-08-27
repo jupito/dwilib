@@ -6,7 +6,7 @@ from collections import OrderedDict
 import numpy as np
 import h5py
 
-DEFAULT_DSETNAME = 'array'
+DEFAULT_DSETNAME = 'default'
 
 
 def write_hdf5(filename, array, attrs, dsetname=DEFAULT_DSETNAME):
