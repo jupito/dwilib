@@ -11,8 +11,8 @@ import argparse
 import numpy as np
 
 import dwi.dataset
+import dwi.files
 import dwi.patient
-import dwi.plot
 import dwi.util
 import dwi.standardize
 
@@ -39,21 +39,21 @@ def parse_args():
                    help='standard scale minimum and maximum')
     p.add_argument('--outconf',
                    help='output file for standardization configuration')
-    p.add_argument('--inconf',
-                   help='output file for standardization configuration')
+    p.add_argument('--transform', metavar='PATH', nargs=3,
+                   help='transform: configuration, input, output')
     return p.parse_args()
 
 
-def histogram(a, m1=None, m2=None, bins=20):
-    """Create histogram from data between [m1, m2], with bin centers."""
-    a = np.asarray(a)
-    if m1 is not None:
-        a = a[a >= m1]
-    if m2 is not None:
-        a = a[a <= m2]
-    hist, bin_edges = np.histogram(a, bins=bins, density=True)
-    bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
-    return hist, bin_centers
+# def histogram(a, m1=None, m2=None, bins=20):
+#     """Create histogram from data between [m1, m2], with bin centers."""
+#     a = np.asarray(a)
+#     if m1 is not None:
+#         a = a[a >= m1]
+#     if m2 is not None:
+#         a = a[a <= m2]
+#     hist, bin_edges = np.histogram(a, bins=bins, density=True)
+#     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
+#     return hist, bin_centers
 
 
 # def plot(data, s1, s2, outfile):
@@ -81,29 +81,29 @@ def histogram(a, m1=None, m2=None, bins=20):
 #     dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
 
 
-def plot_histograms(histograms1, histograms2, outfile):
-    import pylab as pl
-    ncols, nrows = 2, 1
-    fig = pl.figure(figsize=(ncols*6, nrows*6))
-    # pl.yscale('log')
-    fig.add_subplot(1, 2, 1)
-    for hist, bins in histograms1:
-        pl.plot(bins, hist)
-    fig.add_subplot(1, 2, 2)
-    for hist, bins in histograms2:
-        pl.plot(bins, hist)
-    pl.tight_layout()
-    print('Plotting to {}...'.format(outfile))
-    pl.savefig(outfile, bbox_inches='tight')
-    pl.close()
+# def plot_histograms(histograms1, histograms2, outfile):
+#     import pylab as pl
+#     ncols, nrows = 2, 1
+#     fig = pl.figure(figsize=(ncols*6, nrows*6))
+#     # pl.yscale('log')
+#     fig.add_subplot(1, 2, 1)
+#     for hist, bins in histograms1:
+#         pl.plot(bins, hist)
+#     fig.add_subplot(1, 2, 2)
+#     for hist, bins in histograms2:
+#         pl.plot(bins, hist)
+#     pl.tight_layout()
+#     print('Plotting to {}...'.format(outfile))
+#     pl.savefig(outfile, bbox_inches='tight')
+#     pl.close()
 
 
 def main():
     args = parse_args()
-    patients = dwi.files.read_patients_file(args.patients)
 
     # Generate and write configuration.
     if args.outconf:
+        patients = dwi.files.read_patients_file(args.patients)
         pc1, pc2 = args.pc
         s1, s2 = args.scale
         landmarks = DEF_CFG['landmarks']
@@ -130,43 +130,26 @@ def main():
         dwi.standardize.write_std_cfg(args.outconf, pc1, pc2, landmarks, s1,
                                       s2, mapped_scores)
 
-    # Read configuration, standardize images, plot them.
-    if args.inconf:
-        d = dwi.standardize.read_std_cfg(args.inconf)
-        pc1 = d['pc1']
-        pc2 = d['pc2']
-        landmarks = d['landmarks']
-        s1 = d['s1']
-        s2 = d['s2']
-        mapped_scores = d['mapped_scores']
-        for k, v in d.items():
-            print(k, v)
+    # Read configuration, read and standardize image, write it.
+    if args.transform:
+        cfgpath, inpath, outpath = args.transform
 
-        # image_rows = []
-        histograms = []
-        histograms_scaled = []
-        for case, scan in dwi.patient.cases_scans(patients):
-            img = dwi.dataset.read_dicom_pmap(args.pmapdir, case, scan,
-                                              args.param)
-            p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
-                                                             landmarks)
-            print(case, scan, img.shape, (p1, p2))
-            # img = img[15,:,:,0].copy() # Scale and visualize slice 15 only.
-            # img = img[10:20].copy() # Scale and visualize slice 15 only.
-            img_scaled = dwi.standardize.transform(img, p1, p2, scores, s1, s2,
-                                                   mapped_scores)
+        img, attrs = dwi.files.read_pmap(inpath)
+        if img.shape[-1] != 1:
+            raise Exception('Incorrect shape: {}'.format(inpath))
+        if args.verbose:
+            print('in {s}, {t}, {f}, {p}'.format(s=img.shape, t=img.dtype,
+                                                 f=dwi.util.fivenum(img),
+                                                 p=inpath))
 
-            # image_rows.append([img, img_scaled])
-            # s = 'std/{c}_{s}.png'.format(c=case, s=scan)
-            # print('Plotting to {}...'.format(s))
-            # dwi.plot.show_images([[img, img_scaled]], vmin=s1, vmax=s2,
-            #                      outfile=s)
+        img = dwi.standardize.standardize(img, cfgpath)
+        attrs['standardization'] = 'L4'
 
-            histograms.append(histogram(img, p1, p2))
-            histograms_scaled.append(histogram(img_scaled, s1, s2))
-        plot_histograms(histograms, histograms_scaled, 'std/histograms.png')
-        # dwi.plot.show_images(image_rows, vmin=s1, vmax=s2,
-        #                      outfile='std/img.png')
+        if args.verbose:
+            print('out {s}, {t}, {f}, {p}'.format(s=img.shape, t=img.dtype,
+                                                  f=dwi.util.fivenum(img),
+                                                  p=outpath))
+        dwi.files.write_pmap(outpath, img, attrs)
 
 
 if __name__ == '__main__':
