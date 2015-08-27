@@ -59,6 +59,8 @@ def merge(tuples):
 def main():
     args = parse_args()
     image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
+    # if image.dtype == np.float64:
+    #     image = image.astype(np.float32)
 
     if args.subwindow:
         if args.verbose:
