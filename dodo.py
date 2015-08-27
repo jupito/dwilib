@@ -169,6 +169,12 @@ def standardize_train_cmd(mode, cfgfile, samplelist='all'):
     return cmd.format(**d)
 
 
+def standardize_transform_cmd(cfgpath, inpath, outpath):
+    """Standardize MRI images: transform phase."""
+    return '{prg} -v --transform {c} {i} {o}'.format(
+        prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath, o=outpath)
+
+
 def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
                     mask, outpath, std_cfg):
     GET_TEXTURE = DWILIB+'/get_texture.py'
@@ -267,6 +273,27 @@ def task_standardize_train():
             'targets': [std_cfg],
             'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
             'clean': True,
+            }
+
+
+def task_standardize_transform():
+    """Standardize MRI images: transform phase."""
+    for mode in [MODE]:
+        if not mode.standardize:
+            continue
+        cfgpath = std_cfg_path(mode)
+        for case, scan in cases_scans(mode):
+            inpath = pmap_path(mode, case, scan)
+            # TODO: Make a function for this later.
+            outpath = 'images/{m}-std/{c}-{s}.h5'.format(m=mode, c=case,
+                                                         s=scan)
+            cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
+            yield {
+                'name': name(case, scan),
+                'actions': folders(outpath) + [cmd],
+                'file_dep': path_deps(cfgpath, inpath),
+                'targets': [outpath],
+                'clean': True,
             }
 
 
