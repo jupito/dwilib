@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Plot histograms of images."""
+"""Plot histograms of images. They may not contain NaN values."""
 
 from __future__ import absolute_import, division, print_function
 import argparse
