@@ -77,7 +77,9 @@ def main():
         img, _ = dwi.files.read_pmap(path)
         img = img[..., args.param]
         if args.verbose:
-            print('Read {s} from {p}...'.format(s=img.shape, p=path))
+            print('Read {s}, {t}, {f}, {p}...'.format(s=img.shape, t=img.dtype,
+                                                      f=dwi.util.fivenum(img),
+                                                      p=path))
         histograms.append(histogram(img, None, None))
         histograms_std.append(histogram(img, s1, s2))
     plot_histograms([histograms, histograms_std], args.fig)
