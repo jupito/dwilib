@@ -151,7 +151,7 @@ def write_subregion_file(filename, win, comment=''):
             f.write('%i\n' % entry)
 
 
-def write_pmap(filename, pmap, params=None, fmt=None):
+def write_pmap(filename, pmap, params=None, attrs=None, fmt=None):
     """Write parametric map file either as HDF5 or ASCII."""
     pmap = np.asanyarray(pmap)
     if pmap.ndim < 2:
@@ -164,8 +164,10 @@ def write_pmap(filename, pmap, params=None, fmt=None):
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
-        attrs = OrderedDict()
-        attrs['parameters'] = params
+        if attrs is None:
+            attrs = OrderedDict()
+        if params is not None:
+            attrs['parameters'] = params
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
@@ -189,9 +191,13 @@ def read_pmap(pathname, fmt=None):
             attrs['parameters'] = attrs['parameters'].split()
     else:
         import dwi.dicomfile
-        attrs = dwi.dicomfile.read_dir(pathname)
-        pmap = attrs.pop('image')
-        attrs['parameters'] = attrs['bvalues']
+        d = dwi.dicomfile.read_dir(pathname)
+        pmap = d['image']
+        attrs = OrderedDict([
+            ('bset', d['bvalues']),
+            ('voxel_spacing', d['voxel_spacing']),
+            ('parameters', list(d['bvalues'])),
+        ])
     if pmap.ndim < 2:
         raise Warning('Not enough dimensions: {}'.format(pmap.shape))
     if 'parameters' not in attrs:
