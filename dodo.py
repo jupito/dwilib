@@ -157,8 +157,8 @@ def path_deps(*paths):
     return paths
 
 
-def standardize_cmd(mode, cfgfile, samplelist='all'):
-    """Standardize MRI images.
+def standardize_train_cmd(mode, cfgfile, samplelist='all'):
+    """Standardize MRI images: training phase.
 
     Pay attention to the sample list: probably all data should be used.
     """
@@ -257,13 +257,13 @@ def make_subregion_cmd(mask, subregion):
                                                      sr=subregion)
 
 
-def task_standardize():
-    """Standardize MRI images."""
+def task_standardize_train():
+    """Standardize MRI images: training phase."""
     for mode in [MODE]:
         std_cfg = std_cfg_path(mode)
         yield {
             'name': name(mode),
-            'actions': [standardize_cmd(mode, std_cfg)],
+            'actions': [standardize_train_cmd(mode, std_cfg)],
             'targets': [std_cfg],
             'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
             'clean': True,
