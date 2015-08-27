@@ -59,9 +59,6 @@ def merge(tuples):
 def main():
     args = parse_args()
     image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
-    if args.verbose:
-        print(image.shape)
-        print(attrs)
 
     if args.subwindow:
         if args.verbose:
@@ -89,8 +86,8 @@ def main():
     # constructed from (first) input filename.
     outfile = args.output or os.path.basename(args.input[0]) + '.txt'
     if args.verbose:
-        print('Writing {nv} voxels with {np} parameters to {of}'.format(
-            nv=image.size, np=image.shape[-1], of=outfile))
+        print('Writing image {s} with {n} attributes to {f}'.format(
+            s=image.shape, n=len(attrs), f=outfile))
     dwi.files.write_pmap(outfile, image, attrs)
 
 
