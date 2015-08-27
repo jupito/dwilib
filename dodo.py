@@ -205,56 +205,50 @@ def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
     return cmd
 
 
-'''
-def task_anonymize():
-    """Anonymize imaging data."""
-    ANON = DWILIB+'/anonymize_dicom.py'
-    files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
-    files.sort()
-    for f in files:
-        cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
-        yield {
-           'name': f,
-           'actions': [cmd],
-           #'file_dep': [f],
-           }
-'''
+# def task_anonymize():
+#     """Anonymize imaging data."""
+#     ANON = DWILIB+'/anonymize_dicom.py'
+#     files = glob('dicoms/*/DICOMDIR') + glob('dicoms/*/DICOM/*')
+#     files.sort()
+#     for f in files:
+#         cmd = '{prg} -v -i {f}'.format(prg=ANON, f=f)
+#         yield {
+#            'name': f,
+#            'actions': [cmd],
+#            #'file_dep': [f],
+#            }
 
 
-'''
-def fit_cmd(model, subwindow, infiles, outfile):
-    PMAP = DWILIB+'/pmap.py'
-    d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
-             i=' '.join(infiles), o=outfile)
-    s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
-    return s
-'''
+# def fit_cmd(model, subwindow, infiles, outfile):
+#     PMAP = DWILIB+'/pmap.py'
+#     d = dict(prg=PMAP, m=model, sw=' '.join(str(x) for x in subwindow),
+#              i=' '.join(infiles), o=outfile)
+#     s = '{prg} -m {m} -s {sw} -d {i} -o {o}'.format(**d)
+#     return s
 
 
-'''
-def task_fit():
-    """Fit models to imaging data."""
-    MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
-              'Biexp BiexpN'.split())
-    SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
-    for case, scan in SUBWINDOWS.keys():
-        subwindow = SUBWINDOWS[(case, scan)]
-        d = dict(c=case, s=scan)
-        infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
-        if len(infiles) == 0:
-            continue
-        for model in MODELS:
-            d['m'] = model
-            outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
-            cmd = fit_cmd(model, subwindow, infiles, outfile)
-            yield {
-               'name': '{c}_{s}_{m}'.format(**d),
-               'actions': folders(outfile) + [cmd],
-               'file_dep': infiles,
-               'targets': [outfile],
-               'clean': True,
-               }
-'''
+# def task_fit():
+#     """Fit models to imaging data."""
+#     MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
+#               'Biexp BiexpN'.split())
+#     SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
+#     for case, scan in SUBWINDOWS.keys():
+#         subwindow = SUBWINDOWS[(case, scan)]
+#         d = dict(c=case, s=scan)
+#         infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
+#         if len(infiles) == 0:
+#             continue
+#         for model in MODELS:
+#             d['m'] = model
+#             outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
+#             cmd = fit_cmd(model, subwindow, infiles, outfile)
+#             yield {
+#                'name': '{c}_{s}_{m}'.format(**d),
+#                'actions': folders(outfile) + [cmd],
+#                'file_dep': infiles,
+#                'targets': [outfile],
+#                'clean': True,
+#                }
 
 
 def make_subregion_cmd(mask, subregion):
