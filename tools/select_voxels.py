@@ -58,14 +58,12 @@ def main():
         print(image.shape)
         print(attrs)
 
-    # Select subwindow.
     if args.subwindow:
         if args.verbose:
             print('Using subwindow %s' % args.subwindow)
         image = dwi.util.crop_image(image, args.subwindow,
                                     onebased=True).copy()
 
-    # Apply mask.
     if args.mask:
         mask = dwi.mask.read_mask(args.mask)
         if args.subwindow and args.subwindow_mask:
@@ -77,7 +75,6 @@ def main():
         else:
             image = mask.selected(image)
 
-    # Rename parameters.
     if args.rename_params:
         attrs['parameters'] = args.rename_params
     if args.source_attrs:
