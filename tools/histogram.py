@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Plot histogram."""
+"""Plot histograms of images."""
 
 from __future__ import absolute_import, division, print_function
 import argparse
