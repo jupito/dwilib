@@ -1,21 +1,22 @@
 #!/usr/bin/env python2
 
-"""Select voxels from image by subwindow, ROI, and write them into an ASCII
-file. Multiple same-size images may be combined by overlaying the
-parameters.
+"""Select voxels from image and write them into another file. Output may
+include all voxels, or a selection made by subwindow specification or mask
+file.
+
+Multiple same-size images may be combined by overlaying the parameters. In this
+case, the output file will receive its attributes from the first input file,
+except for the 'parameters' attribute, which will be aggregated.
 """
 
 from __future__ import absolute_import, division, print_function
 import argparse
-#from collections import OrderedDict
 from operator import add
 import os.path
 
 import numpy as np
 
-#import dwi.dwimage
 import dwi.files
-import dwi.hdf5
 import dwi.mask
 import dwi.util
 
@@ -41,75 +42,10 @@ def parse_args():
     return p.parse_args()
 
 
-#def merge_dwimages(dwimages):
-#    """Merge multiple images of same size by overlaying the parameters."""
-#    images = [d.image for d in dwimages]
-#    bsets = [d.bset for d in dwimages]
-#    filenames = [d.filename for d in dwimages]
-#    image = np.concatenate(images, axis=-1)
-#    bset = np.concatenate(bsets)
-#    dwimage = dwi.dwimage.DWImage(image, bset)
-#    dwimage.filename = '; '.join(filenames)
-#    dwimage.number = dwimages[0].number
-#    dwimage.subwindow = dwimages[0].subwindow
-#    dwimage.roislice = dwimages[0].roislice
-#    dwimage.name = dwimages[0].name
-#    dwimage.voxel_spacing = dwimages[0].voxel_spacing
-#    return dwimage
-
-
-#def write_pmap_ascii_head(dwimage, model, params, f):
-#    """Write pmap ASCII header."""
-#    f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in dwimage.subwindow))
-#    f.write('number: %d\n' % dwimage.number)
-#    f.write('bset: [%s]\n' % ' '.join(str(x) for x in dwimage.bset))
-#    f.write('ROIslice: %s\n' % dwimage.roislice)
-#    f.write('name: %s\n' % dwimage.name)
-#    f.write('executiontime: %d s\n' % dwimage.execution_time())
-#    f.write('description: %s %s\n' % (dwimage.filename, repr(model)))
-#    f.write('model: %s\n' % model)
-#    f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
-
-
-#def write_pmap_ascii_body(pmap, f):
-#    """Write pmap ASCII body."""
-#    for p in pmap:
-#        f.write(' '.join(repr(x) for x in p) + '\n')
-
-
-#def write(filename, dwimage, image, fmt=None):
-#    """Write output file."""
-#    params = range(image.shape[-1])
-#    if fmt is None:
-#        fmt = os.path.splitext(filename)[1][1:]
-#    if fmt in ['hdf5', 'h5']:
-#        attrs = OrderedDict()
-#        attrs['bset'] = dwimage.bset
-#        attrs['parameters'] = params
-#        dwi.hdf5.write_hdf5(filename, image, attrs)
-#    elif fmt in ['txt', 'ascii']:
-#        image = image.reshape((-1, image.shape[-1]))
-#        with open(filename, 'w') as f:
-#            write_pmap_ascii_head(dwimage, 'selection', params, f)
-#            write_pmap_ascii_body(image, f)
-#    else:
-#        raise Exception('Unknown format: {}'.format(fmt))
-
-
 def main():
     args = parse_args()
 
-    # Load image.
-    #if len(args.input) == 1:
-    #    dwimage = dwi.dwimage.load(args.input[0])[0]
-    #else:
-    #    dwimages = []
-    #    for infile in args.input:
-    #        dwimages.append(dwi.dwimage.load(infile)[0])
-    #    dwimage = merge_dwimages(dwimages)
-    #if args.verbose:
-    #    print(dwimage)
-
+    # Read and merge images.
     tuples = [dwi.files.read_pmap(x) for x in args.input]
     image = np.concatenate([x for x, _ in tuples], axis=-1)
     attrs = tuples[0][1]
@@ -122,12 +58,10 @@ def main():
     if args.subwindow:
         if args.verbose:
             print('Using subwindow %s' % args.subwindow)
-        #dwimage = dwimage.get_roi(args.subwindow, onebased=True)
         image = dwi.util.crop_image(image, args.subwindow,
                                     onebased=True).copy()
 
-    # Select sequence of voxels.
-    #image = dwimage.image
+    # Apply mask.
     if args.mask:
         mask = dwi.mask.read_mask(args.mask)
         if args.subwindow and args.subwindow_mask:
@@ -145,8 +79,8 @@ def main():
     if args.verbose:
         print('Writing {nv} voxels with {np} parameters to {of}'.format(
             nv=image.size, np=image.shape[-1], of=outfile))
-    #write(outfile, dwimage, image)
-    dwi.files.write_pmap(outfile, image, attrs['parameters'])
+    dwi.files.write_pmap(outfile, image, params=attrs['parameters'],
+                         attrs=attrs)
 
 
 if __name__ == '__main__':
