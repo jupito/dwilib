@@ -46,14 +46,19 @@ def parse_args():
     return p.parse_args()
 
 
-def main():
-    args = parse_args()
-
-    # Read and merge images.
-    tuples = [dwi.files.read_pmap(x) for x in args.input]
+def merge(tuples):
+    """Merge pmaps. Parameter names are aggregated; for other attributes, only
+    the first file is used.
+    """
     image = np.concatenate([x for x, _ in tuples], axis=-1)
     attrs = tuples[0][1]
     attrs['parameters'] = reduce(add, (x['parameters'] for _, x in tuples))
+    return image, attrs
+
+
+def main():
+    args = parse_args()
+    image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
     if args.verbose:
         print(image.shape)
         print(attrs)
