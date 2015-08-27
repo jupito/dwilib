@@ -25,7 +25,7 @@ class ImageMode(object):
         if len(value) != 3:
             raise ValueError('Invalid image mode: {}'.format(value))
         self.modality, self.model, self.param = value
-        self.standardize = (self.modality == 'T2w')
+        self.standardize = (self.modality == 'T2w' and self.param == 'raw')
 
     def __iter__(self):
         return iter((self.modality, self.model, self.param))

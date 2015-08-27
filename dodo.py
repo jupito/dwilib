@@ -285,9 +285,8 @@ def task_standardize_transform():
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
             inpath = pmap_path(mode, case, scan, new=False)
-            outmode = dwi.patient.ImageMode(str(mode))
-            outmode.param = 'std'
-            outmode.standardize = False
+            outmode = dwi.patient.ImageMode('{}-{}-std'.format(mode.modality,
+                                                               mode.model))
             outpath = pmap_path(outmode, case, scan, new=True)
             cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
             yield {
