@@ -194,15 +194,14 @@ def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
     return cmd.format(**d)
 
 
-def get_texture_cmd_new(mode, case, scan, method, winsize, slices, portion,
-                        mask, outpath, std_cfg, voxel):
+def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
+                        outpath, std_cfg, voxel):
     GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
-    d = dict(prg=GET_TEXTURE_NEW, m=mode, c=case, s=scan,
+    d = dict(prg=GET_TEXTURE_NEW, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
-             pd=pmap_path(mode), mask=mask, o=outpath, vx=voxel)
+             o=outpath, vx=voxel)
     cmd = ('{prg} -v'
-           ' --pmapdir {pd} --param {m.param}'
-           ' --case {c} --scan {s} --mask {mask}'
+           ' --input {i} --mask {mask}'
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winspec {ws} --voxel {vx}'
            ' --output {o}')
@@ -284,10 +283,8 @@ def task_standardize_transform():
             continue
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
-            inpath = pmap_path(mode, case, scan, new=False)
-            outmode = dwi.patient.ImageMode('{}-{}-std'.format(mode.modality,
-                                                               mode.model))
-            outpath = pmap_path(outmode, case, scan, new=True)
+            inpath = pmap_path(mode, case, scan)
+            outpath = pmap_path(str(mode) + '-std', case, scan, new=True)
             cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
             yield {
                 'name': name(case, scan),
@@ -504,16 +501,19 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
                                 portion, method, winsize, voxel):
     """Generate texture features."""
+    inpath = pmap_path(mode, case, scan)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
                                portion, method, winsize, voxel=voxel)
     std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
-        std_cfg = std_cfg_path(mode)
-        deps.append(std_cfg)
-    cmd = get_texture_cmd_new(mode, case, scan, method, winsize, slices,
-                              portion, mask, outfile, std_cfg, voxel)
+        # std_cfg = std_cfg_path(mode)
+        # deps.append(std_cfg)
+        inpath = pmap_path(str(mode) + '-std', case, scan, new=True)
+        deps.append(inpath)
+    cmd = get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
+                              outfile, std_cfg, voxel)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
