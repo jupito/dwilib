@@ -30,6 +30,8 @@ def parse_args():
                    help='case number')
     p.add_argument('--scan',
                    help='scan identifier')
+    p.add_argument('--input',
+                   help='input image')
     p.add_argument('--mask',
                    help='mask file to use')
     p.add_argument('--std',
@@ -83,9 +85,16 @@ def main():
     args = parse_args()
     if args.verbose:
         print('Reading data...')
-    data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
-    dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-    img = data[0]['image'].squeeze()
+    if args.input:
+        # New style.
+        img, _ = dwi.files.read_pmap(args.input)
+        assert img.shape[-1] == 1
+        img = img.squeeze()
+    else:
+        # Old style.
+        data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
+        dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
+        img = data[0]['image'].squeeze()
 
     if args.mask is not None:
         mask = dwi.mask.read_mask(args.mask)
