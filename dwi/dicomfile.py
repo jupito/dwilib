@@ -79,35 +79,35 @@ def construct_image(slices, positions, bvalues):
     return image
 
 
-def get_bvalue(d):
+def get_bvalue(df):
     """Return image b-value. It may also be stored as frame second."""
-    if 'DiffusionBValue' in d:
-        r = d.DiffusionBValue
-    elif 'FrameTime' in d:
-        r = d.FrameTime / 1000
-    elif 'FrameReferenceTime' in d:
-        r = d.FrameReferenceTime / 1000
+    if 'DiffusionBValue' in df:
+        r = df.DiffusionBValue
+    elif 'FrameTime' in df:
+        r = df.FrameTime / 1000
+    elif 'FrameReferenceTime' in df:
+        r = df.FrameReferenceTime / 1000
     else:
         raise AttributeError('DICOM file does not contain a b-value')
     return r
 
 
-def get_pixels(d):
+def get_pixels(df):
     """Return rescaled pixel array from DICOM object."""
-    pixels = d.pixel_array.astype(np.float32)
-    pixels = pixels * d.RescaleSlope + d.RescaleIntercept
+    pixels = df.pixel_array.astype(np.float32)
+    pixels = pixels * df.RescaleSlope + df.RescaleIntercept
     # # Clipping should not be done.
-    # lowest = d.WindowCenter - d.WindowWidth/2
-    # highest = d.WindowCenter + d.WindowWidth/2
+    # lowest = df.WindowCenter - df.WindowWidth/2
+    # highest = df.WindowCenter + df.WindowWidth/2
     # pixels = pixels.clip(lowest, highest, out=pixels)
     return pixels
 
 
-def get_voxel_spacing(d):
+def get_voxel_spacing(df):
     """Return voxel spacing in millimeters as (z, y, x)."""
     # Note: Some manufacturers misinterpret SpacingBetweenSlices, it would be
     # better to calculate this from ImageOrientationPatient and
     # ImagePositionPatient.
-    z = d.SpacingBetweenSlices if 'SpacingBetweenSlices' in d else 1.
-    x, y = d.PixelSpacing if 'PixelSpacing' in d else (1., 1.)
+    z = df.SpacingBetweenSlices if 'SpacingBetweenSlices' in df else 1.
+    x, y = df.PixelSpacing if 'PixelSpacing' in df else (1., 1.)
     return tuple(float(n) for n in (z, y, x))
