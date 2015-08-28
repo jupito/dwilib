@@ -171,15 +171,14 @@ def standardize_train_cmd(mode, cfgfile, samplelist='all'):
 
 def standardize_transform_cmd(cfgpath, inpath, outpath):
     """Standardize MRI images: transform phase."""
-    return '{prg} --transform {c} {i} {o}'.format(prg=DWILIB+'/standardize.py',
-                                                  c=cfgpath, i=inpath,
-                                                  o=outpath)
+    cmd = '{prg} --transform {c} {i} {o}'
+    return cmd.format(prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath,
+                      o=outpath)
 
 
 def get_texture_cmd_old(mode, case, scan, methods, winsizes, slices, portion,
                         mask, outpath, std_cfg):
-    GET_TEXTURE = DWILIB+'/get_texture.py'
-    d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
+    d = dict(prg=DWILIB+'/get_texture.py', m=mode, c=case, s=scan,
              slices=slices, portion=portion,
              methods=' '.join(methods), winsizes=winsizes,
              pd=pmap_path(mode), mask=mask, o=outpath)
@@ -196,8 +195,7 @@ def get_texture_cmd_old(mode, case, scan, methods, winsizes, slices, portion,
 
 def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
                         outpath, voxel, std_cfg=None):
-    GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
-    d = dict(prg=GET_TEXTURE_NEW, i=inpath, mask=mask,
+    d = dict(prg=DWILIB+'/get_texture_new.py', i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
     cmd = ('{prg} -v'
@@ -212,9 +210,8 @@ def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
 
 
 def make_subregion_cmd(mask, subregion):
-    MASKTOOL = DWILIB+'/masktool.py'
-    return '{prg} -i {mask} --pad 10 -s {sr}'.format(prg=MASKTOOL, mask=mask,
-                                                     sr=subregion)
+    cmd = '{prg} -i {mask} --pad 10 -s {sr}'
+    return cmd.format(prg=DWILIB+'/masktool.py', mask=mask, sr=subregion)
 
 
 def task_standardize_train():
@@ -265,11 +262,10 @@ def task_make_subregion():
 
 
 def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
-    FIND_ROI = DWILIB+'/find_roi.py'
-    d = dict(prg=FIND_ROI, m=mode, slf=samplelist_path(mode, SAMPLELIST),
-             pd=pmap_path(mode), srd=subregion_path(mode),
-             c=case, s=scan, ap=' '.join(algparams), outmask=outmask,
-             outfig=outfig)
+    d = dict(prg=DWILIB+'/find_roi.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), pd=pmap_path(mode),
+             srd=subregion_path(mode), c=case, s=scan, ap=' '.join(algparams),
+             outmask=outmask, outfig=outfig)
     return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
             '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
             '--outmask {outmask} --outfig {outfig}'.format(**d))
@@ -301,11 +297,11 @@ def task_find_roi():
 
 
 def select_voxels_cmd(inpath, outpath, mask=None):
-    SELECT_VOXELS = DWILIB+'/select_voxels.py'
     cmd = '{prg} -i {i} -o {o}'
     if mask:
         cmd += ' -m {m}'
-    return cmd.format(prg=SELECT_VOXELS, i=inpath, o=outpath, m=mask)
+    return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
+                      m=mask)
 
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
@@ -370,9 +366,9 @@ def task_select_roi():
 
 
 def auc_cmd(mode, threshold, algparams, outfile):
-    CALC_AUC = DWILIB+'/roc_auc.py'
-    d = dict(prg=CALC_AUC, m=mode, slf=samplelist_path(mode, SAMPLELIST),
-             t=threshold, i=roi_path(mode, 'auto', algparams=algparams),
+    d = dict(prg=DWILIB+'/roc_auc.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), t=threshold,
+             i=roi_path(mode, 'auto', algparams=algparams),
              ap_='_'.join(algparams), o=outfile)
     return (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
             '--autoflip --pmapdir {i}` {ap_} >> {o}'.format(**d))
@@ -395,9 +391,9 @@ def get_task_autoroi_auc(mode, threshold):
 
 
 def correlation_cmd(mode, thresholds, algparams, outfile):
-    CORRELATION = DWILIB+'/correlation.py'
-    d = dict(prg=CORRELATION, m=mode, slf=samplelist_path(mode, SAMPLELIST),
-             t=thresholds, i=roi_path(mode, 'auto', algparams=algparams),
+    d = dict(prg=DWILIB+'/correlation.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), t=thresholds,
+             i=roi_path(mode, 'auto', algparams=algparams),
              ap_='_'.join(algparams), o=outfile)
     return (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
             '--pmapdir {i}` {ap_} >> {o}'.format(**d))
@@ -557,8 +553,7 @@ def task_merge_textures():
 
 
 def mask_out_cmd(src, dst, mask):
-    MASK_OUT_DICOM = DWILIB+'/mask_out_dicom.py'
-    d = dict(prg=MASK_OUT_DICOM, src=src, dst=dst, mask=mask)
+    d = dict(prg=DWILIB+'/mask_out_dicom.py', src=src, dst=dst, mask=mask)
     rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
     cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source
     mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
