@@ -63,7 +63,7 @@ def texture_methods():
         ]
 
 
-def texture_winsizes(masktype, mode):
+def texture_winsizes_old(masktype, mode):
     if masktype in ('CA', 'N'):
         seq = [3, 5]
     elif mode.modality in ('T2', 'T2w'):
@@ -176,8 +176,8 @@ def standardize_transform_cmd(cfgpath, inpath, outpath):
                                                   o=outpath)
 
 
-def get_texture_cmd(mode, case, scan, methods, winsizes, slices, portion,
-                    mask, outpath, std_cfg):
+def get_texture_cmd_old(mode, case, scan, methods, winsizes, slices, portion,
+                        mask, outpath, std_cfg):
     GET_TEXTURE = DWILIB+'/get_texture.py'
     d = dict(prg=GET_TEXTURE, m=mode, c=case, s=scan,
              slices=slices, portion=portion,
@@ -474,11 +474,11 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(MODE, '')
 
 
-def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
-                            portion):
+def get_task_texture_manual_old(mode, masktype, case, scan, lesion, slices,
+                                portion):
     """Generate texture features."""
     methods = texture_methods()
-    winsizes = texture_winsizes(masktype, mode)
+    winsizes = texture_winsizes_old(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices,
                            portion)
@@ -487,8 +487,8 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     if mode.standardize:
         std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
-    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
-                          portion, mask, outfile, std_cfg)
+    cmd = get_texture_cmd_old(mode, case, scan, methods, winsizes, slices,
+                              portion, mask, outfile, std_cfg)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion),
         'actions': folders(outfile) + [cmd],
@@ -524,12 +524,12 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
         }
 
 
-def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
-                          portion):
+def get_task_texture_auto_old(mode, algparams, case, scan, lesion, slices,
+                              portion):
     """Generate texture features."""
     masktype = 'auto'
     methods = texture_methods()
-    winsizes = texture_winsizes(masktype, mode)
+    winsizes = texture_winsizes_old(masktype, mode)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion,
                      algparams=algparams)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices,
@@ -539,8 +539,8 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
     if mode.standardize:
         std_cfg = std_cfg_path(mode)
         deps.append(std_cfg)
-    cmd = get_texture_cmd(mode, case, scan, methods, winsizes, slices,
-                          portion, mask, outfile, std_cfg)
+    cmd = get_texture_cmd_old(mode, case, scan, methods, winsizes, slices,
+                              portion, mask, outfile, std_cfg)
     return {
         'name': name(mode, '_'.join(algparams), slices, portion, case, scan,
                      lesion),
@@ -551,19 +551,21 @@ def get_task_texture_auto(mode, algparams, case, scan, lesion, slices,
         }
 
 
-def task_texture():
+def task_texture_old():
     """Generate texture features."""
     for c, s, l in lesions(MODE):
-        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'maxfirst', 0)
-        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'all', 0)
-        yield get_task_texture_manual(MODE, 'lesion', c, s, l, 'all', 1)
+        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'maxfirst',
+                                          0)
+        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'maxfirst',
+                                          1)
+        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'all', 0)
+        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'all', 1)
         if MODE.modality in ('T2', 'T2w'):
             continue  # Do only lesion for those.
-        yield get_task_texture_manual(MODE, 'CA', c, s, l, 'maxfirst', 1)
-        yield get_task_texture_manual(MODE, 'N', c, s, l, 'maxfirst', 1)
+        yield get_task_texture_manual_old(MODE, 'CA', c, s, l, 'maxfirst', 1)
+        yield get_task_texture_manual_old(MODE, 'N', c, s, l, 'maxfirst', 1)
         for ap in find_roi_param_combinations(MODE):
-            yield get_task_texture_auto(MODE, ap, c, s, l, 'maxfirst', 1)
+            yield get_task_texture_auto_old(MODE, ap, c, s, l, 'maxfirst', 1)
 
 
 def task_texture_new():
@@ -658,5 +660,5 @@ def task_all():
     """Do all essential things."""
     return {
         'actions': None,
-        'task_dep': ['select_roi', 'evaluate_autoroi', 'texture'],
+        'task_dep': ['select_roi', 'evaluate_autoroi'],
         }
