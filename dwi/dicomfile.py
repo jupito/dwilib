@@ -68,7 +68,7 @@ def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
     w, h = slices.values()[0].shape
     shape = (len(positions), w, h, len(bvalues))
-    image = np.empty(shape)  # XXX: How about float32?
+    image = np.empty(shape, dtype=np.float64)  # XXX: How about float32?
     image.fill(np.nan)
     for k, v in slices.iteritems():
         i = positions.index(k[0])
@@ -94,13 +94,13 @@ def get_bvalue(d):
 
 def get_pixels(d):
     """Return rescaled pixel array from DICOM object."""
-    pixels = d.pixel_array.astype(float)
+    pixels = d.pixel_array.astype(np.float64)  # XXX: How about float32?
     pixels = pixels * d.RescaleSlope + d.RescaleIntercept
     # # Clipping should not be done.
     # lowest = d.WindowCenter - d.WindowWidth/2
     # highest = d.WindowCenter + d.WindowWidth/2
     # pixels = pixels.clip(lowest, highest, out=pixels)
-    return pixels  # XXX: How about float32?
+    return pixels
 
 
 def get_voxel_spacing(d):
