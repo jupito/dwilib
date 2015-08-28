@@ -30,11 +30,11 @@ def parse_args():
 def histogram(a, m1=None, m2=None, bins=20):
     """Create histogram from data between [m1, m2], with bin centers."""
     a = np.asarray(a)
-    mn, mx = a.min(), a.max()
     if m1 is not None:
         a = a[a >= m1]
     if m2 is not None:
         a = a[a <= m2]
+    mn, mx = a.min(), a.max()
     # bins = a.size / 100000
     hist, bin_edges = np.histogram(a, bins=bins, density=True)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
@@ -49,9 +49,13 @@ def plot_histograms(Histograms, outfile):
     for i, histograms in enumerate(Histograms):
         if histograms:
             fig.add_subplot(1, len(Histograms), i+1)
-            minmin, maxmax = 0, 0
+            minmin, maxmax = None, None
             for hist, bins, mn, mx in histograms:
                 pl.plot(bins, hist)
+                if minmin is None:
+                    minmin = mn
+                if maxmax is None:
+                    maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
             pl.title('[{}, {}]'.format(minmin, maxmax))
