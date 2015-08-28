@@ -130,6 +130,7 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
         slot = np.clip(slot, 1, len(scores)-1)
         r[pos] = map_onto_scale(scores[slot-1], scores[slot],
                                 mapped_scores[slot-1], mapped_scores[slot], v)
+    r = np.clip(r, s1-1, s2+1, out=r)
     return r
 
 
