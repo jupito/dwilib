@@ -49,9 +49,9 @@ class Gui(object):
     def on_key(self, event):
         if event.key == 'q':
             plt.close()
-        if event.key == '1':
+        if event.key == 'h':
             self.update_x = not self.update_x
-        if event.key == '2':
+        if event.key == 'v':
             self.update_y = not self.update_y
         if event.key == 'e':
             name = plt.get_cmap().name
@@ -97,8 +97,8 @@ class Gui(object):
     Horizontal mouse move: change slice (in update mode)
     Vertical mouse move: change b-value (in update mode)
     Click: toggle update mode
-    1: toggle horizontal update mode
-    2: toggle vertical update mode
+    h: toggle horizontal update
+    v: toggle vertical update
     e: toggle reverse colormap
     g: toggle grid
     {cmap_keys}: select colormap: {cmap_names}
