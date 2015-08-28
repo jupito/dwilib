@@ -32,27 +32,7 @@ def read_files(filenames):
     """
     d = {}
     for f in filenames:
-        df = dicom.read_file(f)
-        if 'PixelData' not in df:
-            continue
-        d.setdefault('orientation', df.ImageOrientationPatient)
-        if d['orientation'] != df.ImageOrientationPatient:
-            raise Exception('Orientation mismatch.')
-        d.setdefault('shape', df.pixel_array.shape)
-        if d['shape'] != df.pixel_array.shape:
-            raise Exception('Shape mismatch.')
-        d.setdefault('type', df.pixel_array.dtype)
-        if d['type'] != df.pixel_array.dtype:
-            raise Exception('Type mismatch.')
-        d.setdefault('voxel_spacing', get_voxel_spacing(df))
-        position = tuple(float(x) for x in df.ImagePositionPatient)
-        bvalue = get_bvalue(df)
-        pixels = get_pixels(df)
-        d.setdefault('positions', set()).add(position)
-        d.setdefault('bvalues', set()).add(bvalue)
-        key = (position, bvalue)
-        slices = d.setdefault('slices', {})  # Indexed by (position, bvalue)...
-        slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
+        read_slice(f, d)
     positions = sorted(d['positions'])
     bvalues = sorted(d['bvalues'])
     slices = d['slices']
@@ -62,6 +42,31 @@ def read_files(filenames):
     image = construct_image(slices, positions, bvalues)
     r = dict(bvalues=bvalues, voxel_spacing=d['voxel_spacing'], image=image)
     return r
+
+
+def read_slice(filename, d):
+    """Read a single slice."""
+    df = dicom.read_file(filename)
+    if 'PixelData' not in df:
+        return
+    d.setdefault('orientation', df.ImageOrientationPatient)
+    if d['orientation'] != df.ImageOrientationPatient:
+        raise Exception('Orientation mismatch.')
+    d.setdefault('shape', df.pixel_array.shape)
+    if d['shape'] != df.pixel_array.shape:
+        raise Exception('Shape mismatch.')
+    d.setdefault('type', df.pixel_array.dtype)
+    if d['type'] != df.pixel_array.dtype:
+        raise Exception('Type mismatch.')
+    d.setdefault('voxel_spacing', get_voxel_spacing(df))
+    position = tuple(float(x) for x in df.ImagePositionPatient)
+    bvalue = get_bvalue(df)
+    pixels = get_pixels(df)
+    d.setdefault('positions', set()).add(position)
+    d.setdefault('bvalues', set()).add(bvalue)
+    key = (position, bvalue)
+    slices = d.setdefault('slices', {})  # Indexed by (position, bvalue)...
+    slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
 
 
 def construct_image(slices, positions, bvalues):
