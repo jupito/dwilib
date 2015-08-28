@@ -195,7 +195,7 @@ def get_texture_cmd_old(mode, case, scan, methods, winsizes, slices, portion,
 
 
 def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
-                        outpath, std_cfg, voxel):
+                        outpath, voxel, std_cfg=None):
     GET_TEXTURE_NEW = DWILIB+'/get_texture_new.py'
     d = dict(prg=GET_TEXTURE_NEW, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
@@ -505,7 +505,7 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
                                portion, method, winsize, voxel=voxel)
-    std_cfg = None
+    # std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
         # std_cfg = std_cfg_path(mode)
@@ -513,7 +513,7 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
         inpath = pmap_path(str(mode) + '-std', case, scan, new=True)
         deps.append(inpath)
     cmd = get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
-                              outfile, std_cfg, voxel)
+                              outfile, voxel, std_cfg=None)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
