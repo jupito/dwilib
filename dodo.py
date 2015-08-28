@@ -157,6 +157,11 @@ def path_deps(*paths):
     return paths
 
 
+#
+# Commands.
+#
+
+
 def standardize_train_cmd(mode, cfgfile, samplelist='all'):
     """Standardize MRI images: training phase.
 
@@ -209,9 +214,58 @@ def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
     return cmd
 
 
+def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
+    d = dict(prg=DWILIB+'/find_roi.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), pd=pmap_path(mode),
+             srd=subregion_path(mode), c=case, s=scan, ap=' '.join(algparams),
+             outmask=outmask, outfig=outfig)
+    return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
+            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
+            '--outmask {outmask} --outfig {outfig}'.format(**d))
+
+
 def make_subregion_cmd(mask, subregion):
     cmd = '{prg} -i {mask} --pad 10 -s {sr}'
     return cmd.format(prg=DWILIB+'/masktool.py', mask=mask, sr=subregion)
+
+
+def select_voxels_cmd(inpath, outpath, mask=None):
+    cmd = '{prg} -i {i} -o {o}'
+    if mask:
+        cmd += ' -m {m}'
+    return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
+                      m=mask)
+
+
+def auc_cmd(mode, threshold, algparams, outfile):
+    d = dict(prg=DWILIB+'/roc_auc.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), t=threshold,
+             i=roi_path(mode, 'auto', algparams=algparams),
+             ap_='_'.join(algparams), o=outfile)
+    return (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
+            '--autoflip --pmapdir {i}` {ap_} >> {o}'.format(**d))
+
+
+def correlation_cmd(mode, thresholds, algparams, outfile):
+    d = dict(prg=DWILIB+'/correlation.py', m=mode,
+             slf=samplelist_path(mode, SAMPLELIST), t=thresholds,
+             i=roi_path(mode, 'auto', algparams=algparams),
+             ap_='_'.join(algparams), o=outfile)
+    return (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
+            '--pmapdir {i}` {ap_} >> {o}'.format(**d))
+
+
+def mask_out_cmd(src, dst, mask):
+    d = dict(prg=DWILIB+'/mask_out_dicom.py', src=src, dst=dst, mask=mask)
+    rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
+    cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source
+    mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
+    return [rm, cp, mask]
+
+
+#
+# Tasks.
+#
 
 
 def task_standardize_train():
@@ -261,16 +315,6 @@ def task_make_subregion():
             }
 
 
-def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
-    d = dict(prg=DWILIB+'/find_roi.py', m=mode,
-             slf=samplelist_path(mode, SAMPLELIST), pd=pmap_path(mode),
-             srd=subregion_path(mode), c=case, s=scan, ap=' '.join(algparams),
-             outmask=outmask, outfig=outfig)
-    return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
-            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
-            '--outmask {outmask} --outfig {outfig}'.format(**d))
-
-
 def get_task_find_roi(mode, case, scan, algparams):
     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
@@ -294,14 +338,6 @@ def task_find_roi():
     for algparams in find_roi_param_combinations(MODE):
         for case, scan in cases_scans(MODE):
             yield get_task_find_roi(MODE, case, scan, algparams)
-
-
-def select_voxels_cmd(inpath, outpath, mask=None):
-    cmd = '{prg} -i {i} -o {o}'
-    if mask:
-        cmd += ' -m {m}'
-    return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
-                      m=mask)
 
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
@@ -365,15 +401,6 @@ def task_select_roi():
         }
 
 
-def auc_cmd(mode, threshold, algparams, outfile):
-    d = dict(prg=DWILIB+'/roc_auc.py', m=mode,
-             slf=samplelist_path(mode, SAMPLELIST), t=threshold,
-             i=roi_path(mode, 'auto', algparams=algparams),
-             ap_='_'.join(algparams), o=outfile)
-    return (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
-            '--autoflip --pmapdir {i}` {ap_} >> {o}'.format(**d))
-
-
 def get_task_autoroi_auc(mode, threshold):
     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
     d = dict(m=mode, sl=SAMPLELIST, t=threshold)
@@ -388,15 +415,6 @@ def get_task_autoroi_auc(mode, threshold):
         'targets': [outfile],
         'clean': True,
         }
-
-
-def correlation_cmd(mode, thresholds, algparams, outfile):
-    d = dict(prg=DWILIB+'/correlation.py', m=mode,
-             slf=samplelist_path(mode, SAMPLELIST), t=thresholds,
-             i=roi_path(mode, 'auto', algparams=algparams),
-             ap_='_'.join(algparams), o=outfile)
-    return (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
-            '--pmapdir {i}` {ap_} >> {o}'.format(**d))
 
 
 def get_task_autoroi_correlation(mode, thresholds):
@@ -550,14 +568,6 @@ def task_merge_textures():
                 'file_dep': infiles,
                 'targets': [outfile],
             }
-
-
-def mask_out_cmd(src, dst, mask):
-    d = dict(prg=DWILIB+'/mask_out_dicom.py', src=src, dst=dst, mask=mask)
-    rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
-    cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source
-    mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
-    return [rm, cp, mask]
 
 
 def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
