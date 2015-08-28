@@ -30,9 +30,6 @@ def read_files(filenames):
 
     DICOM files without pixel data are silently skipped.
     """
-    positions = set()
-    bvalues = set()
-    slices = dict()  # Lists of single slices indexed by (position, bvalue).
     d = {}
     for f in filenames:
         df = dicom.read_file(f)
@@ -51,12 +48,14 @@ def read_files(filenames):
         position = tuple(float(x) for x in df.ImagePositionPatient)
         bvalue = get_bvalue(df)
         pixels = get_pixels(df)
-        positions.add(position)
-        bvalues.add(bvalue)
+        d.setdefault('positions', set()).add(position)
+        d.setdefault('bvalues', set()).add(bvalue)
         key = (position, bvalue)
-        slices.setdefault(key, []).append(pixels)
-    positions = sorted(positions)
-    bvalues = sorted(bvalues)
+        slices = d.setdefault('slices', {})  # Indexed by (position, bvalue)...
+        slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
+    positions = sorted(d['positions'])
+    bvalues = sorted(d['bvalues'])
+    slices = d['slices']
     # If any slices are scanned multiple times, use mean.
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
