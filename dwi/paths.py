@@ -85,7 +85,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion,
 def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
                      method, winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
-    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}_{vx}'
+    path = 'texture/texture_{mt}_{m.model}_{m.param}_{slices}_{portion}_{vx}'
     if voxel == 'mean':
         ext = 'txt'
     else:
