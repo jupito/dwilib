@@ -47,7 +47,7 @@ def read_files(filenames):
         if d.pixel_array.shape != shape:
             raise Exception('Shape mismatch.')
         voxel_spacing = voxel_spacing or get_voxel_spacing(d)
-        position = tuple(map(float, d.ImagePositionPatient))
+        position = tuple(float(x) for x in d.ImagePositionPatient)
         bvalue = get_bvalue(d)
         pixels = get_pixels(d)
         positions.add(position)
