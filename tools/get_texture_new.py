@@ -10,7 +10,7 @@ import collections
 
 import numpy as np
 
-import dwi.dataset
+import dwi.files
 import dwi.mask
 import dwi.standardize
 import dwi.texture
@@ -22,14 +22,6 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='increase verbosity')
-    p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
-                   help='input parametric map directory')
-    p.add_argument('--param', default='ADCm',
-                   help='image parameter to use')
-    p.add_argument('--case', type=int,
-                   help='case number')
-    p.add_argument('--scan',
-                   help='scan identifier')
     p.add_argument('--input',
                    help='input image')
     p.add_argument('--mask',
@@ -85,16 +77,10 @@ def main():
     args = parse_args()
     if args.verbose:
         print('Reading data...')
-    if args.input:
-        # New style.
-        img, _ = dwi.files.read_pmap(args.input)
-        assert img.shape[-1] == 1
-        img = img.squeeze()
-    else:
-        # Old style.
-        data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
-        dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-        img = data[0]['image'].squeeze()
+    img, _ = dwi.files.read_pmap(args.input)
+    assert img.shape[-1] == 1
+    img = img[..., 0]
+    assert img.ndim == 3
 
     if args.mask is not None:
         mask = dwi.mask.read_mask(args.mask)
