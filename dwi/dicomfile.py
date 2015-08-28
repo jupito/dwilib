@@ -37,19 +37,19 @@ def read_files(filenames):
     bvalues = set()
     slices = dict()  # Lists of single slices indexed by (position, bvalue).
     for f in filenames:
-        d = dicom.read_file(f)
-        if 'PixelData' not in d:
+        df = dicom.read_file(f)
+        if 'PixelData' not in df:
             continue
-        orientation = orientation or d.ImageOrientationPatient
-        if d.ImageOrientationPatient != orientation:
+        orientation = orientation or df.ImageOrientationPatient
+        if df.ImageOrientationPatient != orientation:
             raise Exception('Orientation mismatch.')
-        shape = shape or d.pixel_array.shape
-        if d.pixel_array.shape != shape:
+        shape = shape or df.pixel_array.shape
+        if df.pixel_array.shape != shape:
             raise Exception('Shape mismatch.')
-        voxel_spacing = voxel_spacing or get_voxel_spacing(d)
-        position = tuple(float(x) for x in d.ImagePositionPatient)
-        bvalue = get_bvalue(d)
-        pixels = get_pixels(d)
+        voxel_spacing = voxel_spacing or get_voxel_spacing(df)
+        position = tuple(float(x) for x in df.ImagePositionPatient)
+        bvalue = get_bvalue(df)
+        pixels = get_pixels(df)
         positions.add(position)
         bvalues.add(bvalue)
         key = (position, bvalue)
