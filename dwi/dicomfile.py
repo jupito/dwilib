@@ -16,7 +16,7 @@ def read_dir(dirname):
         dirname = path
     filenames = os.listdir(dirname)
     pathnames = [os.path.join(dirname, f) for f in filenames]
-    return read_files_(pathnames)
+    return read_files(pathnames)
 
 
 def read_files(filenames):
