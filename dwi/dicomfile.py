@@ -30,23 +30,24 @@ def read_files(filenames):
 
     DICOM files without pixel data are silently skipped.
     """
-    orientation = None
-    shape = None
-    voxel_spacing = None
     positions = set()
     bvalues = set()
     slices = dict()  # Lists of single slices indexed by (position, bvalue).
+    d = {}
     for f in filenames:
         df = dicom.read_file(f)
         if 'PixelData' not in df:
             continue
-        orientation = orientation or df.ImageOrientationPatient
-        if df.ImageOrientationPatient != orientation:
+        d.setdefault('orientation', df.ImageOrientationPatient)
+        if d['orientation'] != df.ImageOrientationPatient:
             raise Exception('Orientation mismatch.')
-        shape = shape or df.pixel_array.shape
-        if df.pixel_array.shape != shape:
+        d.setdefault('shape', df.pixel_array.shape)
+        if d['shape'] != df.pixel_array.shape:
             raise Exception('Shape mismatch.')
-        voxel_spacing = voxel_spacing or get_voxel_spacing(df)
+        d.setdefault('type', df.pixel_array.dtype)
+        if d['type'] != df.pixel_array.dtype:
+            raise Exception('Type mismatch.')
+        d.setdefault('voxel_spacing', get_voxel_spacing(df))
         position = tuple(float(x) for x in df.ImagePositionPatient)
         bvalue = get_bvalue(df)
         pixels = get_pixels(df)
@@ -60,8 +61,8 @@ def read_files(filenames):
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
     image = construct_image(slices, positions, bvalues)
-    d = dict(bvalues=bvalues, voxel_spacing=voxel_spacing, image=image)
-    return d
+    r = dict(bvalues=bvalues, voxel_spacing=d['voxel_spacing'], image=image)
+    return r
 
 
 def construct_image(slices, positions, bvalues):
