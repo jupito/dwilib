@@ -85,6 +85,7 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
 
 def stats_mbb(img, mask):
     """Statistical texture features unified over a masked area."""
+    # TODO: Add area size?
     voxels = img[mask]
     feats = stats(voxels)
     output = feats.values()
