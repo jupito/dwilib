@@ -33,7 +33,7 @@ def histogram(a, m1=None, m2=None, bins=20):
     if m2 is not None:
         a = a[a < m2]
     mn, mx = a.min(), a.max()
-    # bins = a.size / 100000
+    # bins = a.size / 1000000
     hist, bin_edges = np.histogram(a, bins=bins, density=True)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
     return hist, bin_centers, mn, mx
