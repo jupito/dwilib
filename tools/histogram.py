@@ -8,8 +8,6 @@ import argparse
 import numpy as np
 
 import dwi.files
-import dwi.plot
-import dwi.standardize
 import dwi.util
 
 
@@ -28,12 +26,12 @@ def parse_args():
 
 
 def histogram(a, m1=None, m2=None, bins=20):
-    """Create histogram from data between [m1, m2], with bin centers."""
+    """Create histogram from data between (m1, m2), with bin centers."""
     a = np.asarray(a)
     if m1 is not None:
-        a = a[a >= m1]
+        a = a[a > m1]
     if m2 is not None:
-        a = a[a <= m2]
+        a = a[a < m2]
     mn, mx = a.min(), a.max()
     # bins = a.size / 100000
     hist, bin_edges = np.histogram(a, bins=bins, density=True)
@@ -72,9 +70,6 @@ def plot_histograms(Histograms, outfile):
 def main():
     args = parse_args()
 
-    d = dwi.standardize.default_configuration()
-    s1, s2 = d['scale']
-
     histograms = []
     histograms_std = []
     for path in args.input:
@@ -85,7 +80,7 @@ def main():
                 s=img.shape, t=img.dtype, m=np.mean(img),
                 f=dwi.util.fivenum(img), p=path))
         histograms.append(histogram(img, None, None))
-        histograms_std.append(histogram(img, s1, s2))
+        histograms_std.append(histogram(img, img.min(), img.max()))
     plot_histograms([histograms, histograms_std], args.fig)
 
 
