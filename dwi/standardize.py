@@ -65,7 +65,8 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
     """
     from scipy.stats import scoreatpercentile
     if thresholding:
-        threshold = np.mean(img)
+        # threshold = np.mean(img)
+        threshold = np.median(img)
         img = img[img > threshold]
     p1 = scoreatpercentile(img, pc1)
     p2 = scoreatpercentile(img, pc2)
