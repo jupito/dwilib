@@ -57,10 +57,6 @@ def plot_histograms(Histograms, outfile):
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
             pl.title('[{}, {}]'.format(minmin, maxmax))
-    # if histograms2:
-    #     fig.add_subplot(1, 2, 2)
-    #     for hist, bins in histograms2:
-    #         pl.plot(bins, hist)
     pl.tight_layout()
     print('Plotting to {}...'.format(outfile))
     pl.savefig(outfile, bbox_inches='tight')
