@@ -79,6 +79,18 @@ def main():
         histograms_std.append(histogram(img, img.min(), img.max()))
     plot_histograms([histograms, histograms_std], args.fig)
 
+    # All together.
+    # histograms = []
+    # histograms_std = []
+    # images = (dwi.files.read_pmap(x)[0].squeeze() for x in args.input)
+    # img = np.zeros((0,))
+    # for image in images:
+    #     img = np.concatenate([img, image])
+    # print(img.shape)
+    # histograms.append(histogram(img, None, None))
+    # histograms_std.append(histogram(img, img.min(), img.max()))
+    # plot_histograms([histograms, histograms_std], args.fig+'-together.png')
+
 
 if __name__ == '__main__':
     main()
