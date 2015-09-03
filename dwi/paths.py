@@ -56,9 +56,12 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     return path
 
 
-def roi_path(mode, masktype, case=None, scan=None, algparams=[]):
+def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=[]):
     """Return whole ROI path or part of it."""
-    d = dict(m=mode, mt=masktype, c=case, s=scan, ap_='_'.join(algparams))
+    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
+             ap_='_'.join(algparams))
+    if masktype == 'lesion':
+        return 'rois/lesion/{m}/{c}-{s}-{l}.h5'.format(**d)
     components = ['rois_{mt}_{m}']
     if algparams:
         components.append('{ap_}')

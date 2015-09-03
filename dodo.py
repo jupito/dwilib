@@ -370,6 +370,22 @@ def task_find_roi():
             yield get_task_find_roi(MODE, case, scan, algparams)
 
 
+def get_task_select_roi_lesion(mode, case, scan, lesion):
+    """Select ROIs from the pmap DICOMs based on masks."""
+    masktype = 'lesion'
+    mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
+    roi = roi_path(str(mode) + '-std', masktype, case, scan, lesion=lesion)
+    pmap = pmap_path(str(mode) + '-std', case, scan, new=True)
+    cmd = select_voxels_cmd(pmap, roi, mask=mask)
+    return {
+        'name': name(mode, masktype, case, scan, lesion),
+        'actions': folders(roi) + [cmd],
+        'file_dep': path_deps(mask),
+        'targets': [roi],
+        'clean': True,
+        }
+
+
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
     mask = mask_path(mode, masktype, case, scan)
@@ -401,6 +417,12 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
         'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
         }
+
+
+def task_select_roi_lesion():
+    """Select lesion ROIs from the pmap DICOMs."""
+    for c, s, l in lesions(MODE):
+        yield get_task_select_roi_lesion(MODE, c, s, l)
 
 
 def task_select_roi_manual():
