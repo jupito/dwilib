@@ -163,8 +163,7 @@ def standardize_train_cmd(mode, cfgfile, samplelist='all'):
     """
     d = dict(prg=DWILIB+'/standardize.py', m=mode, o=cfgfile,
              slf=samplelist_path(mode, samplelist), pd=pmap_path(mode))
-    cmd = ('{prg} --patients {slf} --pmapdir {pd}'
-           ' --param {m[2]} --outconf {o}')
+    cmd = '{prg} --patients {slf} --pmapdir {pd} --outconf {o}'
     return cmd.format(**d)
 
 
@@ -276,34 +275,32 @@ def task_convert_data():
 
 def task_standardize_train():
     """Standardize MRI images: training phase."""
-    for mode in [MODE]:
-        std_cfg = std_cfg_path(mode)
-        yield {
-            'name': name(mode),
-            'actions': [standardize_train_cmd(mode, std_cfg)],
-            'targets': [std_cfg],
-            'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
-            'clean': True,
-            }
+    mode = MODE - 'std'
+    std_cfg = std_cfg_path(mode)
+    return {
+        'name': name(mode),
+        'actions': [standardize_train_cmd(mode, std_cfg)],
+        'targets': [std_cfg],
+        'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
+        'clean': True,
+        }
 
 
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
-    for mode in [MODE]:
-        if 'std' in mode:
-            continue
-        cfgpath = std_cfg_path(mode)
-        for case, scan in cases_scans(mode):
-            inpath = pmap_path(mode, case, scan)
-            outpath = pmap_path(mode + 'std', case, scan)
-            cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
-            yield {
-                'name': name(case, scan),
-                'actions': folders(outpath) + [cmd],
-                'file_dep': path_deps(cfgpath, inpath),
-                'targets': [outpath],
-                'clean': True,
-            }
+    mode = MODE - 'std'
+    cfgpath = std_cfg_path(mode)
+    for case, scan in cases_scans(mode):
+        inpath = pmap_path(mode, case, scan)
+        outpath = pmap_path(mode + 'std', case, scan)
+        cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
+        yield {
+            'name': name(case, scan),
+            'actions': folders(outpath) + [cmd],
+            'file_dep': path_deps(cfgpath, inpath),
+            'targets': [outpath],
+            'clean': True,
+        }
 
 
 def task_make_subregion():

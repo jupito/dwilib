@@ -16,15 +16,20 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
         return path.format(m=mode, c=case, s=scan)
-    path = 'dicoms/{m[1]}_*'
-    if case is not None and scan is not None:
-        if mode[2] == 'raw':
-            # There's no actual parameter, only single 'raw' value (for T2).
-            path += '/{c}_*_{s}*'
+    elif fmt == 'dicom':
+        if len(mode) == 1:
+            path = 'dicoms/{m[0]}_*'
         else:
-            path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}'
-    path = path.format(m=mode, c=case, s=scan)
-    return dwi.util.sglob(path, typ='dir')
+            path = 'dicoms/{m[1]}_*'
+        if case is not None and scan is not None:
+            if len(mode) == 1:
+                path += '/{c}_*_{s}*'
+            else:
+                path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}'
+        path = path.format(m=mode, c=case, s=scan)
+        return dwi.util.sglob(path, typ='dir')
+    else:
+        raise ValueError('Unknown format: {}'.format(fmt))
 
 
 def subregion_path(mode, case=None, scan=None):
@@ -66,7 +71,7 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     if algparams:
         components.append('{ap_}')
     if case is not None and scan is not None:
-        components.append('{c}_x_x_{s}_{m[1]}_{m[2]}_{mt}.txt')
+        components.append('{c}_x_x_{s}_{m}_{mt}.txt')
     components = [x.format(**d) for x in components]
     return os.path.join(*components)
 
