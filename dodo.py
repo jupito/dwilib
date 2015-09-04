@@ -1,7 +1,7 @@
 """PyDoIt file for automating tasks."""
 
 from __future__ import absolute_import, division, print_function
-from itertools import chain, product
+from itertools import product
 from os.path import dirname, isdir
 import re
 
@@ -541,8 +541,8 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
     return {
         'name': name(case, scan),
         'actions': folders(dst) + cmds,
-        # 'file_dep':  # TODO
-        # 'targets':  # TODO
+        # 'file_dep':
+        # 'targets':
         }
 
 
