@@ -11,7 +11,7 @@ def samplelist_path(mode, samplelist):
 
 
 def pmap_path(mode, case=None, scan=None, new=False):
-    if new:
+    if new or 'std' in mode:
         path = 'images/{m}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'

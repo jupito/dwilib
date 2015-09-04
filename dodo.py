@@ -292,7 +292,7 @@ def task_standardize_transform():
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
             inpath = pmap_path(mode, case, scan)
-            outpath = pmap_path(str(mode) + '-std', case, scan, new=True)
+            outpath = pmap_path(mode + 'std', case, scan)
             cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
             yield {
                 'name': name(case, scan),
@@ -347,8 +347,8 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     """Select ROIs from the pmap DICOMs based on masks."""
     masktype = 'lesion'
     mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
-    roi = roi_path(str(mode) + '-std', masktype, case, scan, lesion=lesion)
-    pmap = pmap_path(str(mode) + '-std', case, scan, new=True)
+    roi = roi_path(mode + 'std', masktype, case, scan, lesion=lesion)
+    pmap = pmap_path(mode + 'std', case, scan)
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': name(mode, masktype, case, scan, lesion),
@@ -476,7 +476,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
                            method, winsize, voxel=voxel)
     deps = path_deps(mask)
     if mode.standardize:
-        inpath = pmap_path(str(mode) + '-std', case, scan, new=True)
+        inpath = pmap_path(mode + 'std', case, scan)
         deps.append(inpath)
     cmd = get_texture_cmd(inpath, method, winsize, slices, portion, mask,
                           outfile, voxel)
