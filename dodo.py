@@ -249,7 +249,8 @@ def task_convert_data():
     mode = MODE
     if 'std' in mode:
         return
-    paths = dwi.util.iglob('dicoms_{m[1]}_*/*'.format(m=mode), typ='dir')
+    paths = dwi.util.iglob('{}/*'.format(pmap_path(mode, fmt='dicom')),
+                           typ='dir')
     for path in paths:
         p = re.compile(r"""
            dicoms_(?P<model>[a-z0-9]+)_.+
