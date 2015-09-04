@@ -120,18 +120,18 @@ def find_roi_param_combinations(mode):
                 yield [str(x) for x in t]
 
 
-def cases_scans(mode):
+def cases_scans(mode, samplelist=SAMPLELIST):
     """Generate all case, scan pairs."""
-    samples = dwi.files.read_sample_list(samplelist_path(mode, SAMPLELIST))
+    samples = dwi.files.read_sample_list(samplelist_path(mode, samplelist))
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
             yield case, scan
 
 
-def lesions(mode):
+def lesions(mode, samplelist=SAMPLELIST):
     """Generate all case, scan, lesion# (1-based) combinations."""
-    patients = dwi.files.read_patients_file(samplelist_path(mode, SAMPLELIST))
+    patients = dwi.files.read_patients_file(samplelist_path(mode, samplelist))
     for p in patients:
         for scan in p.scans:
             for lesion in range(len(p.lesions)):
