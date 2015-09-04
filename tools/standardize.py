@@ -29,7 +29,7 @@ def parse_args():
                    help='sample list file')
     p.add_argument('--pmapdir',
                    help='input parametric map directory')
-    p.add_argument('--param',
+    p.add_argument('--param', default='raw',
                    help='image parameter to use')
     p.add_argument('--pc', metavar='I', nargs=2, type=float,
                    default=DEF_CFG['pc'],
