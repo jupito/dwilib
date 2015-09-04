@@ -10,7 +10,7 @@ from doit.tools import check_timestamp_unchanged, create_folder
 
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
-                       roi_path, std_cfg_path, texture_path, texture_path_new)
+                       roi_path, std_cfg_path, texture_path)
 import dwi.patient
 import dwi.util
 
@@ -65,17 +65,7 @@ def texture_methods():
         ]
 
 
-def texture_winsizes_old(masktype, mode):
-    if masktype in ('CA', 'N'):
-        seq = [3, 5]
-    elif mode.modality in ('T2', 'T2w'):
-        seq = xrange(3, 30, 4)
-    else:
-        seq = xrange(3, 16, 2)
-    return ' '.join(str(x) for x in seq)
-
-
-def texture_winsizes_new(masktype, mode, method):
+def texture_winsizes(masktype, mode, method):
     if method.endswith('_all'):
         return ['all']
     elif method.endswith('_mbb'):
@@ -90,9 +80,9 @@ def texture_winsizes_new(masktype, mode, method):
         return xrange(3, 16, 2)
 
 
-def texture_methods_winsizes_new(mode, masktype):
+def texture_methods_winsizes(mode, masktype):
     for method in texture_methods():
-        for winsize in texture_winsizes_new(masktype, mode, method):
+        for winsize in texture_winsizes(masktype, mode, method):
             yield method, winsize
 
 
@@ -185,25 +175,8 @@ def standardize_transform_cmd(cfgpath, inpath, outpath):
                       o=outpath)
 
 
-def get_texture_cmd_old(mode, case, scan, methods, winsizes, slices, portion,
-                        mask, outpath, std_cfg):
-    d = dict(prg=DWILIB+'/get_texture.py', m=mode, c=case, s=scan,
-             slices=slices, portion=portion,
-             methods=' '.join(methods), winsizes=winsizes,
-             pd=pmap_path(mode), mask=mask, o=outpath)
-    cmd = ('{prg} -v'
-           ' --pmapdir {pd} --param {m.param}'
-           ' --case {c} --scan {s} --mask {mask}'
-           ' --methods {methods} --winsizes {winsizes}'
-           ' --slices {slices} --portion {portion}'
-           ' --output {o}')
-    if std_cfg:
-        cmd += ' --std {}'.format(std_cfg)
-    return cmd.format(**d)
-
-
-def get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
-                        outpath, voxel, std_cfg=None):
+def get_texture_cmd(inpath, method, winsize, slices, portion, mask, outpath,
+                    voxel, std_cfg=None):
     d = dict(prg=DWILIB+'/get_texture_new.py', i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
@@ -497,37 +470,13 @@ def task_evaluate_autoroi():
     yield get_task_autoroi_correlation(MODE, '')
 
 
-def get_task_texture_manual_old(mode, masktype, case, scan, lesion, slices,
-                                portion):
-    """Generate texture features."""
-    methods = texture_methods()
-    winsizes = texture_winsizes_old(masktype, mode)
-    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
-    outfile = texture_path(mode, case, scan, lesion, masktype, slices,
-                           portion)
-    std_cfg = None
-    deps = path_deps(mask)
-    if mode.standardize:
-        std_cfg = std_cfg_path(mode)
-        deps.append(std_cfg)
-    cmd = get_texture_cmd_old(mode, case, scan, methods, winsizes, slices,
-                              portion, mask, outfile, std_cfg)
-    return {
-        'name': name(mode, masktype, slices, portion, case, scan, lesion),
-        'actions': folders(outfile) + [cmd],
-        'file_dep': deps,
-        'targets': [outfile],
-        'clean': True,
-        }
-
-
-def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
-                                portion, method, winsize, voxel):
+def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
+                            portion, method, winsize, voxel):
     """Generate texture features."""
     inpath = pmap_path(mode, case, scan)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
-    outfile = texture_path_new(mode, case, scan, lesion, masktype, slices,
-                               portion, method, winsize, voxel=voxel)
+    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
+                           method, winsize, voxel=voxel)
     # std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
@@ -535,8 +484,8 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
         # deps.append(std_cfg)
         inpath = pmap_path(str(mode) + '-std', case, scan, new=True)
         deps.append(inpath)
-    cmd = get_texture_cmd_new(inpath, method, winsize, slices, portion, mask,
-                              outfile, voxel, std_cfg=None)
+    cmd = get_texture_cmd(inpath, method, winsize, slices, portion, mask,
+                          outfile, voxel, std_cfg=None)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
@@ -547,69 +496,23 @@ def get_task_texture_manual_new(mode, masktype, case, scan, lesion, slices,
         }
 
 
-def get_task_texture_auto_old(mode, algparams, case, scan, lesion, slices,
-                              portion):
-    """Generate texture features."""
-    masktype = 'auto'
-    methods = texture_methods()
-    winsizes = texture_winsizes_old(masktype, mode)
-    mask = mask_path(mode, masktype, case, scan, lesion=lesion,
-                     algparams=algparams)
-    outfile = texture_path(mode, case, scan, lesion, masktype, slices,
-                           portion, algparams)
-    std_cfg = None
-    deps = [mask]
-    if mode.standardize:
-        std_cfg = std_cfg_path(mode)
-        deps.append(std_cfg)
-    cmd = get_texture_cmd_old(mode, case, scan, methods, winsizes, slices,
-                              portion, mask, outfile, std_cfg)
-    return {
-        'name': name(mode, '_'.join(algparams), slices, portion, case, scan,
-                     lesion),
-        'actions': folders(outfile) + [cmd],
-        'file_dep': deps,
-        'targets': [outfile],
-        'clean': True,
-        }
-
-
-def task_texture_old():
-    """Generate texture features."""
-    for c, s, l in lesions(MODE):
-        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'maxfirst',
-                                          0)
-        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'maxfirst',
-                                          1)
-        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'all', 0)
-        yield get_task_texture_manual_old(MODE, 'lesion', c, s, l, 'all', 1)
-        if MODE.modality in ('T2', 'T2w'):
-            continue  # Do only lesion for those.
-        yield get_task_texture_manual_old(MODE, 'CA', c, s, l, 'maxfirst', 1)
-        yield get_task_texture_manual_old(MODE, 'N', c, s, l, 'maxfirst', 1)
-        for ap in find_roi_param_combinations(MODE):
-            yield get_task_texture_auto_old(MODE, ap, c, s, l, 'maxfirst', 1)
-
-
-def task_texture_new():
+def task_texture():
     """Generate texture features."""
     mode = MODE
     for mt, slices, portion in texture_params():
         for case, scan, lesion in lesions(mode):
-            for mth, ws in texture_methods_winsizes_new(mode, 'lesion'):
-                yield get_task_texture_manual_new(mode, mt, case, scan,
-                                                  lesion, slices, portion,
-                                                  mth, ws, 'mean')
-                yield get_task_texture_manual_new(mode, mt, case, scan,
-                                                  lesion, slices, portion,
-                                                  mth, ws, 'all')
+            for mth, ws in texture_methods_winsizes(mode, 'lesion'):
+                yield get_task_texture_manual(mode, mt, case, scan, lesion,
+                                              slices, portion, mth, ws, 'mean')
+                yield get_task_texture_manual(mode, mt, case, scan, lesion,
+                                              slices, portion, mth, ws, 'all')
     # FIXME: Clean the horrible kludge.
     for c, s in cases_scans(mode):
-        for mth, ws in texture_methods_winsizes_new(mode, 'prostate'):
-            yield get_task_texture_manual_new(mode, 'prostate', c, s, None,
-                                              'maxfirst', 0, mth, ws, 'all')
-            yield get_task_texture_manual_new(mode, 'prostate', c, s, None,
-                                              'all', 0, mth, ws, 'all')
+        for mth, ws in texture_methods_winsizes(mode, 'prostate'):
+            yield get_task_texture_manual(mode, 'prostate', c, s, None,
+                                          'maxfirst', 0, mth, ws, 'all')
+            yield get_task_texture_manual(mode, 'prostate', c, s, None, 'all',
+                                          0, mth, ws, 'all')
 
 
 def task_merge_textures():
@@ -617,11 +520,11 @@ def task_merge_textures():
     mode = MODE
     for mt, slices, portion in texture_params():
         for case, scan, lesion in lesions(mode):
-            infiles = [texture_path_new(mode, case, scan, lesion, mt, slices,
-                                        portion, mth, ws) for mth, ws in
-                       texture_methods_winsizes_new(mode, mt)]
-            outfile = texture_path_new(mode, case, scan, lesion, mt, slices,
-                                       portion, 'merged', 'merged')
+            infiles = [texture_path(mode, case, scan, lesion, mt, slices,
+                                    portion, mth, ws) for mth, ws in
+                       texture_methods_winsizes(mode, mt)]
+            outfile = texture_path(mode, case, scan, lesion, mt, slices,
+                                   portion, 'merged', 'merged')
             outfile = 'merged_' + outfile
             cmd = select_voxels_cmd(' '.join(infiles), outfile)
             yield {

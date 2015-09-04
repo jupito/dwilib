@@ -71,22 +71,8 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=[]):
     return os.path.join(*components)
 
 
-def texture_path(mode, case, scan, lesion, masktype, slices, portion,
-                 algparams=()):
-    """Return path to texture file."""
-    path = 'texture_{mt}_{m.model}_{m.param}_{slices}_{portion}'
-    if masktype in ('lesion', 'CA', 'N'):
-        path += '/{c}_{s}_{l}.txt'
-    elif masktype == 'auto':
-        path += '/{ap_}/{c}_{s}_{l}.txt'
-    else:
-        raise Exception('Unknown mask type: {mt}'.format(mt=masktype))
-    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
-                       slices=slices, portion=portion, ap_='_'.join(algparams))
-
-
-def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
-                     method, winsize, algparams=(), voxel='mean'):
+def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
+                 winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
     path = 'texture/texture_{mt}_{m.model}_{m.param}_{slices}_{portion}_{vx}'
     if voxel == 'mean':
