@@ -59,6 +59,7 @@ def texture_methods():
         'haar',
         'hu',
         'zernike',
+        'sobel',
         'sobel_mbb',
         'stats_all',
         ]
@@ -79,6 +80,8 @@ def texture_winsizes_new(masktype, mode, method):
         return ['all']
     elif method.endswith('_mbb'):
         return ['mbb']
+    elif method == 'sobel':
+        return [3]
     elif masktype in ('CA', 'N'):
         return [3, 5]
     elif mode.modality in ('T2', 'T2w'):
