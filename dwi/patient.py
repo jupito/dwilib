@@ -21,17 +21,17 @@ class ImageMode(object):
         """Initialize with a string or a sequence."""
         if isinstance(value, basestring):
             value = value.split('-')
-        value = tuple(value)
-        if len(value) != 3:
-            raise ValueError('Invalid image mode: {}'.format(value))
-        self.modality, self.model, self.param = value
+        self.value = tuple(value)
+        self.modality = value[0]
+        self.model = value[1]
+        self.param = value[2]
         self.standardize = (self.modality == 'T2w' and self.param == 'raw')
 
     def __iter__(self):
-        return iter((self.modality, self.model, self.param))
+        return iter(self.value)
 
     def __getitem__(self, key):
-        return tuple(self)[key]
+        return self.value[key]
 
     def __repr__(self):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
