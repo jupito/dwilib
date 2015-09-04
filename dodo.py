@@ -176,7 +176,7 @@ def standardize_transform_cmd(cfgpath, inpath, outpath):
 
 
 def get_texture_cmd(inpath, method, winsize, slices, portion, mask, outpath,
-                    voxel, std_cfg=None):
+                    voxel):
     d = dict(prg=DWILIB+'/get_texture_new.py', i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
@@ -185,10 +185,7 @@ def get_texture_cmd(inpath, method, winsize, slices, portion, mask, outpath,
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winspec {ws} --voxel {vx}'
            ' --output {o}')
-    if std_cfg:
-        cmd += ' --std {}'.format(std_cfg)
-    cmd = cmd.format(**d)
-    return cmd
+    return cmd.format(**d)
 
 
 def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
@@ -477,15 +474,12 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
-    # std_cfg = None
     deps = path_deps(mask)
     if mode.standardize:
-        # std_cfg = std_cfg_path(mode)
-        # deps.append(std_cfg)
         inpath = pmap_path(str(mode) + '-std', case, scan, new=True)
         deps.append(inpath)
     cmd = get_texture_cmd(inpath, method, winsize, slices, portion, mask,
-                          outfile, voxel, std_cfg=None)
+                          outfile, voxel)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
