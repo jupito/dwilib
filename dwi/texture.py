@@ -487,8 +487,8 @@ def sobel(img, mask=None):
 def sobel_map(img, winsize=None, mask=None):
     """Sobel edge descriptor map.
 
-    Parameter winsize is not used, it is there for API compatibility."""
-    assert winsize is None
+    Parameter winsize is not used, it is there for API compatibility.
+    """
     output = np.array([sobel(img), sobel(img, mask=mask)])
     names = ['sobel', 'sobel_mask']
     return output, names
@@ -547,6 +547,7 @@ _METHODS = OrderedDict([
     ('stats_mbb', stats_mbb),
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
+    ('sobel', sobel_map),
     ('sobel_mbb', sobel_mbb),
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
