@@ -379,8 +379,8 @@ def hu_map(img, winsize, mask=None, output=None):
         feats = hu(win)
         if output is None:
             output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
-            for i, v in enumerate(feats):
-                output[(i,) + pos] = v
+        for i, v in enumerate(feats):
+            output[(i,) + pos] = v
     names = ['hu({})'.format(i) for i in range(len(feats))]
     return output, names
 
@@ -410,8 +410,8 @@ def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
         feats = zernike(win, radius, degree=degree, cm=(radius, radius))
         if output is None:
             output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
-            for i, v in enumerate(feats):
-                output[(i,) + pos] = v
+        for i, v in enumerate(feats):
+            output[(i,) + pos] = v
     names = ['zernike({})'.format(i) for i in range(len(feats))]
     return output, names
 
