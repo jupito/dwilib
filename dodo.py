@@ -277,7 +277,7 @@ def task_standardize_train():
     """Standardize MRI images: training phase."""
     mode = MODE - 'std'
     std_cfg = std_cfg_path(mode)
-    return {
+    yield {
         'name': name(mode),
         'actions': [standardize_train_cmd(mode, std_cfg)],
         'targets': [std_cfg],
