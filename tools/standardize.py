@@ -44,60 +44,6 @@ def parse_args():
     return p.parse_args()
 
 
-# def histogram(a, m1=None, m2=None, bins=20):
-#     """Create histogram from data between [m1, m2], with bin centers."""
-#     a = np.asarray(a)
-#     if m1 is not None:
-#         a = a[a >= m1]
-#     if m2 is not None:
-#         a = a[a <= m2]
-#     hist, bin_edges = np.histogram(a, bins=bins, density=True)
-#     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
-#     return hist, bin_centers
-
-
-# def plot(data, s1, s2, outfile):
-#     import pylab as pl
-#     for d in data:
-#         img = d['img']
-#         hist, bin_edges = np.histogram(img, bins=50, density=True)
-#         pl.plot(bin_edges[:-1], hist)
-#     pl.show()
-#     pl.close()
-#     for d in data:
-#         img = d['img_scaled']
-#         hist, bin_edges = np.histogram(img, bins=50, density=True)
-#         pl.plot(bin_edges[:-1], hist)
-#     pl.show()
-#     pl.close()
-#     #for d in data:
-#     #    y = d['scores']
-#     #    x = range(len(y))
-#     #    pl.plot(x, y)
-#     #pl.show()
-#     #pl.close()
-#     print('Plotting to {}...'.format(outfile))
-#     images = [[d['img'][15,:,:,0], d['img_scaled'][15,:,:,0]] for d in data]
-#     dwi.plot.show_images(images, vmin=s1, vmax=s2, outfile=outfile)
-
-
-# def plot_histograms(histograms1, histograms2, outfile):
-#     import pylab as pl
-#     ncols, nrows = 2, 1
-#     fig = pl.figure(figsize=(ncols*6, nrows*6))
-#     # pl.yscale('log')
-#     fig.add_subplot(1, 2, 1)
-#     for hist, bins in histograms1:
-#         pl.plot(bins, hist)
-#     fig.add_subplot(1, 2, 2)
-#     for hist, bins in histograms2:
-#         pl.plot(bins, hist)
-#     pl.tight_layout()
-#     print('Plotting to {}...'.format(outfile))
-#     pl.savefig(outfile, bbox_inches='tight')
-#     pl.close()
-
-
 def main():
     args = parse_args()
 
