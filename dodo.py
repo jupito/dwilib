@@ -600,6 +600,13 @@ def task_texture_new():
                 yield get_task_texture_manual_new(mode, mt, case, scan,
                                                   lesion, slices, portion,
                                                   mth, ws, 'all')
+    # FIXME: Clean the horrible kludge.
+    for c, s in cases_scans(mode):
+        for mth, ws in texture_methods_winsizes_new(mode, 'prostate'):
+            yield get_task_texture_manual_new(mode, 'prostate', c, s, None,
+                                              'maxfirst', 0, mth, ws, 'all')
+            yield get_task_texture_manual_new(mode, 'prostate', c, s, None,
+                                              'all', 0, mth, ws, 'all')
 
 
 def task_merge_textures():
