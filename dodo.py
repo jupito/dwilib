@@ -247,6 +247,8 @@ def mask_out_cmd(src, dst, mask):
 def task_convert_data():
     """Convert DICOM data to HDF5."""
     mode = MODE
+    if 'std' in mode:
+        return
     paths = dwi.util.iglob('dicoms_{m[1]}_*/*'.format(m=mode), typ='dir')
     for path in paths:
         p = re.compile(r"""
@@ -287,7 +289,7 @@ def task_standardize_train():
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
     for mode in [MODE]:
-        if not mode.standardize:
+        if 'std' in mode:
             continue
         cfgpath = std_cfg_path(mode)
         for case, scan in cases_scans(mode):
@@ -347,8 +349,8 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     """Select ROIs from the pmap DICOMs based on masks."""
     masktype = 'lesion'
     mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
-    roi = roi_path(mode + 'std', masktype, case, scan, lesion=lesion)
-    pmap = pmap_path(mode + 'std', case, scan)
+    roi = roi_path(mode, masktype, case, scan, lesion=lesion)
+    pmap = pmap_path(mode, case, scan)
     cmd = select_voxels_cmd(pmap, roi, mask=mask)
     return {
         'name': name(mode, masktype, case, scan, lesion),
@@ -474,17 +476,13 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
-    deps = path_deps(mask)
-    if mode.standardize:
-        inpath = pmap_path(mode + 'std', case, scan)
-        deps.append(inpath)
     cmd = get_texture_cmd(inpath, method, winsize, slices, portion, mask,
                           outfile, voxel)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
         'actions': folders(outfile) + [cmd],
-        'file_dep': deps,
+        'file_dep': path_deps(inpath, mask),
         'targets': [outfile],
         'clean': True,
         }

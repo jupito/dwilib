@@ -22,7 +22,6 @@ class ImageMode(object):
         if isinstance(value, basestring):
             value = value.split('-')
         self.value = tuple(value)
-        self.standardize = (value[0] == 'T2w' and value[2] == 'raw')
 
     def __iter__(self):
         return iter(self.value)
