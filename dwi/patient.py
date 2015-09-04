@@ -30,6 +30,9 @@ class ImageMode(object):
     def __iter__(self):
         return iter((self.modality, self.model, self.param))
 
+    def __getitem__(self, key):
+        return tuple(self)[key]
+
     def __repr__(self):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
 
