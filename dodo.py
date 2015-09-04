@@ -81,9 +81,9 @@ def texture_winsizes_new(masktype, mode, method):
     elif method.endswith('_mbb'):
         return ['mbb']
     elif method == 'sobel':
-        return [3]
+        return [3]  # Sobel convolution kernel is always 3x3 voxels.
     elif masktype in ('CA', 'N'):
-        return [3, 5]
+        return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode.modality in ('T2', 'T2w'):
         return xrange(3, 30, 4)
     else:
