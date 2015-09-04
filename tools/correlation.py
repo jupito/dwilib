@@ -93,7 +93,7 @@ def main():
         d = dict(param=param, l=params_maxlen)
         d.update(correlation(x, y))
         if args.verbose:
-            s = '{param:{l}}  {r:+.3f}  {p:.4f}  {lower:+.3f}  {upper:+.3f}'
+            s = '{param:{l}}  {r:+.3f}  {p:.3f}  {lower:+.3f}  {upper:+.3f}'
         else:
             s = '{r:+.3f}'
         print(s.format(**d))
