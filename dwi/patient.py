@@ -33,6 +33,9 @@ class ImageMode(object):
     def __getitem__(self, key):
         return self.value[key]
 
+    def __len__(self):
+        return len(self.value)
+
     def __repr__(self):
         return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
 
