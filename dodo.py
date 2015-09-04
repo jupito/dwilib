@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from itertools import chain, product
-from os.path import dirname
+from os.path import dirname, isdir
 import re
 
 from doit import get_var
@@ -146,8 +146,8 @@ def path_deps(*paths):
     for i, path in enumerate(paths):
         if '*' in path or ('[' in path and ']' in path):
             paths[i] = dwi.util.sglob(path)
-    paths = chain(f for p in paths for f in dwi.util.walker(p))
-    paths = list(paths)
+    # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
+    paths = [x for x in paths if not isdir(x)]
     return paths
 
 
