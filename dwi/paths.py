@@ -10,8 +10,8 @@ def samplelist_path(mode, samplelist):
     return 'patients_{m[0]}_{l}.txt'.format(m=mode, l=samplelist)
 
 
-def pmap_path(mode, case=None, scan=None, new=False):
-    if new or 'std' in mode:
+def pmap_path(mode, case=None, scan=None, fmt='dicom'):
+    if fmt == 'hdf5' or 'std' in mode:
         path = 'images/{m}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'

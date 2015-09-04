@@ -261,7 +261,7 @@ def task_convert_data():
         if m:
             case = int(m.group('case'))
             scan = m.group('scan').lower()
-            outpath = pmap_path(mode, case, scan, new=True)
+            outpath = pmap_path(mode, case, scan, fmt='hdf5')
             cmd = select_voxels_cmd(path, outpath, source_attrs=True)
             yield {
                 'name': name(mode, case, scan),
