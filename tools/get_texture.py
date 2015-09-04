@@ -25,7 +25,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='increase verbosity')
-    p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
+    p.add_argument('--pmapdir',
                    help='input parametric map directory')
     p.add_argument('--param', default='ADCm',
                    help='image parameter to use')

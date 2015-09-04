@@ -16,7 +16,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
-    p.add_argument('--patients', default='patients.txt',
+    p.add_argument('--patients',
                    help='patients file')
     p.add_argument('--thresholds', nargs='*', default=[],
                    help='classification thresholds (group maximums)')

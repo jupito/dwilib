@@ -27,9 +27,9 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--patients',
                    help='sample list file')
-    p.add_argument('--pmapdir', default='dicoms_Mono_combinedDICOM',
+    p.add_argument('--pmapdir',
                    help='input parametric map directory')
-    p.add_argument('--param', default='ADCm',
+    p.add_argument('--param',
                    help='image parameter to use')
     p.add_argument('--pc', metavar='I', nargs=2, type=float,
                    default=DEF_CFG['pc'],

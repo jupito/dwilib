@@ -17,9 +17,9 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
             help='increase verbosity')
-    p.add_argument('--subregiondir', default='bounding_box_100_10pad',
+    p.add_argument('--subregiondir',
             help='subregion bounding box directory')
-    p.add_argument('--pmapdir', default='dicoms_*',
+    p.add_argument('--pmapdir',
             help='input parametric map directory')
     p.add_argument('--af',
             help='input parametric map as ASCII file')

@@ -21,15 +21,15 @@ def parse_args():
     p.add_argument('--verbose', '-v',
             action='count',
             help='increase verbosity')
-    p.add_argument('--patients', default='patients.txt',
+    p.add_argument('--patients',
             help='patients file')
-    p.add_argument('--pmapdir', default='results_Mono_combinedDICOM',
+    p.add_argument('--pmapdir',
             help='input parametric map directory')
-    p.add_argument('--subregiondir', default='bounding_box_100_10pad',
+    p.add_argument('--subregiondir',
             help='subregion bounding box directory')
-    p.add_argument('--prostatemaskdir', default='masks_prostate',
+    p.add_argument('--prostatemaskdir',
             help='ROI mask directory')
-    p.add_argument('--roimaskdir', default='masks_rois',
+    p.add_argument('--roimaskdir',
             help='ROI mask directory')
     p.add_argument('--param', default='ADCm',
             help='image parameter to use')
