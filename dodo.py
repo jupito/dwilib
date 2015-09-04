@@ -74,7 +74,7 @@ def texture_winsizes(masktype, mode, method):
         return [3]  # Sobel convolution kernel is always 3x3 voxels.
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
-    elif mode.modality in ('T2', 'T2w'):
+    elif mode[0] in ('T2', 'T2w'):
         return xrange(3, 30, 4)
     else:
         return xrange(3, 16, 2)
@@ -102,7 +102,7 @@ def find_roi_param_combinations(mode):
         xrange(3, 13),  # ROI side max
         range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
         ]
-    if mode.modality == 'DWI':
+    if mode[0] == 'DWI':
         if SAMPLELIST == 'test':
             params = [
                 (2, 3, 10, 10, 500),  # Mono: corr, auc
@@ -164,7 +164,7 @@ def standardize_train_cmd(mode, cfgfile, samplelist='all'):
     d = dict(prg=DWILIB+'/standardize.py', m=mode, o=cfgfile,
              slf=samplelist_path(mode, samplelist), pd=pmap_path(mode))
     cmd = ('{prg} --patients {slf} --pmapdir {pd}'
-           ' --param {m.param} --outconf {o}')
+           ' --param {m[2]} --outconf {o}')
     return cmd.format(**d)
 
 
@@ -194,7 +194,7 @@ def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
              srd=subregion_path(mode), c=case, s=scan, ap=' '.join(algparams),
              outmask=outmask, outfig=outfig)
     return ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
-            '--param {m.param} --cases {c} --scans {s} --algparams {ap} '
+            '--param {m[2]} --cases {c} --scans {s} --algparams {ap} '
             '--outmask {outmask} --outfig {outfig}'.format(**d))
 
 
@@ -247,7 +247,7 @@ def mask_out_cmd(src, dst, mask):
 def task_convert_data():
     """Convert DICOM data to HDF5."""
     mode = MODE
-    paths = dwi.util.iglob('dicoms_{m.model}_*/*'.format(m=mode), typ='dir')
+    paths = dwi.util.iglob('dicoms_{m[1]}_*/*'.format(m=mode), typ='dir')
     for path in paths:
         p = re.compile(r"""
            dicoms_(?P<model>[a-z0-9]+)_.+
@@ -532,8 +532,8 @@ def task_merge_textures():
 def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
                            param='DICOM'):
     """Generate DICOM images with everything but prostate zeroed."""
-    imagedir = 'dicoms_{}'.format(mode.modality)
-    outdir = 'dicoms_masked_{}'.format(mode.modality)
+    imagedir = 'dicoms_{}'.format(mode[0])
+    outdir = 'dicoms_masked_{}'.format(mode[0])
     d = dict(c=case, s=scan, id=imagedir, od=outdir, it=imagetype,
              pox=postfix, p=param)
     mask = mask_path(mode, 'prostate', case, scan)
