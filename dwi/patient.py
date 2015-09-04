@@ -33,7 +33,7 @@ class ImageMode(object):
         return len(self.value)
 
     def __repr__(self):
-        return '{}({})'.format(type(self).__name__, ', '.join(iter(self)))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(self))
 
     def __str__(self):
         return '-'.join(iter(self))
