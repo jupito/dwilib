@@ -17,11 +17,12 @@ THRESHOLDS_STANDARD = ('3+3', '3+4')
 
 class ImageMode(object):
     """Image mode identifier."""
-    def __init__(self, value):
+    def __init__(self, value, sep='-'):
         """Initialize with a string or a sequence."""
         if isinstance(value, basestring):
-            value = value.split('-')
+            value = value.split(sep)
         self.value = tuple(value)
+        self.sep = sep
 
     def __iter__(self):
         return iter(self.value)
@@ -36,7 +37,7 @@ class ImageMode(object):
         return '{}({})'.format(self.__class__.__name__, ', '.join(self))
 
     def __str__(self):
-        return '-'.join(iter(self))
+        return self.sep.join(iter(self))
 
     def __add__(self, other):
         return self.__class__(self.value + (other,))
