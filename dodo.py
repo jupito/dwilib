@@ -97,10 +97,10 @@ def texture_methods_winsizes_new(mode, masktype):
 
 
 def texture_params():
-    lesion = ['lesion']
+    masktypes = ['lesion']
     slices = ['maxfirst', 'all']
     portion = [1, 0]
-    return product(lesion, slices, portion)
+    return product(masktypes, slices, portion)
 
 
 def find_roi_param_combinations(mode):
