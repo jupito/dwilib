@@ -1,9 +1,6 @@
 #!/usr/bin/env python2
 
-"""Calculate texture properties for a masked area.
-
-NOTE: This version is old, use get_texture_new.py instead.
-"""
+"""Calculate texture properties for a masked area."""
 
 # TODO: pmap normalization for GLCM
 
@@ -13,7 +10,7 @@ import collections
 
 import numpy as np
 
-import dwi.dataset
+import dwi.files
 import dwi.mask
 import dwi.standardize
 import dwi.texture
@@ -25,26 +22,22 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='increase verbosity')
-    p.add_argument('--pmapdir',
-                   help='input parametric map directory')
-    p.add_argument('--param', default='ADCm',
-                   help='image parameter to use')
-    p.add_argument('--case', type=int,
-                   help='case number')
-    p.add_argument('--scan',
-                   help='scan identifier')
+    p.add_argument('--input',
+                   help='input image')
     p.add_argument('--mask',
                    help='mask file to use')
     p.add_argument('--std',
                    help='standardization file to use')
-    p.add_argument('--methods', metavar='METHOD', nargs='*',
-                   help='methods')
+    p.add_argument('--method', metavar='METHOD',
+                   help='method')
     p.add_argument('--slices', default='maxfirst',
                    help='slice selection (maxfirst, max, all)')
-    p.add_argument('--winsizes', metavar='I', nargs='*', type=int, default=[5],
-                   help='window side lengths')
+    p.add_argument('--winspec', default='5',
+                   help='window specification (side length, all, mbb)')
     p.add_argument('--portion', type=float, required=False, default=0,
                    help='portion of selected voxels required for each window')
+    p.add_argument('--voxel', choices=('all', 'mean'), default='all',
+                   help='voxel to output (all, mean)')
     p.add_argument('--output', metavar='FILENAME',
                    help='output ASCII file')
     return p.parse_args()
@@ -84,13 +77,24 @@ def main():
     args = parse_args()
     if args.verbose:
         print('Reading data...')
-    data = dwi.dataset.dataset_read_samples([(args.case, args.scan)])
-    dwi.dataset.dataset_read_pmaps(data, args.pmapdir, [args.param])
-    mask = dwi.mask.read_mask(args.mask)
+    img, _ = dwi.files.read_pmap(args.input)
+    assert img.shape[-1] == 1
+    img = img[..., 0]
+    assert img.ndim == 3
 
-    img = data[0]['image'].squeeze()
-    if isinstance(mask, dwi.mask.Mask):
-        mask = mask.convert_to_3d(img.shape[0])
+    if args.mask is not None:
+        mask = dwi.mask.read_mask(args.mask)
+        if isinstance(mask, dwi.mask.Mask):
+            mask = mask.convert_to_3d(img.shape[0])
+    else:
+        # A default mask for testing.
+        mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
+        # mask.array[9:-9, 50:-50, 50:-50] = True
+        tuples = dwi.util.bounding_box(img)
+        print('Using minimum bounding box as mask: {}'.format(tuples))
+        slices = [slice(*t) for t in tuples]
+        mask.array[slices] = True
+
     if img.shape != mask.shape():
         raise Exception('Image shape {} does not match mask shape {}'.format(
             img.shape, mask.shape()))
@@ -106,78 +110,44 @@ def main():
     else:
         raise Exception('Invalid slice set specification', args.slices)
 
+    # Zero other slices in mask.
+    for i in range(len(mask.array)):
+        if i not in slice_indices:
+            mask.array[i] = 0
+
+    # Get portion mask.
+    if args.winspec in ('all', 'mbb'):
+        pmask = mask.array  # Some methods don't use window.
+    elif args.winspec.isdigit():
+        winsize = int(args.winspec)
+        assert winsize > 0
+        winshape = (1, winsize, winsize)
+        pmask = portion_mask(mask.array, winshape, args.portion)
+    else:
+        raise ValueError('Invalid window spec: {}'.format(args.winspec))
+
+    if args.verbose:
+        print('Image: {s}, slice: {i}, voxels: {n}, window: {w}'.format(
+            s=img.shape, i=slice_indices, n=np.count_nonzero(mask.array),
+            w=args.winspec))
+
     if args.std:
         if args.verbose:
             print('Standardizing...')
+        # img[slice_indices] = dwi.standardize.standardize(img[slice_indices],
+        #                                                  args.std)
         img = dwi.standardize.standardize(img, args.std)
 
-    img_slices = img[slice_indices]
-    mask_slices = mask.array[slice_indices]
-    winshapes = [(1, w, w) for w in args.winsizes]
-    pmasks = [portion_mask(mask_slices, w, args.portion) for w in winshapes]
-
-    if args.verbose > 1:
-        d = dict(s=img.shape, i=slice_indices, n=np.count_nonzero(mask_slices),
-                 w=args.winsizes)
-        print('Image: {s}, slice: {i}, voxels: {n}, windows: {w}'.format(**d))
-        print([(w, np.count_nonzero(m)) for w, m in zip(args.winsizes,
-                                                        pmasks)])
+    if args.verbose:
+        print('Calculating {} texture features...'.format(args.method))
+    avg = (args.voxel == 'mean')
+    tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
+                                          mask=pmask, avg=avg)
 
     if args.verbose:
-        print('Calculating texture features...')
-    feats = []
-    featnames = []
-    for method, call in dwi.texture.METHODS.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            for winsize, pmask_slices in zip(args.winsizes, pmasks):
-                tmaps_all = None
-                for img_slice, pmask_slice in zip(img_slices, pmask_slices):
-                    if np.count_nonzero(pmask_slice) == 0:
-                        continue  # Skip slice with empty mask.
-                    tmaps, names = call(img_slice, winsize, mask=pmask_slice)
-                    tmaps = tmaps[:, pmask_slice]
-                    if tmaps_all is None:
-                        tmaps_all = tmaps
-                    else:
-                        tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
-                feats += [np.mean(x) for x in tmaps_all]
-                names = ['{w}-{n}'.format(w=winsize, n=n) for n in names]
-                featnames += names
-    for method, call in dwi.texture.METHODS_MBB.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            tmaps_all = None
-            for img_slice, mask_slice in zip(img_slices, mask_slices):
-                if np.count_nonzero(mask_slice) == 0:
-                    continue  # Skip slice with empty mask.
-                tmaps, names = call(img_slice, mask=mask_slice)
-                tmaps = np.asarray(tmaps)
-                tmaps.shape += (1,)
-                if tmaps_all is None:
-                    tmaps_all = tmaps
-                else:
-                    tmaps_all = np.concatenate((tmaps_all, tmaps), axis=-1)
-            feats += [np.mean(x) for x in tmaps_all]
-            names = ['{w}-{n}'.format(w='mbb', n=n) for n in names]
-            featnames += names
-    for method, call in dwi.texture.METHODS_ALL.items():
-        if args.methods is None or method in args.methods:
-            if args.verbose > 1:
-                print(method)
-            tmaps, names = call(img_slices, mask=mask_slices)
-            feats += list(tmaps)
-            names = ['{w}-{n}'.format(w='all', n=n) for n in names]
-            featnames += names
-
-    if args.verbose:
-        print('Writing %s features to %s' % (len(feats), args.output))
-    # feats = np.array([feats], dtype=np.float32)
-    feats = np.array([feats])
-    # dwi.asciifile.write_ascii_file(args.output, feats, featnames)
-    dwi.files.write_pmap(args.output, feats, dict(parameters=featnames))
+        print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
+    # tmap = np.array(tmap, dtype=np.float32)
+    dwi.files.write_pmap(args.output, tmap, dict(parameters=names))
 
 
 if __name__ == '__main__':

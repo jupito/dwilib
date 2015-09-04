@@ -176,7 +176,7 @@ def standardize_transform_cmd(cfgpath, inpath, outpath):
 
 def get_texture_cmd(inpath, method, winsize, slices, portion, mask, outpath,
                     voxel):
-    d = dict(prg=DWILIB+'/get_texture_new.py', i=inpath, mask=mask,
+    d = dict(prg=DWILIB+'/get_texture.py', i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
     cmd = ('{prg} -v'
