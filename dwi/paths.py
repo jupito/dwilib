@@ -16,14 +16,14 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
         return path.format(m=mode, c=case, s=scan)
-    path = dwi.util.sglob('dicoms/{m[1]}_*'.format(m=mode), typ='dir')
+    path = 'dicoms/{m[1]}_*'
     if case is not None and scan is not None:
         if mode[2] == 'raw':
             # There's no actual parameter, only single 'raw' value (for T2).
-            s = '/{c}_*_{s}*'
+            path += '/{c}_*_{s}*'
         else:
-            s = '/{c}_*_{s}/{c}_*_{s}*_{m[2]}'
-        path += s.format(m=mode, c=case, s=scan)
+            path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}'
+    path = path.format(m=mode, c=case, s=scan)
     return dwi.util.sglob(path, typ='dir')
 
 
