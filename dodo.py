@@ -295,7 +295,7 @@ def task_standardize_transform():
         outpath = pmap_path(mode + 'std', case, scan)
         cmd = standardize_transform_cmd(cfgpath, inpath, outpath)
         yield {
-            'name': name(case, scan),
+            'name': name(mode, case, scan),
             'actions': folders(outpath) + [cmd],
             'file_dep': path_deps(cfgpath, inpath),
             'targets': [outpath],
