@@ -28,11 +28,10 @@ def pmap_path(mode, case=None, scan=None, new=False):
 
 
 def subregion_path(mode, case=None, scan=None):
-    assert mode.modality == 'DWI'
-    path = 'subregions'
+    path = 'subregions/{m.modality}'
     if case is not None and scan is not None:
-        path += '/{c}_{s}_subregion10.txt'.format(c=case, s=scan)
-    return path
+        path += '/{c}_{s}_subregion10.txt'
+    return path.format(m=mode, c=case, s=scan)
 
 
 def mask_path(mode, masktype, case, scan, lesion=None, algparams=()):
