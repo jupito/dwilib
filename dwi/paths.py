@@ -28,13 +28,14 @@ def pmap_path(mode, case=None, scan=None, new=False):
 
 
 def subregion_path(mode, case=None, scan=None):
+    assert mode.modality == 'DWI'
     path = 'subregions'
     if case is not None and scan is not None:
         path += '/{c}_{s}_subregion10.txt'.format(c=case, s=scan)
     return path
 
 
-def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
+def mask_path(mode, masktype, case, scan, lesion=None, algparams=()):
     """Return path and deps of masks of different types."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
@@ -56,7 +57,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=[]):
     return path
 
 
-def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=[]):
+def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     """Return whole ROI path or part of it."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
