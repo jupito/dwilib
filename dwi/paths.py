@@ -93,7 +93,7 @@ def texture_path_new(mode, case, scan, lesion, masktype, slices, portion,
         ext = 'txt'
     else:
         ext = 'h5'
-    if masktype in ('lesion', 'CA', 'N'):
+    if masktype in ('prostate', 'lesion', 'CA', 'N'):
         path += '/{c}_{s}_{l}_{mth}-{ws}.{ext}'
     elif masktype == 'auto':
         path += '/{ap_}/{c}_{s}_{l}_{mth}-{ws}.{ext}'
