@@ -42,6 +42,9 @@ class ImageMode(object):
     def __str__(self):
         return '-'.join(iter(self))
 
+    def __add__(self, other):
+        return self.__class__(self.value + (other,))
+
 
 @total_ordering
 class GleasonScore(object):
