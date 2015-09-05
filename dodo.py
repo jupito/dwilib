@@ -244,34 +244,34 @@ def mask_out_cmd(src, dst, mask):
 #
 
 
-def task_convert_data():
-    """Convert DICOM data to HDF5."""
-    mode = MODE
-    if 'std' in mode:
-        return
-    paths = dwi.util.iglob('{}/*'.format(pmap_path(mode, fmt='dicom')),
-                           typ='dir')
-    for path in paths:
-        p = re.compile(r"""
-           dicoms_(?P<model>[a-z0-9]+)_.+
-           /
-           (?P<case>\d+) _
-           (?P<name>[a-z_]+) _
-           (?P<scan>[0-9]+[a-z]+) _?
-           (?P<remark>\w+)?
-           """, flags=re.VERBOSE | re.IGNORECASE)
-        m = re.match(p, path)
-        if m:
-            case = int(m.group('case'))
-            scan = m.group('scan').lower()
-            outpath = pmap_path(mode, case, scan, fmt='hdf5')
-            cmd = select_voxels_cmd(path, outpath, source_attrs=True)
-            yield {
-                'name': name(mode, case, scan),
-                'actions': folders(outpath) + [cmd],
-                'targets': [outpath],
-                'uptodate': [check_timestamp_unchanged(path)],
-            }
+# def task_convert_data():
+#     """Convert DICOM data to HDF5."""
+#     mode = MODE
+#     if 'std' in mode:
+#         return
+#     paths = dwi.util.iglob('{}/*'.format(pmap_path(mode, fmt='dicom')),
+#                            typ='dir')
+#     for path in paths:
+#         p = re.compile(r"""
+#            dicoms_(?P<model>[a-z0-9]+)_.+
+#            /
+#            (?P<case>\d+) _
+#            (?P<name>[a-z_]+) _
+#            (?P<scan>[0-9]+[a-z]+) _?
+#            (?P<remark>\w+)?
+#            """, flags=re.VERBOSE | re.IGNORECASE)
+#         m = re.match(p, path)
+#         if m:
+#             case = int(m.group('case'))
+#             scan = m.group('scan').lower()
+#             outpath = pmap_path(mode, case, scan, fmt='hdf5')
+#             cmd = select_voxels_cmd(path, outpath, source_attrs=True)
+#             yield {
+#                 'name': name(mode, case, scan),
+#                 'actions': folders(outpath) + [cmd],
+#                 'targets': [outpath],
+#                 'uptodate': [check_timestamp_unchanged(path)],
+#             }
 
 
 # def task_convert_masks():
