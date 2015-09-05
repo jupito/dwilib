@@ -66,8 +66,8 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
     if masktype == 'lesion':
-        return 'rois/lesion/{m}/{c}-{s}-{l}.h5'.format(**d)
-    components = ['rois_{mt}_{m}']
+        return 'rois_lesion/{m}/{c}-{s}-{l}.h5'.format(**d)
+    components = ['rois_{mt}', '{m}']
     if algparams:
         components.append('{ap_}')
     if case is not None and scan is not None:
