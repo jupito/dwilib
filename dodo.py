@@ -274,6 +274,34 @@ def task_convert_data():
             }
 
 
+# def task_convert_masks():
+#     """Conver masks to HDF5."""
+#     for path in dwi.util.walker('masks_lesion/DWI', types='d'):
+#         p = re.compile(r"""
+#             masks_lesion/
+#             (?P<modality>[a-z0-9]+)
+#             /
+#             PCA_masks_DWI_(?P<lesion>[0-9])[^/]*
+#             /
+#             (?P<case>\d+) _
+#             (?P<brange>[^_]+) _
+#             (?P<scan>[0-9]+[a-z]+) _?
+#             (?P<remark>\w+)?
+#             """, flags=re.VERBOSE | re.IGNORECASE)
+#         m = re.match(p, path)
+#         if m:
+#             modality = m.group('modality')
+#             case = int(m.group('case'))
+#             scan = m.group('scan').lower()
+#             lesion = int(m.group('lesion'))
+#             t = modality, case, scan, lesion
+#             print(t)
+#             yield {
+#                 'name': name(modality, case, scan, lesion),
+#                 'actions': ['echo {}'.format(t)],
+#             }
+
+
 def task_standardize_train():
     """Standardize MRI images: training phase.
 
