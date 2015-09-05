@@ -158,26 +158,26 @@ def standardize(img, cfg):
     return img
 
 
-def write_std_cfg(filename, pc1, pc2, landmarks, s1, s2, mapped_scores):
+def write_std_cfg(filename, pc, landmarks, scale, mapped_scores):
     """Write image standardization configuration file.
 
     Parameters
     ----------
     filename : string
         Output filename.
-    pc1, pc2 : number
+    pc : sequence of two numbers
         Minimum and maximum percentiles.
     landmarks : iterable of numbers
         Landmark percentiles.
-    s1, s2 : number
+    scale : sequence of two numbers
         Minimum and maximum intensities on the standard scale.
     mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
     """
     with open(filename, 'w') as f:
-        f.write(dwi.files.toline((pc1, pc2)))
+        f.write(dwi.files.toline(pc))
         f.write(dwi.files.toline(landmarks))
-        f.write(dwi.files.toline((s1, s2)))
+        f.write(dwi.files.toline(scale))
         f.write(dwi.files.toline(mapped_scores))
 
 

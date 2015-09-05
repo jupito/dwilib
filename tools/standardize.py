@@ -38,33 +38,36 @@ def parse_args():
     return p.parse_args()
 
 
-def train(pc, scale, landmarks, inpaths, cfgpath, verbose):
-    """Training phase."""
+def get_stats(pc, scale, landmarks, img):
+    """Gather info from single image."""
     pc1, pc2 = pc
     s1, s2 = scale
+    p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2, landmarks)
+    mapped_scores = [dwi.standardize.map_onto_scale(p1, p2, s1, s2, x) for x in
+                     scores]
+    mapped_scores = [int(x) for x in mapped_scores]
+    return dict(p=(p1, p2), scores=scores, mapped_scores=mapped_scores)
+
+
+def train(pc, scale, landmarks, inpaths, cfgpath, verbose):
+    """Training phase."""
     data = []
     for inpath in inpaths:
         img, _ = dwi.files.read_pmap(inpath)
         if img.shape[-1] != 1:
             raise Exception('Incorrect shape: {}'.format(inpath))
-        p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
-                                                         landmarks)
-        mapped_scores = [dwi.standardize.map_onto_scale(p1, p2, s1, s2, x) for
-                         x in scores]
-        mapped_scores = [int(x) for x in mapped_scores]
+        d = get_stats(pc, scale, landmarks, img)
         if verbose:
             # print(img.shape, dwi.util.fivenum(img), inpath)
-            # print((p1, p2), scores, inpath)
-            print(img.shape, mapped_scores, inpath)
-        data.append(dict(p1=p1, p2=p2, scores=scores,
-                         mapped_scores=mapped_scores))
-    mapped_scores = np.array([d['mapped_scores'] for d in data], dtype=np.int)
+            # print(d['p'], d['scores'], inpath)
+            print(img.shape, d['mapped_scores'], inpath)
+        data.append(d)
+    mapped_scores = np.array([x['mapped_scores'] for x in data], dtype=np.int)
     mapped_scores = np.mean(mapped_scores, axis=0, dtype=mapped_scores.dtype)
     mapped_scores = list(mapped_scores)
     if verbose:
         print(mapped_scores)
-    dwi.standardize.write_std_cfg(cfgpath, pc1, pc2, landmarks, s1, s2,
-                                  mapped_scores)
+    dwi.standardize.write_std_cfg(cfgpath, pc, landmarks, scale, mapped_scores)
 
 
 def transform(cfgpath, inpath, outpath, verbose):
