@@ -20,9 +20,6 @@ See also tools/standardize.py.
 [1] Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-# TODO: Mention that the whole image must be included when standardizing.
-# TODO: Replace scoreatpercentile() with np.percentile().
-
 from __future__ import absolute_import, division, print_function
 import collections
 
@@ -63,15 +60,13 @@ def landmark_scores(img, pc, landmarks, thresholding=True):
     scores : tuple of floats
         Landmark percentile scores.
     """
-    from scipy.stats import scoreatpercentile
     if thresholding:
         # threshold = np.mean(img)
         threshold = np.median(img)
         img = img[img > threshold]
-    p1 = scoreatpercentile(img, pc[0])
-    p2 = scoreatpercentile(img, pc[1])
-    scores = tuple(scoreatpercentile(img, i) for i in landmarks)
-    return (p1, p2), scores
+    p = tuple(np.percentile(img, pc))
+    scores = tuple(np.percentile(img, landmarks))
+    return p, scores
 
 
 def map_onto_scale(p1, p2, s1, s2, v):
