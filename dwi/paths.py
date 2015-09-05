@@ -79,7 +79,7 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
                  winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
-    path = 'texture/texture_{mt}_{m}_{slices}_{portion}_{vx}'
+    path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if voxel == 'mean':
         ext = 'txt'
     else:
