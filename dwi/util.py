@@ -407,16 +407,20 @@ def sglob(path, typ='any'):
     return sole(iglob(path, typ), path)
 
 
-def walker(top):
-    """Yield all files in subdirectories with root path. Kind of like find."""
+def walker(top, types='f'):
+    """Yield all paths in subdirectories of root path. Kind of like find."""
     if os.path.isdir(top):
         def err(e):
             print(e)
         it = os.walk(top, onerror=err, followlinks=True)
         for dirpath, dirnames, filenames in it:
-            for f in filenames:
-                yield os.path.join(dirpath, f)
-    else:
+            if 'f' in types:
+                for p in filenames:
+                    yield os.path.join(dirpath, p)
+            if 'd' in types:
+                for p in dirnames:
+                    yield os.path.join(dirpath, p)
+    elif 'f' in types:
         yield top
 
 
