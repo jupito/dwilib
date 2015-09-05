@@ -519,9 +519,8 @@ def task_merge_textures():
             infiles = [texture_path(mode, case, scan, lesion, mt, slices,
                                     portion, mth, ws) for mth, ws in
                        texture_methods_winsizes(mode, mt)]
-            outfile = texture_path(mode, case, scan, lesion, mt, slices,
-                                   portion, 'merged', 'merged')
-            outfile = 'merged_' + outfile
+            outfile = texture_path(mode, case, scan, lesion, mt + '_merged',
+                                   slices, portion, 'merged', 'merged')
             cmd = select_voxels_cmd(' '.join(infiles), outfile)
             yield {
                 'name': name(mode, case, scan, lesion, mt, slices, portion),
