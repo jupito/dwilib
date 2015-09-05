@@ -327,7 +327,7 @@ def task_make_subregion():
 def get_task_find_roi(mode, case, scan, algparams):
     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    outfig = 'find_roi_images_{m}/{ap_}/{c}_{s}.png'.format(**d)
+    outfig = 'find_roi_images/{m}/{ap_}/{c}_{s}.png'.format(**d)
     subregion = subregion_path(mode, case, scan)
     mask_p = mask_path(mode, 'prostate', case, scan)
     mask_c = mask_path(mode, 'CA', case, scan)
