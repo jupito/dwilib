@@ -120,8 +120,9 @@ def read_slice_(filename):
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
     w, h = slices.values()[0].shape
+    dtype = slices.values()[0].dtype
     shape = (len(positions), w, h, len(bvalues))
-    image = np.empty(shape, dtype=np.float)
+    image = np.empty(shape, dtype=dtype)
     image.fill(np.nan)
     for k, v in slices.iteritems():
         i = positions.index(k[0])
@@ -147,7 +148,8 @@ def get_bvalue(df):
 
 def get_pixels(df):
     """Return rescaled pixel array from DICOM object."""
-    pixels = df.pixel_array.astype(np.float)
+    pixels = df.pixel_array
+    pixels = pixels.astype(np.float64)
     pixels = pixels * df.RescaleSlope + df.RescaleIntercept
     # # Clipping should not be done.
     # lowest = df.WindowCenter - df.WindowWidth/2
