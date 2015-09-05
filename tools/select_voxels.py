@@ -41,6 +41,8 @@ def parse_args():
                    help='parameter rename list')
     p.add_argument('--source_attrs', action='store_true',
                    help='output attributes include source files')
+    p.add_argument('--astype',
+                   help='convert type (see NumPy)')
     p.add_argument('--output', '-o', metavar='OUTFILE',
                    help='output parametric map file')
     return p.parse_args()
@@ -83,6 +85,10 @@ def main():
         attrs['parameters'] = args.rename_params
     if args.source_attrs:
         attrs['source_files'] = args.input
+
+    if args.astype:
+        attrs['source_type'] = str(image.dtype)
+    image = image.astype(args.astype)
 
     # Write output voxels. Unless output filename is specified, one will be
     # constructed from (first) input filename.
