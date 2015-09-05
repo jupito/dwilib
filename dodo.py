@@ -577,30 +577,22 @@ def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
         }
 
 
-def task_mask_prostate_DWI():
-    """Generate DICOM images with everything but prostate zeroed."""
-    for case, scan in cases_scans(MODE):
-        try:
-            mode = dwi.patient.ImageMode('DWI-SI-raw')
-            yield get_task_mask_prostate(mode, case, scan, '_hB', '')
-            # mode = dwi.patient.ImageMode('SPAIR-SPAIR-raw')
-            # yield get_task_mask_prostate(mode, case, scan, '', '_all')
-        except IOError as e:
-            print('mask_prostate_DWI', e)
-
-
-def task_mask_prostate_T2():
-    """Generate DICOM images with everything but prostate zeroed."""
-    for case, scan in cases_scans(MODE):
-        try:
-            mode = dwi.patient.ImageMode('T2-T2-raw')
-            yield get_task_mask_prostate(mode, case, scan, '', '*')
-            # mode = dwi.patient.ImageMode('T2f-T2f-raw')
-            # yield get_task_mask_prostate(mode, case, scan, '', '*', '*_Rho')
-            # mode = dwi.patient.ImageMode('T2w-T2w-raw')
-            # yield get_task_mask_prostate(mode, case, scan, '', '*')
-        except IOError as e:
-            print('mask_prostate_T2', e)
+# def task_mask_prostate():
+#     """Generate DICOM images with everything but prostate zeroed."""
+#     for c, s in cases_scans(MODE):
+#         try:
+#             mode = dwi.patient.ImageMode('DWI-SI-raw')
+#             yield get_task_mask_prostate(mode, c, s, '_hB', '')
+#             # mode = dwi.patient.ImageMode('SPAIR-SPAIR-raw')
+#             # yield get_task_mask_prostate(mode, c, s, '', '_all')
+#             mode = dwi.patient.ImageMode('T2-T2-raw')
+#             yield get_task_mask_prostate(mode, c, s, '', '*')
+#             # mode = dwi.patient.ImageMode('T2f-T2f-raw')
+#             # yield get_task_mask_prostate(mode, c, s, '', '*', '*_Rho')
+#             # mode = dwi.patient.ImageMode('T2w-T2w-raw')
+#             # yield get_task_mask_prostate(mode, c, s, '', '*')
+#         except IOError as e:
+#             print('mask_prostate', e)
 
 
 def task_all():
