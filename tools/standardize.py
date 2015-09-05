@@ -49,7 +49,9 @@ def main():
         landmarks = DEF_CFG['landmarks']
         data = []
         for inpath in inpaths:
-            img, attrs = dwi.files.read_pmap(inpath)
+            img, _ = dwi.files.read_pmap(inpath)
+            if img.shape[-1] != 1:
+                raise Exception('Incorrect shape: {}'.format(inpath))
             p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2,
                                                              landmarks)
             mapped_scores = [int(dwi.standardize.map_onto_scale(p1, p2, s1, s2,
