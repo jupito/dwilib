@@ -41,14 +41,14 @@ def default_configuration():
         )
 
 
-def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
+def landmark_scores(img, pc, landmarks, thresholding=True):
     """Get scores at histogram landmarks.
 
     Parameters
     ----------
     img : ndarray
         Model used for fitting.
-    pc1, pc2 : number
+    pc : pair of numbers
         Minimum and maximum percentiles.
     landmarks : iterable of numbers
         Landmark percentiles.
@@ -58,7 +58,7 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
 
     Returns
     -------
-    p1, p2 : float
+    p : pair of floats
         Minimum and maximum percentile scores.
     scores : tuple of floats
         Landmark percentile scores.
@@ -68,10 +68,10 @@ def landmark_scores(img, pc1, pc2, landmarks, thresholding=True):
         # threshold = np.mean(img)
         threshold = np.median(img)
         img = img[img > threshold]
-    p1 = scoreatpercentile(img, pc1)
-    p2 = scoreatpercentile(img, pc2)
+    p1 = scoreatpercentile(img, pc[0])
+    p2 = scoreatpercentile(img, pc[1])
     scores = tuple(scoreatpercentile(img, i) for i in landmarks)
-    return p1, p2, scores
+    return (p1, p2), scores
 
 
 def map_onto_scale(p1, p2, s1, s2, v):
@@ -101,18 +101,18 @@ def map_onto_scale(p1, p2, s1, s2, v):
     return r
 
 
-def transform(img, p1, p2, scores, s1, s2, mapped_scores):
+def transform(img, p, scores, scale, mapped_scores):
     """Transform image onto standard scale.
 
     Parameters
     ----------
     img : ndarray
         Image to transform.
-    p1, p2 : number
+    p : pair of numbers
         Minimum and maximum percentile scores.
     scores : iterable of numbers
         Landmark percentile scores.
-    s1, s2 : number
+    scale : pair of numbers
         Minimum and maximum intensities on the standard scale.
     mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
@@ -122,6 +122,8 @@ def transform(img, p1, p2, scores, s1, s2, mapped_scores):
     r : ndarray of integers
         Transformed image.
     """
+    p1, p2 = p
+    s1, s2 = scale
     scores = [p1] + list(scores) + [p2]
     mapped_scores = [s1] + list(mapped_scores) + [s2]
     r = np.zeros_like(img, dtype=np.int16)
@@ -153,8 +155,8 @@ def standardize(img, cfg):
     if isinstance(cfg, basestring):
         cfg = read_std_cfg(cfg)
     d = cfg
-    p1, p2, scores = landmark_scores(img, d['pc1'], d['pc2'], d['landmarks'])
-    img = transform(img, p1, p2, scores, d['s1'], d['s2'], d['mapped_scores'])
+    p, scores = landmark_scores(img, d['pc'], d['landmarks'])
+    img = transform(img, p, scores, d['scale'], d['mapped_scores'])
     return img
 
 
@@ -165,11 +167,11 @@ def write_std_cfg(filename, pc, landmarks, scale, mapped_scores):
     ----------
     filename : string
         Output filename.
-    pc : sequence of two numbers
+    pc : pair of numbers
         Minimum and maximum percentiles.
     landmarks : iterable of numbers
         Landmark percentiles.
-    scale : sequence of two numbers
+    scale : pair of numbers
         Minimum and maximum intensities on the standard scale.
     mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
@@ -197,9 +199,9 @@ def read_std_cfg(filename):
     lines = list(dwi.files.valid_lines(filename))[:4]
     lines = [l.split() for l in lines]
     d = collections.OrderedDict()
-    d['pc1'], d['pc2'] = (float(x) for x in lines[0])
+    d['pc'] = tuple(float(x) for x in lines[0])
     d['landmarks'] = tuple(float(x) for x in lines[1])
-    d['s1'], d['s2'] = (int(x) for x in lines[2])
+    d['scale'] = tuple(int(x) for x in lines[2])
     d['mapped_scores'] = tuple(int(x) for x in lines[3])
     if len(d['landmarks']) != len(d['mapped_scores']):
         raise Exception('Invalid standardization file: {}'.format(filename))

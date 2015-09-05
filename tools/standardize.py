@@ -40,13 +40,13 @@ def parse_args():
 
 def get_stats(pc, scale, landmarks, img):
     """Gather info from single image."""
-    pc1, pc2 = pc
+    p, scores = dwi.standardize.landmark_scores(img, pc, landmarks)
+    p1, p2 = p
     s1, s2 = scale
-    p1, p2, scores = dwi.standardize.landmark_scores(img, pc1, pc2, landmarks)
     mapped_scores = [dwi.standardize.map_onto_scale(p1, p2, s1, s2, x) for x in
                      scores]
     mapped_scores = [int(x) for x in mapped_scores]
-    return dict(p=(p1, p2), scores=scores, mapped_scores=mapped_scores)
+    return dict(p=p, scores=scores, mapped_scores=mapped_scores)
 
 
 def train(pc, scale, landmarks, inpaths, cfgpath, verbose):
