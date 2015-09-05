@@ -1,7 +1,6 @@
 """Common path names."""
 
 from __future__ import absolute_import, division, print_function
-import os.path
 
 import dwi.util
 
@@ -65,15 +64,15 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     """Return whole ROI path or part of it."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
-    if masktype == 'lesion':
-        return 'rois_lesion/{m}/{c}-{s}-{l}.h5'.format(**d)
-    components = ['rois_{mt}', '{m}']
+    path = 'rois_{mt}/{m}'
     if algparams:
-        components.append('{ap_}')
+        path += '/{ap_}'
     if case is not None and scan is not None:
-        components.append('{c}_x_x_{s}_{m}_{mt}.txt')
-    components = [x.format(**d) for x in components]
-    return os.path.join(*components)
+        if masktype == 'lesion':
+            path += '/{c}-{s}-{l}.h5'
+        else:
+            path += '/{c}_x_x_{s}_{m}_{mt}.txt'
+    return path.format(**d)
 
 
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
