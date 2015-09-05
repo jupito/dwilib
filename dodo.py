@@ -203,14 +203,17 @@ def make_subregion_cmd(mask, subregion):
     return cmd.format(prg=DWILIB+'/masktool.py', mask=mask, sr=subregion)
 
 
-def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False):
+def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
+                      astype=None):
     cmd = '{prg} -i {i} -o {o}'
     if mask:
         cmd += ' -m {m}'
     if source_attrs:
         cmd += ' --source_attrs'
+    if astype is not None:
+        cmd += ' --astype {t}'
     return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
-                      m=mask)
+                      m=mask, t=astype)
 
 
 def auc_cmd(mode, threshold, algparams, outfile):
