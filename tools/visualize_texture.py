@@ -30,9 +30,9 @@ def parse_args():
                    help='case number')
     p.add_argument('--scan', required=True,
                    help='scan identifier')
-    p.add_argument('--pmaskdir', default='masks_prostate',
+    p.add_argument('--pmaskdir',
                    help='prostate mask directory')
-    p.add_argument('--lmaskdir', default='masks_lesion_DWI',
+    p.add_argument('--lmaskdir',
                    help='lesion mask directory')
     p.add_argument('--method', default='stats',
                    help='texture method')
