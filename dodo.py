@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from itertools import chain, product
 from os.path import dirname
-import re
+# import re
 
 from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
@@ -556,43 +556,6 @@ def task_merge_textures():
                 'file_dep': infiles,
                 'targets': [outfile],
             }
-
-
-def get_task_mask_prostate(mode, case, scan, imagetype, postfix,
-                           param='DICOM'):
-    """Generate DICOM images with everything but prostate zeroed."""
-    imagedir = 'dicoms_{}'.format(mode[0])
-    outdir = 'dicoms_masked_{}'.format(mode[0])
-    d = dict(c=case, s=scan, id=imagedir, od=outdir, it=imagetype,
-             pox=postfix, p=param)
-    mask = mask_path(mode, 'prostate', case, scan)
-    src = dwi.util.sglob('{id}_*/{c}_*{it}_{s}{pox}/{p}'.format(**d))
-    dst = '{od}/{c}{it}_{s}'.format(**d)
-    cmds = mask_out_cmd(src, dst, mask)
-    return {
-        'name': name(case, scan),
-        'actions': folders(dst) + cmds,
-        # 'file_dep':
-        # 'targets':
-        }
-
-
-# def task_mask_prostate():
-#     """Generate DICOM images with everything but prostate zeroed."""
-#     for c, s in cases_scans(MODE):
-#         try:
-#             mode = dwi.patient.ImageMode('DWI-SI-raw')
-#             yield get_task_mask_prostate(mode, c, s, '_hB', '')
-#             # mode = dwi.patient.ImageMode('SPAIR-SPAIR-raw')
-#             # yield get_task_mask_prostate(mode, c, s, '', '_all')
-#             mode = dwi.patient.ImageMode('T2-T2-raw')
-#             yield get_task_mask_prostate(mode, c, s, '', '*')
-#             # mode = dwi.patient.ImageMode('T2f-T2f-raw')
-#             # yield get_task_mask_prostate(mode, c, s, '', '*', '*_Rho')
-#             # mode = dwi.patient.ImageMode('T2w-T2w-raw')
-#             # yield get_task_mask_prostate(mode, c, s, '', '*')
-#         except IOError as e:
-#             print('mask_prostate', e)
 
 
 def task_all():
