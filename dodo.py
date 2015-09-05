@@ -164,13 +164,13 @@ def path_deps(*paths):
 def standardize_train_cmd(infiles, cfgpath):
     """Standardize MRI images: training phase."""
     infiles = paths_on_cmdline(infiles)
-    cmd = '{prg} --train {o} {i}'
+    cmd = '{prg} -v --train {o} {i}'
     return cmd.format(prg=DWILIB+'/standardize.py', o=cfgpath, i=infiles)
 
 
 def standardize_transform_cmd(cfgpath, inpath, outpath):
     """Standardize MRI images: transform phase."""
-    cmd = '{prg} --transform {c} {i} {o}'
+    cmd = '{prg} -v --transform {c} {i} {o}'
     return cmd.format(prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath,
                       o=outpath)
 
