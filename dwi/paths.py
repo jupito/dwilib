@@ -45,13 +45,13 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=()):
              ap_='_'.join(algparams))
     do_glob = True
     if masktype == 'prostate':
-        path = 'masks_{mt}_{m[0]}/{c}_*_{s}*'
+        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*'
     elif masktype == 'lesion':
-        path = 'masks_{mt}_{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*'
+        path = 'masks_{mt}/{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*'
     elif masktype in ('CA', 'N'):
-        path = 'masks_rois/{c}_*_{s}_D_{mt}'
+        path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}'
     elif masktype == 'auto':
-        path = 'masks_{mt}_{m}/{ap_}/{c}_{s}_auto.mask'
+        path = 'masks_{mt}/{m}/{ap_}/{c}_{s}_auto.mask'
         do_glob = False  # Don't require existence, can be generated.
     else:
         raise Exception('Unknown mask type: {mt}'.format(**d))
