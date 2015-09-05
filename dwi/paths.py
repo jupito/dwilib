@@ -38,10 +38,13 @@ def subregion_path(mode, case=None, scan=None):
     return path.format(m=mode, c=case, s=scan)
 
 
-def mask_path(mode, masktype, case, scan, lesion=None, algparams=()):
+def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
+              fmt='dicom'):
     """Return path and deps of masks of different types."""
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
+    if fmt == 'hdf5':
+        return 'masks_{mt}/{m}/{c}_{s}_{l}.h5'.format(**d)
     do_glob = True
     if masktype == 'prostate':
         path = 'masks_{mt}/{m[0]}/{c}_*_{s}*'
