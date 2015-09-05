@@ -44,6 +44,11 @@ def folders(*paths):
     return [(create_folder, [dirname(x)]) for x in paths]
 
 
+def paths_on_cmdline(paths):
+    """Lay pathnames on command line."""
+    return ' '.join('"{}"'.format(x) for x in paths)
+
+
 def texture_methods():
     return [
         # 'stats',
@@ -156,15 +161,11 @@ def path_deps(*paths):
 #
 
 
-def standardize_train_cmd(mode, cfgfile, samplelist='all'):
-    """Standardize MRI images: training phase.
-
-    Pay attention to the sample list: probably all data should be used.
-    """
-    d = dict(prg=DWILIB+'/standardize.py', m=mode, o=cfgfile,
-             slf=samplelist_path(mode, samplelist), pd=pmap_path(mode))
-    cmd = '{prg} --patients {slf} --pmapdir {pd} --outconf {o}'
-    return cmd.format(**d)
+def standardize_train_cmd(infiles, cfgpath):
+    """Standardize MRI images: training phase."""
+    infiles = paths_on_cmdline(infiles)
+    cmd = '{prg} --train {o} {i}'
+    return cmd.format(prg=DWILIB+'/standardize.py', o=cfgpath, i=infiles)
 
 
 def standardize_transform_cmd(cfgpath, inpath, outpath):
@@ -274,14 +275,19 @@ def task_convert_data():
 
 
 def task_standardize_train():
-    """Standardize MRI images: training phase."""
+    """Standardize MRI images: training phase.
+
+    Pay attention to the sample list: all samples should be used.
+    """
     mode = MODE - 'std'
     std_cfg = std_cfg_path(mode)
+    inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode,
+                                                             samplelist='all')]
     yield {
         'name': name(mode),
-        'actions': [standardize_train_cmd(mode, std_cfg)],
+        'actions': [standardize_train_cmd(inpaths, std_cfg)],
+        'file_dep': path_deps(*inpaths),
         'targets': [std_cfg],
-        'uptodate': [check_timestamp_unchanged(pmap_path(mode))],
         'clean': True,
         }
 
