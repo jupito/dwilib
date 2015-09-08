@@ -251,24 +251,23 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 # Gabor features
 
 
-def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
+def gabor(img, freqs=(0.1, 0.2, 0.3, 0.4)):
     """Gabor features.
 
     Averaged over 4 directions for orientation invariance.
     """
     thetas = [np.pi/4*i for i in range(4)]
-    shape = len(thetas), len(sigmas), len(freqs)
+    shape = len(thetas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=DTYPE)
-    for i, j, k in np.ndindex(shape):
-        t, s, f = thetas[i], sigmas[j], freqs[k]
-        kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
-        real, _ = skimage.filter.gabor_filter(img, **kwargs)
-        feats[i, j, k, 0] = real.mean()
-        feats[i, j, k, 1] = real.var()
+    for i, j in np.ndindex(shape):
+        real, _ = skimage.filter.gabor_filter(img, frequency=freqs[j],
+                                              theta=thetas[i])
+        feats[i, j, 0] = real.mean()
+        feats[i, j, 1] = real.var()
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
-    for (i, j, k), value in np.ndenumerate(feats):
-        key = sigmas[i], freqs[j], ('mean', 'var')[k]
+    for (i, j), value in np.ndenumerate(feats):
+        key = freqs[i], ('mean', 'var')[j]
         d[key] = value
     return d
 
@@ -277,7 +276,7 @@ def gabor_map(img, winsize, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4),
               mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = gabor(win, sigmas, freqs)
+        feats = gabor(win, freqs)
         if output is None:
             output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats.values()):
