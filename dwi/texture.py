@@ -24,7 +24,7 @@ import skimage.filter
 import dwi.util
 
 
-DTYPE = np.float32  # Type used for storing texture features.
+DTYPE = np.double  # Type used for storing texture features.
 
 
 def normalize(pmap, levels=128):
