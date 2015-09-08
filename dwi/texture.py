@@ -251,13 +251,16 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 # Gabor features
 
 
-def gabor(img, freqs=None):
+def gabor(img, wavelengths=None):
     """Gabor features.
 
-    Averaged over 4 directions for orientation invariance.
+    Window size is wavelength 1. Frequency is 1/wavelength; the library uses
+    frequency as input parameter. Averaged over 4 directions for orientation
+    invariance.
     """
-    if freqs is None:
-        freqs = (0.1, 0.2, 0.3, 0.4)
+    if wavelengths is None:
+        wavelengths = [2**i for i in range(1, 7)]
+    freqs = [1/i for i in wavelengths]
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=DTYPE)
@@ -268,15 +271,15 @@ def gabor(img, freqs=None):
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
     for (i, j), value in np.ndenumerate(feats):
-        key = freqs[i], ('mean', 'var')[j]
+        key = wavelengths[i], ('mean', 'var')[j]
         d[key] = value
     return d
 
 
-def gabor_map(img, winsize, freqs=None, mask=None, output=None):
+def gabor_map(img, winsize, wavelengths=None, mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = gabor(win, freqs)
+        feats = gabor(win, wavelengths)
         if output is None:
             output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats.values()):
