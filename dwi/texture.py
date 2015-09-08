@@ -262,8 +262,7 @@ def gabor(img, freqs=(0.1, 0.2, 0.3, 0.4)):
     for i, j in np.ndindex(shape):
         real, _ = skimage.filter.gabor_filter(img, frequency=freqs[j],
                                               theta=thetas[i])
-        feats[i, j, 0] = real.mean()
-        feats[i, j, 1] = real.var()
+        feats[i, j, :] = real.mean(), real.var()
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
     for (i, j), value in np.ndenumerate(feats):
