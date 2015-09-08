@@ -24,6 +24,9 @@ import skimage.filter
 import dwi.util
 
 
+DTYPE = np.float32  # Type used for storing texture features.
+
+
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
@@ -75,7 +78,7 @@ def stats_map(img, winsize, names=None, mask=None, output=None):
         if names is None:
             names = d.keys()
         if output is None:
-            output = np.zeros((len(names),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(names),) + img.shape, dtype=DTYPE)
         for i, name in enumerate(names):
             output[(i,) + pos] = d[name]
     names = ['stats({})'.format(n) for n in names]
@@ -132,7 +135,7 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, value in enumerate(feats.values()):
             output[(i,) + pos] = value
     names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
@@ -175,7 +178,7 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win, ignore_zeros=ignore_zeros)
         if output is None:
-            output = np.zeros((len(names),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(names),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
@@ -255,7 +258,7 @@ def gabor(img, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4)):
     """
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(sigmas), len(freqs)
-    feats = np.zeros(shape + (2,), dtype=np.float32)
+    feats = np.zeros(shape + (2,), dtype=DTYPE)
     for i, j, k in np.ndindex(shape):
         t, s, f = thetas[i], sigmas[j], freqs[k]
         kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
@@ -276,7 +279,7 @@ def gabor_map(img, winsize, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4),
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win, sigmas, freqs)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
     names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
@@ -304,7 +307,7 @@ def hog_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = [hog(win)]
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['hog']
@@ -340,7 +343,7 @@ def moment_map(img, winsize, max_order=12, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = moments(win, max_order=max_order)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
     names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
@@ -377,7 +380,7 @@ def hu_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hu(win)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['hu({})'.format(i) for i in range(len(feats))]
@@ -408,7 +411,7 @@ def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = zernike(win, radius, degree=degree, cm=(radius, radius))
         if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=np.float32)
+            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['zernike({})'.format(i) for i in range(len(feats))]
@@ -464,7 +467,7 @@ def haar_map(img, winsize, nlevels=4, mask=None, output=None):
                 feats = haar_features(win)
                 if output is None:
                     output = np.zeros((len(levels), len(coeffs), len(feats),) +
-                                      coeff.shape, dtype=np.float32)
+                                      coeff.shape, dtype=DTYPE)
                 for k, v in enumerate(feats.values()):
                     output[(i, j, k,) + pos] = v
             s = 'haar({level},{coeff},{feat})'
@@ -545,7 +548,7 @@ _METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    tmap = np.empty(img.shape + (len(names),), dtype=np.float32)
+    tmap = np.empty(img.shape + (len(names),), dtype=DTYPE)
     tmap.fill(np.nan)
     tmap[mask, :] = feats
     return tmap, names
@@ -558,7 +561,7 @@ def get_texture_mbb(img, call, mask):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
                 # tmap = np.empty((len(img), 1, 1, len(names)))
-                tmap = np.empty(img.shape + (len(names),), dtype=np.float32)
+                tmap = np.empty(img.shape + (len(names),), dtype=DTYPE)
                 tmap.fill(np.nan)
             tmap[i, mask_slice, :] = feats
     return tmap, names
@@ -570,7 +573,7 @@ def get_texture_map(img, call, winsize, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros(img.shape + (len(names),), dtype=np.float32)
+                tmap = np.zeros(img.shape + (len(names),), dtype=DTYPE)
             feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
     tmap[-mask] = np.nan  # Fill background with NaN.
@@ -592,13 +595,13 @@ def get_texture(img, method, winspec, mask, avg=False):
             # It's all the same value.
             # tmap = np.nanmean(tmap, axis=(0, 1, 2), keepdims=True)
             # # Feeding np.nanmean whole image hogs too much memory, circumvent.
-            #a = np.empty((len(tmap), len(names)), dtype=np.float32)
+            #a = np.empty((len(tmap), len(names)), dtype=DTYPE)
             #for p in np.ndindex(a.shape):
             #    a[p] = np.nanmean(tmap[:, :, :, p])
             #tmap = a
-            #tmap = np.array([np.nanmean(tmap[:, :, :, i]) for i in range(len(names))], dtype=np.float32)
+            #tmap = np.array([np.nanmean(tmap[:, :, :, i]) for i in range(len(names))], dtype=DTYPE)
             tmap = np.array([np.nanmean(x) for x in np.rollaxis(tmap, -1)],
-                            dtype=np.float32)
+                            dtype=DTYPE)
             tmap.shape = 1, 1, 1, len(names)
     elif winspec == 'mbb':
         assert method.endswith('_mbb')
@@ -609,7 +612,7 @@ def get_texture(img, method, winspec, mask, avg=False):
             # tmap = np.nanmean(tmap, axis=(1, 2), keepdims=True)
             # tmap = np.nanmean(tmap, axis=0, keepdims=True)
             # # Feeding np.nanmean whole image hogs too much memory, circumvent.
-            a = np.empty((len(tmap), len(names)), dtype=np.float32)
+            a = np.empty((len(tmap), len(names)), dtype=DTYPE)
             for s, p in np.ndindex(a.shape):
                 a[s, p] = np.nanmean(tmap[s, :, :, p])
             tmap = a
