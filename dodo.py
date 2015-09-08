@@ -65,7 +65,6 @@ def texture_methods():
         'hu',
         'zernike',
         'sobel',
-        'sobel_mbb',
         'stats_all',
         ]
 

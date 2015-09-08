@@ -493,13 +493,6 @@ def sobel_map(img, winsize=None, mask=None):
     return output, names
 
 
-def sobel_mbb(img, mask):
-    """Sobel edge descriptor map."""
-    output = [np.mean(sobel(img, mask=mask))]
-    names = ['sobel']
-    return output, names
-
-
 # General texture map.
 
 
@@ -523,7 +516,6 @@ METHODS_MBB = OrderedDict([
     ('stats_mbb', stats_mbb),
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
-    ('sobel_mbb', sobel_mbb),
     ])
 
 # Methods that consider all selected voxels.
@@ -547,7 +539,6 @@ _METHODS = OrderedDict([
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
     ('sobel', sobel_map),
-    ('sobel_mbb', sobel_mbb),
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
 
