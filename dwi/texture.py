@@ -251,11 +251,13 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 # Gabor features
 
 
-def gabor(img, freqs=(0.1, 0.2, 0.3, 0.4)):
+def gabor(img, freqs=None):
     """Gabor features.
 
     Averaged over 4 directions for orientation invariance.
     """
+    if freqs is None:
+        freqs = (0.1, 0.2, 0.3, 0.4)
     thetas = [np.pi/4*i for i in range(4)]
     shape = len(thetas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=DTYPE)
@@ -271,8 +273,7 @@ def gabor(img, freqs=(0.1, 0.2, 0.3, 0.4)):
     return d
 
 
-def gabor_map(img, winsize, sigmas=(1, 2, 3), freqs=(0.1, 0.2, 0.3, 0.4),
-              mask=None, output=None):
+def gabor_map(img, winsize, freqs=None, mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win, freqs)
