@@ -31,9 +31,8 @@ def normalize(pmap, levels=128):
     in_range = (0, 0.005)  # For ADC.
     # in_range = (0, 0.002)
     # in_range = (pmap.min(), pmap.max())
-    # in_range = (0, sp.stats.scoreatpercentile(pmap, 99.8))
-    # in_range = (sp.stats.scoreatpercentile(pmap, 0.8),
-    #             sp.stats.scoreatpercentile(pmap, 99.2))
+    # in_range = (0, np.percentile(pmap, 99.8))
+    # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
     if pmap.dtype == np.int32:
         # The rescaler cannot handle int32.
         pmap = np.asarray(pmap, dtype=np.int16)
@@ -63,7 +62,7 @@ def stats(img):
     d['range'] = np.max(img) - np.min(img)
     d.update(dwi.util.fivenumd(img))
     for i in range(1, 10):
-        d['decile%i' % i] = sp.stats.scoreatpercentile(img, i*10)
+        d['decile%i' % i] = np.percentile(img, i*10)
     d['kurtosis'] = sp.stats.kurtosis(img.ravel())
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
