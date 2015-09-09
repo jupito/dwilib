@@ -556,7 +556,7 @@ _METHODS = OrderedDict([
     ('lbp', lbp_freq_map),
     ('hog', hog_map),
     ('gabor', gabor_map),
-    ('gabor', gabor_map_alt),
+    ('gaboralt', gabor_map_alt),
     ('moment', moment_map),
     ('haar', haar_map),
     ('sobel', sobel_map),
