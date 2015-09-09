@@ -288,6 +288,27 @@ def gabor_map(img, winsize, wavelengths=None, mask=None, output=None):
     return output, names
 
 
+def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
+    """Gabor texture feature map."""
+    if wavelengths is None:
+        wavelengths = [2**i for i in range(1, 6)]
+    freqs = [1/i for i in wavelengths]
+    thetas = [np.pi/4*i for i in range(4)]
+    if output is None:
+        output = np.zeros((len(thetas), len(freqs)) + img.shape, dtype=DTYPE)
+    img = (img - img.mean()) / img.std()
+    for i, theta in enumerate(thetas):
+        for j, freq in enumerate(freqs):
+            kernel = skimage.filter.gabor_kernel(freq, theta=theta)
+            kernel = np.real(kernel)
+            dwi.util.report(i, j, theta, freq, kernel.shape)
+            a = sp.ndimage.filters.convolve(img[:, :], kernel)
+            output[i, j, :, :] = a
+    output = np.mean(output, axis=0)  # Average over directions.
+    names = ['gabor({})'.format(x) for x in wavelengths]
+    return output, names
+
+
 # Histogram of Oriented Gradients (HOG)
 
 
@@ -501,32 +522,32 @@ def sobel_map(img, winsize=None, mask=None):
 # General texture map.
 
 
-# Methods that consider an n*n window.
-METHODS = OrderedDict([
-    ('stats', stats_map),
-    ('glcm', glcm_map),
-    ('haralick', haralick_map),
-    ('lbp', lbp_freq_map),
-    ('hog', hog_map),
-    ('gabor', gabor_map),
-    ('moment', moment_map),
-    ('haar', haar_map),
-    ('sobel', sobel_map),
-    ('hu', hu_map),
-    ('zernike', zernike_map),
-    ])
-
-# Methods that consider a minimum bounding box of selected voxels.
-METHODS_MBB = OrderedDict([
-    ('stats_mbb', stats_mbb),
-    ('glcm_mbb', glcm_mbb),
-    ('haralick_mbb', haralick_mbb),
-    ])
-
-# Methods that consider all selected voxels.
-METHODS_ALL = OrderedDict([
-    ('stats_all', stats_mbb),  # Use the same mbb function.
-    ])
+# # Methods that consider an n*n window.
+# METHODS = OrderedDict([
+#     ('stats', stats_map),
+#     ('glcm', glcm_map),
+#     ('haralick', haralick_map),
+#     ('lbp', lbp_freq_map),
+#     ('hog', hog_map),
+#     ('gabor', gabor_map),
+#     ('moment', moment_map),
+#     ('haar', haar_map),
+#     ('sobel', sobel_map),
+#     ('hu', hu_map),
+#     ('zernike', zernike_map),
+#     ])
+#
+# # Methods that consider a minimum bounding box of selected voxels.
+# METHODS_MBB = OrderedDict([
+#     ('stats_mbb', stats_mbb),
+#     ('glcm_mbb', glcm_mbb),
+#     ('haralick_mbb', haralick_mbb),
+#     ])
+#
+# # Methods that consider all selected voxels.
+# METHODS_ALL = OrderedDict([
+#     ('stats_all', stats_mbb),  # Use the same mbb function.
+#     ])
 
 _METHODS = OrderedDict([
     ('stats', stats_map),
@@ -535,6 +556,7 @@ _METHODS = OrderedDict([
     ('lbp', lbp_freq_map),
     ('hog', hog_map),
     ('gabor', gabor_map),
+    # ('gabor', gabor_map_alt),
     ('moment', moment_map),
     ('haar', haar_map),
     ('sobel', sobel_map),
