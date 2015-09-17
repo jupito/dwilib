@@ -37,10 +37,10 @@ def parse_args():
     return p.parse_args()
 
 
-def write_pmap_ascii(img, model, params, pmap):
+def write_pmap_ascii(img, model, params, pmap, output):
     """Write parameter images to an ASCII file."""
-    if args.output:
-        filename = args.output
+    if output:
+        filename = output
     else:
         filename = 'pmap_%s_%s.txt' % (os.path.basename(img.filename), model)
     print('Writing parameters to %s...' % filename)
@@ -71,55 +71,62 @@ def log(str):
     sys.stderr.flush()
 
 
-def fit_dwi(model, img):
-    if args.subwindow:
-        img = img.get_roi(args.subwindow, onebased=True)
-    if args.verbose:
+def fit_dwi(model, img, subwindow, average, verbose, output):
+    if subwindow:
+        img = img.get_roi(subwindow, onebased=True)
+    if verbose:
         print(img)
-    # logger = log if args.verbose > 1 else None
+    # logger = log if verbose > 1 else None
     if not model.params:
         if model.name == 'Si':
             model.params = ['SI%d' % b for b in img.bset]
         elif model.name == 'SiN':
             model.params = ['SI%dN' % b for b in img.bset]
     params = model.params + ['RMSE']
-    # pmap = img.fit_whole(model, log=logger, mean=args.average)
-    pmap = img.fit(model, average=args.average)
-    write_pmap_ascii(img, model, params, pmap)
+    # pmap = img.fit_whole(model, log=logger, mean=average)
+    pmap = img.fit(model, average=average)
+    write_pmap_ascii(img, model, params, pmap, output)
 
 
-def fit_ascii(model, filename):
+def fit_ascii(model, filename, subwindow, average, verbose, output):
     dwis = dwi.dwimage.load(filename, 1)
     for img in dwis:
-        fit_dwi(model, img)
+        fit_dwi(model, img, subwindow, average, verbose, output)
 
 
-def fit_dicom(model, filenames):
+def fit_dicom(model, filenames, subwindow, average, verbose, output):
     dwis = dwi.dwimage.load_dicom(filenames)
     for img in dwis:
-        fit_dwi(model, img)
+        fit_dwi(model, img, subwindow, average, verbose, output)
 
 
-args = parse_args()
+def main():
+    args = parse_args()
 
-if args.output and len(args.models) > 1:
-    raise Exception('Error: one output file, several models.')
+    if args.output and len(args.models) > 1:
+        raise Exception('Error: one output file, several models.')
 
-if args.listmodels:
+    if args.listmodels:
+        for model in dwi.models.Models:
+            print('{n}: {d}'.format(n=model.name, d=model.desc))
+        print('{n}: {d}'.format(n='all', d='all models'))
+        print('{n}: {d}'.format(n='normalized', d='all normalized models'))
+
+    selected_models = args.models
+    if 'all' in selected_models:
+        selected_models += [m.name for m in dwi.models.Models]
+    elif 'normalized' in selected_models:
+        selected_models += 'SiN MonoN KurtN StretchedN BiexpN'.split()
+
     for model in dwi.models.Models:
-        print('{n}: {d}'.format(n=model.name, d=model.desc))
-    print('{n}: {d}'.format(n='all', d='all models'))
-    print('{n}: {d}'.format(n='normalized', d='all normalized models'))
+        if model.name in selected_models:
+            for filename in args.input:
+                fit_ascii(model, filename, args.subwindow, args.average,
+                          args.verbose, args.output)
+            if args.dicom:
+                fit_dicom(model, args.dicom, args.subwindow, args.average,
+                          args.verbose, args.output)
 
-selected_models = args.models
-if 'all' in selected_models:
-    selected_models += [m.name for m in dwi.models.Models]
-elif 'normalized' in selected_models:
-    selected_models += 'SiN MonoN KurtN StretchedN BiexpN'.split()
 
-for model in dwi.models.Models:
-    if model.name in selected_models:
-        for filename in args.input:
-            fit_ascii(model, filename)
-        if args.dicom:
-            fit_dicom(model, args.dicom)
+if __name__ == '__main__':
+    main()
