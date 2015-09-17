@@ -19,6 +19,8 @@ class AsciiFile(object):
         self.basename = os.path.basename(filename)
         self.d, self.a = read_ascii_file(self.filename)
         self.number = int(self.d.get('number', 0))
+        self.roislice = self.d.get('ROIslice', '')
+        self.name = self.d.get('name', '')
 
     def __repr__(self):
         return self.filename
@@ -57,12 +59,6 @@ class AsciiFile(object):
         for i, s in enumerate(a):
             r[i] = s
         return tuple(r)
-
-    def roislice(self):
-        return self.d.get('ROIslice', '')
-
-    def name(self):
-        return self.d.get('name', '')
 
 
 def read_ascii_file(filename):
