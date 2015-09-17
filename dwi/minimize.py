@@ -6,12 +6,12 @@ import numpy as np
 import scipy.optimize
 
 
-epsilon = np.sqrt(np.finfo(np.float64).eps)
+EPSILON = np.sqrt(np.finfo(np.float64).eps)
 
 
-def gradient(f, x, args=[], eps=epsilon):
+def gradient(f, x, args=[]):
     """Approximate gradient of f at x."""
-    return scipy.optimize.approx_fprime(x, f, eps, *args)
+    return scipy.optimize.approx_fprime(x, f, EPSILON, *args)
 
 
 def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
