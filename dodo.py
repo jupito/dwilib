@@ -468,19 +468,20 @@ def task_texture():
     """Generate texture features."""
     mode = MODE
     for mt, slices, portion in texture_params():
-        for case, scan, lesion in lesions(mode):
-            for mth, ws in texture_methods_winsizes(mode, 'lesion'):
-                yield get_task_texture_manual(mode, mt, case, scan, lesion,
+        for c, s, l in lesions(mode):
+            for mth, ws in texture_methods_winsizes(mode, mt):
+                yield get_task_texture_manual(mode, mt, c, s, l,
                                               slices, portion, mth, ws, 'mean')
-                yield get_task_texture_manual(mode, mt, case, scan, lesion,
+                yield get_task_texture_manual(mode, mt, c, s, l,
                                               slices, portion, mth, ws, 'all')
     # FIXME: Clean the horrible kludge.
+    mt = 'prostate'
     for c, s in cases_scans(mode):
-        for mth, ws in texture_methods_winsizes(mode, 'prostate'):
-            yield get_task_texture_manual(mode, 'prostate', c, s, None,
+        for mth, ws in texture_methods_winsizes(mode, mt):
+            yield get_task_texture_manual(mode, mt, c, s, None,
                                           'maxfirst', 0, mth, ws, 'all')
-            yield get_task_texture_manual(mode, 'prostate', c, s, None, 'all',
-                                          0, mth, ws, 'all')
+            yield get_task_texture_manual(mode, mt, c, s, None,
+                                          'all', 0, mth, ws, 'all')
 
 
 def task_merge_textures():
@@ -491,7 +492,7 @@ def task_merge_textures():
             infiles = [texture_path(mode, case, scan, lesion, mt, slices,
                                     portion, mth, ws) for mth, ws in
                        texture_methods_winsizes(mode, mt)]
-            outfile = texture_path(mode, case, scan, lesion, mt + '_merged',
+            outfile = texture_path(mode, case, scan, lesion, mt+'_merged',
                                    slices, portion, None, None)
             cmd = select_voxels_cmd(' '.join(infiles), outfile)
             yield {
