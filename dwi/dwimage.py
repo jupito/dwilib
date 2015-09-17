@@ -46,6 +46,13 @@ class DWImage(object):
             raise Exception('Invalid image dimensions.')
         if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
             raise Exception('Image size does not match with b-values.')
+        self.filename = None
+        self.basename = None
+        self.roislice = None
+        self.name = None
+        self.number = None
+        self.subwindow = None
+        self.voxel_spacing = None
 
     def __repr__(self):
         return '%s:%i' % (self.filename, self.number)
@@ -160,18 +167,18 @@ def load_matlab(filename, varname='ROIdata'):
         win = window[0, 0]
         sis = win.SIs.T
         bset = win.bset[0]
-        dwi = DWImage(sis, bset)
-        dwi.filename = filename
-        dwi.basename = os.path.basename(filename)
-        dwi.roislice = '-'  # Not implemented.
-        dwi.name = '-'  # Not implemented.
-        dwi.number = int(win.number[0, 0])
+        dwimage = DWImage(sis, bset)
+        dwimage.filename = filename
+        dwimage.basename = os.path.basename(filename)
+        dwimage.roislice = '-'  # Not implemented.
+        dwimage.name = '-'  # Not implemented.
+        dwimage.number = int(win.number[0, 0])
         try:
-            dwi.subwindow = tuple(map(int, win.subwindow[0]))
+            dwimage.subwindow = tuple(map(int, win.subwindow[0]))
         except:
-            dwi.subwindow = dwi.util.fabricate_subwindow(len(sis))
-        dwi.voxel_spacing = (1.0, 1.0, 1.0)
-        r.append(dwi)
+            dwimage.subwindow = dwi.util.fabricate_subwindow(len(sis))
+        dwimage.voxel_spacing = (1.0, 1.0, 1.0)
+        r.append(dwimage)
     return r
 
 
@@ -184,15 +191,15 @@ def load_ascii(filename, nrois=1):
     for i in range(nrois):
         sis = a[i]
         bset = af.bset()
-        dwi = DWImage(sis, bset)
-        dwi.filename = filename
-        dwi.basename = os.path.basename(filename)
-        dwi.roislice = af.roislice
-        dwi.name = af.name
-        dwi.number = af.number + i
-        dwi.subwindow = af.subwindow()
-        dwi.voxel_spacing = (1.0, 1.0, 1.0)
-        r.append(dwi)
+        dwimage = DWImage(sis, bset)
+        dwimage.filename = filename
+        dwimage.basename = os.path.basename(filename)
+        dwimage.roislice = af.roislice
+        dwimage.name = af.name
+        dwimage.number = af.number + i
+        dwimage.subwindow = af.subwindow()
+        dwimage.voxel_spacing = (1.0, 1.0, 1.0)
+        r.append(dwimage)
     return r
 
 
@@ -221,14 +228,13 @@ def load_dicom(filenames):
         d = dwi.dicomfile.read_dir(filenames[0])  # Directory.
     else:
         d = dwi.dicomfile.read_files(filenames)  # File list.
-    bset = d['bvalues']
-    image = d['image']
-    dwi = DWImage(image, bset)
-    dwi.filename = os.path.abspath(filenames[0])
-    dwi.basename = os.path.basename(filenames[0])
-    dwi.roislice = '-'
-    dwi.name = '-'
-    dwi.number = 0
-    dwi.subwindow = (0, image.shape[0], 0, image.shape[1], 0, image.shape[2])
-    dwi.voxel_spacing = d['voxel_spacing']
-    return [dwi]
+    img = d['image']
+    dwimage = DWImage(img, d['bvalues'])
+    dwimage.filename = os.path.abspath(filenames[0])
+    dwimage.basename = os.path.basename(filenames[0])
+    dwimage.roislice = '-'
+    dwimage.name = '-'
+    dwimage.number = 0
+    dwimage.subwindow = (0, img.shape[0], 0, img.shape[1], 0, img.shape[2])
+    dwimage.voxel_spacing = d['voxel_spacing']
+    return [dwimage]
