@@ -69,7 +69,7 @@ def log(s):
     sys.stderr.flush()
 
 
-def fit_dwi(model, img, subwindow, average, verbose, output):
+def fit_image(model, img, subwindow, average, verbose, output):
     if subwindow:
         img = img.get_roi(subwindow, onebased=True)
     if verbose:
@@ -84,12 +84,6 @@ def fit_dwi(model, img, subwindow, average, verbose, output):
     # pmap = img.fit_whole(model, log=logger, mean=average)
     pmap = img.fit(model, average=average)
     write_pmap_ascii(img, model, params, pmap, output)
-
-
-def fit(model, path, subwindow, average, verbose, output):
-    dwis = dwi.dwimage.load(path)
-    for img in dwis:
-        fit_dwi(model, img, subwindow, average, verbose, output)
 
 
 def main():
@@ -113,8 +107,9 @@ def main():
     for model in dwi.models.Models:
         if model.name in selected_models:
             for path in args.input:
-                fit(model, path, args.subwindow, args.average, args.verbose,
-                    args.output)
+                for img in dwi.dwimage.load(path):
+                    fit_image(model, img, args.subwindow, args.average,
+                              args.verbose, args.output)
 
 
 if __name__ == '__main__':
