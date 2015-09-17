@@ -178,8 +178,9 @@ def main():
         print('{case} {scan}: {score} {subregion}'.format(**d))
         if args.verbose:
             print(d['image'].shape)
-            print(map(lambda m: len(m.selected_slices()), [d['cancer_mask'],
-                    d['normal_mask'], d['prostate_mask']]))
+            print([len(x.selected_slices()) for x in [d['cancer_mask'],
+                                                      d['normal_mask'],
+                                                      d['prostate_mask']]])
         d.update(dwi.autoroi.find_roi(d['image'], args.roidim, params,
                                       prostate_mask=d['prostate_mask'],
                                       depthmin=depthmin, depthmax=depthmax,
