@@ -1,4 +1,7 @@
-"""Dataset, directory and file structures."""
+"""Dataset, directory and file structures.
+
+NOTE: Obsolete, don't use anymore.
+"""
 
 from __future__ import absolute_import, division, print_function
 import glob
@@ -83,52 +86,6 @@ def read_dicom_pmap(directory, case, scan, param):
     image = d['image']
     # image = image.squeeze(axis=3)  # Remove single subvalue dimension.
     return image
-
-
-#def read_dicom_pmaps(samplelist_file, patients_file, image_dir, subregion_dir,
-#                     prostate_mask_dir, roi_mask_dir, param, cases=[],
-#                     scans=[], clip=False):
-#    """Read pmaps in DICOM format and other data."""
-#    # XXX Obsolete
-#    samples = dwi.files.read_sample_list(samplelist_file)
-#    patientsinfo = dwi.files.read_patients_file(patients_file)
-#    data = []
-#    for sample in samples:
-#        case = sample['case']
-#        if cases and not case in cases:
-#            continue
-#        score = dwi.patient.get_patient(patientsinfo, case).score
-#        for scan in sample['scans']:
-#            if scans and not scan in scans:
-#                continue
-#            image = read_dicom_pmap(image_dir, case, scan, param)
-#            original_shape = image.shape
-#            prostate_mask = read_prostate_mask(prostate_mask_dir, case, scan)
-#            roi_masks = read_roi_masks(roi_mask_dir, case, scan)
-#            cancer_mask, normal_mask = roi_masks['ca'], roi_masks['n']
-#            subregion = None
-#            if subregion_dir:
-#                subregion = read_subregion(subregion_dir, case, scan)
-#                image = dwi.util.crop_image(image, subregion).copy()
-#                prostate_mask = prostate_mask.crop(subregion)
-#                cancer_mask = cancer_mask.crop(subregion)
-#                normal_mask = normal_mask.crop(subregion)
-#            if clip:
-#                dwi.util.clip_pmap(image, [param])
-#            d = dict(case=case, scan=scan, score=score,
-#                    image=image,
-#                    original_shape=original_shape,
-#                    subregion=subregion,
-#                    prostate_mask=prostate_mask,
-#                    cancer_mask=cancer_mask,
-#                    normal_mask=normal_mask,
-#                    )
-#            data.append(d)
-#            assert (d['image'].shape[0:3] ==
-#                    d['prostate_mask'].array.shape ==
-#                    d['cancer_mask'].array.shape ==
-#                    d['normal_mask'].array.shape)
-#    return data
 
 
 def dataset_read_samplelist(samplelist_file, cases=None, scans=None):
