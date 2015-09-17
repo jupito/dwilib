@@ -50,20 +50,20 @@ def write_pmap_ascii(img, model, params, pmap, output):
 
 
 def write_pmap_ascii_head(img, model, params, f):
-    f.write('subwindow: [%s]\n' % ' '.join(map(str, img.subwindow)))
+    f.write('subwindow: [%s]\n' % ' '.join(str(x) for x in img.subwindow))
     f.write('number: %d\n' % img.number)
-    f.write('bset: [%s]\n' % ' '.join(map(str, img.bset)))
+    f.write('bset: [%s]\n' % ' '.join(str(x) for x in img.bset))
     f.write('ROIslice: %s\n' % img.roislice)
     f.write('name: %s\n' % img.name)
     f.write('executiontime: %d s\n' % img.execution_time())
     f.write('description: %s %s\n' % (img.filename, repr(model)))
     f.write('model: %s\n' % model.name)
-    f.write('parameters: %s\n' % ' '.join(map(str, params)))
+    f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
 
 
 def write_pmap_ascii_body(pmap, f):
     for p in pmap:
-        f.write(' '.join(map(repr, p)) + '\n')
+        f.write(' '.join(repr(x) for x in p) + '\n')
 
 
 def log(s):
