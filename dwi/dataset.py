@@ -23,7 +23,7 @@ def read_subregion(directory, case, scan):
     return subregion
 
 
-def read_roi_masks(directory, case, scan, keys=['ca', 'n', 'ca2']):
+def read_roi_masks(directory, case, scan, keys=('ca', 'n', 'ca2')):
     """Read cancer and normal ROI masks.
 
     Mask path ends with '_ca' for cancer ROI, '_n' for normal ROI, or '_ca2'
