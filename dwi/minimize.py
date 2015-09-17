@@ -5,7 +5,8 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import scipy.optimize
 
-epsilon = np.sqrt(np.finfo(np.float).eps)
+
+epsilon = np.sqrt(np.finfo(np.float64).eps)
 
 
 def gradient(f, x, args=[], eps=epsilon):
@@ -20,11 +21,12 @@ def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
     """
     assert 0 < step < 1
     assert maxiter > 0
-    init = np.atleast_1d(np.asarray(init, dtype=float))
+    init = np.atleast_1d(np.asarray(init, dtype=np.float64))
     x = init
+    i = -1
     for i in xrange(maxiter):
         dfx = gradient(f, x, args)
-        x_prev = x
+        # x_prev = x
         x = x - dfx*step
     d = dict(x=x, y=f(x, *args), grad=dfx, nit=i+1, init=init, step=step,
              args=args, maxiter=maxiter)
@@ -61,7 +63,7 @@ def polak_ribiere(x, x_):
 
 def cg(f, x0, args=[], maxiter=10000):
     """Nonlinear conjugate gradient method. Nocedel & Wright 1999 pg120."""
-    x0 = np.atleast_1d(np.asarray(x0, dtype=float))
+    x0 = np.atleast_1d(np.asarray(x0, dtype=np.float64))
     x = x0
     dfx = gradient(f, x, args)
     p = -dfx
@@ -80,7 +82,7 @@ def cg(f, x0, args=[], maxiter=10000):
 
 
 def cg_old(f, x0, args=[], maxiter=1000):
-    x0 = np.atleast_1d(np.asarray(x0, dtype=float))
+    x0 = np.atleast_1d(np.asarray(x0, dtype=np.float64))
     x = x0
     dfx = gradient(f, x, args)
     dx = -dfx
