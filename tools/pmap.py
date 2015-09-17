@@ -37,26 +37,26 @@ def parse_args():
     return p.parse_args()
 
 
-def write_pmap_ascii(dwi, model, params, pmap):
+def write_pmap_ascii(img, model, params, pmap):
     """Write parameter images to an ASCII file."""
     if args.output:
         filename = args.output
     else:
-        filename = 'pmap_%s_%s.txt' % (os.path.basename(dwi.filename), model)
+        filename = 'pmap_%s_%s.txt' % (os.path.basename(img.filename), model)
     print('Writing parameters to %s...' % filename)
     with open(filename, 'w') as f:
-        write_pmap_ascii_head(dwi, model, params, f)
+        write_pmap_ascii_head(img, model, params, f)
         write_pmap_ascii_body(pmap, f)
 
 
-def write_pmap_ascii_head(dwi, model, params, f):
-    f.write('subwindow: [%s]\n' % ' '.join(map(str, dwi.subwindow)))
-    f.write('number: %d\n' % dwi.number)
-    f.write('bset: [%s]\n' % ' '.join(map(str, dwi.bset)))
-    f.write('ROIslice: %s\n' % dwi.roislice)
-    f.write('name: %s\n' % dwi.name)
-    f.write('executiontime: %d s\n' % dwi.execution_time())
-    f.write('description: %s %s\n' % (dwi.filename, repr(model)))
+def write_pmap_ascii_head(img, model, params, f):
+    f.write('subwindow: [%s]\n' % ' '.join(map(str, img.subwindow)))
+    f.write('number: %d\n' % img.number)
+    f.write('bset: [%s]\n' % ' '.join(map(str, img.bset)))
+    f.write('ROIslice: %s\n' % img.roislice)
+    f.write('name: %s\n' % img.name)
+    f.write('executiontime: %d s\n' % img.execution_time())
+    f.write('description: %s %s\n' % (img.filename, repr(model)))
     f.write('model: %s\n' % model.name)
     f.write('parameters: %s\n' % ' '.join(map(str, params)))
 
@@ -71,21 +71,21 @@ def log(str):
     sys.stderr.flush()
 
 
-def fit_dwi(model, dwi):
+def fit_dwi(model, img):
     if args.subwindow:
-        dwi = dwi.get_roi(args.subwindow, onebased=True)
+        img = img.get_roi(args.subwindow, onebased=True)
     if args.verbose:
-        print(dwi)
+        print(img)
     # logger = log if args.verbose > 1 else None
     if not model.params:
         if model.name == 'Si':
-            model.params = ['SI%d' % b for b in dwi.bset]
+            model.params = ['SI%d' % b for b in img.bset]
         elif model.name == 'SiN':
-            model.params = ['SI%dN' % b for b in dwi.bset]
+            model.params = ['SI%dN' % b for b in img.bset]
     params = model.params + ['RMSE']
-    # pmap = dwi.fit_whole(model, log=logger, mean=args.average)
-    pmap = dwi.fit(model, average=args.average)
-    write_pmap_ascii(dwi, model, params, pmap)
+    # pmap = img.fit_whole(model, log=logger, mean=args.average)
+    pmap = img.fit(model, average=args.average)
+    write_pmap_ascii(img, model, params, pmap)
 
 
 def fit_ascii(model, filename):
