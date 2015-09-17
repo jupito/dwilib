@@ -85,24 +85,28 @@ ParamC = Parameter('C', (500, 1250, 250), (0, 1e9))
 
 Models = []
 
-Models.append(Model('Si',
+Models.append(Model(
+    'Si',
     'Signal intensity values',
     None,
     []))
-Models.append(Model('SiN',
+Models.append(Model(
+    'SiN',
     'Normalized signal intensity values',
     None,
     [],
     preproc=dwi.util.normalize_si_curve))
 
-Models.append(Model('Mono',
+Models.append(Model(
+    'Mono',
     'ADC monoexponential',
     lambda p, x: adcm(x, *p),
     [
         Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
         ParamC
     ]))
-Models.append(Model('MonoN',
+Models.append(Model(
+    'MonoN',
     'Normalized ADC monoexponential',
     lambda p, x: adcm(x, *p),
     [
@@ -110,7 +114,8 @@ Models.append(Model('MonoN',
     ],
     preproc=dwi.util.normalize_si_curve))
 
-Models.append(Model('Kurt',
+Models.append(Model(
+    'Kurt',
     'ADC kurtosis',
     lambda p, x: adck(x, *p),
     [
@@ -118,7 +123,8 @@ Models.append(Model('Kurt',
         Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
         ParamC
     ]))
-Models.append(Model('KurtN',
+Models.append(Model(
+    'KurtN',
     'Normalized ADC kurtosis',
     lambda p, x: adck(x, *p),
     [
@@ -127,7 +133,8 @@ Models.append(Model('KurtN',
     ],
     preproc=dwi.util.normalize_si_curve))
 
-Models.append(Model('Stretched',
+Models.append(Model(
+    'Stretched',
     'ADC stretched',
     lambda p, x: adcs(x, *p),
     [
@@ -135,7 +142,8 @@ Models.append(Model('Stretched',
         Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
         ParamC
     ]))
-Models.append(Model('StretchedN',
+Models.append(Model(
+    'StretchedN',
     'Normalized ADC stretched',
     lambda p, x: adcs(x, *p),
     [
@@ -144,7 +152,8 @@ Models.append(Model('StretchedN',
     ],
     preproc=dwi.util.normalize_si_curve))
 
-Models.append(Model('Biexp',
+Models.append(Model(
+    'Biexp',
     'Bi-exponential',
     lambda p, x: biexp(x, *p),
     [
@@ -154,7 +163,8 @@ Models.append(Model('Biexp',
         ParamC
     ],
     postproc=biexp_flip))
-Models.append(Model('BiexpN',
+Models.append(Model(
+    'BiexpN',
     'Normalized Bi-exponential',
     lambda p, x: biexp(x, *p),
     [
