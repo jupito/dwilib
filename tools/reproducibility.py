@@ -84,7 +84,8 @@ def icc(baselines):
 
 def bootstrap_icc(baselines, nboot=2000):
     """Calculate ICC bootstrapped target-wise. Return mean and confidence
-    intervals."""
+    intervals.
+    """
     data = np.array(baselines)
     values = np.zeros((nboot,))
     for i in xrange(nboot):
@@ -134,8 +135,8 @@ def main():
         d['cir'] = d['ci']/d['avg']
         d['corr'] = d['cor']/d['avg']
         d['icc'] = icc(baselines)
-        d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = bootstrap_icc(baselines,
-                                                                nboot=args.nboot)
+        (d['icc_bs'], d['icc_ci1'],
+         d['icc_ci2']) = bootstrap_icc(baselines, nboot=args.nboot)
         s = ('{param:7}'
              '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'
              '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'
