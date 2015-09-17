@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
+
 ADCM_MIN = 0.00050680935535585281
 ADCM_MAX = 0.0017784125828491648
 
@@ -11,15 +12,15 @@ ADCM_MAX = 0.0017784125828491648
 def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
-        #r = 1-np.mean(img)
-        #r = 1/(np.mean(img)-0.0008)
+        # r = 1-np.mean(img)
+        # r = 1/(np.mean(img)-0.0008)
         if np.mean(img) > 0:
             r = 1/np.mean(img)
         else:
             r = 0
         # NOTE The following min/max limit seems to make things worse.
-        #if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
-        #    r = 0
+        # if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
+        #     r = 0
     elif param.startswith('K'):
         r = np.mean(img)/1000
     elif param.startswith('score'):
@@ -54,12 +55,12 @@ def get_roi_scores(img, d, params):
 def scale_scores(scores):
     """Scale scores in-place."""
     scores[...] /= scores[...].max()
-    #import sklearn.preprocessing
-    #shape = scores.shape
-    #a = scores.ravel()
-    #sklearn.preprocessing.scale(a, copy=False)
-    #a.shape = shape
-    #scores[...] = a
+    # import sklearn.preprocessing
+    # shape = scores.shape
+    # a = scores.ravel()
+    # sklearn.preprocessing.scale(a, copy=False)
+    # a.shape = shape
+    # scores[...] = a
 
 
 def get_scoremap(img, d, params, n_rois):
