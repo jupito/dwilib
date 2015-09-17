@@ -145,17 +145,17 @@ class DWImage(object):
         return pmap
 
 
-def load(filename, nrois=1, varname='ROIdata'):
+def load(path, nrois=1, varname='ROIdata'):
     """Load images from a file or directory."""
-    _, ext = os.path.splitext(filename)
+    _, ext = os.path.splitext(path)
     if ext == '.mat':
-        return load_matlab(filename, varname)
+        return load_matlab(path, varname)
     elif ext in ('.txt', '.ascii'):
-        return load_ascii(filename, nrois)
+        return load_ascii(path, nrois)
     elif ext in ('.hdf5', '.h5'):
-        return load_hdf5(filename)
+        return load_hdf5(path)
     else:
-        return load_dicom([filename])
+        return load_dicom(path)
 
 
 def load_matlab(filename, varname='ROIdata'):
@@ -218,20 +218,17 @@ def load_hdf5(filename):
     return [dwimage]
 
 
-def load_dicom(filenames):
-    """Load a 3d image from DICOM files with slices combined.
-
-    If only one filename is given, it is assumed to be a directory.
-    """
+def load_dicom(path):
+    """Load a 3d image from DICOM files with slices combined."""
     import dwi.dicomfile
-    if len(filenames) == 1 and os.path.isdir(filenames[0]):
-        d = dwi.dicomfile.read_dir(filenames[0])  # Directory.
+    if os.path.isdir(path):
+        d = dwi.dicomfile.read_dir(path)  # Directory.
     else:
-        d = dwi.dicomfile.read_files(filenames)  # File list.
+        d = dwi.dicomfile.read_files([path])  # File.
     img = d['image']
     dwimage = DWImage(img, d['bvalues'])
-    dwimage.filename = os.path.abspath(filenames[0])
-    dwimage.basename = os.path.basename(filenames[0])
+    dwimage.filename = os.path.abspath(path)
+    dwimage.basename = os.path.basename(path)
     dwimage.roislice = '-'
     dwimage.name = '-'
     dwimage.number = 0
