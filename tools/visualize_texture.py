@@ -59,7 +59,7 @@ def plot(pmaps, titles, lmask, n_rows, filename):
         ax.set_title(title)
         if i % n_cols == 0:
             impmap = plt.imshow(pmap)
-            view = np.zeros(lmask.shape + (4,), dtype=float)
+            view = np.zeros(lmask.shape + (4,), dtype=np.float_)
             view[..., 0] = view[..., 3] = lmask
             plt.imshow(view, alpha=0.6)
         else:

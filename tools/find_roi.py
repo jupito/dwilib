@@ -112,7 +112,7 @@ def draw(data, param, filename):
     ax3 = fig.add_subplot(1, n_cols, 3)
     # ax3.set_title('ROIs: %s, %s, distance: %.2f' % (cancer_pos, auto_pos,
     #                                                 distance))
-    view = np.zeros(pmap.shape + (3,), dtype=float)
+    view = np.zeros(pmap.shape + (3,), dtype=np.float_)
     view[..., 0] = pmap / pmap.max()
     view[..., 1] = pmap / pmap.max()
     view[..., 2] = pmap / pmap.max()

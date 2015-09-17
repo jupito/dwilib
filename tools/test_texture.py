@@ -109,7 +109,7 @@ def draw(data, param, filename):
 
     ax2 = fig.add_subplot(1, n_cols, 2)
     ax2.set_title('LBP freq distance')
-    view = np.zeros(dmap.shape + (3,), dtype=float)
+    view = np.zeros(dmap.shape + (3,), dtype=np.float_)
     view[...,0] = dmap / dmap.max()
     view[...,1] = dmap / dmap.max()
     view[...,2] = dmap / dmap.max()
