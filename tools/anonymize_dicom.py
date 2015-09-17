@@ -72,7 +72,7 @@ def parse_args():
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
     p.add_argument('-n', '--dry-run', action='store_true',
-                   help='don\'t write any changes')
+                   help='do not write any changes')
     p.add_argument('-i', '--input', metavar='FILENAME', nargs='+',
                    help='input DICOM files')
     p.add_argument('-o', '--output', metavar='PATHNAME',
