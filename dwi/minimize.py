@@ -89,6 +89,7 @@ def cg_old(f, x0, args=[], maxiter=1000):
     s = dx
     alpha = line_search(f, x, args)
     x = x + alpha*dx
+    i = -1
     for i in xrange(maxiter):
         dfx = gradient(f, x, args)
         dx_prev = dx
