@@ -81,7 +81,7 @@ def read_ascii_file(filename):
             nums = [float(x) for x in line.split()]
             if nums:
                 rows.append(nums)
-    rows = np.array(rows, dtype=np.float)
+    rows = np.array(rows, dtype=np.float64)
     return d, rows
 
 
