@@ -29,9 +29,7 @@ def parse_args():
     p.add_argument('-m', '--models', metavar='MODEL', nargs='+', default=[],
                    help='models to use')
     p.add_argument('-i', '--input', metavar='FILENAME', nargs='+', default=[],
-                   help='input ASCII files')
-    p.add_argument('-d', '--dicom', metavar='PATHNAME', nargs='+', default=[],
-                   help='input DICOM files or directories')
+                   help='input ASCII files or DICOM directories')
     p.add_argument('-o', '--output', metavar='FILENAME', required=False,
                    help='output file (for single model only)')
     return p.parse_args()
@@ -88,14 +86,8 @@ def fit_dwi(model, img, subwindow, average, verbose, output):
     write_pmap_ascii(img, model, params, pmap, output)
 
 
-def fit_ascii(model, filename, subwindow, average, verbose, output):
-    dwis = dwi.dwimage.load(filename, 1)
-    for img in dwis:
-        fit_dwi(model, img, subwindow, average, verbose, output)
-
-
-def fit_dicom(model, filenames, subwindow, average, verbose, output):
-    dwis = dwi.dwimage.load_dicom(filenames)
+def fit(model, path, subwindow, average, verbose, output):
+    dwis = dwi.dwimage.load(path)
     for img in dwis:
         fit_dwi(model, img, subwindow, average, verbose, output)
 
@@ -120,12 +112,9 @@ def main():
 
     for model in dwi.models.Models:
         if model.name in selected_models:
-            for filename in args.input:
-                fit_ascii(model, filename, args.subwindow, args.average,
-                          args.verbose, args.output)
-            if args.dicom:
-                fit_dicom(model, args.dicom, args.subwindow, args.average,
-                          args.verbose, args.output)
+            for path in args.input:
+                fit(model, path, args.subwindow, args.average, args.verbose,
+                    args.output)
 
 
 if __name__ == '__main__':
