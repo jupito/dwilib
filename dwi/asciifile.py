@@ -58,10 +58,6 @@ class AsciiFile(object):
             r[i] = s
         return tuple(r)
 
-    def number(self):
-        m = re.search(r'\d+', self.d.get('number', ''))
-        return int(m.group()) if m else 1
-
     def roislice(self):
         return self.d.get('ROIslice', '')
 

@@ -46,7 +46,7 @@ for col in range(n_cols):
         score = dwi.asciifile.get_gs(scores, af.basename)
         if score:
             ps = af.a.T[col]
-            n = af.number()-1
+            n = af.number-1
             for p in ps:
                 x[n].append(2*score[2] + score[3])
                 y[n].append(p)
