@@ -66,8 +66,8 @@ def write_pmap_ascii_body(pmap, f):
         f.write(' '.join(map(repr, p)) + '\n')
 
 
-def log(str):
-    sys.stderr.write(str)
+def log(s):
+    sys.stderr.write(s)
     sys.stderr.flush()
 
 
