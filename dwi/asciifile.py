@@ -33,7 +33,7 @@ class AsciiFile(object):
         return tuple(int(x) for x in a)
 
     def subwinsize(self):
-        # TODO: Remove in favor of subwindow_shape()?
+        # NOTE: Obsolete.
         a = self.subwindow()
         r = []
         for i in range(len(a)//2):
