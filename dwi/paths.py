@@ -88,7 +88,10 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
     path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if masktype == 'auto':
         path += '/{ap_}'
-    path += '/{c}_{s}_{l}_{mth}-{ws}.{ext}'
+    path += '/{c}_{s}_{l}'
+    if method is not None and winsize is not None:
+        path += '_{mth}-{ws}'
+    path += '.{ext}'
     return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
                        slices=slices, portion=portion, mth=method, ws=winsize,
                        ap_='_'.join(algparams), vx=voxel, ext=ext)
