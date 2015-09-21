@@ -7,10 +7,17 @@ from itertools import ifilter, islice
 import os
 import random
 import re
+import sys
 
 import numpy as np
 import scipy as sp
 import scipy.stats
+
+
+def report(*args, **kwargs):
+    """Print to stderr and flush."""
+    print(*args, file=sys.stderr, **kwargs)
+    sys.stderr.flush()
 
 
 def all_equal(a):
