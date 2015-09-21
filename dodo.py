@@ -378,22 +378,26 @@ def task_select_roi_lesion():
 
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
-    for masktype in ('CA', 'N'):
-        for case, scan in cases_scans(MODE):
-            try:
-                yield get_task_select_roi_manual(MODE, case, scan, masktype)
-            except IOError as e:
-                print('select_roi_manual', e)
+    mode = MODE
+    if mode[0] == 'DWI':
+        for mt in ('CA', 'N'):
+            for c, s in cases_scans(mode):
+                try:
+                    yield get_task_select_roi_manual(mode, c, s, mt)
+                except IOError as e:
+                    print('select_roi_manual', e)
 
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
-    for algparams in find_roi_param_combinations(MODE):
-        for case, scan in cases_scans(MODE):
-            try:
-                yield get_task_select_roi_auto(MODE, case, scan, algparams)
-            except IOError as e:
-                print('select_roi_auto', e)
+    mode = MODE
+    if mode[0] == 'DWI':
+        for algparams in find_roi_param_combinations(mode):
+            for c, s in cases_scans(mode):
+                try:
+                    yield get_task_select_roi_auto(mode, c, s, algparams)
+                except IOError as e:
+                    print('select_roi_auto', e)
 
 
 def task_select_roi():
