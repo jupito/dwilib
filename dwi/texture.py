@@ -25,22 +25,30 @@ import dwi.util
 
 
 DTYPE = np.float32  # Type used for storing texture features.
+MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
 
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
-    # in_range = (0, 0.03)
-    in_range = (0, 0.005)  # For ADC.
-    # in_range = (0, 0.002)
-    # in_range = (pmap.min(), pmap.max())
-    # in_range = (0, np.percentile(pmap, 99.8))
-    # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))  # K
-    if pmap.dtype == np.int32:
-        # The rescaler cannot handle int32.
-        pmap = np.asarray(pmap, dtype=np.int16)
-    if pmap.dtype == np.int16:
+    if MODE in ['DWI-Mono-ADCm', 'DWI-Kurt-ADCk']:
+        assert pmap.dtype in [np.float32, np.float64]
+        # in_range = (0, 0.03)
+        in_range = (0, 0.005)
+        # in_range = (0, 0.002)
+    elif MODE == 'DWI-Kurt-K':
+        # in_range = (pmap.min(), pmap.max())
+        # in_range = (0, np.percentile(pmap, 99.8))
+        in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
+    elif MODE == 'T2w-std':
+        if pmap.dtype == np.int32:
+            # The rescaler cannot handle int32.
+            pmap = np.asarray(pmap, dtype=np.int16)
+        assert pmap.dtype == np.int16
         in_range = (0, 4095)
+    else:
+        raise ValueError('Invalid mode: {}'.format(MODE))
+    dwi.util.report('Normalizing:', MODE, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     pmap /= (256/levels)

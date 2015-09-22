@@ -24,6 +24,8 @@ def parse_args():
                    help='input image')
     p.add_argument('--mask',
                    help='mask file to use')
+    p.add_argument('--mode', metavar='MODE', required=True,
+                   help='imaging mode specification')
     p.add_argument('--method', metavar='METHOD',
                    help='method')
     p.add_argument('--slices', default='maxfirst',
@@ -128,8 +130,10 @@ def main():
             w=args.winspec))
 
     if args.verbose:
-        print('Calculating {} texture features...'.format(args.method))
+        print('Calculating {} texture features for {}...'.format(args.method,
+                                                                 args.mode))
     avg = (args.voxel == 'mean')
+    dwi.texture.MODE = args.mode
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg)
 

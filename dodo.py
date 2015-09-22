@@ -174,12 +174,13 @@ def standardize_transform_cmd(cfgpath, inpath, outpath):
                       o=outpath)
 
 
-def get_texture_cmd(inpath, method, winsize, slices, portion, mask, outpath,
-                    voxel):
-    d = dict(prg=DWILIB+'/get_texture.py', i=inpath, mask=mask,
+def get_texture_cmd(mode, inpath, method, winsize, slices, portion, mask,
+                    outpath, voxel):
+    d = dict(prg=DWILIB+'/get_texture.py', m=mode, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
     cmd = ('{prg} -v'
+           ' --mode {m}'
            ' --input {i} --mask {mask}'
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winspec {ws} --voxel {vx}'
@@ -456,7 +457,7 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
-    cmd = get_texture_cmd(inpath, method, winsize, slices, portion, mask,
+    cmd = get_texture_cmd(mode, inpath, method, winsize, slices, portion, mask,
                           outfile, voxel)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
