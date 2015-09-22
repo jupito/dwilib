@@ -24,7 +24,7 @@ import skimage.filter
 import dwi.util
 
 
-DTYPE = np.double  # Type used for storing texture features.
+DTYPE = np.float32  # Type used for storing texture features.
 
 
 def normalize(pmap, levels=128):
@@ -35,7 +35,7 @@ def normalize(pmap, levels=128):
     # in_range = (0, 0.002)
     # in_range = (pmap.min(), pmap.max())
     # in_range = (0, np.percentile(pmap, 99.8))
-    # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
+    # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))  # K
     if pmap.dtype == np.int32:
         # The rescaler cannot handle int32.
         pmap = np.asarray(pmap, dtype=np.int16)
@@ -258,6 +258,7 @@ def gabor(img, wavelengths=None):
     frequency as input parameter. Averaged over 4 directions for orientation
     invariance.
     """
+    img = np.asarray(img, dtype=np.double)
     if wavelengths is None:
         wavelengths = [2**i for i in range(1, 7)]
     freqs = [1/i for i in wavelengths]
@@ -285,11 +286,14 @@ def gabor_map(img, winsize, wavelengths=None, mask=None, output=None):
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
     names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
+    # fin = np.isfinite(output)
+    # output[-fin] = 0  # Make non-finites zero.
     return output, names
 
 
 def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
     """Gabor texture feature map."""
+    img = np.asarray(img, dtype=np.double)
     if wavelengths is None:
         wavelengths = [2**i for i in range(1, 6)]
     freqs = [1/i for i in wavelengths]
@@ -421,7 +425,7 @@ def zernike(img, radius, degree=8, cm=None):
     are invariant to rotation.
     """
     import mahotas
-    img = np.asarray(img)
+    img = np.asarray(img, dtype=np.double)
     assert img.ndim == 2
     feats = mahotas.features.zernike_moments(img, radius, degree=degree, cm=cm)
     return feats
@@ -648,6 +652,7 @@ def get_texture(img, method, winspec, mask, avg=False):
         if avg:
             # Take average of all selected voxels.
             tmap = tmap[mask, :]
+            assert tmap.ndim == 2
             tmap = np.mean(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
     names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
