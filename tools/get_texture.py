@@ -26,8 +26,6 @@ def parse_args():
                    help='input image')
     p.add_argument('--mask',
                    help='mask file to use')
-    p.add_argument('--std',
-                   help='standardization file to use')
     p.add_argument('--method', metavar='METHOD',
                    help='method')
     p.add_argument('--slices', default='maxfirst',
@@ -130,13 +128,6 @@ def main():
         print('Image: {s}, slice: {i}, voxels: {n}, window: {w}'.format(
             s=img.shape, i=slice_indices, n=np.count_nonzero(mask.array),
             w=args.winspec))
-
-    if args.std:
-        if args.verbose:
-            print('Standardizing...')
-        # img[slice_indices] = dwi.standardize.standardize(img[slice_indices],
-        #                                                  args.std)
-        img = dwi.standardize.standardize(img, args.std)
 
     if args.verbose:
         print('Calculating {} texture features...'.format(args.method))
