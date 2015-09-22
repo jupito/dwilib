@@ -259,7 +259,7 @@ def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
 # Gabor features
 
 
-def gabor(img, wavelengths=None):
+def gabor(img, sigmas=None, freqs=None):
     """Gabor features.
 
     Window size is wavelength 1. Frequency is 1/wavelength; the library uses
@@ -267,28 +267,31 @@ def gabor(img, wavelengths=None):
     invariance.
     """
     img = np.asarray(img, dtype=np.double)
-    if wavelengths is None:
-        wavelengths = [2**i for i in range(1, 7)]
-    freqs = [1/i for i in wavelengths]
-    thetas = [np.pi/4*i for i in range(4)]
-    shape = len(thetas), len(freqs)
+    if sigmas is None:
+        sigmas = 1, 2, 3
+    if freqs is None:
+        freqs = 0.1, 0.2, 0.3, 0.4
+    thetas = tuple(np.pi/4*i for i in range(4))
+    shape = len(thetas), len(sigmas), len(freqs)
     feats = np.zeros(shape + (2,), dtype=DTYPE)
-    for i, j in np.ndindex(shape):
-        real, _ = skimage.filter.gabor_filter(img, frequency=freqs[j],
-                                              theta=thetas[i])
-        feats[i, j, :] = real.mean(), real.var()
+    for i, j, k in np.ndindex(shape):
+        real, _ = skimage.filter.gabor_filter(img, frequency=freqs[k],
+                                              theta=thetas[i],
+                                              sigma_x=sigmas[j],
+                                              sigma_y=sigmas[j])
+        feats[i, j, k, :] = real.mean(), real.var()
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
-    for (i, j), value in np.ndenumerate(feats):
-        key = wavelengths[i], ('mean', 'var')[j]
+    for (i, j, k), value in np.ndenumerate(feats):
+        key = sigmas[i], freqs[j], ('mean', 'var')[k]
         d[key] = value
     return d
 
 
-def gabor_map(img, winsize, wavelengths=None, mask=None, output=None):
+def gabor_map(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = gabor(win, wavelengths)
+        feats = gabor(win, sigmas=sigmas, freqs=freqs)
         if output is None:
             output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
         for i, v in enumerate(feats.values()):
