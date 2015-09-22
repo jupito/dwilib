@@ -2,8 +2,6 @@
 
 """Calculate texture properties for a masked area."""
 
-# TODO: pmap normalization for GLCM
-
 from __future__ import absolute_import, division, print_function
 import argparse
 import collections
