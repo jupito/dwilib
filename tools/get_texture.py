@@ -113,6 +113,12 @@ def main():
         if i not in slice_indices:
             mask.array[i] = 0
 
+    # Use only selected slices to save memory.
+    if args.voxel == 'mean':
+        img = img[slice_indices]
+        mask.array = mask.array[slice_indices]
+        dwi.texture.DTYPE = np.double
+
     # Get portion mask.
     if args.winspec in ('all', 'mbb'):
         pmask = mask.array  # Some methods don't use window.
@@ -138,7 +144,9 @@ def main():
                                           mask=pmask, avg=avg)
 
     if args.verbose:
-        print('Writing shape {s} to {o}'.format(s=tmap.shape, o=args.output))
+        print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
+                                                          t=tmap.dtype,
+                                                          o=args.output))
     # tmap = np.array(tmap, dtype=np.float32)
     dwi.files.write_pmap(args.output, tmap, dict(parameters=names))
 
