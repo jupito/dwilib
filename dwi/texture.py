@@ -272,18 +272,21 @@ def gabor(img, sigmas=None, freqs=None):
     if freqs is None:
         freqs = 0.1, 0.2, 0.3, 0.4
     thetas = tuple(np.pi/4*i for i in range(4))
-    shape = len(thetas), len(sigmas), len(freqs)
-    feats = np.zeros(shape + (2,), dtype=DTYPE)
-    for i, j, k in np.ndindex(shape):
-        real, _ = skimage.filter.gabor_filter(img, frequency=freqs[k],
-                                              theta=thetas[i],
-                                              sigma_x=sigmas[j],
-                                              sigma_y=sigmas[j])
-        feats[i, j, k, :] = real.mean(), real.var()
+    names = 'mean', 'var', 'absmean', 'mag'
+    shape = len(thetas), len(sigmas), len(freqs), len(names)
+    feats = np.zeros(shape, dtype=DTYPE)
+    for i, j, k in np.ndindex(shape[:-1]):
+        real, imag = skimage.filter.gabor_filter(img, frequency=freqs[k],
+                                                 theta=thetas[i],
+                                                 sigma_x=sigmas[j],
+                                                 sigma_y=sigmas[j])
+        feats[i, j, k, :] = (np.mean(real), np.var(real),
+                             np.mean(np.abs(real)),
+                             np.mean(np.sqrt(real**2+imag**2)))
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
     for (i, j, k), value in np.ndenumerate(feats):
-        key = sigmas[i], freqs[j], ('mean', 'var')[k]
+        key = sigmas[i], freqs[j], names[k]
         d[key] = value
     return d
 
