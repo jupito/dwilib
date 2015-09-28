@@ -36,7 +36,7 @@ def normalize(pmap, levels=128):
         # in_range = (0, 0.03)
         in_range = (0, 0.005)
         # in_range = (0, 0.002)
-    elif MODE == 'DWI-Kurt-K':
+    elif MODE in ['DWI-Kurt-K', 'T2']:
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
         in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
