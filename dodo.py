@@ -29,11 +29,20 @@ DOIT_CONFIG = {
 
 DWILIB = '~/src/dwilib/tools'
 
-MODE = dwi.patient.ImageMode(get_var('mode', 'DWI-Mono-ADCm'))
-SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
-MODES = (MODE,)
-SAMPLELISTS = (SAMPLELIST,)
+def words(string, sep=','):
+    """Split string into stripped words."""
+    return [x.strip() for x in string.split(sep)]
+
+
+# Imaging modes.
+MODES = [dwi.patient.ImageMode(_) for _ in words(get_var('mode',
+                                                         'DWI-Mono-ADCm'))]
+MODE = MODES[0]
+
+# Sample lists (train, test, etc).
+SAMPLELISTS = words(get_var('samplelist', 'all'))
+SAMPLELIST = SAMPLELISTS[0]
 
 
 def name(*items):
