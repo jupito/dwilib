@@ -65,6 +65,8 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
 
 def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     """Return whole ROI path or part of it."""
+    if masktype == 'image':
+        return pmap_path(mode, case, scan)  # No ROI, but the whole image.
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
     path = 'rois_{mt}/{m}'

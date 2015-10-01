@@ -32,6 +32,9 @@ DWILIB = '~/src/dwilib/tools'
 MODE = dwi.patient.ImageMode(get_var('mode', 'DWI-Mono-ADCm'))
 SAMPLELIST = get_var('samplelist', 'all')  # Sample list (train, test, etc)
 
+MODES = (MODE,)
+SAMPLELISTS = (SAMPLELIST,)
+
 
 def name(*items):
     """A task name consisting of items."""
@@ -506,6 +509,32 @@ def task_merge_textures():
                 'file_dep': infiles,
                 'targets': [outfile],
             }
+
+
+def histogram_path(mode, roi, samplelist):
+    return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
+
+
+def histogram_cmd(inpaths, figpath):
+    return '{prg} -v --param 0 --input {i} --fig {f}'.format(
+        prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath)
+
+
+def task_histogram():
+    """Plot image histograms."""
+    for mode in MODES:
+        for sl in SAMPLELISTS:
+            for roi in ('image',):
+                it = cases_scans(mode, samplelist=sl)
+                inpaths = [roi_path(mode, roi, c, s) for c, s in it]
+                figpath = histogram_path(mode, roi, sl)
+                cmd = histogram_cmd(inpaths, figpath)
+                yield {
+                    'name': name(mode, roi, sl),
+                    'actions': folders(figpath) + [cmd],
+                    'file_dep': path_deps(*inpaths),
+                    'targets': [figpath],
+                }
 
 
 def task_all():
