@@ -6,6 +6,8 @@ import os.path
 import numpy as np
 import dicom
 
+import dwi.util
+
 
 def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
@@ -45,7 +47,11 @@ def read_files(filenames):
 
 def read_slice(filename, d):
     """Read a single slice."""
-    df = dicom.read_file(filename)
+    try:
+        df = dicom.read_file(filename)
+    except dicom.filereader.InvalidDicomError as e:
+        dwi.util.report('Error reading {f}: {e}'.format(f=filename, e=e))
+        return
     if 'PixelData' not in df:
         return
     d.setdefault('orientation', df.ImageOrientationPatient)
