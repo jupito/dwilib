@@ -68,55 +68,6 @@ def read_slice(filename, d):
     slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
 
 
-def read_files_(filenames):
-    """Read a bunch of files, each containing a single slice with one b-value,
-    and construct a 4d image array.
-
-    The slices are sorted simply by their position as it is, assuming it only
-    changes in one dimension. In case there are more than one scan of
-    a position and a b-value, the files are averaged by mean.
-
-    DICOM files without pixel data are silently skipped.
-    """
-    slicedicts = [read_slice_(x) for x in filenames]
-    slicedicts = [x for x in slicedicts if x is not None]
-    r = {k: slicedicts[0][k] for k in ['dicom_shape', 'dicom_type',
-                                       'orientation', 'voxel_spacing']}
-    for k, v in r.iteritems():
-        # These must match in all slice files.
-        if any(x[k] != v for x in slicedicts):
-            raise ValueError('DICOM header mismatch: {}'.format(k))
-    positions = sorted(set(x['position'] for x in slicedicts))
-    bvalues = sorted(set(x['bvalue'] for x in slicedicts))
-    slices = {}
-    for d in slicedicts:
-        key = (d['position'], d['bvalue'])  # Indexed by (position, bvalue)...
-        slices.setdefault(key, []).append(d['pixels'])  # ...are slice lists.
-    # If any slices are scanned multiple times, use mean.
-    for k, v in slices.iteritems():
-        slices[k] = np.mean(v, axis=0)
-    image = construct_image(slices, positions, bvalues)
-    r.update(image=image, bvalues=bvalues, positions=positions)
-    return r
-
-
-def read_slice_(filename):
-    """Read a single slice."""
-    df = dicom.read_file(filename)
-    if 'PixelData' not in df:
-        return None
-    d = dict(
-        dicom_shape=df.pixel_array.shape,
-        dicom_type=df.pixel_array.dtype,
-        orientation=df.ImageOrientationPatient,
-        voxel_spacing=get_voxel_spacing(df),
-        position=tuple(float(x) for x in df.ImagePositionPatient),
-        bvalue=get_bvalue(df),
-        pixels=get_pixels(df),
-        )
-    return d
-
-
 def construct_image(slices, positions, bvalues):
     """Construct uniform image array from slice dictionary."""
     w, h = slices.values()[0].shape
