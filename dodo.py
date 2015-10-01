@@ -427,10 +427,6 @@ def task_merge_textures():
             }
 
 
-def histogram_path(mode, roi, samplelist):
-    return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
-
-
 def task_histogram():
     """Plot image histograms."""
     for mode in MODES:
@@ -438,7 +434,7 @@ def task_histogram():
             for roi in ('image',):
                 it = cases_scans(mode, samplelist=sl)
                 inpaths = [roi_path(mode, roi, c, s) for c, s in it]
-                figpath = histogram_path(mode, roi, sl)
+                figpath = dwi.paths.histogram_path(mode, roi, sl)
                 cmd = dwi.shell.histogram_cmd(inpaths, figpath)
                 yield {
                     'name': name(mode, roi, sl),

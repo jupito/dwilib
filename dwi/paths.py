@@ -102,3 +102,8 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
 def std_cfg_path(mode):
     """Return path to standardization configuration file."""
     return 'stdcfg_{m}.txt'.format(m=mode)
+
+
+def histogram_path(mode, roi, samplelist):
+    """Return path to histogram plot."""
+    return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
