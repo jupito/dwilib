@@ -292,7 +292,7 @@ def task_make_subregion():
         subregion = subregion_path(MODE, case, scan)
         cmd = make_subregion_cmd(mask, subregion)
         yield {
-            'name': name(case, scan),
+            'name': name(MODE, case, scan),
             'actions': folders(subregion) + [cmd],
             'file_dep': path_deps(mask),
             'targets': [subregion],
