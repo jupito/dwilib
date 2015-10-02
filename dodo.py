@@ -249,7 +249,10 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
     roi = roi_path(mode, masktype, case, scan, lesion=lesion)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask, keepmasked=True)
+    d = dict(mask=mask, keepmasked=True)
+    if 'std' in mode:
+        d['astype'] = 'float32'  # Integers cannot have nans.
+    cmd = dwi.shell.select_voxels_cmd(pmap, roi, **d)
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
@@ -264,8 +267,10 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     mask = mask_path(mode, masktype, case, scan)
     roi = roi_path(mode, masktype, case, scan)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask,
-                                      keepmasked=(masktype == 'prostate'))
+    d = dict(mask=mask, keepmasked=(masktype == 'prostate'))
+    if 'std' in mode:
+        d['astype'] = 'float32'  # Integers cannot have nans.
+    cmd = dwi.shell.select_voxels_cmd(pmap, roi, **d)
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
