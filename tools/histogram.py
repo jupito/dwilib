@@ -72,9 +72,10 @@ def main():
         img, _ = dwi.files.read_pmap(path)
         img = img[..., args.param]
         if args.verbose:
-            print('Read {s}, {t}, {m}, {f}, {p}'.format(
-                s=img.shape, t=img.dtype, m=np.mean(img),
-                f=dwi.util.fivenum(img), p=path))
+            finites = np.count_nonzero(np.isfinite(img))
+            print('Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {p}'.format(
+                s=img.shape, t=img.dtype, fp=finites/img.size, m=np.mean(img),
+                fn=dwi.util.fivenums(img), p=path))
         histograms.append(histogram(img, None, None))
         histograms_std.append(histogram(img, img.min(), img.max()))
     plot_histograms([histograms, histograms_std], args.fig)
