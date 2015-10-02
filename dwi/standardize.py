@@ -38,8 +38,8 @@ def default_configuration():
         )
 
 
-def landmark_scores(img, pc, landmarks, thresholding=True):
-    """Get scores at histogram landmarks.
+def landmark_scores(img, pc, landmarks, thresholding, mask=None):
+    """Get scores at histogram landmarks, ignoring nans and infinities.
 
     Parameters
     ----------
@@ -49,9 +49,10 @@ def landmark_scores(img, pc, landmarks, thresholding=True):
         Minimum and maximum percentiles.
     landmarks : iterable of numbers
         Landmark percentiles.
-    thresholding : bool, optional
-        Whether to threshold by mean (default True). This includes only values
-        higher than mean, which should help ignore the image background.
+    thresholding : 'none' or 'mean' or 'median'
+        Threshold for calculating landmarks.
+    mask : ndarray
+        Image foreground mask for calculating landmarks (before thresholding).
 
     Returns
     -------
@@ -60,9 +61,18 @@ def landmark_scores(img, pc, landmarks, thresholding=True):
     scores : tuple of floats
         Landmark percentile scores.
     """
-    if thresholding:
-        # threshold = np.mean(img)
+    if mask is not None:
+        img = img[mask]
+    img = img[np.isfinite(img)]
+    if thresholding == 'none':
+        threshold = None
+    elif thresholding == 'mean':
+        threshold = np.mean(img)
+    elif thresholding == 'median':
         threshold = np.median(img)
+    else:
+        raise ValueError('Invalid parameter: {}'.format(thresholding))
+    if threshold:
         img = img[img > threshold]
     p = tuple(np.percentile(img, pc))
     scores = tuple(np.percentile(img, landmarks))
@@ -132,7 +142,7 @@ def transform(img, p, scores, scale, mapped_scores):
     return r
 
 
-def standardize(img, cfg):
+def standardize(img, cfg, mask=None):
     """Transform an image based on a configuration (file).
 
     Parameters
@@ -141,6 +151,8 @@ def standardize(img, cfg):
         Image to transform.
     cfg : filename (or dict)
         Standardization configuration file (or configuration already read).
+    mask : ndarray
+        Image foreground mask for calculating landmarks (before thresholding).
 
     Returns
     -------
@@ -150,12 +162,13 @@ def standardize(img, cfg):
     if isinstance(cfg, basestring):
         cfg = read_std_cfg(cfg)
     d = cfg
-    p, scores = landmark_scores(img, d['pc'], d['landmarks'])
+    p, scores = landmark_scores(img, d['pc'], d['landmarks'],
+                                d['thresholding'], mask=mask)
     img = transform(img, p, scores, d['scale'], d['mapped_scores'])
     return img
 
 
-def write_std_cfg(filename, pc, landmarks, scale, mapped_scores):
+def write_std_cfg(filename, pc, landmarks, scale, mapped_scores, thresholding):
     """Write image standardization configuration file.
 
     Parameters
@@ -170,12 +183,15 @@ def write_std_cfg(filename, pc, landmarks, scale, mapped_scores):
         Minimum and maximum intensities on the standard scale.
     mapped_scores : iterable of numbers
         Standard landmark percentile scores on the standard scale.
+    thresholding : string
+        Thresholding strategy.
     """
     with open(filename, 'w') as f:
         f.write(dwi.files.toline(pc))
         f.write(dwi.files.toline(landmarks))
         f.write(dwi.files.toline(scale))
         f.write(dwi.files.toline(mapped_scores))
+        f.write(thresholding)
 
 
 def read_std_cfg(filename):
@@ -191,13 +207,14 @@ def read_std_cfg(filename):
     d : OrderedDict
         Standardization configuration.
     """
-    lines = list(dwi.files.valid_lines(filename))[:4]
+    lines = list(dwi.files.valid_lines(filename))[:5]
     lines = [l.split() for l in lines]
     d = collections.OrderedDict()
     d['pc'] = tuple(float(x) for x in lines[0])
     d['landmarks'] = tuple(float(x) for x in lines[1])
     d['scale'] = tuple(int(x) for x in lines[2])
     d['mapped_scores'] = tuple(int(x) for x in lines[3])
+    d['thresholding'] = lines[4][0]
     if len(d['landmarks']) != len(d['mapped_scores']):
         raise Exception('Invalid standardization file: {}'.format(filename))
     return d

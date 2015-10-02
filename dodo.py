@@ -172,10 +172,12 @@ def task_standardize_train():
     """
     mode = MODE - 'std'
     std_cfg = std_cfg_path(mode)
-    inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
+    # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
+    inpaths = [roi_path(mode, 'prostate', c, s) for c, s in cases_scans(mode,
+                                                                        'all')]
     yield {
         'name': name(mode),
-        'actions': [dwi.shell.standardize_train_cmd(inpaths, std_cfg)],
+        'actions': [dwi.shell.standardize_train_cmd(inpaths, std_cfg, 'none')],
         'file_dep': path_deps(*inpaths),
         'targets': [std_cfg],
         'clean': True,
@@ -189,12 +191,14 @@ def task_standardize_transform():
     cfgpath = std_cfg_path(mode)
     for case, scan in cases_scans(mode, sl):
         inpath = pmap_path(mode, case, scan)
+        mask = mask_path(mode, 'prostate', case, scan)
         outpath = pmap_path(mode + 'std', case, scan)
-        cmd = dwi.shell.standardize_transform_cmd(cfgpath, inpath, outpath)
+        cmd = dwi.shell.standardize_transform_cmd(cfgpath, inpath, outpath,
+                                                  mask=mask)
         yield {
             'name': name(mode, case, scan),
             'actions': folders(outpath) + [cmd],
-            'file_dep': path_deps(cfgpath, inpath),
+            'file_dep': path_deps(cfgpath, inpath, mask),
             'targets': [outpath],
             'clean': True,
         }
@@ -256,7 +260,7 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': path_deps(mask, pmap),
         'targets': [roi],
         'clean': True,
         }
@@ -274,7 +278,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': path_deps(mask),
+        'file_dep': path_deps(mask, pmap),
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
@@ -291,7 +295,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     return {
         'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': [mask],
+        'file_dep': [mask, pmap],
         'targets': [roi],
         'uptodate': [check_timestamp_unchanged(pmap)],
         'clean': True,
@@ -458,6 +462,5 @@ def get_task_histogram(mode, masktype, samplelist):
 def task_histogram():
     """Plot image histograms."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        if sl == 'all':
-            for mt in ('image', 'prostate', 'lesion'):
-                yield get_task_histogram(mode, mt, sl)
+        for mt in ('image', 'prostate', 'lesion'):
+            yield get_task_histogram(mode, mt, sl)

@@ -11,18 +11,21 @@ def paths_on_cmdline(paths):
     return ' '.join('"{}"'.format(x) for x in paths)
 
 
-def standardize_train_cmd(infiles, cfgpath):
+def standardize_train_cmd(infiles, cfgpath, thresholding):
     """Standardize MRI images: training phase."""
     infiles = paths_on_cmdline(infiles)
-    cmd = '{prg} -v --train {o} {i}'
-    return cmd.format(prg=DWILIB+'/standardize.py', o=cfgpath, i=infiles)
+    cmd = '{prg} -v --train {o} {i} --thresholding {t}'
+    return cmd.format(prg=DWILIB+'/standardize.py', o=cfgpath, i=infiles,
+                      t=thresholding)
 
 
-def standardize_transform_cmd(cfgpath, inpath, outpath):
+def standardize_transform_cmd(cfgpath, inpath, outpath, mask=None):
     """Standardize MRI images: transform phase."""
     cmd = '{prg} -v --transform {c} {i} {o}'
+    if mask:
+        cmd += ' --mask {m}'
     return cmd.format(prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath,
-                      o=outpath)
+                      o=outpath, m=mask)
 
 
 def get_texture_cmd(mode, inpath, method, winsize, slices, portion, mask,
