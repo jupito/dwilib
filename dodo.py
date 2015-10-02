@@ -203,17 +203,18 @@ def task_standardize_transform():
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for case, scan in cases_scans(mode, sl):
-            mask = mask_path(mode, 'prostate', case, scan)
-            subregion = subregion_path(mode, case, scan)
-            cmd = dwi.shell.make_subregion_cmd(mask, subregion)
-            yield {
-                'name': name(mode, case, scan),
-                'actions': folders(subregion) + [cmd],
-                'file_dep': path_deps(mask),
-                'targets': [subregion],
-                'clean': True,
-                }
+        if str(mode) == 'DWI-Mono-ADCm':
+            for case, scan in cases_scans(mode, sl):
+                mask = mask_path(mode, 'prostate', case, scan)
+                subregion = subregion_path(mode, case, scan)
+                cmd = dwi.shell.make_subregion_cmd(mask, subregion)
+                yield {
+                    'name': name(mode, case, scan),
+                    'actions': folders(subregion) + [cmd],
+                    'file_dep': path_deps(mask),
+                    'targets': [subregion],
+                    'clean': True,
+                    }
 
 
 # def get_task_find_roi(mode, case, scan, algparams):
@@ -435,7 +436,7 @@ def task_merge_textures():
 def task_histogram():
     """Plot image histograms."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for roi in ('image',):
+        for roi in ('image', 'prostate'):
             it = cases_scans(mode, sl)
             inpaths = [roi_path(mode, roi, c, s) for c, s in it]
             figpath = dwi.paths.histogram_path(mode, roi, sl)
