@@ -185,8 +185,9 @@ def task_standardize_train():
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
     mode = MODE - 'std'
+    sl = SAMPLELIST
     cfgpath = std_cfg_path(mode)
-    for case, scan in cases_scans(mode, SAMPLELIST):
+    for case, scan in cases_scans(mode, sl):
         inpath = pmap_path(mode, case, scan)
         outpath = pmap_path(mode + 'std', case, scan)
         cmd = dwi.shell.standardize_transform_cmd(cfgpath, inpath, outpath)
@@ -201,17 +202,18 @@ def task_standardize_transform():
 
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
-    for case, scan in cases_scans(MODE, SAMPLELIST):
-        mask = mask_path(MODE, 'prostate', case, scan)
-        subregion = subregion_path(MODE, case, scan)
-        cmd = dwi.shell.make_subregion_cmd(mask, subregion)
-        yield {
-            'name': name(MODE, case, scan),
-            'actions': folders(subregion) + [cmd],
-            'file_dep': path_deps(mask),
-            'targets': [subregion],
-            'clean': True,
-            }
+    for mode, sl in product(MODES, SAMPLELISTS):
+        for case, scan in cases_scans(mode, sl):
+            mask = mask_path(mode, 'prostate', case, scan)
+            subregion = subregion_path(mode, case, scan)
+            cmd = dwi.shell.make_subregion_cmd(mask, subregion)
+            yield {
+                'name': name(mode, case, scan),
+                'actions': folders(subregion) + [cmd],
+                'file_dep': path_deps(mask),
+                'targets': [subregion],
+                'clean': True,
+                }
 
 
 # def get_task_find_roi(mode, case, scan, algparams):
@@ -312,21 +314,22 @@ def task_select_roi_manual():
 
 def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
-    mode = MODE
-    if mode[0] == 'DWI':
-        for algparams in find_roi_param_combinations(mode):
-            for c, s in cases_scans(mode, SAMPLELIST):
-                try:
-                    yield get_task_select_roi_auto(mode, c, s, algparams)
-                except IOError as e:
-                    print('select_roi_auto', e)
+    for mode, sl in product(MODES, SAMPLELISTS):
+        if mode[0] == 'DWI':
+            for algparams in find_roi_param_combinations(mode):
+                for c, s in cases_scans(mode, sl):
+                    try:
+                        yield get_task_select_roi_auto(mode, c, s, algparams)
+                    except IOError as e:
+                        print('select_roi_auto', e)
 
 
 def task_select_roi():
     """Select all ROIs task group."""
     return {
         'actions': None,
-        'task_dep': ['select_roi_manual', 'select_roi_auto'],
+        'task_dep': ['select_roi_lesion', 'select_roi_manual',
+                     'select_roi_auto'],
         }
 
 
