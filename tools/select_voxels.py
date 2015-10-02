@@ -88,7 +88,7 @@ def main():
 
     if args.astype:
         attrs['source_type'] = str(image.dtype)
-    image = image.astype(args.astype)
+        image = image.astype(args.astype)
 
     # Write output voxels. Unless output filename is specified, one will be
     # constructed from (first) input filename.
