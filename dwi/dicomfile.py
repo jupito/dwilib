@@ -36,12 +36,20 @@ def read_files(filenames):
         read_slice(f, d)
     positions = sorted(d['positions'])
     bvalues = sorted(d['bvalues'])
+    echotimes = sorted(d['echotimes'])
     slices = d['slices']
     # If any slices are scanned multiple times, use mean.
     for k, v in slices.iteritems():
         slices[k] = np.mean(v, axis=0)
-    image = construct_image(slices, positions, bvalues)
-    r = dict(bvalues=bvalues, voxel_spacing=d['voxel_spacing'], image=image)
+    image = construct_image(slices, positions, bvalues, echotimes)
+    if len(bvalues) == image.shape[-1]:
+        parameters = list(bvalues)
+    elif len(echotimes) == image.shape[-1]:
+        parameters = list(echotimes)
+    else:
+        raise ValueError('Inconsistent parameters')
+    r = dict(image=image, bset=bvalues, echotimes=echotimes,
+             parameters=parameters, voxel_spacing=d['voxel_spacing'])
     return r
 
 
@@ -66,25 +74,33 @@ def read_slice(filename, d):
     d.setdefault('voxel_spacing', get_voxel_spacing(df))
     position = tuple(float(x) for x in df.ImagePositionPatient)
     bvalue = get_bvalue(df)
+    echotime = df.get('EchoTime')
     pixels = get_pixels(df)
     d.setdefault('positions', set()).add(position)
     d.setdefault('bvalues', set()).add(bvalue)
-    key = (position, bvalue)
-    slices = d.setdefault('slices', {})  # Indexed by (position, bvalue)...
+    d.setdefault('echotimes', set()).add(echotime)
+    key = (position, bvalue, echotime)
+    slices = d.setdefault('slices', {})  # Indexed by (pos, b, echotime)...
     slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
 
 
-def construct_image(slices, positions, bvalues):
+def construct_image(slices, positions, bvalues, echotimes):
     """Construct uniform image array from slice dictionary."""
     w, h = slices.values()[0].shape
     dtype = slices.values()[0].dtype
-    shape = (len(positions), w, h, len(bvalues))
+    shape = (len(positions), w, h, len(bvalues), len(echotimes))
     image = np.empty(shape, dtype=dtype)
     image.fill(np.nan)
-    for k, v in slices.iteritems():
-        i = positions.index(k[0])
-        j = bvalues.index(k[1])
-        image[i, :, :, j] = v
+    for key, value in slices.iteritems():
+        pos = positions.index(key[0])
+        bv = bvalues.index(key[1])
+        et = echotimes.index(key[2])
+        image[pos, :, :, bv, et] = value
+    if image.shape[3] == 1:
+        image = image.squeeze(axis=3)
+    elif image.shape[4] == 1:
+        image = image.squeeze(axis=4)
+    assert image.ndim == 4, image.shape
     if np.isnan(np.min(image)):
         raise Exception('Slices missing from shape {:s}.'.format(shape))
     return image

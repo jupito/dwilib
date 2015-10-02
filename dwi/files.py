@@ -1,7 +1,6 @@
 """Operations regarding miscellaneous files."""
 
 from __future__ import absolute_import, division, print_function
-from collections import OrderedDict
 import os.path
 import re
 
@@ -188,12 +187,8 @@ def read_pmap(pathname, fmt=None):
     else:
         import dwi.dicomfile
         d = dwi.dicomfile.read_dir(pathname)
-        pmap = d['image']
-        attrs = OrderedDict([
-            ('bset', d['bvalues']),
-            ('voxel_spacing', d['voxel_spacing']),
-            ('parameters', list(d['bvalues'])),
-        ])
+        pmap = d.pop('image')
+        attrs = dict(d)
     if pmap.ndim < 2:
         raise Warning('Not enough dimensions: {}'.format(pmap.shape))
     if 'parameters' not in attrs:
