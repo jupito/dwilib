@@ -33,8 +33,8 @@ def parse_args():
                    help='use subwindow (specified by 6 one-based indices)')
     p.add_argument('--mask', '-m', metavar='MASKFILE', required=False,
                    help='mask file (applied within subwindow size)')
-    p.add_argument('--keep-masked', action='store_true',
-                   help='keep masked voxels (as zeros)')
+    p.add_argument('--keepmasked', action='store_true',
+                   help='keep masked voxels (as NaN values)')
     p.add_argument('--subwindow-mask', action='store_true',
                    help='apply subwindow on mask, too')
     p.add_argument('--rename_params', metavar='NAME', nargs='+',
@@ -76,8 +76,8 @@ def main():
             mask = mask.get_subwindow(args.subwindow)
         if args.verbose:
             print('Using mask %s' % mask)
-        if args.keep_masked:
-            image = mask.apply_mask(image)
+        if args.keepmasked:
+            image = mask.apply_mask(image, value=np.nan)
         else:
             image = mask.selected(image)
 
