@@ -37,11 +37,7 @@ def read_files(filenames):
     positions = sorted(d['positions'])
     bvalues = sorted(d['bvalues'])
     echotimes = sorted(d['echotimes'])
-    slices = d['slices']
-    # If any slices are scanned multiple times, use mean.
-    for k, v in slices.iteritems():
-        slices[k] = np.mean(v, axis=0)
-    image = construct_image(slices, positions, bvalues, echotimes)
+    image = construct_image(d['slices'], positions, bvalues, echotimes)
     if len(bvalues) == image.shape[-1]:
         parameters = list(bvalues)
     elif len(echotimes) == image.shape[-1]:
@@ -80,8 +76,10 @@ def read_slice(filename, d):
     d.setdefault('bvalues', set()).add(bvalue)
     d.setdefault('echotimes', set()).add(echotime)
     key = (position, bvalue, echotime)
-    slices = d.setdefault('slices', {})  # Indexed by (pos, b, echotime)...
-    slices.setdefault(key, []).append(pixels)  # ...are lists of slices.
+    slices = d.setdefault('slices', {})
+    if key in slices:
+        raise ValueError('Overlapping slices: {}, {}'.format(key, filename))
+    slices[key] = pixels
 
 
 def construct_image(slices, positions, bvalues, echotimes):
