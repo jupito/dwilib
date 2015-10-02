@@ -138,7 +138,7 @@ def cases_scans(mode, samplelist=SAMPLELIST):
             yield case, scan
 
 
-def lesions(mode, samplelist=SAMPLELIST):
+def lesions(mode, samplelist):
     """Generate all case, scan, lesion# (1-based) combinations."""
     patients = dwi.files.read_patients_file(samplelist_path(mode, samplelist))
     for p in patients:
@@ -293,8 +293,8 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
 def task_select_roi_lesion():
     """Select lesion ROIs from the pmap DICOMs."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for c, s, l in lesions(mode, samplelist=sl):
-            yield get_task_select_roi_lesion(MODE, c, s, l)
+        for c, s, l in lesions(mode, sl):
+            yield get_task_select_roi_lesion(mode, c, s, l)
 
 
 def task_select_roi_manual():
@@ -395,8 +395,9 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 def task_texture():
     """Generate texture features."""
     mode = MODE
+    sl = SAMPLELIST
     for mt, slices, portion in texture_params():
-        for c, s, l in lesions(mode):
+        for c, s, l in lesions(mode, sl):
             for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_texture_manual(mode, mt, c, s, l,
                                               slices, portion, mth, ws, 'mean')
@@ -414,8 +415,9 @@ def task_texture():
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
     mode = MODE
+    sl = SAMPLELIST
     for mt, slices, portion in texture_params():
-        for case, scan, lesion in lesions(mode):
+        for case, scan, lesion in lesions(mode, sl):
             infiles = [texture_path(mode, case, scan, lesion, mt, slices,
                                     portion, mth, ws) for mth, ws in
                        texture_methods_winsizes(mode, mt)]
@@ -432,16 +434,15 @@ def task_merge_textures():
 
 def task_histogram():
     """Plot image histograms."""
-    for mode in MODES:
-        for sl in SAMPLELISTS:
-            for roi in ('image',):
-                it = cases_scans(mode, samplelist=sl)
-                inpaths = [roi_path(mode, roi, c, s) for c, s in it]
-                figpath = dwi.paths.histogram_path(mode, roi, sl)
-                cmd = dwi.shell.histogram_cmd(inpaths, figpath)
-                yield {
-                    'name': name(mode, roi, sl),
-                    'actions': folders(figpath) + [cmd],
-                    'file_dep': path_deps(*inpaths),
-                    'targets': [figpath],
-                }
+    for mode, sl in product(MODES, SAMPLELISTS):
+        for roi in ('image',):
+            it = cases_scans(mode, samplelist=sl)
+            inpaths = [roi_path(mode, roi, c, s) for c, s in it]
+            figpath = dwi.paths.histogram_path(mode, roi, sl)
+            cmd = dwi.shell.histogram_cmd(inpaths, figpath)
+            yield {
+                'name': name(mode, roi, sl),
+                'actions': folders(figpath) + [cmd],
+                'file_dep': path_deps(*inpaths),
+                'targets': [figpath],
+            }
