@@ -292,12 +292,13 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
 
 def task_select_roi_lesion():
     """Select lesion ROIs from the pmap DICOMs."""
-    for c, s, l in lesions(MODE):
-        yield get_task_select_roi_lesion(MODE, c, s, l)
+    for mode, sl in product(MODES, SAMPLELISTS):
+        for c, s, l in lesions(mode, samplelist=sl):
+            yield get_task_select_roi_lesion(MODE, c, s, l)
 
 
 def task_select_roi_manual():
-    """Select cancer ROIs from the pmap DICOMs."""
+    """Select manually selected ROIs from the pmap DICOMs."""
     for mode, sl in product(MODES, SAMPLELISTS):
         masktypes = ('prostate',)
         if mode[0] == 'DWI':
