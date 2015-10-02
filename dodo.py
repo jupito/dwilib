@@ -433,17 +433,25 @@ def task_merge_textures():
                 }
 
 
+def get_task_histogram(mode, masktype, samplelist):
+    if masktype == 'lesion':
+        it = lesions(mode, samplelist)
+    else:
+        it = cases_scans(mode, samplelist)
+    inpaths = [roi_path(mode, masktype, *x) for x in it]
+    figpath = dwi.paths.histogram_path(mode, masktype, samplelist)
+    cmd = dwi.shell.histogram_cmd(inpaths, figpath)
+    return {
+        'name': name(mode, masktype, samplelist),
+        'actions': folders(figpath) + [cmd],
+        'file_dep': path_deps(*inpaths),
+        'targets': [figpath],
+    }
+
+
 def task_histogram():
     """Plot image histograms."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for roi in ('image', 'prostate'):
-            it = cases_scans(mode, sl)
-            inpaths = [roi_path(mode, roi, c, s) for c, s in it]
-            figpath = dwi.paths.histogram_path(mode, roi, sl)
-            cmd = dwi.shell.histogram_cmd(inpaths, figpath)
-            yield {
-                'name': name(mode, roi, sl),
-                'actions': folders(figpath) + [cmd],
-                'file_dep': path_deps(*inpaths),
-                'targets': [figpath],
-            }
+        if sl == 'all':
+            for mt in ('image', 'prostate', 'lesion'):
+                yield get_task_histogram(mode, mt, sl)
