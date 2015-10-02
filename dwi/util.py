@@ -185,6 +185,12 @@ def fivenumd(a):
     return OrderedDict(zip('min q1 median q3 max'.split(), fivenum(a)))
 
 
+def fivenums(a):
+    """Return the Tukey five-number summary as a formatted string."""
+    return '({:{f}}, {:{f}}, {:{f}}, {:{f}}, {:{f}})'.format(*fivenum(a),
+                                                             f='.4g')
+
+
 def stem_and_leaf(values):
     """A quick and dirty text mode stem-and-leaf diagram for non-negative real
     values. Uses integer part as stem and first decimal as leaf.
