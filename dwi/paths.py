@@ -73,7 +73,9 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     if algparams:
         path += '/{ap_}'
     if case is not None and scan is not None:
-        if masktype == 'lesion':
+        if masktype == 'prostate':
+            path += '/{c}-{s}.h5'
+        elif masktype == 'lesion':
             path += '/{c}-{s}-{l}.h5'
         else:
             path += '/{c}_x_x_{s}_{m}_{mt}.txt'

@@ -298,10 +298,12 @@ def task_select_roi_lesion():
 
 def task_select_roi_manual():
     """Select cancer ROIs from the pmap DICOMs."""
-    mode = MODE
-    if mode[0] == 'DWI':
-        for mt in ('CA', 'N'):
-            for c, s in cases_scans(mode):
+    for mode, sl in product(MODES, SAMPLELISTS):
+        masktypes = ('prostate',)
+        if mode[0] == 'DWI':
+            masktypes += ('CA', 'N')
+        for mt in masktypes:
+            for c, s in cases_scans(mode, samplelist=sl):
                 try:
                     yield get_task_select_roi_manual(mode, c, s, mt)
                 except IOError as e:
