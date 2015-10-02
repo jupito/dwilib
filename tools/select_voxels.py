@@ -62,6 +62,10 @@ def main():
     args = parse_args()
     image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
 
+    if args.astype:
+        attrs['source_type'] = str(image.dtype)
+        image = image.astype(args.astype)
+
     if args.subwindow:
         if args.verbose:
             print('Using subwindow %s' % args.subwindow)
@@ -83,10 +87,6 @@ def main():
         attrs['parameters'] = args.rename_params
     if args.source_attrs:
         attrs['source_files'] = args.input
-
-    if args.astype:
-        attrs['source_type'] = str(image.dtype)
-        image = image.astype(args.astype)
 
     # Write output voxels. Unless output filename is specified, one will be
     # constructed from (first) input filename.
