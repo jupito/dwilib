@@ -249,7 +249,7 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
     roi = roi_path(mode, masktype, case, scan, lesion=lesion)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask)
+    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask, keepmasked=True)
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
@@ -264,7 +264,8 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     mask = mask_path(mode, masktype, case, scan)
     roi = roi_path(mode, masktype, case, scan)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask)
+    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask,
+                                      keepmasked=(masktype == 'prostate'))
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
@@ -281,7 +282,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask)
+    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask, keepmasked=False)
     return {
         'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
