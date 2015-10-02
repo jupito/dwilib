@@ -129,7 +129,7 @@ def find_roi_param_combinations(mode):
                 yield [str(x) for x in t]
 
 
-def cases_scans(mode, samplelist=SAMPLELIST):
+def cases_scans(mode, samplelist):
     """Generate all case, scan pairs."""
     samples = dwi.files.read_sample_list(samplelist_path(mode, samplelist))
     for sample in samples:
@@ -172,8 +172,7 @@ def task_standardize_train():
     """
     mode = MODE - 'std'
     std_cfg = std_cfg_path(mode)
-    inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode,
-                                                             samplelist='all')]
+    inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
     yield {
         'name': name(mode),
         'actions': [dwi.shell.standardize_train_cmd(inpaths, std_cfg)],
@@ -187,7 +186,7 @@ def task_standardize_transform():
     """Standardize MRI images: transform phase."""
     mode = MODE - 'std'
     cfgpath = std_cfg_path(mode)
-    for case, scan in cases_scans(mode):
+    for case, scan in cases_scans(mode, SAMPLELIST):
         inpath = pmap_path(mode, case, scan)
         outpath = pmap_path(mode + 'std', case, scan)
         cmd = dwi.shell.standardize_transform_cmd(cfgpath, inpath, outpath)
@@ -202,7 +201,7 @@ def task_standardize_transform():
 
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
-    for case, scan in cases_scans(MODE):
+    for case, scan in cases_scans(MODE, SAMPLELIST):
         mask = mask_path(MODE, 'prostate', case, scan)
         subregion = subregion_path(MODE, case, scan)
         cmd = dwi.shell.make_subregion_cmd(mask, subregion)
@@ -237,7 +236,7 @@ def task_make_subregion():
 # def task_find_roi():
 #     """Find a cancer ROI automatically."""
 #     for algparams in find_roi_param_combinations(MODE):
-#         for case, scan in cases_scans(MODE):
+#         for case, scan in cases_scans(MODE, SAMPLELIST):
 #             yield get_task_find_roi(MODE, case, scan, algparams)
 
 
@@ -304,7 +303,7 @@ def task_select_roi_manual():
         if mode[0] == 'DWI':
             masktypes += ('CA', 'N')
         for mt in masktypes:
-            for c, s in cases_scans(mode, samplelist=sl):
+            for c, s in cases_scans(mode, sl):
                 try:
                     yield get_task_select_roi_manual(mode, c, s, mt)
                 except IOError as e:
@@ -316,7 +315,7 @@ def task_select_roi_auto():
     mode = MODE
     if mode[0] == 'DWI':
         for algparams in find_roi_param_combinations(mode):
-            for c, s in cases_scans(mode):
+            for c, s in cases_scans(mode, SAMPLELIST):
                 try:
                     yield get_task_select_roi_auto(mode, c, s, algparams)
                 except IOError as e:
@@ -394,49 +393,47 @@ def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
 
 def task_texture():
     """Generate texture features."""
-    mode = MODE
-    sl = SAMPLELIST
-    for mt, slices, portion in texture_params():
-        for c, s, l in lesions(mode, sl):
+    for mode, sl in product(MODES, SAMPLELISTS):
+        for mt, slices, portion in texture_params():
+            for c, s, l in lesions(mode, sl):
+                for mth, ws in texture_methods_winsizes(mode, mt):
+                    yield get_task_texture_manual(mode, mt, c, s, l, slices,
+                                                  portion, mth, ws, 'mean')
+                    yield get_task_texture_manual(mode, mt, c, s, l, slices,
+                                                  portion, mth, ws, 'all')
+        mt = 'prostate'
+        for c, s in cases_scans(mode, sl):
             for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_texture_manual(mode, mt, c, s, l,
-                                              slices, portion, mth, ws, 'mean')
-                yield get_task_texture_manual(mode, mt, c, s, l,
-                                              slices, portion, mth, ws, 'all')
-    mt = 'prostate'
-    for c, s in cases_scans(mode):
-        for mth, ws in texture_methods_winsizes(mode, mt):
-            yield get_task_texture_manual(mode, mt, c, s, None,
-                                          'maxfirst', 0, mth, ws, 'all')
-            yield get_task_texture_manual(mode, mt, c, s, None,
-                                          'all', 0, mth, ws, 'all')
+                yield get_task_texture_manual(mode, mt, c, s, None, 'maxfirst',
+                                              0, mth, ws, 'all')
+                yield get_task_texture_manual(mode, mt, c, s, None, 'all',
+                                              0, mth, ws, 'all')
 
 
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
-    mode = MODE
-    sl = SAMPLELIST
-    for mt, slices, portion in texture_params():
-        for case, scan, lesion in lesions(mode, sl):
-            infiles = [texture_path(mode, case, scan, lesion, mt, slices,
-                                    portion, mth, ws) for mth, ws in
-                       texture_methods_winsizes(mode, mt)]
-            outfile = texture_path(mode, case, scan, lesion, mt+'_merged',
-                                   slices, portion, None, None)
-            cmd = dwi.shell.select_voxels_cmd(' '.join(infiles), outfile)
-            yield {
-                'name': name(mode, case, scan, lesion, mt, slices, portion),
-                'actions': folders(outfile) + [cmd],
-                'file_dep': infiles,
-                'targets': [outfile],
-            }
+    for mode, sl in product(MODES, SAMPLELISTS):
+        for mt, slices, portion in texture_params():
+            for c, s, l in lesions(mode, sl):
+                infiles = [texture_path(mode, c, s, l, mt, slices,
+                                        portion, mth, ws) for mth, ws in
+                           texture_methods_winsizes(mode, mt)]
+                outfile = texture_path(mode, c, s, l, mt+'_merged',
+                                       slices, portion, None, None)
+                cmd = dwi.shell.select_voxels_cmd(' '.join(infiles), outfile)
+                yield {
+                    'name': name(mode, c, s, l, mt, slices, portion),
+                    'actions': folders(outfile) + [cmd],
+                    'file_dep': infiles,
+                    'targets': [outfile],
+                }
 
 
 def task_histogram():
     """Plot image histograms."""
     for mode, sl in product(MODES, SAMPLELISTS):
         for roi in ('image',):
-            it = cases_scans(mode, samplelist=sl)
+            it = cases_scans(mode, sl)
             inpaths = [roi_path(mode, roi, c, s) for c, s in it]
             figpath = dwi.paths.histogram_path(mode, roi, sl)
             cmd = dwi.shell.histogram_cmd(inpaths, figpath)
