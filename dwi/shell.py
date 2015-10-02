@@ -56,7 +56,7 @@ def make_subregion_cmd(mask, subregion):
 
 
 def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
-                      astype=None):
+                      astype=None, keepmasked=True):
     cmd = '{prg} -i {i} -o {o}'
     if mask:
         cmd += ' -m {m}'
@@ -64,6 +64,8 @@ def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
         cmd += ' --source_attrs'
     if astype is not None:
         cmd += ' --astype {t}'
+    if keepmasked:
+        cmd += ' --keepmasked'
     return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
                       m=mask, t=astype)
 
