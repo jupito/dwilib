@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-"""Plot histograms of images. They may not contain NaN values."""
+"""Plot histograms of images. Possible nans and infinities are ignored."""
 
 from __future__ import absolute_import, division, print_function
 import argparse
@@ -71,11 +71,12 @@ def main():
     for path in args.input:
         img, _ = dwi.files.read_pmap(path)
         img = img[..., args.param]
+        original_shape, original_size = img.shape, img.size
+        img = img[np.isfinite(img)]
         if args.verbose:
-            finites = np.count_nonzero(np.isfinite(img))
             print('Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {p}'.format(
-                s=img.shape, t=img.dtype, fp=finites/img.size, m=np.mean(img),
-                fn=dwi.util.fivenums(img), p=path))
+                s=original_shape, t=img.dtype, fp=img.size/original_size,
+                m=np.mean(img), fn=dwi.util.fivenums(img), p=path))
         histograms.append(histogram(img, None, None))
         histograms_std.append(histogram(img, img.min(), img.max()))
     plot_histograms([histograms, histograms_std], args.fig)
