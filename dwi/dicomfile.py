@@ -39,11 +39,12 @@ def read_files(filenames):
     echotimes = sorted(d['echotimes'])
     image = construct_image(d['slices'], positions, bvalues, echotimes)
     if len(bvalues) == image.shape[-1]:
-        parameters = list(bvalues)
+        parameters = bvalues
     elif len(echotimes) == image.shape[-1]:
-        parameters = list(echotimes)
+        parameters = echotimes
     else:
         raise ValueError('Inconsistent parameters')
+    parameters = list(str(x) for x in parameters)
     r = dict(image=image, bset=bvalues, echotimes=echotimes,
              parameters=parameters, voxel_spacing=d['voxel_spacing'])
     return r
