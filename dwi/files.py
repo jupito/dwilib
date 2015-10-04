@@ -193,4 +193,5 @@ def read_pmap(pathname, fmt=None):
         raise Warning('Not enough dimensions: {}'.format(pmap.shape))
     if 'parameters' not in attrs:
         attrs['parameters'] = range(pmap.shape[-1])
+    attrs['parameters'] = [str(x) for x in attrs['parameters']]
     return pmap, attrs
