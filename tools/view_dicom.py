@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+import dwi.dicomfile
 import dwi.files
 import dwi.standardize
 import dwi.util
@@ -157,8 +158,7 @@ def main():
         img, attrs = dwi.files.read_pmap(args.files[0])
     else:
         attrs = dwi.dicomfile.read_files(args.files)
-        img = attrs['image']
-        attrs['parameters'] = attrs['bvalues']
+        img = attrs.pop('image')
 
     print('Attributes:')
     for k, v in attrs.items():
