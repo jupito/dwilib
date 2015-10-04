@@ -26,7 +26,7 @@ class DWImage(object):
         Different b-values.
     """
 
-    def __init__(self, image, bset):
+    def __init__(self, image, bset, echotimes=None):
         """Create a new DWI image.
 
         Parameters
@@ -41,11 +41,12 @@ class DWImage(object):
         self.sis.shape = (-1, self.image.shape[-1])
         # self.bset = np.array(sorted(set(bset)), dtype=np.float64)
         self.bset = np.array(bset, dtype=np.float64)
+        self.echotimes = echotimes
         self.start_time = self.end_time = -1
         if len(self.image.shape) != 4:
             raise Exception('Invalid image dimensions.')
-        if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
-            raise Exception('Image size does not match with b-values.')
+        # if not self.image.shape[-1] == self.sis.shape[-1] == len(self.bset):
+        #     raise Exception('Image size does not match with b-values.')
         self.filename = None
         self.basename = None
         self.roislice = None
@@ -79,16 +80,13 @@ class DWImage(object):
         """Return number of voxels."""
         return len(self.sis)
 
-    def get_roi(self, position, bvalues=None, onebased=True):
+    def get_roi(self, position, onebased=True):
         """Get a view of a specific ROI (region of interest)."""
         if onebased:
             position = [i-1 for i in position]  # One-based indexing.
         z0, z1, y0, y1, x0, x1 = position
-        if bvalues is None:
-            bvalues = range(len(self.bset))
-        image = self.image[z0:z1, y0:y1, x0:x1, bvalues]
-        bset = self.bset[bvalues]
-        dwimage = DWImage(image, bset)
+        image = self.image[z0:z1, y0:y1, x0:x1, :]
+        dwimage = DWImage(image, self.bset, echotimes=self.echotimes)
         dwimage.filename = self.filename
         dwimage.roislice = self.roislice
         dwimage.name = self.name
@@ -134,6 +132,18 @@ class DWImage(object):
         self.start_execution()
         xdata = self.bset
         ydatas = self.sis
+        if model.name == 'T2':
+            # Kludge.
+            xdata = self.echotimes
+            if xdata[0] == 0:
+                xdata = xdata[1:]
+                ydatas = self.image[..., 1:]
+                ydatas.shape = (-1, ydatas.shape[-1])
+            print('T2:', xdata, ydatas.shape)
+            for x in self.image[..., 0].ravel():
+                print(x)
+            # print(ydatas)
+            assert len(xdata) == len(ydatas[0]), len(ydatas[0])
         if average == 'mean' or average is True:
             ydatas = np.mean(ydatas, axis=0, keepdims=True)
         elif average == 'median':
@@ -209,7 +219,7 @@ def load_hdf5(filename):
     a, d = dwi.hdf5.read_hdf5(filename)
     if a.ndim != 4:
         a = a.reshape(1, 1, -1, a.shape[-1])
-    dwimage = DWImage(a, d.get('bset') or range(a.shape[-1]))
+    dwimage = DWImage(a, d['bset'], echotimes=d.get('echotimes'))
     dwimage.filename = os.path.abspath(filename)
     dwimage.basename = os.path.basename(filename)
     dwimage.number = 0
@@ -226,7 +236,7 @@ def load_dicom(path):
     else:
         d = dwi.dicomfile.read_files([path])  # File.
     img = d['image']
-    dwimage = DWImage(img, d['bvalues'])
+    dwimage = DWImage(img, d['bset'], echotimes=d.get('echotimes'))
     dwimage.filename = os.path.abspath(path)
     dwimage.basename = os.path.basename(path)
     dwimage.roislice = '-'
