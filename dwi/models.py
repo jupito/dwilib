@@ -77,6 +77,14 @@ def biexp(b, Af, Df, Ds, C=1):
     return C * ((1-Af) * np.exp(-b*Ds) + Af * np.exp(-b*Df))
 
 
+def t2(t, T2, C=1):
+    """T2, spin-spin relaxation time.
+
+    C * exp(-t / T2)
+    """
+    return C * np.exp(-t / T2)
+
+
 # Model definitions.
 
 # General C parameter used in non-normalized models.
@@ -174,3 +182,12 @@ Models.append(Model(
     ],
     preproc=dwi.util.normalize_si_curve,
     postproc=biexp_flip))
+
+Models.append(Model(
+    'T2',
+    'T2 relaxation',
+    lambda p, x: t2(x, *p),
+    [
+        Parameter('T2', (1.0, 5000.0, 50.0), (1, 10000)),
+        Parameter('C', (1, 5000, 250), (0, 1e9))
+    ]))
