@@ -114,7 +114,7 @@ def get_bvalue(df):
         r = df.FrameReferenceTime / 1000
     else:
         raise AttributeError('DICOM file does not contain a b-value')
-    return r
+    return float(r)
 
 
 def get_pixels(df):
