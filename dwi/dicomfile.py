@@ -70,7 +70,7 @@ def read_slice(filename, d):
     d.setdefault('voxel_spacing', get_voxel_spacing(df))
     position = tuple(float(x) for x in df.ImagePositionPatient)
     bvalue = get_bvalue(df)
-    echotime = df.get('EchoTime')
+    echotime = float(df.get('EchoTime'))
     pixels = get_pixels(df)
     d.setdefault('positions', set()).add(position)
     d.setdefault('bvalues', set()).add(bvalue)
