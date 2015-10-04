@@ -159,6 +159,8 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         attrs['parameters'] = [str(i) for i in range(pmap.shape[-1])]
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
+    assert all(type(x) == str for x in
+               attrs['parameters']), attrs['parameters']
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
