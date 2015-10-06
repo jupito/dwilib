@@ -29,7 +29,7 @@ def main():
             a = img[..., i]
             nans = np.isnan(a)
             if np.any(nans):
-                a = img[-nans]
+                a = a[-nans]
             d.update(param=param, nonnans=np.count_nonzero(-nans)/nans.size,
                      min=np.min(a), max=np.max(a), mean=np.mean(a),
                      median=np.median(a), p='.4')
