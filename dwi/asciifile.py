@@ -77,11 +77,16 @@ def read_ascii_file(filename):
     return d, rows
 
 
-def write_ascii_file(filename, pmap, params):
+def write_ascii_file(filename, pmap, params, attrs=None):
     """Write parametric map in ASCII format."""
+    if params is not None and attrs is None:
+        attrs = dict(parameters=params)
     with open(filename, 'w') as f:
-        f.write('parameters: %s\n' % ' '.join(str(x) for x in params))
+        for k, v in attrs.iteritems():
+            if type(v) in (list, np.ndarray):
+                v = ' '.join(str(x) for x in v)
+            f.write('{k}: {v}\n'.format(k=k, v=v))
         for values in pmap:
-            if len(values) != len(params):
+            if len(values) != len(attrs['parameters']):
                 raise Exception('Number of values and parameters mismatch')
             f.write(' '.join(repr(x) for x in values) + '\n')

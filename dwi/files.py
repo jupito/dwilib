@@ -169,7 +169,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
-        dwi.asciifile.write_ascii_file(filename, pmap, attrs['parameters'])
+        dwi.asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
 
