@@ -44,7 +44,7 @@ def read_files(filenames):
         parameters = echotimes
     else:
         raise ValueError('Inconsistent parameters')
-    parameters = list(str(x) for x in parameters)
+    parameters = [str(x) for x in parameters]
     r = dict(image=image, bset=bvalues, echotimes=echotimes,
              parameters=parameters, voxel_spacing=d['voxel_spacing'])
     return r
