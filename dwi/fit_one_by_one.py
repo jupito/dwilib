@@ -47,6 +47,8 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds):
     Try all given combinations of parameter initializations, and return the
     parameters and RMSE of best fit.
     """
+    if np.any(np.isnan(ydata)):
+        return [np.nan] * len(guesses[0]), np.nan
     guess = guesses[0]
     best_params = []
     best_err = np.inf
