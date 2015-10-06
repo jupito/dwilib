@@ -137,7 +137,7 @@ class DWImage(object):
             xdata = self.echotimes
             if xdata[0] == 0:
                 xdata = xdata[1:]
-                ydatas = self.image[..., 1:]
+                ydatas = ydatas[..., 1:]
                 ydatas.shape = (-1, ydatas.shape[-1])
             assert len(xdata) == len(ydatas[0]), len(ydatas[0])
         if average == 'mean' or average is True:
