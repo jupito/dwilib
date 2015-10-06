@@ -139,10 +139,6 @@ class DWImage(object):
                 xdata = xdata[1:]
                 ydatas = self.image[..., 1:]
                 ydatas.shape = (-1, ydatas.shape[-1])
-            print('T2:', xdata, ydatas.shape)
-            for x in self.image[..., 0].ravel():
-                print(x)
-            # print(ydatas)
             assert len(xdata) == len(ydatas[0]), len(ydatas[0])
         if average == 'mean' or average is True:
             ydatas = np.mean(ydatas, axis=0, keepdims=True)
