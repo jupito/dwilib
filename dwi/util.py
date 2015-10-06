@@ -81,6 +81,20 @@ def crop_image(image, subwindow, onebased=False):
     return view
 
 
+def select_subwindow(image, subwindow, onebased=False):
+    """Get a copy of image with only a subwindow selected and everything else
+    set to nan.
+    """
+    if onebased:
+        subwindow = [i-1 for i in subwindow]
+    z1, z2, y1, y2, x1, x2 = subwindow
+    mask = np.zeros_like(image, dtype=np.bool)
+    mask[z1:z2, y1:y2, x1:x2] = True
+    copy = image.copy()
+    copy[-mask] = np.nan
+    return copy
+
+
 def subwindow_shape(subwindow):
     """Return subwindow shape."""
     return tuple(b-a for a, b in chunks(subwindow, 2))
