@@ -41,11 +41,6 @@ def parse_args():
 
 def fit(image, timepoints, model):
     """Fit model to image."""
-    if model.name == 'T2':
-        # There may be an already fitted fake 'zero echo time.'
-        if timepoints[0] == 0:
-            timepoints = timepoints[1:]
-            image = image[..., 1:]
     shape = image.shape[:-1]
     image = image.reshape(-1, len(timepoints))
     assert len(timepoints) == len(image[0]), len(image[0])
@@ -59,9 +54,19 @@ def fit(image, timepoints, model):
 def get_timepoints(model, attrs):
     """Get timepoints to use."""
     if model.name == 'T2':
-        return attrs['echotimes']
+        timepoints = attrs['echotimes']
     else:
-        return attrs['bset']
+        timepoints = attrs['bset']
+    return timepoints
+
+
+def fix_T2(image, attrs):
+    # There may be an already fitted fake 'zero echo time.'
+    if attrs['echotimes'][0] == 0:
+        attrs['echotimes'] = attrs['echotimes'][1:]
+        image = image[..., 1:]
+    assert 0 not in attrs['echotimes'], attrs['echotimes']
+    return image, attrs
 
 
 def get_params(model, timepoints):
@@ -121,6 +126,8 @@ def main():
         if args.average:
             image = np.mean(image, axis=(0, 1, 2), keepdims=True)
         for model in models:
+            if model.name == 'T2':
+                image, attrs = fix_T2(image, attrs)
             if args.verbose:
                 n = np.count_nonzero(-np.isnan(image[..., 0]))
                 print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
