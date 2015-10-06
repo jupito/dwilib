@@ -10,6 +10,9 @@ from time import time
 
 import numpy as np
 
+import dwi.asciifile
+import dwi.dicomfile
+import dwi.hdf5
 import dwi.util
 
 
@@ -190,7 +193,6 @@ def load_matlab(filename, varname='ROIdata'):
 
 def load_ascii(filename, nrois=1):
     """Load images from an ASCII file."""
-    import dwi.asciifile
     af = dwi.asciifile.AsciiFile(filename)
     a = af.a.reshape(nrois, -1, af.a.shape[-1])
     r = []
@@ -211,7 +213,6 @@ def load_ascii(filename, nrois=1):
 
 def load_hdf5(filename):
     """Load image from an HDF5 file."""
-    import dwi.hdf5
     a, d = dwi.hdf5.read_hdf5(filename)
     if a.ndim != 4:
         a = a.reshape(1, 1, -1, a.shape[-1])
@@ -226,7 +227,6 @@ def load_hdf5(filename):
 
 def load_dicom(path):
     """Load a 3d image from DICOM files with slices combined."""
-    import dwi.dicomfile
     if os.path.isdir(path):
         d = dwi.dicomfile.read_dir(path)  # Directory.
     else:
