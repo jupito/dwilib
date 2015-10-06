@@ -28,10 +28,12 @@ def main():
         for i, param in enumerate(attrs['parameters']):
             a = img[..., i]
             shape, size = a.shape, a.size
-            a = img[-np.isnan(a)]
-            d.update(param=param, shape=shape, size=size, nonnans=a.size/size,
-                     min=np.min(a), max=np.max(a), mean=np.mean(a),
-                     median=np.median(a), p='.4')
+            nans = np.isnan(a)
+            if np.any(nans):
+                a = img[-nans]
+            d.update(param=param, shape=shape, size=a.size,
+                     nonnans=a.size/size, min=np.min(a), max=np.max(a),
+                     mean=np.mean(a), median=np.median(a), p='.4')
             s = '{path} {param:{paramlen}} {shape} {size} {nonnans:{p}%} {min:{p}f} {max:{p}f}'
             print(s.format(**d))
             # if args.basic:
