@@ -180,7 +180,7 @@ def load_matlab(filename, varname='ROIdata'):
         dwimage.name = '-'  # Not implemented.
         dwimage.number = int(win.number[0, 0])
         try:
-            dwimage.subwindow = tuple(map(int, win.subwindow[0]))
+            dwimage.subwindow = tuple(int(x) for x in win.subwindow[0])
         except:
             dwimage.subwindow = dwi.util.fabricate_subwindow(len(sis))
         dwimage.voxel_spacing = (1.0, 1.0, 1.0)
