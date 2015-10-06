@@ -75,8 +75,9 @@ def main():
     args = parse_args()
     if args.verbose:
         print('Reading data...')
-    img, _ = dwi.files.read_pmap(args.input)
-    assert img.shape[-1] == 1
+    img, attrs = dwi.files.read_pmap(args.input)
+    if args.mode == 'T2':
+        assert attrs['echotimes'][0] == 0  # TODO: Could be another?
     img = img[..., 0]
     assert img.ndim == 3
 
