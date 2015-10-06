@@ -30,7 +30,7 @@ def main():
             nans = np.isnan(a)
             if np.any(nans):
                 a = a[-nans]
-            d.update(param=param, nonnans=np.count_nonzero(-nans)/nans.size,
+            d.update(param=param, nonnans=a.size/nans.size,
                      min=np.min(a), max=np.max(a), mean=np.mean(a),
                      median=np.median(a), p='.4')
             s = '{path} {param:{paramlen}} {nonnans:{p}%} {min:{p}f} {max:{p}f}'
