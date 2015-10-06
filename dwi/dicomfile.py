@@ -71,7 +71,7 @@ def read_slice(filename, d):
     d.setdefault('voxel_spacing', get_voxel_spacing(df))
     position = tuple(float(x) for x in df.ImagePositionPatient)
     bvalue = get_bvalue(df)
-    echotime = float(df.get('EchoTime'))
+    echotime = get_echotime(df)
     pixels = get_pixels(df)
     d.setdefault('positions', set()).add(position)
     d.setdefault('bvalues', set()).add(bvalue)
@@ -115,7 +115,17 @@ def get_bvalue(df):
         r = df.FrameReferenceTime / 1000
     else:
         raise AttributeError('DICOM file does not contain a b-value')
-    return float(r)
+    if r is not None:
+        r = int(r) if r.is_integer() else float(r)
+    return r
+
+
+def get_echotime(df):
+    """Return Echo Time if present, or None."""
+    r = df.get('EchoTime')
+    if r is not None:
+        r = int(r) if r.is_integer() else float(r)
+    return r
 
 
 def get_pixels(df):
