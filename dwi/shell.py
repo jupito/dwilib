@@ -102,3 +102,13 @@ def mask_out_cmd(src, dst, mask):
 def histogram_cmd(inpaths, figpath):
     return '{prg} -v --param 0 --input {i} --fig {f}'.format(
         prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath)
+
+
+def fit_cmd(infile, outfile, model, mask=None, mbb=None):
+    s = '{prg} -v --input {i} --output {o} --models {model}'
+    if mask is not None:
+        s += ' --mask {mask}'
+    if mbb is not None:
+        s += ' --mbb {mbb[0]} {mbb[1]} {mbb[2]}'
+    return s.format(prg=DWILIB+'/fit.py', i=infile, o=outfile, model=model,
+                    mask=mask, mbb=mbb)
