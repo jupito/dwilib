@@ -22,13 +22,13 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('-l', '--listmodels', action='store_true',
+    p.add_argument('--listmodels', action='store_true',
                    help='list available models')
-    p.add_argument('-a', '--average', action='store_true',
+    p.add_argument('--average', action='store_true',
                    help='average input voxels into one')
     p.add_argument('--mask',
                    help='mask file')
-    p.add_argument('-s', '--subwindow', metavar='I', nargs=6, type=int,
+    p.add_argument('--subwindow', metavar='I', nargs=6, type=int,
                    help='use subwindow (specified by 6 one-based indices)')
     p.add_argument('-m', '--models', metavar='MODEL', nargs='+', default=[],
                    help='models to use')
