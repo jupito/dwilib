@@ -30,6 +30,9 @@ def parse_args():
                    help='mask file')
     p.add_argument('--subwindow', metavar='I', nargs=6, type=int,
                    help='use subwindow (specified by 6 one-based indices)')
+    p.add_argument('--mbb', metavar='I', nargs=3, type=int,
+                   help='use minimum bounding box around mask '
+                   'with padding on three axes')
     p.add_argument('-m', '--models', metavar='MODEL', nargs='+', default=[],
                    help='models to use')
     p.add_argument('-i', '--input', metavar='PATH', nargs='+', default=[],
@@ -113,6 +116,12 @@ def main():
             if args.verbose:
                 print('Applying mask', args.mask)
             mask = dwi.mask.read_mask(args.mask)
+            if args.mbb:
+                mbb = mask.bounding_box(args.mbb)
+                if args.verbose:
+                    print('Using minimum bounding box {m}'.format(m=mbb))
+                z, y, x = [slice(*t) for t in mbb]
+                mask.array[z, y, x] = True
             image = mask.apply_mask(image, value=np.nan)
             attrs['mask'] = args.mask
         if args.subwindow:
