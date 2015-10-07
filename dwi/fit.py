@@ -94,6 +94,8 @@ class Model(object):
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""
+        xdata = np.asanyarray(xdata)
+        ydatas = np.asanyarray(ydatas)
         ydatas = prepare_for_fitting(ydatas)
         if self.preproc:
             for ydata in ydatas:
