@@ -221,6 +221,47 @@ def task_make_subregion():
                     }
 
 
+def task_fit():
+    """Fit models to imaging data."""
+    # MODELS = ('Si SiN Mono MonoN Kurt KurtN Stretched StretchedN '
+    #           'Biexp BiexpN'.split())
+    # SUBWINDOWS = dwi.files.read_subwindows('subwindows.txt')
+    # for case, scan in SUBWINDOWS.keys():
+    #     subwindow = SUBWINDOWS[(case, scan)]
+    #     d = dict(c=case, s=scan)
+    #     infiles = sorted(glob('dicoms/{c}_*_hB_{s}*/DICOM/*'.format(**d)))
+    #     if len(infiles) == 0:
+    #         continue
+    #     for model in MODELS:
+    #         d['m'] = model
+    #         outfile = 'pmaps/pmap_{c}_{s}_{m}.txt'.format(**d)
+    #         cmd = fit_cmd(model, subwindow, infiles, outfile)
+    #         yield {
+    #            'name': '{c}_{s}_{m}'.format(**d),
+    #            'actions': folders(outfile) + [cmd],
+    #            'file_dep': infiles,
+    #            'targets': [outfile],
+    #            'clean': True,
+    #            }
+    for mode, sl in product(MODES, SAMPLELISTS):
+        if mode[0] in ('T2',):
+            for c, s in cases_scans(mode, sl):
+                inpath = pmap_path(mode, c, s)
+                outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
+                model = 'T2'
+                mask = mask_path(mode, 'prostate', c, s)
+                mbb = (0, 20, 20)
+                cmd = dwi.shell.fit_cmd(inpath, outpath, model, mask=mask,
+                                        mbb=mbb)
+                yield {
+                    'name': name(mode, c, s, model),
+                    'actions': folders(outpath) + [cmd],
+                    'file_dep': path_deps(inpath, mask),
+                    'targets': [outpath],
+                    'clean': True,
+                }
+
+
 # def get_task_find_roi(mode, case, scan, algparams):
 #     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
 #     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
