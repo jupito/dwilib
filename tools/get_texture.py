@@ -85,6 +85,8 @@ def main():
         mask = dwi.mask.read_mask(args.mask)
         if isinstance(mask, dwi.mask.Mask):
             mask = mask.convert_to_3d(img.shape[0])
+        if args.verbose:
+            print('Using mask', args.mask)
     else:
         # A default mask for testing.
         mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
@@ -112,7 +114,7 @@ def main():
     # Zero other slices in mask.
     for i in range(len(mask.array)):
         if i not in slice_indices:
-            mask.array[i] = 0
+            mask.array[i, :, :] = 0
 
     # Use only selected slices to save memory.
     if args.voxel == 'mean':
@@ -148,7 +150,6 @@ def main():
         print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
                                                           t=tmap.dtype,
                                                           o=args.output))
-    # tmap = np.array(tmap, dtype=np.float32)
     dwi.files.write_pmap(args.output, tmap, dict(parameters=names))
 
 
