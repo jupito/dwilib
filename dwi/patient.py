@@ -62,6 +62,8 @@ class GleasonScore(object):
         """
         if isinstance(score, basestring):
             s = score.split('+')
+        elif isinstance(score, GleasonScore):
+            s = score.score
         else:
             s = score
         s = tuple(int(x) for x in s)
@@ -84,10 +86,10 @@ class GleasonScore(object):
         return hash(self.score)
 
     def __eq__(self, other):
-        return self.score == other.score
+        return self.score == GleasonScore(other).score
 
     def __lt__(self, other):
-        return self.score < other.score
+        return self.score < GleasonScore(other).score
 
 
 class Lesion(object):
