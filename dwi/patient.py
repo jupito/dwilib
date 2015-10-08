@@ -197,7 +197,7 @@ def iterlesions(patients):
 
 
 def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
-               multiroi=False, dropok=False):
+               multiroi=False, dropok=False, location=None):
     """Read pmaps labeled by their Gleason score.
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
@@ -208,6 +208,8 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     data = []
     for patient, scan, lesion in iterlesions(patients):
         if not multiroi and lesion.index != 0:
+            continue
+        if location is not None and lesion.location != location:
             continue
         case = patient.num
         score = lesion.score
