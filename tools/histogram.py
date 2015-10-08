@@ -56,7 +56,7 @@ def plot_histograms(Histograms, outfile):
                     maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
-            pl.title('[{}, {}]'.format(minmin, maxmax))
+            pl.title('[{:.5g}, {:.5g}]'.format(minmin, maxmax))
     pl.tight_layout()
     print('Plotting to {}...'.format(outfile))
     pl.savefig(outfile, bbox_inches='tight')
@@ -78,7 +78,9 @@ def main():
                 s=original_shape, t=img.dtype, fp=img.size/original_size,
                 m=np.mean(img), fn=dwi.util.fivenums(img), p=path))
         histograms.append(histogram(img, None, None))
-        histograms_std.append(histogram(img, img.min(), img.max()))
+        # cutoffs = img.min(), img.max()
+        cutoffs = np.percentile(img, (1, 99))
+        histograms_std.append(histogram(img, *cutoffs))
     plot_histograms([histograms, histograms_std], args.fig)
 
     # All together.
