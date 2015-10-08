@@ -186,6 +186,8 @@ def cases_scans(patients, cases=None, scans=None):
 
 def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
+    if isinstance(patients, basestring):
+        patients = dwi.files.read_patients_file(patients)
     for p in patients:
         for s in p.scans:
             for l in p.lesions:
