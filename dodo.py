@@ -143,8 +143,8 @@ def lesions(mode, samplelist):
     patients = dwi.files.read_patients_file(samplelist_path(mode, samplelist))
     for p in patients:
         for scan in p.scans:
-            for lesion in range(len(p.lesions)):
-                yield p.num, scan, lesion+1
+            for i, _ in enumerate(p.lesions):
+                yield p.num, scan, i+1
 
 
 def path_deps(*paths):
@@ -245,16 +245,21 @@ def task_fit():
     #            }
     for mode, sl in product(MODES, SAMPLELISTS):
         if mode[0] in ('T2',):
-            for c, s in cases_scans(mode, sl):
+            # for c, s in cases_scans(mode, sl):
+            for c, s, l in lesions(mode, sl):
                 inpath = pmap_path(mode, c, s)
-                outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
+                # outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
+                outpath = roi_path(mode+'fitted', 'lesion', c, s, l)
                 model = 'T2'
-                mask = mask_path(mode, 'prostate', c, s)
-                mbb = (0, 20, 20)
+                # mask = mask_path(mode, 'prostate', c, s)
+                mask = mask_path(mode, 'lesion', c, s, l)
+                # mbb = (0, 20, 20)
+                mbb = None
                 cmd = dwi.shell.fit_cmd(inpath, outpath, model, mask=mask,
                                         mbb=mbb)
                 yield {
-                    'name': name(mode, c, s, model),
+                    # 'name': name(mode, c, s, model),
+                    'name': name(mode, c, s, l, model),
                     'actions': folders(outpath) + [cmd],
                     'file_dep': path_deps(inpath, mask),
                     'targets': [outpath],
