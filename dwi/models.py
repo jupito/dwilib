@@ -188,6 +188,6 @@ Models.append(Model(
     'T2 relaxation',
     lambda p, x: t2(x, *p),
     [
-        Parameter('T2', (1.0, 5000.0, 50.0), (1, 10000)),
+        Parameter('T2', (1, 500, 50), (1, 2500)),
         Parameter('C', (1, 5000, 250), (0, 1e9))
     ]))
