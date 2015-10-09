@@ -189,5 +189,5 @@ Models.append(Model(
     lambda p, x: t2(x, *p),
     [
         Parameter('T2', (1, 500, 50), (1, 2500)),
-        Parameter('C', (1, 5000, 250), (0, 1e9))
+        Parameter('C', (0.25, 1, 0.5), (0, 1e9), relative=True)
     ]))
