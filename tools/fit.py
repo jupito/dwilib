@@ -20,9 +20,9 @@ def parse_args(models):
                                 epilog='Available models:\n'+'\n'.join(models))
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('-i', '--input', metavar='PATH', required=True,
+    p.add_argument('--input', metavar='PATH', required=True,
                    help='input image file or DICOM directory')
-    p.add_argument('-o', '--output', metavar='PATH', required=True,
+    p.add_argument('--output', metavar='PATH', required=True,
                    help='output pmap file')
     p.add_argument('--average', action='store_true',
                    help='average input voxels into one')
@@ -33,7 +33,7 @@ def parse_args(models):
     p.add_argument('--mbb', metavar='I', nargs=3, type=int,
                    help='use minimum bounding box around mask '
                    'with padding on three axes')
-    p.add_argument('-m', '--model', required=True,
+    p.add_argument('--model', required=True,
                    help='model to use')
     return p.parse_args()
 
