@@ -14,7 +14,7 @@ fit_curves_mi = dwi.fit_one_by_one.fit_curves_mi
 class Parameter(object):
     """Parameter used in model definitions."""
 
-    def __init__(self, name, steps, bounds, use_stepsize=True):
+    def __init__(self, name, steps, bounds, use_stepsize=True, relative=False):
         """Create a new model parameter.
 
         Parameters
@@ -25,13 +25,16 @@ class Parameter(object):
             Steps as (start, stop, size/number).
         bounds : tuple
             Constraints as (start, end).
-        use_stepsize : bool, optional
+        use_stepsize : bool, optional, default True
             Use step size instead of number.
+        relative : bool, optional, default False
+            Values are relative to a constant given upon request.
         """
         self.name = name
         self.steps = steps
         self.bounds = bounds
         self.use_stepsize = use_stepsize
+        self.relative = relative
 
     def __repr__(self):
         return '%s=%s' % (self.name, self.steps)
@@ -39,12 +42,14 @@ class Parameter(object):
     def __str__(self):
         return self.name
 
-    def guesses(self):
+    def guesses(self, c):
         """Return initial guesses."""
         if self.use_stepsize:
             g = np.arange(*self.steps)
         else:
             g = np.linspace(*self.steps)
+        if self.relative:
+            g *= c
         return g
 
 
@@ -84,9 +89,9 @@ class Model(object):
         """Return bounds of all parameters."""
         return [x.bounds for x in self.params]
 
-    def guesses(self):
+    def guesses(self, c):
         """Return all combinations of initial guesses."""
-        return product(*[x.guesses() for x in self.params])
+        return product(*[x.guesses(c) for x in self.params])
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""

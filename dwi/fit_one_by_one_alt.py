@@ -50,7 +50,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
     See files fit.py and models.py for more information on usage.
     """
     for i, ydata in enumerate(ydatas):
-        d = fit_curve_mi(f, xdata, ydata, guesses(), bounds, step)
+        d = fit_curve_mi(f, xdata, ydata, guesses(ydata[0]), bounds, step)
         out_pmap[i, -1] = d['y']
         if np.isfinite(d['y']):
             out_pmap[i, :-1] = d['x']

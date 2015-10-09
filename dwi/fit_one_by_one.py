@@ -34,7 +34,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
     See files fit.py and models.py for more information on usage.
     """
     for i, ydata in enumerate(ydatas):
-        params, err = fit_curve_mi(f, xdata, ydata, guesses(), bounds)
+        params, err = fit_curve_mi(f, xdata, ydata, guesses(ydata[0]), bounds)
         out_pmap[i, -1] = err
         if np.isfinite(err):
             out_pmap[i, :-1] = params
