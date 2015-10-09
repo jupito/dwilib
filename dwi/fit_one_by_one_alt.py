@@ -33,7 +33,8 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
     ydatas : ndarray, shape = [n_curves, n_bvalues]
         Y data points, i.e. signal intensity curves
     guesses : sequence of tuples
-        All combinations of parameter initializations, i.e. starting guesses
+        A callable that returns an iterable of all combinations of parameter
+        initializations, i.e. starting guesses, as tuples
     bounds : sequence of tuples (NOTE: not implemented)
         Constraints for parameters, i.e. minimum and maximum values
     out_pmap : ndarray, shape = [n_curves, n_parameters+1]
@@ -49,7 +50,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
     See files fit.py and models.py for more information on usage.
     """
     for i, ydata in enumerate(ydatas):
-        d = fit_curve_mi(f, xdata, ydata, guesses, bounds, step)
+        d = fit_curve_mi(f, xdata, ydata, guesses(), bounds, step)
         out_pmap[i, -1] = d['y']
         if np.isfinite(d['y']):
             out_pmap[i, :-1] = d['x']
@@ -63,7 +64,6 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds, step=1.0e-7):
     Try all given combinations of parameter initializations, and return the
     parameters and RMSE of best fit.
     """
-    guess = guesses[0]
     best = dict(y=np.inf)
     for guess in guesses:
         d = fit_curve(f, xdata, ydata, guess, step)

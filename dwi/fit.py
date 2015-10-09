@@ -86,11 +86,7 @@ class Model(object):
 
     def guesses(self):
         """Return all combinations of initial guesses."""
-        # def combinations(l):
-        #     """Return combinations of list elements."""
-        #     return [x for x in product(*l)]
-        # return combinations([x.guesses() for x in self.params])
-        return list(product(*[x.guesses() for x in self.params]))
+        return product(*[x.guesses() for x in self.params])
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""
@@ -103,7 +99,7 @@ class Model(object):
         shape = (len(ydatas), len(self.params) + 1)
         pmap = np.zeros(shape)
         if self.func:
-            fit_curves_mi(self.func, xdata, ydatas, self.guesses(),
+            fit_curves_mi(self.func, xdata, ydatas, self.guesses,
                           self.bounds(), pmap)
         else:
             pmap[:, :-1] = ydatas  # Fill with original data.
