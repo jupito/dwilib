@@ -1,12 +1,8 @@
 #!/usr/bin/env python2
 
-"""Produce parametric maps by fitting one or more diffusion models to imaging
-data. Multiple input images can be provided in ASCII format. Single input image
-can be provided as a group of DICOM files. Output is written in ASCII files
-named by input and model."""
+"""Produce parametric maps by fitting one or more models to imaging data."""
 
 from __future__ import absolute_import, division, print_function
-import os.path
 import argparse
 
 import numpy as np
@@ -17,11 +13,17 @@ import dwi.mask
 import dwi.models
 
 
-def parse_args():
+def parse_args(models):
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description=__doc__)
+    formatter = argparse.RawDescriptionHelpFormatter
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=formatter,
+                                epilog='Available models:\n'+'\n'.join(models))
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
+    p.add_argument('-i', '--input', metavar='PATH', required=True,
+                   help='input image file or DICOM directory')
+    p.add_argument('-o', '--output', metavar='PATH', required=True,
+                   help='output pmap file')
     p.add_argument('--average', action='store_true',
                    help='average input voxels into one')
     p.add_argument('--mask',
@@ -31,12 +33,8 @@ def parse_args():
     p.add_argument('--mbb', metavar='I', nargs=3, type=int,
                    help='use minimum bounding box around mask '
                    'with padding on three axes')
-    p.add_argument('-m', '--model',
-                   help='model to use; otherwise list available models')
-    p.add_argument('-i', '--input', metavar='PATH', nargs='+', default=[],
-                   help='input files (or DICOM directories)')
-    p.add_argument('-o', '--output', metavar='PATH',
-                   help='output file (for single model and input only)')
+    p.add_argument('-m', '--model', required=True,
+                   help='model to use')
     return p.parse_args()
 
 
@@ -86,63 +84,51 @@ def get_params(model, timepoints):
 
 
 def main():
-    args = parse_args()
-
-    if args.output:
-        if len(args.input) > 1:
-            raise ValueError('Error: one output, several inputs.')
-
-    if args.model is None:
-        for model in dwi.models.Models:
-            print('{n}: {d}'.format(n=model.name, d=model.desc))
-        return
+    models = ['{n}: {d}'.format(n=x.name, d=x.desc) for x in dwi.models.Models]
+    args = parse_args(models)
 
     model = [x for x in dwi.models.Models if x.name in args.model][0]
 
-    for inpath in args.input:
-        image, attrs = dwi.files.read_pmap(inpath)
-        assert image.ndim == 4, image.ndim
+    image, attrs = dwi.files.read_pmap(args.input)
+    assert image.ndim == 4, image.ndim
+    if args.verbose:
+        print('Read image', image.shape, image.dtype)
+    if args.mask:
         if args.verbose:
-            print('Read image', image.shape, image.dtype)
-        if args.mask:
+            print('Applying mask', args.mask)
+        mask = dwi.mask.read_mask(args.mask)
+        if args.mbb:
+            mbb = mask.bounding_box(args.mbb)
             if args.verbose:
-                print('Applying mask', args.mask)
-            mask = dwi.mask.read_mask(args.mask)
-            if args.mbb:
-                mbb = mask.bounding_box(args.mbb)
-                if args.verbose:
-                    print('Using minimum bounding box {m}'.format(m=mbb))
-                z, y, x = [slice(*t) for t in mbb]
-                mask.array[z, y, x] = True
-            image = mask.apply_mask(image, value=np.nan)
-            attrs['mask'] = args.mask
-        if args.subwindow:
-            if args.verbose:
-                print('Using subwindow', args.subwindow)
-            # image = dwi.util.crop_image(image, args.subwindow, onebased=True)
-            image = dwi.util.select_subwindow(image, args.subwindow,
-                                              onebased=True)
-            print(image.shape, np.count_nonzero(np.isnan(image)))
-            attrs['subwindow'] = args.subwindow
-        if args.average:
-            image = np.mean(image, axis=(0, 1, 2), keepdims=True)
+                print('Using minimum bounding box {m}'.format(m=mbb))
+            z, y, x = [slice(*t) for t in mbb]
+            mask.array[z, y, x] = True
+        image = mask.apply_mask(image, value=np.nan)
+        attrs['mask'] = args.mask
+    if args.subwindow:
+        if args.verbose:
+            print('Using subwindow', args.subwindow)
+        # image = dwi.util.crop_image(image, args.subwindow, onebased=True)
+        image = dwi.util.select_subwindow(image, args.subwindow,
+                                          onebased=True)
+        print(image.shape, np.count_nonzero(np.isnan(image)))
+        attrs['subwindow'] = args.subwindow
+    if args.average:
+        image = np.mean(image, axis=(0, 1, 2), keepdims=True)
 
-        if model.name == 'T2':
-            image, attrs = fix_T2(image, attrs)
-        if args.verbose:
-            n = np.count_nonzero(-np.isnan(image[..., 0]))
-            print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
-        timepoints = get_timepoints(model, attrs)
-        params = get_params(model, timepoints)
-        outpath = (args.output or
-                   'pmap_{i}_{m}.txt'.format(i=os.path.basename(inpath),
-                                             m=model.name))
-        pmap = fit(image, timepoints, model)
-        d = dict(attrs)
-        d.update(model=model.name, parameters=params)
-        dwi.files.write_pmap(outpath, pmap, d)
-        if args.verbose:
-            print('Wrote', outpath)
+    if model.name == 'T2':
+        image, attrs = fix_T2(image, attrs)
+    if args.verbose:
+        n = np.count_nonzero(-np.isnan(image[..., 0]))
+        print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
+    timepoints = get_timepoints(model, attrs)
+    params = get_params(model, timepoints)
+    pmap = fit(image, timepoints, model)
+    d = dict(attrs)
+    d.update(model=model.name, parameters=params)
+    dwi.files.write_pmap(args.output, pmap, d)
+    if args.verbose:
+        print('Wrote', args.output)
 
 
 if __name__ == '__main__':
