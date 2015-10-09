@@ -109,8 +109,7 @@ def main():
         if args.verbose:
             print('Using subwindow', args.subwindow)
         # image = dwi.util.crop_image(image, args.subwindow, onebased=True)
-        image = dwi.util.select_subwindow(image, args.subwindow,
-                                          onebased=True)
+        image = dwi.util.select_subwindow(image, args.subwindow, onebased=True)
         print(image.shape, np.count_nonzero(np.isnan(image)))
         attrs['subwindow'] = args.subwindow
     if args.average:
