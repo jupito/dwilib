@@ -22,8 +22,6 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('--listmodels', action='store_true',
-                   help='list available models')
     p.add_argument('--average', action='store_true',
                    help='average input voxels into one')
     p.add_argument('--mask',
@@ -34,7 +32,7 @@ def parse_args():
                    help='use minimum bounding box around mask '
                    'with padding on three axes')
     p.add_argument('-m', '--model',
-                   help='model to use')
+                   help='model to use; otherwise list available models')
     p.add_argument('-i', '--input', metavar='PATH', nargs='+', default=[],
                    help='input files (or DICOM directories)')
     p.add_argument('-o', '--output', metavar='PATH',
@@ -94,7 +92,7 @@ def main():
         if len(args.input) > 1:
             raise ValueError('Error: one output, several inputs.')
 
-    if args.listmodels:
+    if args.model is None:
         for model in dwi.models.Models:
             print('{n}: {d}'.format(n=model.name, d=model.desc))
         return
