@@ -92,7 +92,7 @@ def main():
     image, attrs = dwi.files.read_pmap(args.input)
     assert image.ndim == 4, image.ndim
     if args.verbose:
-        print('Read image', image.shape, image.dtype)
+        print('Read image', image.shape, image.dtype, args.input)
     if args.mask:
         if args.verbose:
             print('Applying mask', args.mask)
@@ -103,6 +103,7 @@ def main():
                 print('Using minimum bounding box {m}'.format(m=mbb))
             z, y, x = [slice(*t) for t in mbb]
             mask.array[z, y, x] = True
+            attrs['mbb'] = args.mbb
         image = mask.apply_mask(image, value=np.nan)
         attrs['mask'] = args.mask
     if args.subwindow:
@@ -124,10 +125,11 @@ def main():
     params = get_params(model, timepoints)
     pmap = fit(image, timepoints, model)
     d = dict(attrs)
-    d.update(model=model.name, parameters=params)
+    d.update(parameters=params, source=args.input, model=model.name,
+             description=repr(model))
     dwi.files.write_pmap(args.output, pmap, d)
     if args.verbose:
-        print('Wrote', args.output)
+        print('Wrote', pmap.shape, pmap.dtype, args.output)
 
 
 if __name__ == '__main__':
