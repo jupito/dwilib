@@ -86,11 +86,11 @@ class Model(object):
 
     def guesses(self):
         """Return all combinations of initial guesses."""
-        def combinations(l):
-            """Return combinations of list elements."""
-            return [x for x in product(*l)]
-        # return combinations(map(lambda p: p.guesses(), self.params))
-        return combinations([x.guesses() for x in self.params])
+        # def combinations(l):
+        #     """Return combinations of list elements."""
+        #     return [x for x in product(*l)]
+        # return combinations([x.guesses() for x in self.params])
+        return list(product(*[x.guesses() for x in self.params]))
 
     def fit(self, xdata, ydatas):
         """Fit model to multiple voxels."""
