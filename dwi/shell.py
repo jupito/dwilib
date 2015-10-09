@@ -105,7 +105,7 @@ def histogram_cmd(inpaths, figpath):
 
 
 def fit_cmd(infile, outfile, model, mask=None, mbb=None):
-    s = '{prg} -v --input {i} --output {o} --models {model}'
+    s = '{prg} -v --input {i} --output {o} --model {model}'
     if mask is not None:
         s += ' --mask {mask}'
     if mbb is not None:

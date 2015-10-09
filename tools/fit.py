@@ -33,8 +33,8 @@ def parse_args():
     p.add_argument('--mbb', metavar='I', nargs=3, type=int,
                    help='use minimum bounding box around mask '
                    'with padding on three axes')
-    p.add_argument('-m', '--models', metavar='MODEL', nargs='+', default=[],
-                   help='models to use')
+    p.add_argument('-m', '--model',
+                   help='model to use')
     p.add_argument('-i', '--input', metavar='PATH', nargs='+', default=[],
                    help='input files (or DICOM directories)')
     p.add_argument('-o', '--output', metavar='PATH',
@@ -91,21 +91,15 @@ def main():
     args = parse_args()
 
     if args.output:
-        if len(args.models) > 1 or len(args.input) > 1:
-            raise ValueError('Error: one output, several models or inputs.')
+        if len(args.input) > 1:
+            raise ValueError('Error: one output, several inputs.')
 
     if args.listmodels:
         for model in dwi.models.Models:
             print('{n}: {d}'.format(n=model.name, d=model.desc))
-        print('{n}: {d}'.format(n='all', d='all models'))
-        print('{n}: {d}'.format(n='normalized', d='all normalized models'))
+        return
 
-    selected_models = args.models
-    if 'all' in selected_models:
-        selected_models += [m.name for m in dwi.models.Models]
-    elif 'normalized' in selected_models:
-        selected_models += 'SiN MonoN KurtN StretchedN BiexpN'.split()
-    models = [x for x in dwi.models.Models if x.name in selected_models]
+    model = [x for x in dwi.models.Models if x.name in args.model][0]
 
     for inpath in args.input:
         image, attrs = dwi.files.read_pmap(inpath)
@@ -134,23 +128,23 @@ def main():
             attrs['subwindow'] = args.subwindow
         if args.average:
             image = np.mean(image, axis=(0, 1, 2), keepdims=True)
-        for model in models:
-            if model.name == 'T2':
-                image, attrs = fix_T2(image, attrs)
-            if args.verbose:
-                n = np.count_nonzero(-np.isnan(image[..., 0]))
-                print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
-            timepoints = get_timepoints(model, attrs)
-            params = get_params(model, timepoints)
-            outpath = (args.output or
-                       'pmap_{i}_{m}.txt'.format(i=os.path.basename(inpath),
-                                                 m=model.name))
-            pmap = fit(image, timepoints, model)
-            d = dict(attrs)
-            d.update(model=model.name, parameters=params)
-            dwi.files.write_pmap(outpath, pmap, d)
-            if args.verbose:
-                print('Wrote', outpath)
+
+        if model.name == 'T2':
+            image, attrs = fix_T2(image, attrs)
+        if args.verbose:
+            n = np.count_nonzero(-np.isnan(image[..., 0]))
+            print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
+        timepoints = get_timepoints(model, attrs)
+        params = get_params(model, timepoints)
+        outpath = (args.output or
+                   'pmap_{i}_{m}.txt'.format(i=os.path.basename(inpath),
+                                             m=model.name))
+        pmap = fit(image, timepoints, model)
+        d = dict(attrs)
+        d.update(model=model.name, parameters=params)
+        dwi.files.write_pmap(outpath, pmap, d)
+        if args.verbose:
+            print('Wrote', outpath)
 
 
 if __name__ == '__main__':
