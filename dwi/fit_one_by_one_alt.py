@@ -32,7 +32,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap, step=1.0e-7):
         X data points, i.e. b-values
     ydatas : ndarray, shape = [n_curves, n_bvalues]
         Y data points, i.e. signal intensity curves
-    guesses : sequence of tuples
+    guesses : callable
         A callable that returns an iterable of all combinations of parameter
         initializations, i.e. starting guesses, as tuples
     bounds : sequence of tuples (NOTE: not implemented)
