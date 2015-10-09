@@ -115,6 +115,8 @@ def parse_args():
     p.add_argument('--files', '-f', metavar='PATH',
                    nargs='+', default=[], required=True,
                    help='DICOM directory or file(s)')
+    p.add_argument('--param', type=int,
+                   help='parameter index')
     p.add_argument('--subwindow', '-s', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, one-based)')
@@ -159,6 +161,11 @@ def main():
     else:
         attrs = dwi.dicomfile.read_files(args.files)
         img = attrs.pop('image')
+
+    if args.param is not None:
+        img = img[..., args.param]
+        img.shape += (1,)
+        attrs['parameters'] = attrs['parameters'][args.param]
 
     print('Attributes:')
     for k, v in attrs.items():
