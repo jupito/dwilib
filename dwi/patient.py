@@ -15,6 +15,7 @@ import dwi.util
 THRESHOLDS_STANDARD = ('3+3', '3+4')
 
 
+@total_ordering
 class ImageMode(object):
     """Image mode identifier."""
     def __init__(self, value, sep='-'):
@@ -38,6 +39,18 @@ class ImageMode(object):
 
     def __str__(self):
         return self.sep.join(iter(self))
+
+    def __lt__(self, other):
+        return tuple(self) < tuple(ImageMode(other))
+
+    def __eq__(self, other):
+        return tuple(self) == tuple(ImageMode(other))
+
+    def __ne__(self, other):
+        return tuple(self) != tuple(ImageMode(other))
+
+    def __hash__(self):
+        return hash(tuple(self))
 
     def __add__(self, other):
         """Append a component."""
@@ -82,14 +95,17 @@ class GleasonScore(object):
     def __repr__(self):
         return '+'.join(str(x) for x in iter(self))
 
-    def __hash__(self):
-        return hash(self.score)
+    def __lt__(self, other):
+        return self.score < GleasonScore(other).score
 
     def __eq__(self, other):
         return self.score == GleasonScore(other).score
 
-    def __lt__(self, other):
-        return self.score < GleasonScore(other).score
+    def __ne__(self, other):
+        return self.score != GleasonScore(other).score
+
+    def __hash__(self):
+        return hash(self.score)
 
 
 class Lesion(object):
