@@ -31,17 +31,17 @@ MODE = None  # For now, set this for normalize(). TODO: Better solution.
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
-    if MODE in ['DWI-Mono-ADCm', 'DWI-Kurt-ADCk']:
+    if MODE in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.03)
         in_range = (0, 0.005)
         # in_range = (0, 0.002)
-    elif MODE in ['DWI-Kurt-K', 'T2', 'T2w']:
+    elif MODE in ('DWI-Kurt-K', 'T2', 'T2-fitted', 'T2w'):
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
         in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
         # in_range = tuple(np.percentile(pmap, (0, 99.8)))
-    elif MODE == 'T2w-std':
+    elif MODE in ('T2w-std',):
         if pmap.dtype == np.int32:
             # The rescaler cannot handle int32.
             pmap = np.asarray(pmap, dtype=np.int16)
