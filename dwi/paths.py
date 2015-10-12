@@ -10,7 +10,9 @@ def samplelist_path(mode, samplelist):
 
 
 def pmap_path(mode, case=None, scan=None, fmt='dicom'):
-    if fmt == 'hdf5' or 'std' in mode:
+    if 'std' in mode or mode == 'T2-fitted':
+        fmt = 'hdf5'  # TODO: Temporary redirection.
+    if fmt == 'hdf5':
         path = 'images/{m}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
