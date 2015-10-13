@@ -36,11 +36,13 @@ def normalize(pmap, levels=128):
         # in_range = (0, 0.03)
         in_range = (0, 0.005)
         # in_range = (0, 0.002)
-    elif MODE in ('DWI-Kurt-K', 'T2', 'T2-fitted', 'T2w'):
+    elif MODE in ('DWI-Kurt-K', 'T2w'):
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
         in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
         # in_range = tuple(np.percentile(pmap, (0, 99.8)))
+    elif MODE in ('T2', 'T2-fitted'):
+        in_range = (0, 300)
     elif MODE in ('T2w-std',):
         if pmap.dtype == np.int32:
             # The rescaler cannot handle int32.
