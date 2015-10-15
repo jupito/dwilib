@@ -33,7 +33,7 @@ def main():
             d.update(param=param, nonnans=a.size/nans.size,
                      min=np.min(a), max=np.max(a), mean=np.mean(a),
                      median=np.median(a), p='.4')
-            s = '{path}  {param:{paramlen}}  {nonnans:{p}%}  {min:{p}f} {max:{p}f}  {mean:{p}f}  {median:{p}f}'
+            s = '{path}  {param:{paramlen}}  {nonnans:{p}%}  {min:{p}f}  {max:{p}f}  {mean:{p}f}  {median:{p}f}'
             print(s.format(**d))
             # if args.basic:
             #     s = '{i} {param} {mean:g} {std:g} {var:g} {sum:g}'
