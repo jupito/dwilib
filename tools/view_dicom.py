@@ -187,7 +187,7 @@ def main():
     print('Image shape: {s}, type: {t}'.format(s=img.shape, t=img.dtype))
     print('Voxels: {nv}, non-zero: {nz}, non-NaN: {nn}'.format(
         nv=img.size, nz=np.count_nonzero(img), nn=img.size-n))
-    print('Five-num: {}'.format(dwi.util.fivenum(img)))
+    print('Five-num: {}'.format(dwi.util.fivenums(img)))
 
     if args.normalize:
         for si in img.reshape((-1, img.shape[-1])):
