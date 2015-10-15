@@ -84,9 +84,12 @@ class Gui(object):
 
     def redraw(self, event):
         if event.xdata and event.ydata:
-            s = '\rPosition: {s:2d}, {r:3d}, {c:3d}, {b:2d} Param: {p} '
-            d = dict(r=int(event.ydata), c=int(event.xdata),
-                     s=self.i, b=self.j, p=self.params[self.j])
+            row = int(event.ydata)
+            col = int(event.xdata)
+            val = self.image[self.i, row, col, self.j]
+            s = '\rPos: {s:2d},{r:3d},{c:3d},{b:2d} Value: {v:10g} Param: {p} '
+            d = dict(r=row, c=col, s=self.i, b=self.j, v=val,
+                     p=self.params[self.j])
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[self.i, :, :, self.j]
