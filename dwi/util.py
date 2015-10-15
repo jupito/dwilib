@@ -487,14 +487,17 @@ def scan_pairs(afs):
 
 
 def centroid(img):
-    """Calculate image centroid, i.e. center of mass, as a tuple of floats."""
+    """Calculate image centroid, i.e. center of mass, as a tuple of floats.
+
+    NaN values are considered massless.
+    """
     img = np.asanyarray(img)
     all_axes = tuple(range(img.ndim))
     centers = []
     for i in all_axes:
         other_axes = tuple(x for x in all_axes if x != i)
-        summed = img.sum(axis=other_axes)
+        summed = np.nansum(img, axis=other_axes)
         assert summed.ndim == 1
-        c = sum(i*x for i, x in enumerate(summed)) / sum(summed)
+        c = np.nansum([i*x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
     return tuple(centers)
