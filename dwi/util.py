@@ -484,3 +484,17 @@ def scan_pairs(afs):
                                                         af2.basename))
         r.append((num1, scan1, scan2))
     return r
+
+
+def centroid(img):
+    """Calculate image centroid, i.e. center of mass, as a tuple of floats."""
+    img = np.asanyarray(img)
+    all_axes = tuple(range(img.ndim))
+    centers = []
+    for i in all_axes:
+        other_axes = tuple(x for x in all_axes if x != i)
+        summed = img.sum(axis=other_axes)
+        assert summed.ndim == 1
+        c = sum(i*x for i, x in enumerate(summed)) / sum(summed)
+        centers.append(c)
+    return tuple(centers)
