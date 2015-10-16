@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
-import collections
+from collections import defaultdict
 
 import numpy as np
 
@@ -45,7 +45,7 @@ def max_mask(mask, winsize):
     """Return a mask that has the voxels selected that have the maximum number
     of surrounding voxels selected in the original mask.
     """
-    d = collections.defaultdict(list)
+    d = defaultdict(list)
     for pos, win in dwi.util.sliding_window(mask, winsize, mask=mask):
         d[np.count_nonzero(win)].append(pos)
     r = np.zeros_like(mask)
