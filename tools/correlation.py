@@ -90,7 +90,7 @@ def main():
         print('# param  r  p  lower  upper')
     params_maxlen = max(len(p) for p in Params)
     for x, y, param in zip(X, Y, Params):
-        d = dict(param=param, l=params_maxlen, f='.4f')
+        d = dict(param=param, l=params_maxlen, f='.3f')
         d.update(correlation(x, y))
         if args.verbose:
             s = '{param:{l}}  {r:+{f}}  {p:{f}}  {lower:+{f}}  {upper:+{f}}'
