@@ -41,6 +41,8 @@ def parse_args():
                    help='parameter rename list')
     p.add_argument('--source_attrs', action='store_true',
                    help='output attributes include source files')
+    p.add_argument('--param', type=int,
+                   help='parameter index')
     p.add_argument('--astype',
                    help='convert type (see NumPy)')
     p.add_argument('--output', '-o', metavar='OUTFILE',
@@ -61,6 +63,10 @@ def merge(tuples):
 def main():
     args = parse_args()
     image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
+
+    if args.param is not None:
+        image = image[..., [args.param]]
+        attrs['parameters'] = [attrs['parameters'][args.param]]
 
     if args.astype:
         attrs['source_type'] = str(image.dtype)
