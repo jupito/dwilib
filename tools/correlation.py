@@ -32,15 +32,19 @@ def parse_args():
     return p.parse_args()
 
 
-def correlation(x, y):
+def correlation(x, y, method='spearman'):
     """Calculate correlation with p-value and confidence interval."""
     assert len(x) == len(y)
+    methods = dict(
+        pearson=scipy.stats.pearsonr,
+        spearman=scipy.stats.spearmanr,
+        kendall=scipy.stats.kendalltau,
+    )
     if dwi.util.all_equal(x):
         r = p = lower = upper = np.nan
     else:
-        # r, p = scipy.stats.pearsonr(x, y)
-        # r, p = scipy.stats.kendalltau(x, y)
-        r, p = scipy.stats.spearmanr(x, y)
+        f = methods[method]
+        r, p = f(x, y)
         n = len(x)
         stderr = 1 / math.sqrt(n-3)
         delta = 1.96 * stderr
