@@ -199,6 +199,8 @@ def main():
 
     if args.scale:
         for i, _ in enumerate(attrs['parameters']):
+            if not np.issubdtype(img.dtype, float):
+                img = img.astype(np.float_)  # Integers cannot be scaled.
             img[:, :, :, i] = dwi.util.scale(img[:, :, :, i])
         print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
 
