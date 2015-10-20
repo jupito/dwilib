@@ -468,6 +468,8 @@ def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
 def haar(img):
     """Haar wavelet transform."""
     import mahotas
+    # Cannot have nans here, they might have global influence.
+    img = np.asarray_chkfinite(img)
     assert img.ndim == 2
     # assert img.shape[0] % 2 == img.shape[1] % 2 == 0
     # Prune possible odd borders.
@@ -503,6 +505,10 @@ def haar_features(win):
 
 def haar_map(img, winsize, nlevels=4, mask=None, output=None):
     """Haar texture feature map."""
+    # Cannot have nans here, they might have global influence.
+    nans = np.isnan(img)
+    if np.count_nonzero(nans):
+        img[nans] = 0
     levels = haar_levels(img, nlevels=nlevels, drop_approx=True)
     names = []
     for i, coeffs in enumerate(levels):
