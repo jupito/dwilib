@@ -12,6 +12,7 @@ import sys
 import numpy as np
 import scipy as sp
 import scipy.stats
+import scipy.spatial
 
 
 def report(*args, **kwargs):
