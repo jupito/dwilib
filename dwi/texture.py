@@ -508,7 +508,7 @@ def haar_map(img, winsize, nlevels=4, mask=None, output=None):
     # Cannot have nans here, they might have global influence.
     nans = np.isnan(img)
     if np.count_nonzero(nans):
-        img[nans] = 0
+        img[nans] = 0  # XXX: Replace with minimum value instead?
     levels = haar_levels(img, nlevels=nlevels, drop_approx=True)
     names = []
     for i, coeffs in enumerate(levels):
