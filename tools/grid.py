@@ -57,7 +57,7 @@ def grid_slices(imageshape, winshape, center):
 
 def main():
     args = parse_args()
-    image, _ = dwi.files.read_pmap(args.image)
+    image, attrs = dwi.files.read_pmap(args.image)
     image = image[..., 0]
     prostate = read_mask(args.prostate)
     lesion = unify_masks([read_mask(x) for x in args.lesions])
@@ -67,6 +67,7 @@ def main():
 
     centroid = dwi.util.centroid(prostate)
 
+    print(attrs)
     print('Image:', image.shape, image.dtype)
     print('Lesions:', len(args.lesions))
     print('Prostate centroid:', centroid)
@@ -76,19 +77,25 @@ def main():
         image_win = image[slices]
         prostate_win = prostate[slices]
         lesion_win = lesion[slices]
-        if np.count_nonzero(prostate_win) > prostate_win.size / 2:
+        assert image_win.shape == prostate_win.shape == lesion_win.shape
+        winsize = image_win.size
+        prostate_voxels = np.count_nonzero(prostate_win)
+        if prostate_voxels > winsize / 2:
             # wincorner = tuple(x.start for x in slices)
             wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
+            lesion_voxels = np.count_nonzero(lesion_win)
             x = [
                 # wincorner,
                 round(dwi.util.distance(centroid, wincenter), 3),
-                round(np.count_nonzero(prostate_win) / prostate_win.size, 0),
-                round(np.count_nonzero(lesion_win) / lesion_win.size, 0),
+                round(prostate_voxels / winsize, 0),
+                #round(lesion_voxels / winsize, 0),
+                int(bool(round(lesion_voxels))),
                 np.nanmean(image_win),
+                np.nanmedian(image_win),
             ]
             X.append(x)
 
-    params = 'distance prostate lesion ADCm'.split()
+    params = 'distance prostate lesion meanADC medianADC'.split()
     attrs = dict(parameters=params)
     dwi.files.write_pmap(args.output, X, attrs)
 
