@@ -78,24 +78,20 @@ def main():
         prostate_win = prostate[slices]
         lesion_win = lesion[slices]
         assert image_win.shape == prostate_win.shape == lesion_win.shape
-        winsize = image_win.size
-        prostate_voxels = np.count_nonzero(prostate_win)
-        if prostate_voxels > winsize / 2:
+        # At least half of the window must be of prostate.
+        if np.count_nonzero(prostate_win) / prostate_win.size >= 0.5:
             # wincorner = tuple(x.start for x in slices)
             wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
-            lesion_voxels = np.count_nonzero(lesion_win)
             x = [
                 # wincorner,
-                round(dwi.util.distance(centroid, wincenter), 3),
-                round(prostate_voxels / winsize, 0),
-                #round(lesion_voxels / winsize, 0),
-                int(bool(round(lesion_voxels))),
+                dwi.util.distance(centroid, wincenter),
+                (np.count_nonzero(lesion_win) > 0),
                 np.nanmean(image_win),
                 np.nanmedian(image_win),
             ]
             X.append(x)
 
-    params = 'distance prostate lesion meanADC medianADC'.split()
+    params = 'distance lesion mean median'.split()
     attrs = dict(parameters=params)
     dwi.files.write_pmap(args.output, X, attrs)
 
