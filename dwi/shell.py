@@ -112,3 +112,11 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None):
         s += ' --mbb {mbb[0]} {mbb[1]} {mbb[2]}'
     return s.format(prg=DWILIB+'/fit.py', i=infile, o=outfile, model=model,
                     mask=mask, mbb=mbb)
+
+
+def grid_cmd(image, prostate, lesions, outpath, winshape):
+    s = ('{prg} -v --winshape {w}'
+         ' --image {i} --prostate {p} --lesions {l} --output {o}')
+    return s.format(prg=DWILIB+'/grid.py', i=image, p=prostate,
+                    l=' '.join(lesions), o=outpath,
+                    w=' '.join(str(x) for x in winshape))

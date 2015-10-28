@@ -1,6 +1,7 @@
 """PyDoIt file for automating tasks."""
 
 from __future__ import absolute_import, division, print_function
+from collections import defaultdict
 from itertools import chain, product
 from os.path import dirname
 
@@ -485,3 +486,25 @@ def task_histogram():
     for mode, sl in product(MODES, SAMPLELISTS):
         for mt in ('image', 'prostate', 'lesion'):
             yield get_task_histogram(mode, mt, sl)
+
+
+def task_grid():
+    """Grid classifier."""
+    for mode, sl, in product(MODES, SAMPLELISTS):
+        d = defaultdict(list)
+        for c, s, l in lesions(mode, sl):
+            d[(c, s)].append(l)
+        for k, l in d.iteritems():
+            c, s = k
+            pmap = pmap_path(mode, c, s)
+            prostate = mask_path(mode, 'prostate', c, s)
+            lesion = [mask_path(mode, 'lesion', c, s, x) for x in l]
+            out = 'grid/{m}/{c}-{s}.txt'.format(m=mode, c=c, s=s)
+            winshape = (1, 5, 5)
+            cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, winshape)
+            yield {
+                'name': name(mode, c, s),
+                'actions': folders(out) + [cmd],
+                'file_dep': path_deps(pmap, prostate, *lesion),
+                'targets': [out],
+            }
