@@ -92,7 +92,7 @@ def main():
             X.append(x)
 
     params = 'distance lesion mean median'.split()
-    attrs = dict(parameters=params)
+    attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, X, attrs)
 
     import scipy.stats
