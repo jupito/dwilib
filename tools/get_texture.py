@@ -151,7 +151,8 @@ def main():
         print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
                                                           t=tmap.dtype,
                                                           o=args.output))
-    dwi.files.write_pmap(args.output, tmap, dict(parameters=names))
+    attrs['parameters'] = names
+    dwi.files.write_pmap(args.output, tmap, attrs)
 
 
 if __name__ == '__main__':
