@@ -17,6 +17,8 @@ def write_hdf5(filename, array, attrs, dsetname=DEFAULT_DSETNAME):
     dset = f.create_dataset(dsetname, data=array, compression='gzip',
                             shuffle=True, fletcher32=True)
     for k, v in attrs.iteritems():
+        # HDF5 doesn't understand None objects, so replace any with nan values.
+        v = [(np.nan if x is None else x) for x in v]
         dset.attrs[k] = v
     f.close()
 
