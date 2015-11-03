@@ -19,7 +19,7 @@ import scipy as sp
 import skimage
 import skimage.exposure
 import skimage.feature
-import skimage.filter
+import skimage.filters
 
 import dwi.util
 
@@ -279,10 +279,10 @@ def gabor(img, sigmas=None, freqs=None):
     shape = len(thetas), len(sigmas), len(freqs), len(names)
     feats = np.zeros(shape, dtype=DTYPE)
     for i, j, k in np.ndindex(shape[:-1]):
-        real, imag = skimage.filter.gabor_filter(img, frequency=freqs[k],
-                                                 theta=thetas[i],
-                                                 sigma_x=sigmas[j],
-                                                 sigma_y=sigmas[j])
+        real, imag = skimage.filters.gabor_filter(img, frequency=freqs[k],
+                                                  theta=thetas[i],
+                                                  sigma_x=sigmas[j],
+                                                  sigma_y=sigmas[j])
         feats[i, j, k, :] = (np.mean(real), np.var(real),
                              np.mean(np.abs(real)),
                              np.mean(np.sqrt(real**2+imag**2)))
@@ -320,7 +320,7 @@ def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
     img = (img - img.mean()) / img.std()
     for i, theta in enumerate(thetas):
         for j, freq in enumerate(freqs):
-            kernel = skimage.filter.gabor_kernel(freq, theta=theta)
+            kernel = skimage.filters.gabor_kernel(freq, theta=theta)
             kernel = np.real(kernel)
             dwi.util.report(i, j, theta, freq, kernel.shape)
             a = sp.ndimage.filters.convolve(img[:, :], kernel)
@@ -532,7 +532,7 @@ def haar_map(img, winsize, nlevels=4, mask=None, output=None):
 
 def sobel(img, mask=None):
     """Sobel edge descriptor."""
-    output = skimage.filter.sobel(img, mask=mask)
+    output = skimage.filters.sobel(img, mask=mask)
     return output
 
 

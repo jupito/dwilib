@@ -8,7 +8,7 @@ import itertools
 
 import numpy as np
 # import skimage
-# import skimage.filter
+# import skimage.filters
 
 import dwi.dataset
 import dwi.util
@@ -186,9 +186,9 @@ for d in data:
     # freqs = [0.25, 0.4]
     # for t, s, f in itertools.product(thetas, sigmas, freqs):
     #     kwargs = dict(frequency=f, theta=t, sigma_x=s, sigma_y=s)
-    #     real, imag = skimage.filter.gabor_filter(img, **kwargs)
+    #     real, imag = skimage.filters.gabor_filter(img, **kwargs)
     #     cols.append(real)
-    # cols.append(skimage.filter.sobel(img))
+    # cols.append(skimage.filters.sobel(img))
 
     # a, hog = skimage.feature.hog(img, visualise=True)
     # cols.append(hog)
