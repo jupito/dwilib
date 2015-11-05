@@ -31,14 +31,21 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path):
+def read_mask(path, expected_voxel_spacing):
     """Read pmap as a mask."""
-    return dwi.files.read_pmap(path)[0][..., 0].astype(np.bool)
+    img, attrs = dwi.files.read_pmap(path)
+    img = img[..., 0].astype(np.bool)
+    voxel_spacing = attrs['voxel_spacing']
+    if voxel_spacing != expected_voxel_spacing:
+        raise ValueError('Expected voxel spacing {}, got {}'.format(
+            expected_voxel_spacing, voxel_spacing))
+    return img
 
 
 def unify_masks(masks):
     """Unify a sequence of masks into one."""
     return np.sum(masks, axis=0, dtype=np.bool)
+    # reduce(np.maximum, masks)
 
 
 def grid_slices(imageshape, winshape, center):
@@ -58,10 +65,11 @@ def grid_slices(imageshape, winshape, center):
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
+    voxel_spacing = attrs['voxel_spacing']
     image = image[..., 0]
-    prostate = read_mask(args.prostate)
-    lesion = unify_masks([read_mask(x) for x in args.lesions])
-    image[-prostate] = np.nan  # This ok?
+    prostate = read_mask(args.prostate, voxel_spacing)
+    lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
+    image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
 
     assert image.shape == prostate.shape == lesion.shape
 
@@ -69,6 +77,7 @@ def main():
 
     print(attrs)
     print('Image:', image.shape, image.dtype)
+    print('Voxel spacing:', voxel_spacing)
     print('Lesions:', len(args.lesions))
     print('Prostate centroid:', centroid)
 
