@@ -73,6 +73,16 @@ def main():
 
     assert image.shape == prostate.shape == lesion.shape
 
+    # # Get minimal bounding box.
+    # mbb = dwi.util.bounding_box(prostate, (2, 10, 10))
+    # print('Using minimum bounding box {}'.format(mbb))
+    # slices = tuple(slice(*x) for x in mbb)
+    # image = image[slices]
+    # prostate = prostate[slices]
+    # lesion = lesion[slices]
+
+    assert image.shape == prostate.shape == lesion.shape
+
     centroid = dwi.util.centroid(prostate)
 
     print(attrs)
@@ -110,7 +120,7 @@ def main():
     for i, j in product(range(X.shape[-1]), range(X.shape[-1])):
         if j > i:
             print(params[i], params[j],
-                  scipy.stats.spearmanr(X[:, i], X[:, j]))
+                  tuple(scipy.stats.spearmanr(X[:, i], X[:, j])))
 
 
 if __name__ == '__main__':
