@@ -54,7 +54,7 @@ def normalize(pmap, levels=128):
     dwi.util.report('Normalizing:', MODE, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
-    pmap /= (256/levels)
+    pmap //= int(round(256 / levels))
     return pmap
 
 
