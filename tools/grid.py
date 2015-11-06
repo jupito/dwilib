@@ -62,6 +62,19 @@ def grid_slices(imageshape, winshape, center):
         yield slices
 
 
+def print_correlations(X, params):
+    """Print correlations for testing."""
+    import scipy.stats
+    X = np.asarray(X)
+    print(X.shape, X.dtype)
+    indices = range(X.shape[-1])
+    for i, j in product(indices, indices):
+        if i < j:
+            rho, pvalue = scipy.stats.spearmanr(X[:, i], X[:, j])
+            s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
+            print(s.format(params[i], params[j], rho, pvalue))
+
+
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
@@ -111,17 +124,7 @@ def main():
     params = 'lesion mean median'.split()
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, X, attrs)
-
-    import scipy.stats
-    X = np.array(X)
-    print(X.shape, X.dtype)
-    indices = range(X.shape[-1])
-    for i, j in product(indices, indices):
-        if i < j:
-            rho, pvalue = scipy.stats.spearmanr(X[:, i], X[:, j])
-            print('Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'.format(params[i],
-                                                                 params[j],
-                                                                 rho, pvalue))
+    print_correlations(X, params)
 
 
 if __name__ == '__main__':
