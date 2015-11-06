@@ -115,8 +115,9 @@ def main():
     import scipy.stats
     X = np.array(X)
     print(X.shape, X.dtype)
-    for i, j in product(range(X.shape[-1]), range(X.shape[-1])):
-        if j > i:
+    indices = range(X.shape[-1])
+    for i, j in product(indices, indices):
+        if i < j:
             rho, pvalue = scipy.stats.spearmanr(X[:, i], X[:, j])
             print('Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'.format(params[i],
                                                                  params[j],
