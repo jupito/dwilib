@@ -7,6 +7,8 @@ import argparse
 from itertools import product
 
 import numpy as np
+import scipy.ndimage
+import scipy.stats
 
 import dwi.files
 import dwi.util
@@ -61,6 +63,14 @@ def get_mbb(mask, voxel_spacing, pad):
     return slices
 
 
+def rescale(img, src_voxel_spacing, dst_voxel_spacing):
+    """Rescale image according to voxel spacing sequences (mm per voxel)."""
+    factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
+    print(src_voxel_spacing, dst_voxel_spacing, factor)
+    output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
+    return output
+
+
 def generate_windows(imageshape, winshape, center):
     """Generate slice objects for a grid of windows around given center.
 
@@ -93,7 +103,6 @@ def get_datapoint(image, prostate, lesion):
 
 def print_correlations(data, params):
     """Print correlations for testing."""
-    import scipy.stats
     data = np.asarray(data)
     print(data.shape, data.dtype)
     indices = range(data.shape[-1])
@@ -136,6 +145,10 @@ def main():
     print('\tVoxel spacing:', voxel_spacing)
     print('\tPhysical size:', physical_size)
     print('\tProstate centroid:', centroid)
+
+    # image_tmp = rescale(image, voxel_spacing, (0.25,) * 3)
+    # print(image.shape, np.nanmean(image))
+    # print(image_tmp.shape, np.nanmean(image_tmp))
 
     windows = generate_windows(image.shape, args.winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
