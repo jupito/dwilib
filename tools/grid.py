@@ -62,24 +62,6 @@ def grid_slices(imageshape, winshape, center):
         yield slices
 
 
-def print_correlations(data, params):
-    """Print correlations for testing."""
-    import scipy.stats
-    data = np.asarray(data)
-    print(data.shape, data.dtype)
-    indices = range(data.shape[-1])
-    for i, j in product(indices, indices):
-        if i < j:
-            rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
-            s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
-            print(s.format(params[i], params[j], rho, pvalue))
-
-
-# wincorner = tuple(x.start for x in slices)
-# wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
-# distance = dwi.util.distance(centroid, wincenter),
-
-
 def get_datapoint(image, prostate, lesion):
     """Extract output datapoint for a cube.
 
@@ -94,6 +76,19 @@ def get_datapoint(image, prostate, lesion):
             np.nanmedian(image),
         ]
     return None
+
+
+def print_correlations(data, params):
+    """Print correlations for testing."""
+    import scipy.stats
+    data = np.asarray(data)
+    print(data.shape, data.dtype)
+    indices = range(data.shape[-1])
+    for i, j in product(indices, indices):
+        if i < j:
+            rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
+            s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
+            print(s.format(params[i], params[j], rho, pvalue))
 
 
 def main():
