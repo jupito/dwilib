@@ -85,7 +85,6 @@ def main():
 
     centroid = dwi.util.centroid(prostate)
 
-    print(attrs)
     print('Image:', image.shape, image.dtype)
     print('Voxel spacing:', voxel_spacing)
     print('Lesions:', len(args.lesions))
@@ -100,17 +99,16 @@ def main():
         # At least half of the window must be of prostate.
         if np.count_nonzero(prostate_win) / prostate_win.size >= 0.5:
             # wincorner = tuple(x.start for x in slices)
-            wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
+            # wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
+            # distance = dwi.util.distance(centroid, wincenter),
             x = [
-                # wincorner,
-                dwi.util.distance(centroid, wincenter),
                 (np.count_nonzero(lesion_win) > 0),
                 np.nanmean(image_win),
                 np.nanmedian(image_win),
             ]
             X.append(x)
 
-    params = 'distance lesion mean median'.split()
+    params = 'lesion mean median'.split()
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, X, attrs)
 
@@ -119,8 +117,10 @@ def main():
     print(X.shape, X.dtype)
     for i, j in product(range(X.shape[-1]), range(X.shape[-1])):
         if j > i:
-            print(params[i], params[j],
-                  tuple(scipy.stats.spearmanr(X[:, i], X[:, j])))
+            rho, pvalue = scipy.stats.spearmanr(X[:, i], X[:, j])
+            print('Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'.format(params[i],
+                                                                 params[j],
+                                                                 rho, pvalue))
 
 
 if __name__ == '__main__':
