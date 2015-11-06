@@ -62,15 +62,15 @@ def grid_slices(imageshape, winshape, center):
         yield slices
 
 
-def print_correlations(X, params):
+def print_correlations(data, params):
     """Print correlations for testing."""
     import scipy.stats
-    X = np.asarray(X)
-    print(X.shape, X.dtype)
-    indices = range(X.shape[-1])
+    data = np.asarray(data)
+    print(data.shape, data.dtype)
+    indices = range(data.shape[-1])
     for i, j in product(indices, indices):
         if i < j:
-            rho, pvalue = scipy.stats.spearmanr(X[:, i], X[:, j])
+            rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
             s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
             print(s.format(params[i], params[j], rho, pvalue))
 
@@ -124,16 +124,14 @@ def main():
     print('Lesions:', len(args.lesions))
     print('Prostate centroid:', centroid)
 
-    X = []
-    for slices in grid_slices(image.shape, args.winshape, centroid):
-        x = get_datapoint(image[slices], prostate[slices], lesion[slices])
-        if x:
-            X.append(x)
+    cubes = grid_slices(image.shape, args.winshape, centroid)
+    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in cubes]
+    data = [x for x in data if x is not None]
 
     params = 'lesion mean median'.split()
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
-    dwi.files.write_pmap(args.output, X, attrs)
-    print_correlations(X, params)
+    dwi.files.write_pmap(args.output, data, attrs)
+    print_correlations(data, params)
 
 
 if __name__ == '__main__':
