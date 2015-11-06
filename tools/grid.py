@@ -136,6 +136,8 @@ def main():
     print('\tPhysical size:', physical_size)
     print('\tProstate centroid:', centroid)
 
+    # Crop MBB.
+
     slices = get_mbb(prostate, voxel_spacing, 15)
     image = image[slices]
     prostate = prostate[slices]
@@ -148,6 +150,20 @@ def main():
     print('\tVoxel spacing:', voxel_spacing)
     print('\tPhysical size:', physical_size)
     print('\tProstate centroid:', centroid)
+
+    # Extract grid datapoints.
+
+    metric_winshape = tuple(args.winshape)
+    voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
+                                                           voxel_spacing))
+    print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
+    windows = generate_windows(image.shape, voxel_winshape, centroid)
+    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
+    data = [x for x in data if x is not None]
+    params = 'lesion mean median'.split()
+    print_correlations(data, params)
+
+    # # Rescale image and masks.
 
     # src_voxel_spacing = voxel_spacing
     # voxel_spacing = (0.25,) * 3
@@ -163,15 +179,19 @@ def main():
     # print('\tPhysical size:', physical_size)
     # print('\tProstate centroid:', centroid)
 
-    metric_winshape = tuple(args.winshape)
-    voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
-                                                           voxel_spacing))
-    print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
-    windows = generate_windows(image.shape, voxel_winshape, centroid)
-    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
-    data = [x for x in data if x is not None]
-    params = 'lesion mean median'.split()
-    print_correlations(data, params)
+    # # Extract grid datapoints.
+
+    # metric_winshape = tuple(args.winshape)
+    # voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
+    #                                                        voxel_spacing))
+    # print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
+    # windows = generate_windows(image.shape, voxel_winshape, centroid)
+    # data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
+    # data = [x for x in data if x is not None]
+    # params = 'lesion mean median'.split()
+    # print_correlations(data, params)
+
+    # Write output.
 
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, data, attrs)
