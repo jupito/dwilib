@@ -66,8 +66,13 @@ def get_mbb(mask, voxel_spacing, pad):
 def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
     factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
-    print(src_voxel_spacing, dst_voxel_spacing, factor)
+    print('Scaling:', src_voxel_spacing, dst_voxel_spacing, factor)
     output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
+    #
+    print(np.nanmean(img) / np.nanmean(output))
+    print(np.nanmean(img), dwi.util.fivenums(img))
+    print(np.nanmean(output), dwi.util.fivenums(output))
+    #
     return output
 
 
@@ -122,7 +127,6 @@ def main():
     lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
     print('Lesions:', len(args.lesions))
-
     assert image.shape == prostate.shape == lesion.shape
 
     physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
@@ -136,7 +140,6 @@ def main():
     image = image[slices]
     prostate = prostate[slices]
     lesion = lesion[slices]
-
     assert image.shape == prostate.shape == lesion.shape
 
     physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
@@ -146,9 +149,19 @@ def main():
     print('\tPhysical size:', physical_size)
     print('\tProstate centroid:', centroid)
 
-    # image_tmp = rescale(image, voxel_spacing, (0.25,) * 3)
-    # print(image.shape, np.nanmean(image))
-    # print(image_tmp.shape, np.nanmean(image_tmp))
+    # src_voxel_spacing = voxel_spacing
+    # voxel_spacing = (0.25,) * 3
+    # image = rescale(image, src_voxel_spacing, voxel_spacing)
+    # prostate = rescale(prostate, src_voxel_spacing, voxel_spacing)
+    # lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
+    # assert image.shape == prostate.shape == lesion.shape
+
+    # physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
+    # centroid = dwi.util.centroid(prostate)
+    # print('Image:', image.shape, image.dtype)
+    # print('\tVoxel spacing:', voxel_spacing)
+    # print('\tPhysical size:', physical_size)
+    # print('\tProstate centroid:', centroid)
 
     windows = generate_windows(image.shape, args.winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
