@@ -48,6 +48,19 @@ def unify_masks(masks):
     # reduce(np.maximum, masks)
 
 
+def get_mbb(mask, voxel_spacing, pad):
+    """Get mask minimum bounding box as slices, with minimum padding in mm."""
+    padding = tuple(int(np.ceil(pad / x)) for x in voxel_spacing)
+    physical_padding = tuple(x * y for x, y in zip(padding, voxel_spacing))
+    mbb = dwi.util.bounding_box(mask, padding)
+    slices = tuple(slice(*x) for x in mbb)
+    print('Cropping minimum bounding box with pad:', pad)
+    print('\tVoxel padding:', padding)
+    print('\tPhysical padding:', physical_padding)
+    print('\tMinimum bounding box:', mbb)
+    return slices
+
+
 def generate_windows(imageshape, winshape, center):
     """Generate slice objects for a grid of windows around given center.
 
@@ -105,22 +118,12 @@ def main():
 
     physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
     centroid = dwi.util.centroid(prostate)
-
     print('Image:', image.shape, image.dtype)
     print('\tVoxel spacing:', voxel_spacing)
     print('\tPhysical size:', physical_size)
     print('\tProstate centroid:', centroid)
 
-    # Get minimal bounding box.
-    pad = 15  # Pad with voxel worth of at least 15 mm.
-    print('Cropping minimum bounding box with pad:', pad)
-    padding = tuple(int(np.ceil(pad / x)) for x in voxel_spacing)
-    print('\tVoxel padding:', padding)
-    physical_padding = tuple(x * y for x, y in zip(padding, voxel_spacing))
-    print('\tPhysical padding:', physical_padding)
-    mbb = dwi.util.bounding_box(prostate, padding)
-    print('\tMinimum bounding box:', mbb)
-    slices = tuple(slice(*x) for x in mbb)
+    slices = get_mbb(prostate, voxel_spacing, 15)
     image = image[slices]
     prostate = prostate[slices]
     lesion = lesion[slices]
@@ -129,7 +132,6 @@ def main():
 
     physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
     centroid = dwi.util.centroid(prostate)
-
     print('Image:', image.shape, image.dtype)
     print('\tVoxel spacing:', voxel_spacing)
     print('\tPhysical size:', physical_size)
