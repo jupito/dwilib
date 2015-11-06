@@ -26,8 +26,8 @@ def parse_args():
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
     p.add_argument('--winshape', metavar='I', type=int, nargs=3,
-                   default=[1, 5, 5],
-                   help='window shape')
+                   default=[5, 5, 5],
+                   help='window shape in millimeters')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -163,7 +163,11 @@ def main():
     # print('\tPhysical size:', physical_size)
     # print('\tProstate centroid:', centroid)
 
-    windows = generate_windows(image.shape, args.winshape, centroid)
+    metric_winshape = tuple(args.winshape)
+    voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
+                                                           voxel_spacing))
+    print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
+    windows = generate_windows(image.shape, voxel_winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
     data = [x for x in data if x is not None]
 
