@@ -502,3 +502,10 @@ def centroid(img):
         c = np.nansum([i*x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
     return tuple(centers)
+
+
+def rmse(a, b):
+    """Root mean square error."""
+    a = np.asarray(a)
+    b = np.asarray(b)
+    return np.sqrt(np.mean((a - b)**2))
