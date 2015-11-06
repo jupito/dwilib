@@ -48,7 +48,7 @@ def unify_masks(masks):
     # reduce(np.maximum, masks)
 
 
-def grid_slices(imageshape, winshape, center):
+def generate_windows(imageshape, winshape, center):
     """Generate slice objects for a grid of windows around given center.
 
     Float center will be rounded.
@@ -119,8 +119,8 @@ def main():
     print('Lesions:', len(args.lesions))
     print('Prostate centroid:', centroid)
 
-    cubes = grid_slices(image.shape, args.winshape, centroid)
-    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in cubes]
+    windows = generate_windows(image.shape, args.winshape, centroid)
+    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
     data = [x for x in data if x is not None]
 
     params = 'lesion mean median'.split()
