@@ -112,12 +112,14 @@ def main():
 
     assert image.shape == prostate.shape == lesion.shape
 
+    physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
     centroid = dwi.util.centroid(prostate)
 
     print('Image:', image.shape, image.dtype)
     print('Voxel spacing:', voxel_spacing)
-    print('Lesions:', len(args.lesions))
+    print('Physical size:', physical_size)
     print('Prostate centroid:', centroid)
+    print('Lesions:', len(args.lesions))
 
     windows = generate_windows(image.shape, args.winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
