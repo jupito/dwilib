@@ -170,11 +170,11 @@ def main():
     windows = generate_windows(image.shape, voxel_winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
     data = [x for x in data if x is not None]
-
     params = 'lesion mean median'.split()
+    print_correlations(data, params)
+
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, data, attrs)
-    print_correlations(data, params)
 
 
 if __name__ == '__main__':
