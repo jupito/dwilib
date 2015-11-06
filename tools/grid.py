@@ -75,6 +75,27 @@ def print_correlations(X, params):
             print(s.format(params[i], params[j], rho, pvalue))
 
 
+# wincorner = tuple(x.start for x in slices)
+# wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
+# distance = dwi.util.distance(centroid, wincenter),
+
+
+def get_datapoint(image, prostate, lesion):
+    """Extract output datapoint for a cube.
+
+    The cube window is included if at least half of it is of prostate.
+    """
+    assert image.shape == prostate.shape == lesion.shape
+    # At least half of the window must be of prostate.
+    if np.count_nonzero(prostate) / prostate.size >= 0.5:
+        return [
+            (np.count_nonzero(lesion) > 0),
+            np.nanmean(image),
+            np.nanmedian(image),
+        ]
+    return None
+
+
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
@@ -105,20 +126,8 @@ def main():
 
     X = []
     for slices in grid_slices(image.shape, args.winshape, centroid):
-        image_win = image[slices]
-        prostate_win = prostate[slices]
-        lesion_win = lesion[slices]
-        assert image_win.shape == prostate_win.shape == lesion_win.shape
-        # At least half of the window must be of prostate.
-        if np.count_nonzero(prostate_win) / prostate_win.size >= 0.5:
-            # wincorner = tuple(x.start for x in slices)
-            # wincenter = tuple(np.mean((x.start, x.stop)) for x in slices)
-            # distance = dwi.util.distance(centroid, wincenter),
-            x = [
-                (np.count_nonzero(lesion_win) > 0),
-                np.nanmean(image_win),
-                np.nanmedian(image_win),
-            ]
+        x = get_datapoint(image[slices], prostate[slices], lesion[slices])
+        if x:
             X.append(x)
 
     params = 'lesion mean median'.split()
