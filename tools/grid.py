@@ -99,16 +99,7 @@ def main():
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
-
-    assert image.shape == prostate.shape == lesion.shape
-
-    # # Get minimal bounding box.
-    # mbb = dwi.util.bounding_box(prostate, (2, 10, 10))
-    # print('Using minimum bounding box {}'.format(mbb))
-    # slices = tuple(slice(*x) for x in mbb)
-    # image = image[slices]
-    # prostate = prostate[slices]
-    # lesion = lesion[slices]
+    print('Lesions:', len(args.lesions))
 
     assert image.shape == prostate.shape == lesion.shape
 
@@ -116,10 +107,33 @@ def main():
     centroid = dwi.util.centroid(prostate)
 
     print('Image:', image.shape, image.dtype)
-    print('Voxel spacing:', voxel_spacing)
-    print('Physical size:', physical_size)
-    print('Prostate centroid:', centroid)
-    print('Lesions:', len(args.lesions))
+    print('\tVoxel spacing:', voxel_spacing)
+    print('\tPhysical size:', physical_size)
+    print('\tProstate centroid:', centroid)
+
+    # Get minimal bounding box.
+    pad = 15  # Pad with voxel worth of at least 15 mm.
+    print('Cropping minimum bounding box with pad:', pad)
+    padding = tuple(int(np.ceil(pad / x)) for x in voxel_spacing)
+    print('\tVoxel padding:', padding)
+    physical_padding = tuple(x * y for x, y in zip(padding, voxel_spacing))
+    print('\tPhysical padding:', physical_padding)
+    mbb = dwi.util.bounding_box(prostate, padding)
+    print('\tMinimum bounding box:', mbb)
+    slices = tuple(slice(*x) for x in mbb)
+    image = image[slices]
+    prostate = prostate[slices]
+    lesion = lesion[slices]
+
+    assert image.shape == prostate.shape == lesion.shape
+
+    physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
+    centroid = dwi.util.centroid(prostate)
+
+    print('Image:', image.shape, image.dtype)
+    print('\tVoxel spacing:', voxel_spacing)
+    print('\tPhysical size:', physical_size)
+    print('\tProstate centroid:', centroid)
 
     windows = generate_windows(image.shape, args.winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
