@@ -25,11 +25,10 @@ def parse_args():
                    help='prostate mask')
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
-    p.add_argument('--winshape', metavar='I', type=int, nargs=3,
-                   default=[5, 5, 5],
-                   help='window shape in millimeters')
+    p.add_argument('--winsize', type=float, default=5,
+                   help='window (cube) size in millimeters (default 5)')
     p.add_argument('--voxelsize', type=float,
-                   help='rescaled voxel size in millimeters')
+                   help='rescaled voxel size in millimeters (try 0.25)')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -169,7 +168,7 @@ def main():
     print('\tProstate centroid:', centroid)
 
     # Extract grid datapoints.
-    metric_winshape = tuple(args.winshape)
+    metric_winshape = (args.winsize,) * 3
     voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
                                                            voxel_spacing))
     print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
