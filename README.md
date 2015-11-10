@@ -24,7 +24,7 @@ Features
 Requirements
 ------------
 - Python 2.7
-- NumPy 1.8
+- NumPy 1.10
 - SciPy 0.14
 - [Scikit-Learn](http://scikit-learn.org/)
 - [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if
