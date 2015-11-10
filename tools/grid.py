@@ -137,7 +137,6 @@ def main():
     print('\tProstate centroid:', centroid)
 
     # Crop MBB.
-
     slices = get_mbb(prostate, voxel_spacing, 15)
     image = image[slices]
     prostate = prostate[slices]
@@ -152,7 +151,6 @@ def main():
     print('\tProstate centroid:', centroid)
 
     # Extract grid datapoints.
-
     metric_winshape = tuple(args.winshape)
     voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
                                                            voxel_spacing))
@@ -164,7 +162,6 @@ def main():
     print_correlations(data, params)
 
     # # Rescale image and masks.
-
     # src_voxel_spacing = voxel_spacing
     # voxel_spacing = (0.25,) * 3
     # image = rescale(image, src_voxel_spacing, voxel_spacing)
@@ -180,7 +177,6 @@ def main():
     # print('\tProstate centroid:', centroid)
 
     # # Extract grid datapoints.
-
     # metric_winshape = tuple(args.winshape)
     # voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
     #                                                        voxel_spacing))
@@ -192,7 +188,6 @@ def main():
     # print_correlations(data, params)
 
     # Write output.
-
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     dwi.files.write_pmap(args.output, data, attrs)
 
