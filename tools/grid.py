@@ -28,6 +28,8 @@ def parse_args():
     p.add_argument('--winshape', metavar='I', type=int, nargs=3,
                    default=[5, 5, 5],
                    help='window shape in millimeters')
+    p.add_argument('--voxelsize', type=float,
+                   help='rescaled voxel size in millimeters')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -68,12 +70,15 @@ def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
     print('Scaling:', src_voxel_spacing, dst_voxel_spacing, factor)
     output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
-    #
-    print(np.nanmean(img) / np.nanmean(output))
-    print(np.nanmean(img), dwi.util.fivenums(img))
-    print(np.nanmean(output), dwi.util.fivenums(output))
-    #
     return output
+
+
+def float2bool_mask(a):
+    """Convert float array to boolean mask (round, clip to [0, 1])."""
+    a = a.round()
+    a.clip(0, 1, out=a)
+    a = a.astype(np.bool)
+    return a
 
 
 def generate_windows(imageshape, winshape, center):
@@ -143,6 +148,19 @@ def main():
     lesion = lesion[slices]
     assert image.shape == prostate.shape == lesion.shape
 
+    # Rescale image and masks.
+    if args.voxelsize is not None:
+        src_voxel_spacing = voxel_spacing
+        voxel_spacing = (args.voxelsize,) * 3
+        image = rescale(image, src_voxel_spacing, voxel_spacing)
+        prostate = prostate.astype(np.float_)
+        prostate = rescale(prostate, src_voxel_spacing, voxel_spacing)
+        prostate = float2bool_mask(prostate)
+        lesion = lesion.astype(np.float_)
+        lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
+        lesion = float2bool_mask(lesion)
+        assert image.shape == prostate.shape == lesion.shape
+
     physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
     centroid = dwi.util.centroid(prostate)
     print('Image:', image.shape, image.dtype)
@@ -160,32 +178,6 @@ def main():
     data = [x for x in data if x is not None]
     params = 'lesion mean median'.split()
     print_correlations(data, params)
-
-    # # Rescale image and masks.
-    # src_voxel_spacing = voxel_spacing
-    # voxel_spacing = (0.25,) * 3
-    # image = rescale(image, src_voxel_spacing, voxel_spacing)
-    # prostate = rescale(prostate, src_voxel_spacing, voxel_spacing)
-    # lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
-    # assert image.shape == prostate.shape == lesion.shape
-
-    # physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
-    # centroid = dwi.util.centroid(prostate)
-    # print('Image:', image.shape, image.dtype)
-    # print('\tVoxel spacing:', voxel_spacing)
-    # print('\tPhysical size:', physical_size)
-    # print('\tProstate centroid:', centroid)
-
-    # # Extract grid datapoints.
-    # metric_winshape = tuple(args.winshape)
-    # voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
-    #                                                        voxel_spacing))
-    # print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
-    # windows = generate_windows(image.shape, voxel_winshape, centroid)
-    # data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
-    # data = [x for x in data if x is not None]
-    # params = 'lesion mean median'.split()
-    # print_correlations(data, params)
 
     # Write output.
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
