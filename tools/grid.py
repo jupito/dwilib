@@ -25,10 +25,12 @@ def parse_args():
                    help='prostate mask')
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
-    p.add_argument('--winsize', type=float, default=5,
-                   help='window (cube) size in millimeters (default 5)')
+    p.add_argument('--mbb', type=float,
+                   help='minimum bounding box padding in millimeters')
     p.add_argument('--voxelsize', type=float,
                    help='rescaled voxel size in millimeters (try 0.25)')
+    p.add_argument('--winsize', type=float, default=5,
+                   help='window (cube) size in millimeters (default 5)')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -141,11 +143,12 @@ def main():
     print('\tProstate centroid:', centroid)
 
     # Crop MBB.
-    slices = get_mbb(prostate, voxel_spacing, 15)
-    image = image[slices]
-    prostate = prostate[slices]
-    lesion = lesion[slices]
-    assert image.shape == prostate.shape == lesion.shape
+    if args.mbb is not None:
+        slices = get_mbb(prostate, voxel_spacing, args.mbb)
+        image = image[slices]
+        prostate = prostate[slices]
+        lesion = lesion[slices]
+        assert image.shape == prostate.shape == lesion.shape
 
     # Rescale image and masks.
     if args.voxelsize is not None:
