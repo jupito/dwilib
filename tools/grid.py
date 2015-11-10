@@ -46,8 +46,8 @@ def read_mask(path, expected_voxel_spacing):
 
 def unify_masks(masks):
     """Unify a sequence of masks into one."""
-    return np.sum(masks, axis=0, dtype=np.bool)
-    # reduce(np.maximum, masks)
+    # return np.sum(masks, axis=0, dtype=np.bool)
+    return reduce(np.maximum, masks)
 
 
 def get_mbb(mask, voxel_spacing, pad):
