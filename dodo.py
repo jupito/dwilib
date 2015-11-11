@@ -499,9 +499,10 @@ def task_grid():
             pmap = pmap_path(mode, c, s)
             prostate = mask_path(mode, 'prostate', c, s)
             lesion = [mask_path(mode, 'lesion', c, s, x) for x in l]
-            out = 'grid/{m}/{c}-{s}.txt'.format(m=mode, c=c, s=s)
-            winshape = (1, 5, 5)
-            cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, winshape)
+            out = dwi.paths.grid_path(mode, c, s)
+            mbb, voxelsize, winsize = 15, 0.25, 5
+            cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, mbb,
+                                     voxelsize, winsize)
             yield {
                 'name': name(mode, c, s),
                 'actions': folders(out) + [cmd],

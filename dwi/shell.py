@@ -114,9 +114,8 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None):
                     mask=mask, mbb=mbb)
 
 
-def grid_cmd(image, prostate, lesions, outpath, winshape):
-    s = ('{prg} -v --winshape {w}'
+def grid_cmd(image, prostate, lesions, outpath, mbb, voxelsize, winsize):
+    s = ('{prg} -v --mbb {m} --voxelsize {v} --winsize {w}'
          ' --image {i} --prostate {p} --lesions {l} --output {o}')
-    return s.format(prg=DWILIB+'/grid.py', i=image, p=prostate,
-                    l=' '.join(lesions), o=outpath,
-                    w=' '.join(str(x) for x in winshape))
+    return s.format(prg=DWILIB+'/grid.py', m=mbb, v=voxelsize, w=winsize,
+                    i=image, p=prostate, l=' '.join(lesions), o=outpath)

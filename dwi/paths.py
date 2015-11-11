@@ -111,3 +111,10 @@ def std_cfg_path(mode):
 def histogram_path(mode, roi, samplelist):
     """Return path to histogram plot."""
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
+
+
+def grid_path(mode, case=None, scan=None):
+    path = 'grid/{m}'
+    if case is not None and scan is not None:
+        path += '/{c}-{s}.txt'
+    return path.format(m=mode, c=case, s=scan)
