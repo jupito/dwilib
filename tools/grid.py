@@ -131,7 +131,7 @@ def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
     voxel_spacing = attrs['voxel_spacing']
-    image = image[..., 0]
+    image = image[..., 0].astype(np.float_)
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
