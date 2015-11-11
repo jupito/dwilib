@@ -36,11 +36,14 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path, expected_voxel_spacing):
-    """Read pmap as a mask."""
+def read_mask(path, expected_voxel_spacing, n_dec=3):
+    """Read pmap as a mask. Expect voxel spacing to match up to a certain
+    number of decimals.
+    """
     img, attrs = dwi.files.read_pmap(path)
     img = img[..., 0].astype(np.bool)
-    voxel_spacing = attrs['voxel_spacing']
+    voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
+    expected_voxel_spacing = [round(x, n_dec) for x in expected_voxel_spacing]
     if voxel_spacing != expected_voxel_spacing:
         raise ValueError('Expected voxel spacing {}, got {}'.format(
             expected_voxel_spacing, voxel_spacing))
