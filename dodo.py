@@ -488,24 +488,29 @@ def task_histogram():
             yield get_task_histogram(mode, mt, sl)
 
 
+def get_task_grid(mode, c, s, ls):
+    """Grid classifier."""
+    pmap = pmap_path(mode, c, s)
+    prostate = mask_path(mode, 'prostate', c, s)
+    lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
+    out = dwi.paths.grid_path(mode, c, s)
+    mbb, voxelsize, winsize = 15, 0.25, 5
+    cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, mbb, voxelsize,
+                             winsize)
+    return {
+        'name': name(mode, c, s),
+        'actions': folders(out) + [cmd],
+        'file_dep': path_deps(pmap, prostate, *lesion),
+        'targets': [out],
+    }
+
+
 def task_grid():
     """Grid classifier."""
     for mode, sl, in product(MODES, SAMPLELISTS):
         d = defaultdict(list)
         for c, s, l in lesions(mode, sl):
             d[(c, s)].append(l)
-        for k, l in d.iteritems():
+        for k, ls in d.iteritems():
             c, s = k
-            pmap = pmap_path(mode, c, s)
-            prostate = mask_path(mode, 'prostate', c, s)
-            lesion = [mask_path(mode, 'lesion', c, s, x) for x in l]
-            out = dwi.paths.grid_path(mode, c, s)
-            mbb, voxelsize, winsize = 15, 0.25, 5
-            cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, mbb,
-                                     voxelsize, winsize)
-            yield {
-                'name': name(mode, c, s),
-                'actions': folders(out) + [cmd],
-                'file_dep': path_deps(pmap, prostate, *lesion),
-                'targets': [out],
-            }
+            yield get_task_grid(mode, c, s, ls)
