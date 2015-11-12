@@ -507,7 +507,7 @@ def get_task_grid(mode, c, s, ls):
 
 def task_grid():
     """Grid classifier."""
-    for mode, sl, in product(MODES, SAMPLELISTS):
+    for mode, sl in product(MODES, SAMPLELISTS):
         d = defaultdict(list)
         for c, s, l in lesions(mode, sl):
             d[(c, s)].append(l)
