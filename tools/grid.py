@@ -74,7 +74,7 @@ def get_mbb(mask, voxel_spacing, pad):
 def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
     factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
-    print('Scaling, factor:', factor)
+    # print('Scaling, factor:', factor)
     output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
     return output
 
