@@ -21,6 +21,8 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--image', required=True,
                    help='input image or pmap')
+    p.add_argument('--param', type=int, default=0,
+                   help='parameter index')
     p.add_argument('--prostate', metavar='MASKFILE', required=True,
                    help='prostate mask')
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
@@ -131,7 +133,7 @@ def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
     voxel_spacing = attrs['voxel_spacing']
-    image = image[..., 0].astype(np.float_)
+    image = image[..., args.param].astype(np.float_)
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
@@ -182,7 +184,7 @@ def main():
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
     data = [x for x in data if x is not None]
     params = 'lesion mean median'.split()
-    print_correlations(data, params)
+    # print_correlations(data, params)
 
     # Write output.
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
