@@ -115,9 +115,9 @@ def histogram_path(mode, roi, samplelist):
 
 def grid_path(mode, case=None, scan=None, *parts):
     path = 'grid/{m}'
+    if parts:
+        path += '-' + '-'.join(str(x) for x in parts)
     if case is not None and scan is not None:
         path += '/{c}-{s}'
-        if parts:
-            path += '-'.join(str(x) for x in parts)
-        path += '.txt'
+    path += '.txt'
     return path.format(m=mode, c=case, s=scan)
