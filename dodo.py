@@ -494,11 +494,26 @@ def get_task_grid(mode, c, s, ls):
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
     out = dwi.paths.grid_path(mode, c, s)
-    mbb, voxelsize, winsize = 15, 0.25, 5
-    cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out, mbb, voxelsize,
-                             winsize)
+    cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out)
     return {
         'name': name(mode, c, s),
+        'actions': folders(out) + [cmd],
+        'file_dep': path_deps(pmap, prostate, *lesion),
+        'targets': [out],
+    }
+
+
+def get_task_grid_texture(mode, c, s, ls, mth, ws):
+    """Grid classifier."""
+    pmap = texture_path(mode, c, s, None, 'prostate', 'all', 0, mth, ws,
+                        voxel='all')
+    param = 0
+    prostate = mask_path(mode, 'prostate', c, s)
+    lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
+    out = dwi.paths.grid_path(mode, c, s, mth, ws, param)
+    cmd = dwi.shell.grid_cmd(pmap, param, prostate, lesion, out)
+    return {
+        'name': name(mode, c, s, mth, ws, param),
         'actions': folders(out) + [cmd],
         'file_dep': path_deps(pmap, prostate, *lesion),
         'targets': [out],
@@ -514,3 +529,5 @@ def task_grid():
         for k, ls in d.iteritems():
             c, s = k
             yield get_task_grid(mode, c, s, ls)
+            for mth, ws in texture_methods_winsizes(mode, 'prostate'):
+                yield get_task_grid_texture(mode, c, s, ls, mth, ws)
