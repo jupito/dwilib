@@ -142,12 +142,10 @@ def main():
     assert image.shape == prostate.shape == lesion.shape
 
     if args.verbose:
-        centroid = dwi.util.centroid(prostate)
         physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
         print('Image:', image.shape, image.dtype)
         print('\tVoxel spacing:', voxel_spacing)
         print('\tPhysical size:', physical_size)
-        print('\tProstate centroid:', centroid)
 
     # Crop MBB.
     if args.mbb is not None:
@@ -170,20 +168,20 @@ def main():
         lesion = float2bool_mask(lesion)
         assert image.shape == prostate.shape == lesion.shape
 
-    centroid = dwi.util.centroid(prostate)
     if args.verbose:
         physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
-        print('Image:', image.shape, image.dtype)
+        print('Transformed image:', image.shape, image.dtype)
         print('\tVoxel spacing:', voxel_spacing)
         print('\tPhysical size:', physical_size)
-        print('\tProstate centroid:', centroid)
 
     # Extract grid datapoints.
     metric_winshape = (args.winsize,) * 3
     voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
                                                            voxel_spacing))
+    centroid = dwi.util.centroid(prostate)
     if args.verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
+        print('Prostate centroid:', centroid)
     windows = generate_windows(image.shape, voxel_winshape, centroid)
     data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
     data = [x for x in data if x is not None]
