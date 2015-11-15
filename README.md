@@ -7,7 +7,7 @@ data, with focus on prostate cancer.
 Input data can be provided in DICOM or custom ASCII or MATLAB format.
 
 This software is being developed as part of a research project at the [Magnetic
-Resonance imaging Research center](http://mrc.utu.fi/), Turku, Finland.
+Resonance Imaging Research Center](http://mrc.utu.fi/), Turku, Finland.
 
 Features
 --------
