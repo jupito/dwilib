@@ -24,9 +24,8 @@ def parse_args():
 
 
 def print_correlations(data, params):
-    """Print correlations for testing."""
+    """Print correlations."""
     data = np.asarray(data)
-    print(data.shape, data.dtype)
     indices = range(data.shape[-1])
     for i, j in product(indices, indices):
         if i < j:
@@ -35,13 +34,25 @@ def print_correlations(data, params):
             print(s.format(params[i], params[j], rho, pvalue))
 
 
+def print_aucs(data, params):
+    """Print ROC AUCs."""
+    data = np.asarray(data)
+    y = data[:, 0]
+    for i in range(1, data.shape[-1]):
+        x = data[:, i]
+        param = params[i]
+        _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+        s = 'AUC: {p:8} {a:+1.3f}'
+        print(s.format(p=param, a=auc))
+
+
 def main():
     args = parse_args()
     tuples = [dwi.files.read_pmap(x) for x in args.pmaps]
     pmaps = [x[0] for x in tuples]
     attrs = [x[1] for x in tuples]
     params = attrs[0]['parameters']
-    print(params)
+    # print(params)
     if not all(x['parameters'] == params for x in attrs):
         raise ValueError('Nonuniform parameters')
     for pmap in pmaps:
@@ -49,8 +60,9 @@ def main():
         pmap.shape = (-1, len(params))
         # print(pmap.shape)
     pmap = np.concatenate(pmaps)
-    print(pmap.shape)
-    print_correlations(pmap, params)
+    # print(pmap.shape)
+    # print_correlations(pmap, params)
+    print_aucs(pmap, params)
 
 
 if __name__ == '__main__':
