@@ -121,7 +121,7 @@ def main():
         img = img[slice_indices]
         mask.array = mask.array[slice_indices]
         dwi.texture.DTYPE = np.double
-    dwi.texture.DTYPE = np.double
+    # dwi.texture.DTYPE = np.double
 
     # Get portion mask.
     if args.winspec in ('all', 'mbb'):
