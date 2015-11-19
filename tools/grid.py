@@ -90,15 +90,18 @@ def float2bool_mask(a):
 def generate_windows(imageshape, winshape, center):
     """Generate slice objects for a grid of windows around given center.
 
-    Float center will be rounded.
+    Float center will be rounded. Yield a tuple with coordinate slices of each
+    window, and window position relative to the center.
     """
-    center = tuple(int(round(x)) for x in center)
+    center = [int(round(x)) for x in center]
     starts = [i % w for i, w in zip(center, winshape)]
     stops = [i-w+1 for i, w in zip(imageshape, winshape)]
     its = (xrange(*x) for x in zip(starts, stops, winshape))
     for coords in product(*its):
         slices = tuple(slice(i, i+w) for i, w in zip(coords, winshape))
-        yield slices
+        relative = tuple(int((i-c)/w) for i, c, w in zip(coords, center,
+                                                         winshape))
+        yield slices, relative
 
 
 def get_datapoint(image, prostate, lesion):
@@ -183,7 +186,8 @@ def main():
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
     windows = generate_windows(image.shape, voxel_winshape, centroid)
-    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x in windows]
+    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x, _ in
+            windows]
     data = [x for x in data if x is not None]
     params = 'lesion mean median'.split()
     # print_correlations(data, params)
