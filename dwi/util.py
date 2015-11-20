@@ -15,6 +15,16 @@ import scipy.stats
 import scipy.spatial
 
 
+def iterable(x):
+    """Tell whether an object is iterable or not."""
+    try:
+        iter(x)
+    except TypeError:
+        return False
+    else:
+        return True
+
+
 def report(*args, **kwargs):
     """Print to stderr and flush."""
     print(*args, file=sys.stderr, **kwargs)
