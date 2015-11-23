@@ -157,6 +157,10 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         raise Exception('Not enough dimensions: {}'.format(pmap.shape))
     if 'parameters' not in attrs:
         attrs['parameters'] = [str(i) for i in range(pmap.shape[-1])]
+    if 'shape' not in attrs:
+        attrs['shape'] = pmap.shape
+    if 'dtype' not in attrs:
+        attrs['dtype'] = pmap.dtype
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
     assert all(type(x) == str for x in
