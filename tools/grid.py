@@ -202,7 +202,8 @@ def main():
         values = get_datapoint(image[slices], prostate[slices], lesion[slices])
         a[indices] = values
     params = 'prostate lesion mean'.split()
-    attrs = dict(parameters=params, n_lesions=len(args.lesions))
+    attrs = dict(parameters=params, n_lesions=len(args.lesions),
+                 voxel_spacing=metric_winshape)
     if args.verbose:
         print('Writing to {}'.format(args.output))
     dwi.files.write_pmap(args.output, a, attrs)
