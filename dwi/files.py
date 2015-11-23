@@ -163,7 +163,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         attrs['dtype'] = pmap.dtype
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
-    assert all(type(x) == str for x in
+    assert all(isinstance(x, str) for x in
                attrs['parameters']), attrs['parameters']
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
