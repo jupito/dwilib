@@ -196,7 +196,7 @@ def main():
     windows = generate_windows(image.shape, voxel_winshape, centroid)
 
     windows = list(windows)
-    a = filled((20, 30, 30, 3), np.nan)
+    a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices])
