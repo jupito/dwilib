@@ -110,14 +110,15 @@ def get_datapoint(image, prostate, lesion):
     The cube window is included if at least half of it is of prostate.
     """
     assert image.shape == prostate.shape == lesion.shape
-    # At least half of the window must be of prostate.
-    if np.count_nonzero(prostate) / prostate.size >= 0.5:
-        return [
-            (np.count_nonzero(lesion) > 0),
-            np.nanmean(image),
-            np.nanmedian(image),
-        ]
-    return None
+    if np.isnan(image).all():
+        value = np.nan
+    else:
+        value = np.nanmean(image)
+    return (
+        np.count_nonzero(prostate) / prostate.size,
+        np.count_nonzero(lesion) / prostate.size,
+        value,
+    )
 
 
 def print_correlations(data, params):
@@ -130,6 +131,13 @@ def print_correlations(data, params):
             rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
             s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
             print(s.format(params[i], params[j], rho, pvalue))
+
+
+def filled(shape, value, **kwargs):
+    """Return a new array of given shape and type, initialized by value."""
+    a = np.empty(shape, **kwargs)
+    a.fill(value)
+    return a
 
 
 def main():
@@ -186,17 +194,18 @@ def main():
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
     windows = generate_windows(image.shape, voxel_winshape, centroid)
-    data = [get_datapoint(image[x], prostate[x], lesion[x]) for x, _ in
-            windows]
-    data = [x for x in data if x is not None]
-    params = 'lesion mean median'.split()
-    # print_correlations(data, params)
 
-    # Write output.
+    windows = list(windows)
+    a = filled((20, 30, 30, 3), np.nan)
+    for slices, relative in windows:
+        indices = tuple(s/2+r for s, r in zip(a.shape, relative))
+        values = get_datapoint(image[slices], prostate[slices], lesion[slices])
+        a[indices] = values
+    params = 'prostate lesion mean'.split()
     attrs = dict(parameters=params, n_lesions=len(args.lesions))
     if args.verbose:
         print('Writing to {}'.format(args.output))
-    dwi.files.write_pmap(args.output, data, attrs)
+    dwi.files.write_pmap(args.output, a, attrs)
 
 
 if __name__ == '__main__':
