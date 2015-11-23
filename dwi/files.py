@@ -160,7 +160,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
     if 'shape' not in attrs:
         attrs['shape'] = pmap.shape
     if 'dtype' not in attrs:
-        attrs['dtype'] = pmap.dtype
+        attrs['dtype'] = str(pmap.dtype)
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
     assert all(isinstance(x, str) for x in
