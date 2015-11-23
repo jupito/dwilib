@@ -495,7 +495,7 @@ def get_task_grid(mode, c, s, ls):
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
     out = grid_path(mode, c, s, ['raw'], fmt='txt')
-    cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out)
+    cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out)
     return {
         'name': name(mode, c, s),
         'actions': folders(out) + [cmd],
@@ -510,8 +510,9 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws):
                         voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out = grid_path(mode, c, s, [mth, ws], fmt='txt')
-    cmd = dwi.shell.grid_cmd(pmap, prostate, lesion, out)
+    param = 0
+    out = grid_path(mode, c, s, [mth, ws, param], fmt='txt')
+    cmd = dwi.shell.grid_cmd(pmap, param, prostate, lesion, out)
     return {
         'name': name(mode, c, s, mth, ws),
         'actions': folders(out) + [cmd],
