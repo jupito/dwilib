@@ -225,6 +225,9 @@ def main():
     for i, param in enumerate(attrs['parameters']):
         a = process(image[..., i], voxel_spacing, prostate, lesion,
                     args.voxelsize, metric_winshape, args.verbose)
+        if ext == '.txt':
+            nans = np.isnan(a[..., -1])
+            a = a[~nans]
         params = ['prostate', 'lesion', param]
         attrs = dict(parameters=params, n_lesions=len(args.lesions),
                      voxel_spacing=metric_winshape)
