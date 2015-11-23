@@ -120,4 +120,7 @@ def grid_path(mode, case, scan, parts, fmt='txt'):
         components.append('-'.join(str(x) for x in parts))
     if case is not None and scan is not None:
         components.append('{c}-{s}.{f}')
-    return os.path.join(*components).format(m=mode, c=case, s=scan, f=fmt)
+    path = os.path.join(*components).format(m=mode, c=case, s=scan, f=fmt)
+    root, ext = os.path.splitext(path)
+    target = '{r}-0{e}'.format(r=root, e=ext)
+    return path, target
