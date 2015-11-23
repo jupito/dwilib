@@ -21,7 +21,7 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--image', required=True,
                    help='input image or pmap')
-    p.add_argument('--param', type=int, default=0,
+    p.add_argument('--param', type=int,
                    help='parameter index')
     p.add_argument('--prostate', metavar='MASKFILE', required=True,
                    help='prostate mask')
@@ -80,6 +80,8 @@ def get_mbb(mask, voxel_spacing, pad):
 def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
     factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
+    while len(factor) < img.ndim:
+        factor += (1,)
     # print('Scaling, factor:', factor)
     output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
     return output
@@ -115,16 +117,16 @@ def get_datapoint(image, prostate, lesion):
 
     The cube window is included if at least half of it is of prostate.
     """
-    assert image.shape == prostate.shape == lesion.shape
+    assert image.ndim == 4, image.ndim
+    assert image.shape[:3] == prostate.shape == lesion.shape
     if np.isnan(image).all():
-        value = np.nan
+        value = (np.nan,) * image.shape[-1]
     else:
-        value = np.nanmean(image)
+        value = tuple(np.nanmean(image, axis=(0, 1, 2)))
     return (
         np.count_nonzero(prostate) / prostate.size,
         np.count_nonzero(lesion) / prostate.size,
-        value,
-    )
+    ) + value
 
 
 def print_correlations(data, params):
@@ -150,17 +152,22 @@ def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
     voxel_spacing = attrs['voxel_spacing']
-    image = image[..., args.param].astype(np.float_)
+    image = image.astype(np.float32)
+    if args.param is not None:
+        image = image[..., args.param]
+        image.shape += (1,)
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing, container=prostate) for
                           x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
     if args.verbose:
         print('Lesions:', len(args.lesions))
-    assert image.shape == prostate.shape == lesion.shape
+    assert image.ndim == 4, image.ndim
+    assert image.shape[:3] == prostate.shape == lesion.shape
 
     if args.verbose:
-        physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
+        physical_size = tuple(x*y for x, y in zip(image.shape[:3],
+                                                  voxel_spacing))
         print('Image:', image.shape, image.dtype)
         print('\tVoxel spacing:', voxel_spacing)
         print('\tPhysical size:', physical_size)
@@ -171,7 +178,7 @@ def main():
         image = image[slices]
         prostate = prostate[slices]
         lesion = lesion[slices]
-        assert image.shape == prostate.shape == lesion.shape
+        assert image.shape[:3] == prostate.shape == lesion.shape
 
     # Rescale image and masks.
     if args.voxelsize is not None:
@@ -184,10 +191,11 @@ def main():
         lesion = lesion.astype(np.float_)
         lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
         lesion = float2bool_mask(lesion)
-        assert image.shape == prostate.shape == lesion.shape
+        assert image.shape[:3] == prostate.shape == lesion.shape
 
     if args.verbose:
-        physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
+        physical_size = tuple(x*y for x, y in zip(image.shape[:3],
+                                                  voxel_spacing))
         print('Transformed image:', image.shape, image.dtype)
         print('\tVoxel spacing:', voxel_spacing)
         print('\tPhysical size:', physical_size)
@@ -200,15 +208,15 @@ def main():
     if args.verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
-    windows = generate_windows(image.shape, voxel_winshape, centroid)
+    windows = generate_windows(image.shape[:3], voxel_winshape, centroid)
 
     windows = list(windows)
-    a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
+    a = filled((20, 30, 30, 2 + image.shape[-1]), np.nan, dtype=np.float32)
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices])
         a[indices] = values
-    params = 'prostate lesion mean'.split()
+    params = ['prostate', 'lesion'] + attrs['parameters']
     attrs = dict(parameters=params, n_lesions=len(args.lesions),
                  voxel_spacing=metric_winshape)
     if args.verbose:
