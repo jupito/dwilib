@@ -38,18 +38,24 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path, expected_voxel_spacing, n_dec=3):
+def read_mask(path, expected_voxel_spacing, n_dec=3, container=None):
     """Read pmap as a mask. Expect voxel spacing to match up to a certain
     number of decimals.
     """
-    img, attrs = dwi.files.read_pmap(path)
-    img = img[..., 0].astype(np.bool)
+    mask, attrs = dwi.files.read_pmap(path)
+    mask = mask[..., 0].astype(np.bool)
     voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
     expected_voxel_spacing = [round(x, n_dec) for x in expected_voxel_spacing]
     if voxel_spacing != expected_voxel_spacing:
         raise ValueError('Expected voxel spacing {}, got {}'.format(
             expected_voxel_spacing, voxel_spacing))
-    return img
+    if container is not None:
+        portion_outside_container = (np.count_nonzero(mask[~container]) /
+                                     np.count_nonzero(mask))
+        if portion_outside_container > 0.1:
+            s = '{}: Portion of selected voxels outside container is {:%}'
+            raise ValueError(s.format(path, portion_outside_container))
+    return mask
 
 
 def unify_masks(masks):
@@ -146,7 +152,8 @@ def main():
     voxel_spacing = attrs['voxel_spacing']
     image = image[..., args.param].astype(np.float_)
     prostate = read_mask(args.prostate, voxel_spacing)
-    lesion = unify_masks([read_mask(x, voxel_spacing) for x in args.lesions])
+    lesion = unify_masks([read_mask(x, voxel_spacing, container=prostate) for
+                          x in args.lesions])
     image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
     if args.verbose:
         print('Lesions:', len(args.lesions))
