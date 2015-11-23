@@ -151,11 +151,12 @@ def filled(shape, value, **kwargs):
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image)
-    voxel_spacing = attrs['voxel_spacing']
     image = image.astype(np.float32)
     if args.param is not None:
         image = image[..., args.param]
         image.shape += (1,)
+        attrs['parameters'] = [attrs['parameters'][args.param]]
+    voxel_spacing = attrs['voxel_spacing']
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing, container=prostate) for
                           x in args.lesions])
