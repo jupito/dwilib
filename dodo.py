@@ -10,7 +10,8 @@ from doit.tools import check_timestamp_unchanged, create_folder
 
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
-                       roi_path, std_cfg_path, texture_path)
+                       roi_path, std_cfg_path, texture_path, histogram_path,
+                       grid_path)
 import dwi.patient
 import dwi.shell
 import dwi.util
@@ -471,7 +472,7 @@ def get_task_histogram(mode, masktype, samplelist):
     else:
         it = cases_scans(mode, samplelist)
     inpaths = [roi_path(mode, masktype, *x) for x in it]
-    figpath = dwi.paths.histogram_path(mode, masktype, samplelist)
+    figpath = histogram_path(mode, masktype, samplelist)
     cmd = dwi.shell.histogram_cmd(inpaths, figpath)
     return {
         'name': name(mode, masktype, samplelist),
@@ -493,7 +494,7 @@ def get_task_grid(mode, c, s, ls):
     pmap = pmap_path(mode, c, s)
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out = dwi.paths.grid_path(mode, c, s)
+    out = grid_path(mode, c, s, ['raw'], fmt='h5')
     cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out)
     return {
         'name': name(mode, c, s),
@@ -510,7 +511,7 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws):
     param = 0
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out = dwi.paths.grid_path(mode, c, s, mth, ws, param)
+    out = grid_path(mode, c, s, [mth, ws, param], fmt='txt')
     cmd = dwi.shell.grid_cmd(pmap, param, prostate, lesion, out)
     return {
         'name': name(mode, c, s, mth, ws, param),

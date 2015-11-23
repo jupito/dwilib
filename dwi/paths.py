@@ -1,6 +1,7 @@
 """Common path names."""
 
 from __future__ import absolute_import, division, print_function
+import os
 
 import dwi.util
 
@@ -113,11 +114,10 @@ def histogram_path(mode, roi, samplelist):
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
 
 
-def grid_path(mode, case=None, scan=None, *parts):
-    path = 'grid/{m}'
+def grid_path(mode, case, scan, parts, fmt='txt'):
+    components = ['grid', '{m}']
     if parts:
-        path += '-' + '-'.join(str(x) for x in parts)
+        components.append('-'.join(str(x) for x in parts))
     if case is not None and scan is not None:
-        path += '/{c}-{s}'
-    path += '.txt'
-    return path.format(m=mode, c=case, s=scan)
+        components.append('{c}-{s}.{f}')
+    return os.path.join(*components).format(m=mode, c=case, s=scan, f=fmt)
