@@ -123,3 +123,9 @@ def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
     return s.format(prg=DWILIB+'/grid.py', m=mbb, v=voxelsize, w=winsize,
                     i=image, p=param, pr=prostate, l=' '.join(lesions),
                     o=outpath)
+
+
+def check_mask_overlap_cmd(container, other, fig):
+    s = '{prg} -v {c} {o} --fig {f}'
+    return s.format(prg=DWILIB+'/check_mask_overlap.py', c=container, o=other,
+                    f=fig)
