@@ -74,8 +74,8 @@ def main():
     if n:
         s = '{c}, {o}: {n} voxels outside container'
         print(s.format(c=args.container, o=args.other, n=n))
-        if args.fig:
-            write_figure(overlap, args.fig)
+    if args.fig:
+        write_figure(overlap, args.fig)
 
 
 if __name__ == '__main__':
