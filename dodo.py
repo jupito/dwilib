@@ -537,18 +537,18 @@ def task_grid():
                 yield get_task_grid_texture(mode, c, s, ls, mth, ws)
 
 
-def task_check_mask_overlap():
-    """Check mask overlap."""
-    for mode, sl in product(MODES, SAMPLELISTS):
-        for c, s, l in lesions(mode, sl):
-            container = mask_path(mode, 'prostate', c, s)
-            other = mask_path(mode, 'lesion', c, s, l)
-            fig = 'maskoverlap/{m}/{c}-{s}-{l}.png'.format(m=mode[0], c=c, s=s,
-                                                           l=l)
-            cmd = dwi.shell.check_mask_overlap_cmd(container, other, fig)
-            yield {
-                'name': name(mode, c, s, l),
-                'actions': folders(fig) + [cmd],
-                'file_dep': path_deps(container, other),
-                'targets': [fig],
-            }
+# def task_check_mask_overlap():
+#     """Check mask overlap."""
+#     for mode, sl in product(MODES, SAMPLELISTS):
+#         for c, s, l in lesions(mode, sl):
+#             container = mask_path(mode, 'prostate', c, s)
+#             other = mask_path(mode, 'lesion', c, s, l)
+#             fig = 'maskoverlap/{m}/{c}-{s}-{l}.png'.format(m=mode[0], c=c,
+#                                                            s=s, l=l)
+#             cmd = dwi.shell.check_mask_overlap_cmd(container, other, fig)
+#             yield {
+#                 'name': name(mode, c, s, l),
+#                 'actions': folders(fig) + [cmd],
+#                 'file_dep': path_deps(container, other),
+#                 'targets': [fig],
+#             }
