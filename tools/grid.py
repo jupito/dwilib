@@ -39,9 +39,13 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path, expected_voxel_spacing, n_dec=3, container=None):
+def read_mask(path, expected_voxel_spacing, n_dec=3, container=None,
+              allowed_outside=0.2):
     """Read pmap as a mask. Expect voxel spacing to match up to a certain
     number of decimals.
+
+    The optional parameter allowed_outside indicates how much of the lesion
+    volume may be outside of the prostate without an error being raised.
     """
     mask, attrs = dwi.files.read_pmap(path)
     mask = mask[..., 0].astype(np.bool)
@@ -53,7 +57,7 @@ def read_mask(path, expected_voxel_spacing, n_dec=3, container=None):
     if container is not None:
         portion_outside_container = (np.count_nonzero(mask[~container]) /
                                      np.count_nonzero(mask))
-        if portion_outside_container > 0.1:
+        if portion_outside_container > allowed_outside:
             s = '{}: Portion of selected voxels outside container is {:%}'
             raise ValueError(s.format(path, portion_outside_container))
     return mask
