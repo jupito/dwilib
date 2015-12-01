@@ -519,3 +519,14 @@ def rmse(a, b):
     a = np.asarray(a)
     b = np.asarray(b)
     return np.sqrt(np.mean((a - b)**2))
+
+
+def mapped(shape, dtype, filler=None):
+    """Create an array as a memory-mapped temporary file on disk."""
+    # import tempfile
+    # fileno, path = tempfile.mkstemp(suffix='.texture')
+    # a = np.memmap(path, dtype=dtype, mode='w+', shape=shape)
+    a = np.memmap(os.tmpfile(), dtype=dtype, mode='w+', shape=shape)
+    if filler is not None:
+        a.fill(filler)
+    return a
