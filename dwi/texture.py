@@ -546,37 +546,11 @@ def sobel_map(img, winsize=None, mask=None):
     return output, names
 
 
-# General texture map.
+# General API for texture map.
 
 
-# # Methods that consider an n*n window.
-# METHODS = OrderedDict([
-#     ('stats', stats_map),
-#     ('glcm', glcm_map),
-#     ('haralick', haralick_map),
-#     ('lbp', lbp_freq_map),
-#     ('hog', hog_map),
-#     ('gabor', gabor_map),
-#     ('moment', moment_map),
-#     ('haar', haar_map),
-#     ('sobel', sobel_map),
-#     ('hu', hu_map),
-#     ('zernike', zernike_map),
-#     ])
-#
-# # Methods that consider a minimum bounding box of selected voxels.
-# METHODS_MBB = OrderedDict([
-#     ('stats_mbb', stats_mbb),
-#     ('glcm_mbb', glcm_mbb),
-#     ('haralick_mbb', haralick_mbb),
-#     ])
-#
-# # Methods that consider all selected voxels.
-# METHODS_ALL = OrderedDict([
-#     ('stats_all', stats_mbb),  # Use the same mbb function.
-#     ])
-
-_METHODS = OrderedDict([
+METHODS = OrderedDict([
+    # Methods that consider an n*n window.
     ('stats', stats_map),
     ('glcm', glcm_map),
     ('haralick', haralick_map),
@@ -589,10 +563,12 @@ _METHODS = OrderedDict([
     ('sobel', sobel_map),
     ('hu', hu_map),
     ('zernike', zernike_map),
+    ('sobel', sobel_map),
+    # Methods that consider a minimum bounding box of selected voxels.
     ('stats_mbb', stats_mbb),
     ('glcm_mbb', glcm_mbb),
     ('haralick_mbb', haralick_mbb),
-    ('sobel', sobel_map),
+    # Methods that consider all selected voxels.
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
 
@@ -636,7 +612,7 @@ def get_texture(img, method, winspec, mask, avg=False):
     if mask is not None:
         assert mask.dtype == bool
         assert img.shape == mask.shape, (img.shape, mask.shape)
-    call = _METHODS[method]
+    call = METHODS[method]
     if winspec == 'all':
         assert method.endswith('_all')
         tmap, names = get_texture_all(img, call, mask)
