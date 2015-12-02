@@ -91,13 +91,18 @@ def main():
     for a in pmap:
         a[0] = floor_or_ceil(a[0], args.thresholds[0])
         a[1] = floor_or_ceil(a[1], args.thresholds[1])
+    d = dict(param=params[2])
+    d['ppt'] = np.count_nonzero(pmap[:, 0]) / len(pmap)
+    pmap = pmap[pmap[:, 0] > 0]  # Include only prostate cubes.
+    d['lpp'] = np.count_nonzero(pmap[:, 1]) / len(pmap)
+    _, _, d['auc'] = dwi.util.calculate_roc_auc(pmap[:, 1], pmap[:, 2],
+                                                autoflip=True)
     if args.verbose:
-        d = dict(p=np.count_nonzero(pmap[:, 0]) / len(pmap),
-                 l=np.count_nonzero(pmap[:, 1]) / len(pmap))
-        print('Prostate: {p:.2%}, lesion: {l:.2%}'.format(**d))
+        print('# auc prostate/total lesion/prostate param')
+    print('{auc:.3f}  {ppt:.3f}  {lpp:.3f}  {param}'.format(**d))
     # print(np.mean(pmap, axis=0))
     # print_correlations(pmap, params)
-    print_aucs_(pmap, params)
+    # print_aucs_(pmap, params)
 
 
 if __name__ == '__main__':
