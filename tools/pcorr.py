@@ -18,6 +18,8 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
+    p.add_argument('--thresholds', nargs=2, type=float, default=[0.5, 0.1],
+                   help='thresholds for labeling as prostate, lesion')
     p.add_argument('pmaps', nargs='+',
                    help='input pmaps')
     return p.parse_args()
@@ -87,8 +89,8 @@ def main():
     # print(pmap.shape)
     # print(np.mean(pmap, axis=0))
     for a in pmap:
-        a[0] = floor_or_ceil(a[0], 0.5)
-        a[1] = floor_or_ceil(a[1], 0.1)
+        a[0] = floor_or_ceil(a[0], args.thresholds[0])
+        a[1] = floor_or_ceil(a[1], args.thresholds[1])
     if args.verbose:
         d = dict(p=np.count_nonzero(pmap[:, 0]) / len(pmap),
                  l=np.count_nonzero(pmap[:, 1]) / len(pmap))
