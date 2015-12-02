@@ -409,8 +409,8 @@ def task_select_roi():
 #     yield get_task_autoroi_correlation(MODE, '')
 
 
-def get_task_texture_manual(mode, masktype, case, scan, lesion, slices,
-                            portion, method, winsize, voxel):
+def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
+                     method, winsize, voxel):
     """Generate texture features."""
     inpath = pmap_path(mode, case, scan)
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
@@ -434,17 +434,17 @@ def task_texture():
         for mt, slices, portion in texture_params():
             for c, s, l in lesions(mode, sl):
                 for mth, ws in texture_methods_winsizes(mode, mt):
-                    yield get_task_texture_manual(mode, mt, c, s, l, slices,
-                                                  portion, mth, ws, 'mean')
-                    yield get_task_texture_manual(mode, mt, c, s, l, slices,
-                                                  portion, mth, ws, 'all')
+                    yield get_task_texture(mode, mt, c, s, l, slices, portion,
+                                           mth, ws, 'mean')
+                    yield get_task_texture(mode, mt, c, s, l, slices, portion,
+                                           mth, ws, 'all')
         mt = 'prostate'
         for c, s in cases_scans(mode, sl):
             for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_texture_manual(mode, mt, c, s, None, 'maxfirst',
-                                              0, mth, ws, 'all')
-                yield get_task_texture_manual(mode, mt, c, s, None, 'all',
-                                              0, mth, ws, 'all')
+                yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
+                                       mth, ws, 'all')
+                yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
+                                       'all')
 
 
 def task_merge_textures():
