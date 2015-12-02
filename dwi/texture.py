@@ -611,7 +611,6 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                # tmap = np.empty((len(img), 1, 1, len(names)))
                 tmap = np.empty(img.shape + (len(names),), dtype=DTYPE)
                 tmap.fill(np.nan)
             tmap[i, mask_slice, :] = feats
@@ -644,13 +643,7 @@ def get_texture(img, method, winspec, mask, avg=False):
         assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
         if avg:
             # It's all the same value.
-            # tmap = np.nanmean(tmap, axis=(0, 1, 2), keepdims=True)
-            # # Feeding np.nanmean whole image hogs too much memory, circumvent.
-            #a = np.empty((len(tmap), len(names)), dtype=DTYPE)
-            #for p in np.ndindex(a.shape):
-            #    a[p] = np.nanmean(tmap[:, :, :, p])
-            #tmap = a
-            #tmap = np.array([np.nanmean(tmap[:, :, :, i]) for i in range(len(names))], dtype=DTYPE)
+            # Feeding np.nanmean whole image hogs too much memory, circumvent.
             tmap = np.array([np.nanmean(x) for x in np.rollaxis(tmap, -1)],
                             dtype=DTYPE)
             tmap.shape = 1, 1, 1, len(names)
@@ -660,9 +653,7 @@ def get_texture(img, method, winspec, mask, avg=False):
         assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
         if avg:
             # Take average of each slice; slice-wise they are the same value.
-            # tmap = np.nanmean(tmap, axis=(1, 2), keepdims=True)
-            # tmap = np.nanmean(tmap, axis=0, keepdims=True)
-            # # Feeding np.nanmean whole image hogs too much memory, circumvent.
+            # Feeding np.nanmean whole image hogs too much memory, circumvent.
             a = np.empty((len(tmap), len(names)), dtype=DTYPE)
             for s, p in np.ndindex(a.shape):
                 a[s, p] = np.nanmean(tmap[s, :, :, p])
