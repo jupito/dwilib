@@ -89,6 +89,10 @@ def main():
     for a in pmap:
         a[0] = floor_or_ceil(a[0], 0.5)
         a[1] = floor_or_ceil(a[1], 0.1)
+    if args.verbose:
+        d = dict(p=np.count_nonzero(pmap[:, 0]) / len(pmap),
+                 l=np.count_nonzero(pmap[:, 1]) / len(pmap))
+        print('Prostate: {p:.2%}, lesion: {l:.2%}'.format(**d))
     # print(np.mean(pmap, axis=0))
     # print_correlations(pmap, params)
     print_aucs_(pmap, params)
