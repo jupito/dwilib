@@ -46,6 +46,30 @@ def print_aucs(data, params):
         print(s.format(p=param, a=auc))
 
 
+def print_aucs_(data, params):
+    """Print ROC AUCs."""
+    data = np.asarray(data)
+    indices = range(data.shape[-1])
+    for i, j in product(indices, indices):
+        if i != j:
+            y, x = data[:, i], data[:, j]
+            py, px = params[i], params[j]
+            try:
+                _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+            except ValueError:
+                continue
+            s = 'AUC:  {py:8}  {px:8}  {a:+1.3f}'
+            print(s.format(py=py, px=px, a=auc))
+
+
+def floor_or_ceil(a, threshold=0.5, out=None):
+    """Return floor or ceiling based on a minimum threshold."""
+    if a < threshold:
+        return np.floor(a, out=out)
+    else:
+        return np.ceil(a, out=out)
+
+
 def main():
     args = parse_args()
     tuples = [dwi.files.read_pmap(x) for x in args.pmaps]
@@ -61,8 +85,13 @@ def main():
         # print(pmap.shape)
     pmap = np.concatenate(pmaps)
     # print(pmap.shape)
+    # print(np.mean(pmap, axis=0))
+    for a in pmap:
+        a[0] = floor_or_ceil(a[0], 0.5)
+        a[1] = floor_or_ceil(a[1], 0.1)
+    # print(np.mean(pmap, axis=0))
     # print_correlations(pmap, params)
-    print_aucs(pmap, params)
+    print_aucs_(pmap, params)
 
 
 if __name__ == '__main__':
