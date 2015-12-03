@@ -20,7 +20,7 @@ def write_hdf5(filename, array, attrs, dsetname=DEFAULT_DSETNAME):
                             shuffle=True, fletcher32=True)
     for k, v in attrs.iteritems():
         # HDF5 doesn't understand None objects, so replace any with nan values.
-        if dwi.util.iterable(v) and not isinstance(v, str):
+        if dwi.util.iterable(v) and not isinstance(v, str) and None in v:
             v = type(v)([(np.nan if x is None else x) for x in v])
         dset.attrs[k] = v
     f.close()
