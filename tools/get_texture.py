@@ -144,15 +144,22 @@ def main():
                                                                  args.mode))
     avg = (args.voxel == 'mean')
     dwi.texture.MODE = args.mode
+    path = None
+    # path = args.output
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
-                                          mask=pmask, avg=avg)
+                                          mask=pmask, avg=avg, path=path)
+    attrs['parameters'] = names
 
     if args.verbose:
         print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
                                                           t=tmap.dtype,
                                                           o=args.output))
-    attrs['parameters'] = names
-    dwi.files.write_pmap(args.output, tmap, attrs)
+    if path is None:
+        dwi.files.write_pmap(args.output, tmap, attrs)
+    else:
+        attrs['shape'] = tmap.shape
+        attrs['dtype'] = str(tmap.dtype)
+        tmap.attrs.update(attrs)
 
 
 if __name__ == '__main__':

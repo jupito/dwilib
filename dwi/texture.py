@@ -593,20 +593,31 @@ def get_texture_mbb(img, call, mask):
     return tmap, names
 
 
-def get_texture_map(img, call, winsize, mask):
+def get_texture_map(img, call, winsize, mask, path=None):
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
-                tmap = np.zeros(img.shape + (len(names),), dtype=DTYPE)
+                if path is None:
+                    tmap = np.zeros(img.shape + (len(names),), dtype=DTYPE)
+                else:
+                    import dwi.hdf5
+                    shape = img.shape + (len(names),)
+                    tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE)
             feats = np.rollaxis(feats, 0, 3)
             tmap[i, :, :, :] = feats
-    tmap[-mask] = np.nan  # Fill background with NaN.
+    if path is None:
+        tmap[-mask] = np.nan  # Fill background with NaN.
+    else:
+        # Fill background with NaN, in h5py way.
+        for i, x in np.ndenumerate(mask):
+            if not x:
+                tmap[i] = np.nan
     return tmap, names
 
 
-def get_texture(img, method, winspec, mask, avg=False):
+def get_texture(img, method, winspec, mask, avg=False, path=None):
     """General texture map layer."""
     assert img.ndim == 3, img.ndim
     if mask is not None:
@@ -637,7 +648,7 @@ def get_texture(img, method, winspec, mask, avg=False):
             tmap = np.nanmean(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
     else:
-        tmap, names = get_texture_map(img, call, int(winspec), mask)
+        tmap, names = get_texture_map(img, call, int(winspec), mask, path=path)
         assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
         if avg:
             # Take average of all selected voxels.
