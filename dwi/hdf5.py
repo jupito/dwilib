@@ -43,3 +43,15 @@ def read_hdf5(filename, dsetname=DEFAULT_DSETNAME):
     attrs = OrderedDict(dset.attrs)
     f.close()
     return array, attrs
+
+
+def create_hdf5(filename, shape, dtype, dsetname=DEFAULT_DSETNAME):
+    """Create a HDF5 file and return the dataset for manipulation.
+
+    Attributes and the file object can be accessed by dset.attrs and dset.file.
+    For faster compression, LZF filter is used instead of GZIP.
+    """
+    f = h5py.File(filename, 'w')
+    dset = f.create_dataset(dsetname, shape, dtype=dtype, compression='lzf',
+                            shuffle=True, fletcher32=True)
+    return dset
