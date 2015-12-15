@@ -599,21 +599,17 @@ def get_texture_map(img, call, winsize, mask, path=None):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
+                shape = img.shape + (len(names),)
                 if path is None:
-                    tmap = np.zeros(img.shape + (len(names),), dtype=DTYPE)
+                    # tmap = np.zeros(shape, dtype=DTYPE)
+                    tmap = np.full(shape, np.nan, dtype=DTYPE)
                 else:
                     import dwi.hdf5
-                    shape = img.shape + (len(names),)
-                    tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE)
+                    tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE,
+                                                fillvalue=np.nan)
             feats = np.rollaxis(feats, 0, 3)
+            feats[-mask_slice, :] = np.nan  # Fill background with NaN.
             tmap[i, :, :, :] = feats
-    if path is None:
-        tmap[-mask] = np.nan  # Fill background with NaN.
-    else:
-        # Fill background with NaN, in h5py way.
-        for i, x in np.ndenumerate(mask):
-            if not x:
-                tmap[i] = np.nan
     return tmap, names
 
 
