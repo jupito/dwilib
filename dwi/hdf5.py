@@ -11,13 +11,14 @@ import dwi.util
 DEFAULT_DSETNAME = 'default'
 
 
-def write_hdf5(filename, array, attrs, dsetname=DEFAULT_DSETNAME):
+def write_hdf5(filename, array, attrs, fillvalue=None,
+               dsetname=DEFAULT_DSETNAME):
     """Write an array with attributes into a newly created, compressed HDF5
     file.
     """
     f = h5py.File(filename, 'w')
     dset = f.create_dataset(dsetname, data=array, compression='gzip',
-                            shuffle=True, fletcher32=True)
+                            shuffle=True, fletcher32=True, fillvalue=fillvalue)
     for k, v in attrs.iteritems():
         # HDF5 doesn't understand None objects, so replace any with nan values.
         if dwi.util.iterable(v) and not isinstance(v, str) and None in v:
@@ -45,7 +46,8 @@ def read_hdf5(filename, dsetname=DEFAULT_DSETNAME):
     return array, attrs
 
 
-def create_hdf5(filename, shape, dtype, dsetname=DEFAULT_DSETNAME):
+def create_hdf5(filename, shape, dtype, fillvalue=None,
+                dsetname=DEFAULT_DSETNAME):
     """Create a HDF5 file and return the dataset for manipulation.
 
     Attributes and the file object can be accessed by dset.attrs and dset.file.
@@ -53,6 +55,8 @@ def create_hdf5(filename, shape, dtype, dsetname=DEFAULT_DSETNAME):
     f = h5py.File(filename, 'w')
     # LZF was also tried as compression filter, but the speed diffrence was not
     # substantial, while the size difference and incompatibility were.
-    dset = f.create_dataset(dsetname, shape, dtype=dtype, compression='gzip',
-                            shuffle=True, fletcher32=True)
+    # comp = 'gzip'  # Faster.
+    comp = 'lzf'  # Smaller.
+    dset = f.create_dataset(dsetname, shape, dtype=dtype, compression=comp,
+                            shuffle=True, fletcher32=True, fillvalue=fillvalue)
     return dset
