@@ -53,8 +53,6 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     Attributes and the file object can be accessed by dset.attrs and dset.file.
     """
     f = h5py.File(filename, 'w')
-    # LZF was also tried as compression filter, but the speed diffrence was not
-    # substantial, while the size difference and incompatibility were.
     # comp = 'gzip'  # Smaller, compatible.
     comp = 'lzf'  # Faster.
     dset = f.create_dataset(dsetname, shape, dtype=dtype, compression=comp,
