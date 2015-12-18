@@ -145,7 +145,7 @@ def main():
     avg = (args.voxel == 'mean')
     dwi.texture.MODE = args.mode
     path = None
-    if not avg and args.mode.startswith('T2w'):
+    if not avg and args.mode.startswith('T2w') and args.method == 'gabor':
         print('Note: output array is manipulated on disk, this is slower')
         path = args.output
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
