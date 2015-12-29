@@ -53,8 +53,8 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     Attributes and the file object can be accessed by dset.attrs and dset.file.
     """
     f = h5py.File(filename, 'w')
-    # comp = 'gzip'  # Smaller, compatible.
-    comp = 'lzf'  # Faster.
+    comp = 'gzip'  # Smaller, compatible.
+    # comp = 'lzf'  # Faster.
     dset = f.create_dataset(dsetname, shape, dtype=dtype, compression=comp,
                             shuffle=True, fletcher32=True, fillvalue=fillvalue)
     return dset
