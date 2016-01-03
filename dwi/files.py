@@ -178,13 +178,16 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         raise Exception('Unknown format: {}'.format(fmt))
 
 
-def read_pmap(pathname, fmt=None):
-    """Read a parametric map."""
+def read_pmap(pathname, ondisk=False, fmt=None):
+    """Read a parametric map.
+
+    With parameter ondisk it will not be read into memory.
+    """
     if fmt is None:
         fmt = os.path.splitext(pathname)[1][1:]
     if fmt in ['hdf5', 'h5']:
         import dwi.hdf5
-        pmap, attrs = dwi.hdf5.read_hdf5(pathname)
+        pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
     elif fmt in ['txt', 'ascii']:
         import dwi.asciifile
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
@@ -195,8 +198,6 @@ def read_pmap(pathname, fmt=None):
         d = dwi.dicomfile.read_dir(pathname)
         pmap = d.pop('image')
         attrs = dict(d)
-    if pmap.ndim < 2:
-        raise Warning('Not enough dimensions: {}'.format(pmap.shape))
     if 'parameters' not in attrs:
         attrs['parameters'] = range(pmap.shape[-1])
     attrs['parameters'] = [str(x) for x in attrs['parameters']]

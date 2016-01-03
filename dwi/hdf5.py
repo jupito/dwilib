@@ -27,8 +27,10 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     f.close()
 
 
-def read_hdf5(filename, dsetname=DEFAULT_DSETNAME):
-    """Read an array with attributes from an HDF5 file."""
+def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
+    """Read an array with attributes from an HDF5 file.
+
+    With parameter "ondisk" True it will not be read into memory."""
     try:
         f = h5py.File(filename, 'r')
     except IOError, e:
@@ -40,9 +42,13 @@ def read_hdf5(filename, dsetname=DEFAULT_DSETNAME):
             raise ValueError('Ambiguous content: {}'.format(filename))
         dsetname = f.keys()[0]
     dset = f[dsetname]
-    array = np.array(dset)
+    if ondisk:
+        array = dset
+    else:
+        array = np.array(dset)
     attrs = OrderedDict(dset.attrs)
-    f.close()
+    if not ondisk:
+        f.close()
     return array, attrs
 
 
