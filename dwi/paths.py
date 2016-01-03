@@ -115,6 +115,10 @@ def histogram_path(mode, roi, samplelist):
 
 
 def grid_path(mode, case, scan, parts, fmt='txt'):
+    """Return path to the first of the grid files.
+
+    FIXME: The first element in the resulting tuple no more exists as file.
+    """
     components = ['grid', '{m}']
     if parts:
         components.append('-'.join(str(x) for x in parts))
