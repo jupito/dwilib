@@ -28,7 +28,7 @@ def parse_args():
                    help='prostate mask')
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
-    p.add_argument('--mbb', type=float,
+    p.add_argument('--mbb', type=float, required=True,
                    help='minimum bounding box padding in millimeters')
     p.add_argument('--voxelsize', type=float,
                    help='rescaled voxel size in millimeters (try 0.25)')
@@ -193,8 +193,7 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
 
 def main():
     args = parse_args()
-    image, attrs = dwi.files.read_pmap(args.image)
-    image = image.astype(np.float32)
+    image, attrs = dwi.files.read_pmap(args.image, ondisk=True)
     if args.param is not None:
         image = image[..., args.param]
         image.shape += (1,)
@@ -203,10 +202,8 @@ def main():
     prostate = read_mask(args.prostate, voxel_spacing)
     lesion = unify_masks([read_mask(x, voxel_spacing, container=prostate) for
                           x in args.lesions])
-    image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
     if args.verbose:
         print('Lesions:', len(args.lesions))
-    assert image.ndim == 4, image.ndim
     assert image.shape[:3] == prostate.shape == lesion.shape
 
     if args.verbose:
@@ -216,13 +213,16 @@ def main():
         print('\tVoxel spacing:', voxel_spacing)
         print('\tPhysical size:', physical_size)
 
-    # Crop MBB.
-    if args.mbb is not None:
-        slices = get_mbb(prostate, voxel_spacing, args.mbb)
-        image = image[slices]
-        prostate = prostate[slices]
-        lesion = lesion[slices]
-        assert image.shape[:3] == prostate.shape == lesion.shape
+    # Crop MBB. The remaining image is now stored in memory.
+    slices = get_mbb(prostate, voxel_spacing, args.mbb)
+    image = image[slices]
+    prostate = prostate[slices]
+    lesion = lesion[slices]
+    assert image.shape[:3] == prostate.shape == lesion.shape
+
+    assert image.ndim == 4, image.ndim
+    image = image.astype(np.float32)
+    image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
 
     metric_winshape = (args.winsize,) * 3
     root, ext = os.path.splitext(args.output)
