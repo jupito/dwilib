@@ -180,9 +180,8 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
     if verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
-    windows = generate_windows(image.shape, voxel_winshape, centroid)
+    windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
-    windows = list(windows)
     # TODO: Output grid size is hard-coded here for now.
     a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
     for slices, relative in windows:
