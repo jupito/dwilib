@@ -102,8 +102,7 @@ def main():
         patients = dwi.files.read_patients_file(args.patients)
     else:
         patients = None
-    pmaps, numsscans, params = dwi.patient.load_files(patients, args.pmaps,
-                                                      pairs=True)
+    pmaps, _, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
 
     # Select voxel to use.
     if args.voxel == 'mean':
