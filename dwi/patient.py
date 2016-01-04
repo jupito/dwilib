@@ -171,7 +171,7 @@ def get_gleason_scores(patients):
 
 
 def load_files(patients, filenames, pairs=False):
-    """Load pmap files."""
+    """Load pmap files. If pairs=True, require scan pairs together."""
     pmapfiles = []
     if len(filenames) == 1:
         # Workaround for platforms without shell-level globbing.
