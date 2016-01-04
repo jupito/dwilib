@@ -9,6 +9,11 @@ import pylab as pl
 import dwi.util
 
 
+# plt.rcParams['image.aspect'] = 'equal'
+# plt.rcParams['image.cmap'] = 'jet'
+# plt.rcParams['image.interpolation'] = 'none'
+
+
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
                 outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
@@ -63,9 +68,6 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
 def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
                    path=None):
     """Generate subfigures, yielding each context for plotting."""
-    plt.rcParams['image.aspect'] = 'equal'
-    # plt.rcParams['image.cmap'] = 'jet'
-    plt.rcParams['image.interpolation'] = 'none'
     fig = plt.figure(figsize=(ncols*6, nrows*6))
     if titles is None:
         titles = (str(x) for x in xrange(ncols * nrows))
