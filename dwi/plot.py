@@ -2,6 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pylab as pl
 
 import dwi.util
@@ -56,3 +58,29 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     else:
         pl.show()
     pl.close()
+
+
+def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
+                   path=None):
+    """Generate subfigures, yielding each context for plotting."""
+    plt.rcParams['image.aspect'] = 'equal'
+    # plt.rcParams['image.cmap'] = 'jet'
+    plt.rcParams['image.interpolation'] = 'none'
+    fig = plt.figure(figsize=(ncols*6, nrows*6))
+    if titles is None:
+        titles = (str(x) for x in xrange(ncols * nrows))
+    for i, title in enumerate(titles):
+        ax = fig.add_subplot(nrows, ncols, i+1)
+        ax.set_title(title)
+        if xlabels is not None:
+            ax.set_xlabel(xlabels[i])
+        if ylabels is not None:
+            ax.set_ylabel(ylabels[i])
+        yield plt, i, title
+    plt.tight_layout()
+    if path is not None:
+        print('Plotting to {}...'.format(path))
+        plt.savefig(path, bbox_inches='tight')
+    else:
+        plt.show()
+    plt.close()
