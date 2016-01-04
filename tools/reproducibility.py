@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 """Calculate reproducibility coefficients for parametric maps by Bland-Altman
-analysis."""
+analysis. Input consists of pmap scan pairs grouped together."""
 
 from __future__ import absolute_import, division, print_function
 import argparse
@@ -24,7 +24,7 @@ def parse_args():
     p.add_argument('--voxel', default='0',
                    help='index of voxel to use, or mean or median')
     p.add_argument('-m', '--pmaps', nargs='+', required=True,
-                   help='pmap files')
+                   help='pmap files, pairs grouped together')
     return p.parse_args()
 
 
