@@ -71,9 +71,9 @@ def icc(baselines):
     mpr = np.mean(data, axis=1)  # Mean per rater.
     tm = np.mean(data)  # Total mean.
     wss = sum(sum((data-mpt)**2))  # Within-target sum of squares.
-    wms = wss / (n * (k-1))  # Within-target mean of squares.
+    # wms = wss / (n * (k-1))  # Within-target mean of squares.
     rss = sum((mpr-tm)**2) * n  # Between-rater sum of squares.
-    rms = rss / (k-1)  # Between-rater mean of squares.
+    # rms = rss / (k-1)  # Between-rater mean of squares.
     bss = sum((mpt-tm)**2) * k  # Between-target sum of squares.
     bms = bss / (n-1)  # Between-target mean of squares.
     ess = wss - rss  # Residual sum of squares.
