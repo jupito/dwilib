@@ -78,7 +78,7 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
             ax.set_xlabel(xlabels[i])
         if ylabels is not None:
             ax.set_ylabel(ylabels[i])
-        yield plt, i, title
+        yield plt
     plt.tight_layout()
     if path is not None:
         print('Plotting to {}...'.format(path))
