@@ -222,7 +222,7 @@ def main():
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
-    image[-prostate] = np.nan  # XXX: Is it ok to set background as nan?
+    image[-prostate] = np.nan  # Set background to nan.
 
     metric_winshape = (args.winsize,) * 3
     root, ext = os.path.splitext(args.output)
