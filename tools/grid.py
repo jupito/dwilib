@@ -182,7 +182,7 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
         print('Prostate centroid:', centroid)
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
-    # TODO: Output grid size is hard-coded here for now.
+    # TODO: Should determine output grid size from prostate size.
     a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
