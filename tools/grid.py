@@ -183,6 +183,7 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
     windows = generate_windows(image.shape, voxel_winshape, centroid)
 
     windows = list(windows)
+    # TODO: Output grid size is hard-coded here for now.
     a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
@@ -230,6 +231,7 @@ def main():
         a = process(image[..., i], voxel_spacing, prostate, lesion,
                     args.voxelsize, metric_winshape, args.verbose)
         if ext == '.txt':
+            # Exclude non-prostate cubes from ASCII output.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
         params = ['prostate', 'lesion', param]
