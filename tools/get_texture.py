@@ -74,7 +74,7 @@ def portion_mask(mask, winsize, portion=1., resort_to_max=True):
 def main():
     args = parse_args()
     if args.verbose:
-        print('Reading data...')
+        print('Reading image: {}'.format(args.input))
     img, attrs = dwi.files.read_pmap(args.input)
     if args.mode == 'T2':
         assert attrs['echotimes'][0] == 0  # TODO: Could be another?
