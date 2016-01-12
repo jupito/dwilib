@@ -240,15 +240,22 @@ def tilde(a):
     return (~a.astype(bool)).astype(typ)
 
 
-def calculate_roc_auc(y, x, autoflip=False):
-    """Calculate ROC and AUC from data points and their classifications."""
+def calculate_roc_auc(y, x, autoflip=False, scale=True):
+    """Calculate ROC and AUC from data points and their classifications.
+
+    By default, the samples are scaled, because sklearn.metrics.roc_curve()
+    interprets very close samples as equal.
+    """
     import sklearn.metrics
+    import sklearn.preprocessing
     y = np.asarray(y)
     x = np.asarray(x)
+    if scale:
+        x = sklearn.preprocessing.scale(x)
     fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
     auc = sklearn.metrics.auc(fpr, tpr)
     if autoflip and auc < 0.5:
-        fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False)
+        fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False, scale=False)
     return fpr, tpr, auc
 
 
