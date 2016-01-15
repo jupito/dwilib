@@ -9,6 +9,7 @@ import numpy as np
 
 import dwi.files
 import dwi.patient
+import dwi.plot
 import dwi.util
 
 
@@ -25,6 +26,8 @@ def parse_args():
                    help='index of voxel to use, or mean or median')
     p.add_argument('-m', '--pmaps', nargs='+', required=True,
                    help='pmap files, pairs grouped together')
+    p.add_argument('--figdir',
+                   help='figure output directory')
     return p.parse_args()
 
 
@@ -96,6 +99,45 @@ def bootstrap_icc(baselines, nboot=2000):
     return mean, ci1, ci2
 
 
+def plot(values, param, figdir):
+    """Plot a parameter; its two baselines and their differences.
+
+    This function was originally made in order to find outliers.
+    """
+    baselines = np.asarray(dwi.util.pairs(values))
+    n = len(baselines[0])
+    it = dwi.plot.generate_plots(ncols=3, titles=(param,)*3,
+                                 xlabels=('index',)*3,
+                                 ylabels=('value', 'difference', 'value'),
+                                 path='{}/{}.png'.format(figdir, param))
+    for i, plt in enumerate(it):
+        if i == 0:
+            # Plot absolute values.
+            x = range(2 * n)
+            y = sorted(values)
+            c = ('lightgray', 'white') * n
+            plt.scatter(x, y, c=c)
+            plt.axis((min(x), max(x), min(y), max(y)))
+        elif i == 1:
+            # Plot differences.
+            x = range(n)
+            y = sorted(np.abs(baselines[0] - baselines[1]))
+            plt.scatter(x, y, c='lightgray')
+            plt.axis((min(x), max(x), min(y), max(y)))
+        elif i == 2:
+            # Plot sample pairs as bars.
+            def key(pair):
+                a, b = pair
+                return abs(a-b)
+            pairs = baselines.T
+            pairs = np.asarray(sorted(pairs, key=key))
+            left = range(n)
+            bottom = np.min(pairs, axis=1)
+            height = np.max(pairs, axis=1) - bottom
+            plt.bar(left, height, bottom=bottom, color='lightgray')
+            plt.axis('tight')
+
+
 def main():
     args = parse_args()
     if args.patients:
@@ -127,6 +169,10 @@ def main():
     for values, param in zip(X.T, params):
         if param in skipped_params:
             continue
+        if dwi.util.all_equal(values):
+            continue
+        if args.figdir:
+            plot(values, param, args.figdir)
         baselines = dwi.util.pairs(values)
         d = dict(param=param)
         d.update(coefficients(*baselines, avgfun=np.median))
