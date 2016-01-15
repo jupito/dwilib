@@ -81,7 +81,6 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
         yield plt
     plt.tight_layout()
     if path is not None:
-        print('Plotting to {}...'.format(path))
         plt.savefig(path, bbox_inches='tight')
     else:
         plt.show()
