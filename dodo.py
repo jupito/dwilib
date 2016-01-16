@@ -23,8 +23,8 @@ def words(string, sep=','):
 
 
 # Imaging modes.
-MODES = [dwi.patient.ImageMode(_) for _ in words(get_var('mode',
-                                                         'DWI-Mono-ADCm'))]
+DEFAULT_MODE = 'DWI-Mono-ADCm'
+MODES = [dwi.util.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]
 MODE = MODES[0]
 
 # Sample lists (train, test, etc).
