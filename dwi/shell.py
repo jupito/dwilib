@@ -2,8 +2,24 @@
 
 from __future__ import absolute_import, division, print_function
 
+import dwi.util
+
 
 DWILIB = '~/src/dwilib/tools'
+
+
+def cmdline(*args, **kwargs):
+    """Construct a shell command string."""
+    l = list(args)
+    for k, v in kwargs.iteritems():
+        k = str(k)
+        dashes = '--' if len(k) > 1 else '-'
+        l.append(dashes + k)
+        if dwi.util.iterable(v) and not isinstance(v, basestring):
+            l.extend(v)
+        else:
+            l.append(v)
+    return ' '.join(str(x) for x in l)
 
 
 def paths_on_cmdline(paths):
@@ -116,13 +132,11 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None):
 
 def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
              winsize=5):
-    s = ('{prg} -v --mbb {m} --voxelsize {v} --winsize {w}'
-         ' --image {i} --prostate {pr} --lesions {l} --output {o}')
+    d = dict(v=(), mbb=mbb, voxelsize=voxelsize, winsize=winsize, image=image,
+             prostate=prostate, lesions=lesions, output=outpath)
     if param is not None:
-        s += ' --param {p}'
-    return s.format(prg=DWILIB+'/grid.py', m=mbb, v=voxelsize, w=winsize,
-                    i=image, p=param, pr=prostate, l=' '.join(lesions),
-                    o=outpath)
+        d.update(param=param)
+    return cmdline(DWILIB+'/grid.py', **d)
 
 
 def check_mask_overlap_cmd(container, other, fig):
