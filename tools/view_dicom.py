@@ -198,7 +198,6 @@ def main():
         print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
 
     if not args.info:
-        # plt.switch_backend('gtk')
         Gui(img, attrs['parameters'])
 
 
