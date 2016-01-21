@@ -54,7 +54,7 @@ def max_mask(mask, winsize):
     return r
 
 
-def portion_mask(mask, winsize, portion=1., resort_to_max=True):
+def portion_mask(mask, winsize, portion=1, resort_to_max=True):
     """Return a mask that selects (only) voxels that have the window at each
     selected voxel origin up to a minimum portion in the original mask selected
     (1 means the whole window must be selected, 0 gives the original mask).
@@ -130,7 +130,7 @@ def main():
         winsize = int(args.winspec)
         assert winsize > 0
         winshape = (1, winsize, winsize)
-        pmask = portion_mask(mask.array, winshape, args.portion)
+        pmask = portion_mask(mask.array, winshape, portion=args.portion)
     else:
         raise ValueError('Invalid window spec: {}'.format(args.winspec))
 
