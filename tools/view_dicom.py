@@ -2,7 +2,6 @@
 
 """View a multi-slice, multi-b-value DWI DICOM image via the matplotlib GUI."""
 
-# TODO Take only one path as argument.
 # TODO Rename to general image viewer, not just dicom.
 
 from __future__ import absolute_import, division, print_function
@@ -115,9 +114,8 @@ class Gui(object):
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--files', '-f', metavar='PATH',
-                   nargs='+', default=[], required=True,
-                   help='DICOM directory or file(s)')
+    p.add_argument('path',
+                   help='DICOM directory or HDF5 file')
     p.add_argument('--param', type=int,
                    help='parameter index')
     p.add_argument('--subwindow', '-s', metavar='i',
@@ -158,12 +156,7 @@ def replace_nans(img):
 
 def main():
     args = parse_args()
-
-    if len(args.files) == 1:
-        img, attrs = dwi.files.read_pmap(args.files[0])
-    else:
-        attrs = dwi.dicomfile.read_files(args.files)
-        img = attrs.pop('image')
+    img, attrs = dwi.files.read_pmap(args.path)
 
     if args.param is not None:
         img = img[..., args.param]
