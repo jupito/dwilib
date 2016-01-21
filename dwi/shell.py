@@ -8,10 +8,10 @@ import dwi.util
 DWILIB = '~/src/dwilib/tools'
 
 
-def cmdline(*args, **kwargs):
+def cmdline(*positionals, **options):
     """Construct a shell command string."""
-    l = list(args)
-    for k, v in kwargs.iteritems():
+    l = list(positionals)
+    for k, v in sorted(options.iteritems()):
         k = str(k)
         dashes = '--' if len(k) > 1 else '-'
         l.append(dashes + k)
