@@ -7,7 +7,6 @@ import argparse
 from collections import OrderedDict
 
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import dwi.files
