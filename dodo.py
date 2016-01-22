@@ -190,7 +190,7 @@ def task_standardize_transform():
             'file_dep': path_deps(cfgpath, inpath, mask),
             'targets': [outpath],
             'clean': True,
-        }
+            }
 
 
 def task_make_subregion():
@@ -228,7 +228,7 @@ def task_fit():
                     'file_dep': path_deps(inpath, mask),
                     'targets': [outpath],
                     'clean': True,
-                }
+                    }
 
 
 # def get_task_find_roi(mode, case, scan, algparams):
@@ -450,7 +450,7 @@ def task_merge_textures():
                     'actions': folders(outfile) + [cmd],
                     'file_dep': infiles,
                     'targets': [outfile],
-                }
+                    }
 
 
 def get_task_histogram(mode, masktype, samplelist):
@@ -466,7 +466,7 @@ def get_task_histogram(mode, masktype, samplelist):
         'actions': folders(figpath) + [cmd],
         'file_dep': path_deps(*inpaths),
         'targets': [figpath],
-    }
+        }
 
 
 def task_histogram():
@@ -490,7 +490,7 @@ def get_task_grid(mode, c, s, ls):
         'actions': folders(out) + [cmd],
         'file_dep': path_deps(pmap, prostate, *lesion),
         'targets': [target],
-    }
+        }
 
 
 def get_task_grid_texture(mode, c, s, ls, mth, ws):
@@ -508,7 +508,7 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws):
         'actions': folders(out) + [cmd],
         'file_dep': path_deps(pmap, prostate, *lesion),
         'targets': [target],
-    }
+        }
 
 
 def task_grid():
@@ -538,4 +538,4 @@ def task_grid():
 #                 'actions': folders(fig) + [cmd],
 #                 'file_dep': path_deps(container, other),
 #                 'targets': [fig],
-#             }
+#                 }
