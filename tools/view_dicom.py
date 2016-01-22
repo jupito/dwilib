@@ -116,8 +116,8 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('path',
                    help='DICOM directory or HDF5 file')
-    p.add_argument('--param', type=int,
-                   help='parameter index')
+    p.add_argument('--params', type=int, nargs='+',
+                   help='included parameter indices')
     p.add_argument('--subwindow', '-s', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, one-based)')
@@ -156,12 +156,7 @@ def replace_nans(img):
 
 def main():
     args = parse_args()
-    img, attrs = dwi.files.read_pmap(args.path)
-
-    if args.param is not None:
-        img = img[..., args.param]
-        img.shape += (1,)
-        attrs['parameters'] = attrs['parameters'][args.param]
+    img, attrs = dwi.files.read_pmap(args.path, params=args.params)
 
     print('Attributes:')
     for k, v in attrs.items():
