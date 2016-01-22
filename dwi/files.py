@@ -178,10 +178,11 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         raise Exception('Unknown format: {}'.format(fmt))
 
 
-def read_pmap(pathname, ondisk=False, fmt=None):
+def read_pmap(pathname, ondisk=False, fmt=None, params=None):
     """Read a parametric map.
 
-    With parameter ondisk it will not be read into memory.
+    With parameter ondisk it will not be read into memory. Parameter params
+    tells which parameter indices should be included.
     """
     if fmt is None:
         fmt = os.path.splitext(pathname)[1][1:]
@@ -201,4 +202,8 @@ def read_pmap(pathname, ondisk=False, fmt=None):
     if 'parameters' not in attrs:
         attrs['parameters'] = range(pmap.shape[-1])
     attrs['parameters'] = [str(x) for x in attrs['parameters']]
+    if params is not None:
+        params = list(params)
+        pmap = pmap[..., params]
+        attrs['parameters'] = [attrs['parameters'][x] for x in params]
     return pmap, attrs
