@@ -24,6 +24,8 @@ def parse_args(models):
                    help='input image file or DICOM directory')
     p.add_argument('--output', metavar='PATH', required=True,
                    help='output pmap file')
+    p.add_argument('--params', type=int, nargs='+',
+                   help='included parameter indices')
     p.add_argument('--average', action='store_true',
                    help='average input voxels into one')
     p.add_argument('--mask',
@@ -89,10 +91,11 @@ def main():
 
     model = [x for x in dwi.models.Models if x.name in args.model][0]
 
-    image, attrs = dwi.files.read_pmap(args.input)
+    image, attrs = dwi.files.read_pmap(args.input, params=args.params)
     assert image.ndim == 4, image.ndim
     if args.verbose:
         print('Read image', image.shape, image.dtype, args.input)
+        print('Parameters', attrs['parameters'])
     if args.mask:
         if args.verbose:
             print('Applying mask', args.mask)
@@ -121,6 +124,7 @@ def main():
     if args.verbose:
         n = np.count_nonzero(-np.isnan(image[..., 0]))
         print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
+        print('Guesses:', [len(p.guesses(1)) for p in model.params])
     timepoints = get_timepoints(model, attrs)
     params = get_params(model, timepoints)
     pmap = fit(image, timepoints, model)
