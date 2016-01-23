@@ -178,6 +178,18 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         raise Exception('Unknown format: {}'.format(fmt))
 
 
+def pick_params(pmap, attrs, params):
+    """Select a subset of parameters by their indices."""
+    params = list(params)
+    pmap = pmap[..., params]
+    if len(attrs['bset']) == len(attrs['parameters']):
+        attrs['bset'] = [attrs['bset'][x] for x in params]
+    if len(attrs['echotimes']) == len(attrs['parameters']):
+        attrs['echotimes'] = [attrs['echotimes'][x] for x in params]
+    attrs['parameters'] = [attrs['parameters'][x] for x in params]
+    return pmap, attrs
+
+
 def read_pmap(pathname, ondisk=False, fmt=None, params=None):
     """Read a parametric map.
 
@@ -203,7 +215,5 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None):
         attrs['parameters'] = range(pmap.shape[-1])
     attrs['parameters'] = [str(x) for x in attrs['parameters']]
     if params is not None:
-        params = list(params)
-        pmap = pmap[..., params]
-        attrs['parameters'] = [attrs['parameters'][x] for x in params]
+        pmap, attrs = pick_params(pmap, attrs, params)
     return pmap, attrs
