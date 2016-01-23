@@ -120,14 +120,17 @@ def histogram_cmd(inpaths, figpath):
         prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath)
 
 
-def fit_cmd(infile, outfile, model, mask=None, mbb=None):
+def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
     s = '{prg} -v --input {i} --output {o} --model {model}'
     if mask is not None:
         s += ' --mask {mask}'
     if mbb is not None:
         s += ' --mbb {mbb[0]} {mbb[1]} {mbb[2]}'
+    if params is not None:
+        s += ' --params {params}'
     return s.format(prg=DWILIB+'/fit.py', i=infile, o=outfile, model=model,
-                    mask=mask, mbb=mbb)
+                    mask=mask, mbb=mbb,
+                    params=' '.join(str(x) for x in params))
 
 
 def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
