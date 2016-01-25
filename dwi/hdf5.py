@@ -8,7 +8,15 @@ import h5py
 
 import dwi.util
 
+
 DEFAULT_DSETNAME = 'default'
+
+
+class Dataset(h5py.Dataset):
+    """Add some missing ndarray API to dataset."""
+    @property
+    def ndim(self):
+        return len(self.shape)
 
 
 def write_hdf5(filename, array, attrs, fillvalue=None,
@@ -43,7 +51,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
         dsetname = f.keys()[0]
     dset = f[dsetname]
     if ondisk:
-        array = dset
+        array = Dataset(dset.id)
     else:
         array = np.array(dset)
     attrs = OrderedDict(dset.attrs)
@@ -63,4 +71,4 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     # comp = 'lzf'  # Faster.
     dset = f.create_dataset(dsetname, shape, dtype=dtype, compression=comp,
                             shuffle=True, fletcher32=True, fillvalue=fillvalue)
-    return dset
+    return Dataset(dset.id)
