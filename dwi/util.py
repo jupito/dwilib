@@ -587,3 +587,14 @@ def mapped(shape, dtype, filler=None):
     if filler is not None:
         a.fill(filler)
     return a
+
+
+def atleast_nd(n, a):
+    """Return a view to array with at least n dimensions. This is
+    a generalization of numpy.atleast_{1,2,3}d() except all dimensions are
+    added in front.
+    """
+    a = np.asanyarray(a)
+    if a.ndim < n:
+        a = a.reshape((1,) * (n-a.ndim) + a.shape)
+    return a
