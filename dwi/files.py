@@ -182,9 +182,10 @@ def pick_params(pmap, attrs, params):
     """Select a subset of parameters by their indices."""
     params = list(params)
     pmap = pmap[..., params]
-    if len(attrs['bset']) == len(attrs['parameters']):
+    if 'bset' in attrs and len(attrs['bset']) == len(attrs['parameters']):
         attrs['bset'] = [attrs['bset'][x] for x in params]
-    if len(attrs['echotimes']) == len(attrs['parameters']):
+    if 'echotimes' in attrs and (len(attrs['echotimes']) ==
+                                 len(attrs['parameters'])):
         attrs['echotimes'] = [attrs['echotimes'][x] for x in params]
     attrs['parameters'] = [attrs['parameters'][x] for x in params]
     return pmap, attrs
