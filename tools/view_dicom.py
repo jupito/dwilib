@@ -21,12 +21,13 @@ class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
     def __init__(self, image, params):
         assert image.ndim == 4
+        assert image.shape[-1] == len(params)
         self.image = image
         self.params = params
-        self.i = 0
-        self.j = 0
-        self.update_x = True
-        self.update_y = True
+        self.i = 0  # Slice index.
+        self.j = 0  # Parameter index.
+        self.update_x = True  # Update horizontal?
+        self.update_y = True  # Update vertical?
         self.reverse_cmap = False
         self.cmaps = dict(
             b='Blues_r',
