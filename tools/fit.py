@@ -89,7 +89,7 @@ def main():
     models = ['{n}: {d}'.format(n=x.name, d=x.desc) for x in dwi.models.Models]
     args = parse_args(models)
 
-    model = [x for x in dwi.models.Models if x.name in args.model][0]
+    model = [x for x in dwi.models.Models if x.name == args.model][0]
 
     image, attrs = dwi.files.read_pmap(args.input, params=args.params)
     assert image.ndim == 4, image.ndim
