@@ -155,7 +155,16 @@ def replace_nans(img):
 
 def main():
     args = parse_args()
-    img, attrs = dwi.files.read_pmap(args.path, params=args.params)
+    img, attrs = dwi.files.read_pmap(args.path, ondisk=True,
+                                     params=args.params)
+    # Image must be read in memory, because it will probably be modified. We
+    # are using ondisk=True only to save memory.
+    try:
+        img = img[:]
+    except MemoryError as e:
+        print(e)
+        with img.astype('float16'):
+            img = img[:]
 
     print('Attributes:')
     for k, v in attrs.items():
