@@ -24,8 +24,7 @@ class Gui(object):
         assert image.shape[-1] == len(params)
         self.image = image
         self.params = params
-        self.i = 0  # Slice index.
-        self.j = 0  # Parameter index.
+        self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
         self.cmaps = dict(
@@ -40,7 +39,7 @@ class Gui(object):
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
         fig.canvas.mpl_connect('motion_notify_event', self.on_motion)
-        view = self.image[self.i, :, :, self.j]
+        view = self.image[self.pos[0], :, :, self.pos[1]]
         vmin, vmax = self.image.min(), self.image.max()
         self.im = plt.imshow(view, interpolation='none', vmin=vmin, vmax=vmax)
         self.show_help()
@@ -70,27 +69,26 @@ class Gui(object):
             self.update = [not _ for _ in self.update]
 
     def on_motion(self, event):
+        h, w = self.im.get_size()
         if self.update[0] and event.xdata:
-            h, w = self.im.get_size()
             relx = event.xdata / w
-            self.i = int(relx * self.image.shape[0])
+            self.pos[0] = int(relx * self.image.shape[0])
         if self.update[1] and event.ydata:
-            h, w = self.im.get_size()
             rely = event.ydata / h
-            self.j = int(rely * self.image.shape[-1])
+            self.pos[1] = int(rely * self.image.shape[-1])
         self.redraw(event)
 
     def redraw(self, event):
         if event.xdata and event.ydata:
             row = int(event.ydata)
             col = int(event.xdata)
-            val = self.image[self.i, row, col, self.j]
-            s = '\rPos: {s:2d},{r:3d},{c:3d},{b:2d} Value: {v:10g} Param: {p} '
-            d = dict(r=row, c=col, s=self.i, b=self.j, v=val,
-                     p=self.params[self.j])
+            val = self.image[self.pos[0], row, col, self.pos[1]]
+            s = '\rPos: {s:2d},{r:3d},{c:3d},{p:2d} Value: {v:10g} Param: {n} '
+            d = dict(r=row, c=col, s=self.pos[0], p=self.pos[1], v=val,
+                     n=self.params[self.pos[1]])
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
-        view = self.image[self.i, :, :, self.j]
+        view = self.image[self.pos[0], :, :, self.pos[1]]
         self.im.set_data(view)
         event.canvas.draw()
 
