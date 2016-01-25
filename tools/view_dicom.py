@@ -26,8 +26,7 @@ class Gui(object):
         self.params = params
         self.i = 0  # Slice index.
         self.j = 0  # Parameter index.
-        self.update_x = True  # Update horizontal?
-        self.update_y = True  # Update vertical?
+        self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
         self.cmaps = dict(
             b='Blues_r',
@@ -51,9 +50,9 @@ class Gui(object):
         if event.key == 'q':
             plt.close()
         if event.key == 'h':
-            self.update_x = not self.update_x
+            self.update[0] = not self.update[0]
         if event.key == 'v':
-            self.update_y = not self.update_y
+            self.update[1] = not self.update[1]
         if event.key == 'e':
             name = plt.get_cmap().name
             name = reverse_cmap(name)
@@ -68,15 +67,14 @@ class Gui(object):
 
     def on_click(self, event):
         if event.button == 1:
-            self.update_x = not self.update_x
-            self.update_y = not self.update_y
+            self.update = [not _ for _ in self.update]
 
     def on_motion(self, event):
-        if self.update_x and event.xdata:
+        if self.update[0] and event.xdata:
             h, w = self.im.get_size()
             relx = event.xdata / w
             self.i = int(relx * self.image.shape[0])
-        if self.update_y and event.ydata:
+        if self.update[1] and event.ydata:
             h, w = self.im.get_size()
             rely = event.ydata / h
             self.j = int(rely * self.image.shape[-1])
