@@ -24,6 +24,7 @@ class Gui(object):
         assert image.shape[-1] == len(params)
         self.image = image
         self.params = params
+        self.max_param_length = max(len(_) for _ in params)
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
@@ -83,9 +84,10 @@ class Gui(object):
             row = int(event.ydata)
             col = int(event.xdata)
             val = self.image[self.pos[0], row, col, self.pos[1]]
-            s = '\rPos: {s:2d},{r:3d},{c:3d},{p:2d} Value: {v:10g} Param: {n} '
+            s = ('\rPos: {s:2d},{r:3d},{c:3d},{p:2d}'
+                 ' Value: {v:10g} Param: {n:{l}} ')
             d = dict(r=row, c=col, s=self.pos[0], p=self.pos[1], v=val,
-                     n=self.params[self.pos[1]])
+                     n=self.params[self.pos[1]], l=self.max_param_length)
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[self.pos[0], :, :, self.pos[1]]
