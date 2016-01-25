@@ -35,7 +35,7 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     f.close()
 
 
-def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
+def read_hdf5(filename, ondisk=False, slices=None, dsetname=DEFAULT_DSETNAME):
     """Read an array with attributes from an HDF5 file.
 
     With parameter "ondisk" True it will not be read into memory."""
@@ -50,6 +50,8 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
             raise ValueError('Ambiguous content: {}'.format(filename))
         dsetname = f.keys()[0]
     dset = f[dsetname]
+    if slices is not None:
+        dset = dset[slices]
     if ondisk:
         array = Dataset(dset.id)
     else:
