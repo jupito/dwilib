@@ -51,7 +51,7 @@ def smoothen(x, y):
     return x_smooth, y_smooth
 
 
-def plot_histograms(Histograms, outfile, smooth=False):
+def plot_histograms(Histograms, outfile, title=None, smooth=False):
     """Plot subfigures, each having several histograms bundled together."""
     ncols, nrows = len(Histograms), 1
     fig = pl.figure(figsize=(ncols*6, nrows*6))
@@ -71,7 +71,10 @@ def plot_histograms(Histograms, outfile, smooth=False):
                     maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
-            pl.title('[{:.5g}, {:.5g}]'.format(minmin, maxmax))
+            s = '[{:.5g}, {:.5g}]'.format(minmin, maxmax)
+            if title is not None:
+                s = ' '.join([title, s])
+            pl.title(s)
     pl.tight_layout()
     print('Plotting to {}...'.format(outfile))
     pl.savefig(outfile, bbox_inches='tight')
@@ -85,19 +88,20 @@ def main():
     histograms_std = []
     for path in args.input:
         img, attrs = dwi.files.read_pmap(path, params=[args.param])
+        param = attrs['parameters'][0]
         original_shape, original_size = img.shape, img.size
         img = img[np.isfinite(img)]
         if args.verbose:
             s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
             print(s.format(s=original_shape, t=img.dtype,
                            fp=img.size/original_size, m=np.mean(img),
-                           fn=dwi.util.fivenums(img),
-                           param=attrs['parameters'][0], p=path))
+                           fn=dwi.util.fivenums(img), param=param, p=path))
         histograms.append(histogram(img, None, None))
         # cutoffs = img.min(), img.max()
         cutoffs = np.percentile(img, (0, 99))
         histograms_std.append(histogram(img, *cutoffs))
-    plot_histograms([histograms, histograms_std], args.fig, smooth=args.smooth)
+    plot_histograms([histograms, histograms_std], args.fig, title=param,
+                    smooth=args.smooth)
 
     # All together.
     # histograms = []
