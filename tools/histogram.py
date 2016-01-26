@@ -52,7 +52,7 @@ def smoothen(x, y):
 
 
 def plot_histograms(Histograms, outfile, smooth=False):
-    """Plot rows of histograms."""
+    """Plot subfigures, each having several histograms bundled together."""
     ncols, nrows = len(Histograms), 1
     fig = pl.figure(figsize=(ncols*6, nrows*6))
     # pl.yscale('log')
