@@ -84,14 +84,15 @@ def main():
     histograms = []
     histograms_std = []
     for path in args.input:
-        img, _ = dwi.files.read_pmap(path)
-        img = img[..., args.param]
+        img, attrs = dwi.files.read_pmap(path, params=[args.param])
         original_shape, original_size = img.shape, img.size
         img = img[np.isfinite(img)]
         if args.verbose:
-            print('Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {p}'.format(
-                s=original_shape, t=img.dtype, fp=img.size/original_size,
-                m=np.mean(img), fn=dwi.util.fivenums(img), p=path))
+            s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
+            print(s.format(s=original_shape, t=img.dtype,
+                           fp=img.size/original_size, m=np.mean(img),
+                           fn=dwi.util.fivenums(img),
+                           param=attrs['parameters'][0], p=path))
         histograms.append(histogram(img, None, None))
         # cutoffs = img.min(), img.max()
         cutoffs = np.percentile(img, (0, 99))
