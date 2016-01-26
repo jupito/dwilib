@@ -22,6 +22,8 @@ def parse_args():
                    help='image parameter index to use')
     p.add_argument('--fig', required=True,
                    help='output figure file')
+    p.add_argument('--smooth', action='store_true',
+                   help='smoothen the histogram by spline interpolation')
     return p.parse_args()
 
 
@@ -39,7 +41,7 @@ def histogram(a, m1=None, m2=None, bins=20):
     return hist, bin_centers, mn, mx
 
 
-def plot_histograms(Histograms, outfile):
+def plot_histograms(Histograms, outfile, smooth=False):
     import pylab as pl
     ncols, nrows = len(Histograms), 1
     fig = pl.figure(figsize=(ncols*6, nrows*6))
@@ -49,7 +51,14 @@ def plot_histograms(Histograms, outfile):
             fig.add_subplot(1, len(Histograms), i+1)
             minmin, maxmax = None, None
             for hist, bins, mn, mx in histograms:
-                pl.plot(bins, hist)
+                x, y = bins, hist
+                if smooth:
+                    import scipy.interpolate
+                    x_smooth = np.linspace(min(x), max(x), 300)
+                    y_smooth = scipy.interpolate.spline(x, y, x_smooth)
+                    y_smooth[y_smooth < 0] = 0
+                    x, y = x_smooth, y_smooth
+                pl.plot(x, y)
                 if minmin is None:
                     minmin = mn
                 if maxmax is None:
@@ -81,7 +90,7 @@ def main():
         # cutoffs = img.min(), img.max()
         cutoffs = np.percentile(img, (1, 99))
         histograms_std.append(histogram(img, *cutoffs))
-    plot_histograms([histograms, histograms_std], args.fig)
+    plot_histograms([histograms, histograms_std], args.fig, smooth=args.smooth)
 
     # All together.
     # histograms = []
