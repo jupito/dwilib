@@ -88,7 +88,7 @@ def main():
                 m=np.mean(img), fn=dwi.util.fivenums(img), p=path))
         histograms.append(histogram(img, None, None))
         # cutoffs = img.min(), img.max()
-        cutoffs = np.percentile(img, (1, 99))
+        cutoffs = np.percentile(img, (0, 99))
         histograms_std.append(histogram(img, *cutoffs))
     plot_histograms([histograms, histograms_std], args.fig, smooth=args.smooth)
 
