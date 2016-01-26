@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function
 import argparse
 
 import numpy as np
+import pylab as pl
+import scipy.interpolate
 
 import dwi.files
 import dwi.util
@@ -41,8 +43,16 @@ def histogram(a, m1=None, m2=None, bins=20):
     return hist, bin_centers, mn, mx
 
 
+def smoothen(x, y):
+    """Smoothen histogram."""
+    x_smooth = np.linspace(min(x), max(x), 300)
+    y_smooth = scipy.interpolate.spline(x, y, x_smooth)
+    y_smooth[y_smooth < 0] = 0  # Don't let it dive negative.
+    return x_smooth, y_smooth
+
+
 def plot_histograms(Histograms, outfile, smooth=False):
-    import pylab as pl
+    """Plot rows of histograms."""
     ncols, nrows = len(Histograms), 1
     fig = pl.figure(figsize=(ncols*6, nrows*6))
     # pl.yscale('log')
@@ -53,11 +63,7 @@ def plot_histograms(Histograms, outfile, smooth=False):
             for hist, bins, mn, mx in histograms:
                 x, y = bins, hist
                 if smooth:
-                    import scipy.interpolate
-                    x_smooth = np.linspace(min(x), max(x), 300)
-                    y_smooth = scipy.interpolate.spline(x, y, x_smooth)
-                    y_smooth[y_smooth < 0] = 0
-                    x, y = x_smooth, y_smooth
+                    x, y = smoothen(x, y)
                 pl.plot(x, y)
                 if minmin is None:
                     minmin = mn
