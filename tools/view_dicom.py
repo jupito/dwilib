@@ -119,7 +119,7 @@ def parse_args():
                    help='included parameter indices')
     p.add_argument('--subwindow', '-s', metavar='i',
                    nargs=6, default=[], type=int,
-                   help='ROI (6 integers, one-based)')
+                   help='ROI (6 integers, zero-based)')
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
     p.add_argument('--std',
@@ -172,7 +172,7 @@ def main():
 
     if args.subwindow:
         # If we don't take a copy here, the normalization below fails. :I
-        img = dwi.util.crop_image(img, args.subwindow, onebased=True).copy()
+        img = dwi.util.crop_image(img, args.subwindow, onebased=False).copy()
 
     n = replace_nans(img)
     if n:
