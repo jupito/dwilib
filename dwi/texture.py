@@ -8,6 +8,8 @@ slices.
 Output type can be one of the following: 'map' just returns the map or spreads
 the single values over all selected voxels, 'mean' and 'median' return just the
 single values or reduces the map into a single average value.
+
+Scikit-image and Mahotas libraries are used for the calculations.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -222,10 +224,11 @@ def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
     Invariant to global illumination change, local contrast magnitude, local
     rotation.
     """
-    from dwi import lbp
-    lbp_data = lbp.lbp(img, neighbours, radius, roinv, uniform)
-    lbp_freq_data, n_patterns = lbp.get_freqs(lbp_data, winsize, neighbours,
-                                              roinv, uniform)
+    # TODO: See if better replace Jonne's implementation with skimage/mahotas.
+    import dwi.lbp
+    lbp_data = dwi.lbp.lbp(img, neighbours, radius, roinv, uniform)
+    lbp_freq_data, n_patterns = dwi.lbp.get_freqs(lbp_data, winsize,
+                                                  neighbours, roinv, uniform)
     return lbp_data, lbp_freq_data, n_patterns
 
 
