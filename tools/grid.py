@@ -39,32 +39,6 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path, expected_voxel_spacing=None, n_dec=3, container=None,
-              allowed_outside=0.2):
-    """Read pmap as a mask.
-
-    Optionally expect voxel spacing to match up to a certain number of
-    decimals. The optional parameter allowed_outside indicates how much of the
-    lesion volume may be outside of the prostate without an error being raised.
-    """
-    mask, attrs = dwi.files.read_pmap(path)
-    mask = mask[..., 0].astype(np.bool)
-    if expected_voxel_spacing is not None:
-        voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
-        expected_voxel_spacing = [round(x, n_dec) for x in
-                                  expected_voxel_spacing]
-        if voxel_spacing != expected_voxel_spacing:
-            raise ValueError('Expected voxel spacing {}, got {}'.format(
-                expected_voxel_spacing, voxel_spacing))
-    if container is not None:
-        portion_outside_container = (np.count_nonzero(mask[~container]) /
-                                     np.count_nonzero(mask))
-        if portion_outside_container > allowed_outside:
-            s = '{}: Portion of selected voxels outside container is {:%}'
-            raise ValueError(s.format(path, portion_outside_container))
-    return mask
-
-
 def get_mbb(mask, voxel_spacing, pad):
     """Get mask minimum bounding box as slices, with minimum padding in mm."""
     padding = tuple(int(np.ceil(pad / x)) for x in voxel_spacing)
@@ -195,9 +169,10 @@ def main():
         image.shape += (1,)
         attrs['parameters'] = [attrs['parameters'][args.param]]
     voxel_spacing = attrs['voxel_spacing']
-    prostate = read_mask(args.prostate, expected_voxel_spacing=voxel_spacing)
-    lesion = [read_mask(x, expected_voxel_spacing=voxel_spacing,
-                        container=prostate) for x in args.lesions]
+    prostate = dwi.files.read_mask(args.prostate,
+                                   expected_voxel_spacing=voxel_spacing)
+    lesion = [dwi.files.read_mask(x, expected_voxel_spacing=voxel_spacing,
+                                  container=prostate) for x in args.lesions]
     lesion = dwi.util.unify_masks(lesion)
     if args.verbose:
         print('Lesions:', len(args.lesions))
