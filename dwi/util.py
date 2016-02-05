@@ -602,5 +602,4 @@ def atleast_nd(n, a):
 
 def unify_masks(masks):
     """Unify a sequence of masks into one."""
-    # return np.sum(masks, axis=0, dtype=np.bool)
     return reduce(np.maximum, masks)
