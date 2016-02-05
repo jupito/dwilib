@@ -39,21 +39,23 @@ def parse_args():
     return p.parse_args()
 
 
-def read_mask(path, expected_voxel_spacing, n_dec=3, container=None,
+def read_mask(path, expected_voxel_spacing=None, n_dec=3, container=None,
               allowed_outside=0.2):
-    """Read pmap as a mask. Expect voxel spacing to match up to a certain
-    number of decimals.
+    """Read pmap as a mask.
 
-    The optional parameter allowed_outside indicates how much of the lesion
-    volume may be outside of the prostate without an error being raised.
+    Optionally expect voxel spacing to match up to a certain number of
+    decimals. The optional parameter allowed_outside indicates how much of the
+    lesion volume may be outside of the prostate without an error being raised.
     """
     mask, attrs = dwi.files.read_pmap(path)
     mask = mask[..., 0].astype(np.bool)
-    voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
-    expected_voxel_spacing = [round(x, n_dec) for x in expected_voxel_spacing]
-    if voxel_spacing != expected_voxel_spacing:
-        raise ValueError('Expected voxel spacing {}, got {}'.format(
-            expected_voxel_spacing, voxel_spacing))
+    if expected_voxel_spacing is not None:
+        voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
+        expected_voxel_spacing = [round(x, n_dec) for x in
+                                  expected_voxel_spacing]
+        if voxel_spacing != expected_voxel_spacing:
+            raise ValueError('Expected voxel spacing {}, got {}'.format(
+                expected_voxel_spacing, voxel_spacing))
     if container is not None:
         portion_outside_container = (np.count_nonzero(mask[~container]) /
                                      np.count_nonzero(mask))
@@ -193,10 +195,10 @@ def main():
         image.shape += (1,)
         attrs['parameters'] = [attrs['parameters'][args.param]]
     voxel_spacing = attrs['voxel_spacing']
-    prostate = read_mask(args.prostate, voxel_spacing)
-    lesion = dwi.util.unify_masks([read_mask(x, voxel_spacing,
-                                             container=prostate) for x in
-                                   args.lesions])
+    prostate = read_mask(args.prostate, expected_voxel_spacing=voxel_spacing)
+    lesion = [read_mask(x, expected_voxel_spacing=voxel_spacing,
+                        container=prostate) for x in args.lesions]
+    lesion = dwi.util.unify_masks(lesion)
     if args.verbose:
         print('Lesions:', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
