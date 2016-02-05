@@ -30,7 +30,7 @@ class ImageMode(object):
         return iter(self.value)
 
     def __getitem__(self, key):
-        return self.value[key]
+        return self.__class__(self.value[key])
 
     def __len__(self):
         return len(self.value)
