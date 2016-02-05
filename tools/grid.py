@@ -63,12 +63,6 @@ def read_mask(path, expected_voxel_spacing, n_dec=3, container=None,
     return mask
 
 
-def unify_masks(masks):
-    """Unify a sequence of masks into one."""
-    # return np.sum(masks, axis=0, dtype=np.bool)
-    return reduce(np.maximum, masks)
-
-
 def get_mbb(mask, voxel_spacing, pad):
     """Get mask minimum bounding box as slices, with minimum padding in mm."""
     padding = tuple(int(np.ceil(pad / x)) for x in voxel_spacing)
@@ -200,8 +194,9 @@ def main():
         attrs['parameters'] = [attrs['parameters'][args.param]]
     voxel_spacing = attrs['voxel_spacing']
     prostate = read_mask(args.prostate, voxel_spacing)
-    lesion = unify_masks([read_mask(x, voxel_spacing, container=prostate) for
-                          x in args.lesions])
+    lesion = dwi.util.unify_masks([read_mask(x, voxel_spacing,
+                                             container=prostate) for x in
+                                   args.lesions])
     if args.verbose:
         print('Lesions:', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
