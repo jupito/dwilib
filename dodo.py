@@ -146,6 +146,7 @@ def path_deps(*paths):
             paths[i] = dwi.util.sglob(path)
     # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
     paths = [x for x in paths if not isdir(x)]  # Don't depend on (DICOM) dirs.
+    assert paths, 'Empty path dependency list'
     return paths
 
 
