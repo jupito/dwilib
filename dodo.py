@@ -3,7 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from collections import defaultdict
 from itertools import chain, product
-from os.path import dirname
+from os.path import dirname, isdir
 
 from doit import get_var
 from doit.tools import check_timestamp_unchanged, create_folder
@@ -144,8 +144,8 @@ def path_deps(*paths):
     for i, path in enumerate(paths):
         if '*' in path or ('[' in path and ']' in path):
             paths[i] = dwi.util.sglob(path)
-    paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
-    # paths = [x for x in paths if not isdir(x)]
+    # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
+    paths = [x for x in paths if not isdir(x)]  # Don't depend on (DICOM) dirs.
     return paths
 
 
@@ -210,25 +210,25 @@ def task_make_subregion():
                     }
 
 
-def task_fit():
-    """Fit models to imaging data."""
-    for mode, sl in product(MODES, SAMPLELISTS):
-        if mode[0] in ('T2',):
-            for c, s in cases_scans(mode, sl):
-                inpath = pmap_path(mode, c, s)
-                outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
-                model = 'T2'
-                mask = mask_path(mode, 'prostate', c, s)
-                mbb = (0, 20, 20)
-                cmd = dwi.shell.fit_cmd(inpath, outpath, model, mask=mask,
-                                        mbb=mbb)
-                yield {
-                    'name': name(mode, c, s, model),
-                    'actions': folders(outpath) + [cmd],
-                    'file_dep': path_deps(inpath, mask),
-                    'targets': [outpath],
-                    'clean': True,
-                    }
+# def task_fit():
+#     """Fit models to imaging data."""
+#     for mode, sl in product(MODES, SAMPLELISTS):
+#         if mode[0] in ('T2',):
+#             for c, s in cases_scans(mode, sl):
+#                 inpath = pmap_path(mode, c, s)
+#                 outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
+#                 model = 'T2'
+#                 mask = mask_path(mode, 'prostate', c, s)
+#                 mbb = (0, 20, 20)
+#                 cmd = dwi.shell.fit_cmd(inpath, outpath, model, mask=mask,
+#                                         mbb=mbb)
+#                 yield {
+#                     'name': name(mode, c, s, model),
+#                     'actions': folders(outpath) + [cmd],
+#                     'file_dep': path_deps(inpath, mask),
+#                     'targets': [outpath],
+#                     'clean': True,
+#                     }
 
 
 # def get_task_find_roi(mode, case, scan, algparams):
@@ -464,8 +464,9 @@ def get_task_histogram(mode, masktype, samplelist):
     return {
         'name': name(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
-        'file_dep': path_deps(*inpaths),
+        # 'file_dep': path_deps(*inpaths),
         'targets': [figpath],
+        'uptodate': [check_timestamp_unchanged(x) for x in inpaths],
         }
 
 
