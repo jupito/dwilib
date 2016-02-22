@@ -205,8 +205,9 @@ def task_make_subregion():
                 yield {
                     'name': name(mode, case, scan),
                     'actions': folders(subregion) + [cmd],
-                    'file_dep': path_deps(mask),
+                    # 'file_dep': path_deps(mask),
                     'targets': [subregion],
+                    'uptodate': [check_timestamp_unchanged(mask)],
                     'clean': True,
                     }
 
@@ -271,8 +272,9 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
-        'file_dep': path_deps(mask, pmap),
+        # 'file_dep': path_deps(mask, pmap),
         'targets': [roi],
+        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
@@ -289,9 +291,9 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': path_deps(mask, pmap),
+        # 'file_dep': path_deps(mask, pmap),
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(pmap)],
+        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
@@ -306,9 +308,9 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     return {
         'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': [mask, pmap],
+        # 'file_dep': [mask, pmap],
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(pmap)],
+        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
