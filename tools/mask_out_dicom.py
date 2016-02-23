@@ -54,6 +54,7 @@ def mask_out_slice(mask_slice, pathname):
 
     See https://code.google.com/p/pydicom/wiki/WorkingWithPixelData
     """
+    assert mask_slice.dtype == np.bool, mask_slice.dtype
     ds = dicom.read_file(pathname)
     if mask_slice.shape != ds.pixel_array.shape:
         raise Exception('Slice shape mismatch')
