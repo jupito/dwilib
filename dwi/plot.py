@@ -10,8 +10,8 @@ import dwi.util
 
 
 # plt.rcParams['image.aspect'] = 'equal'
-# plt.rcParams['image.cmap'] = 'jet'
-# plt.rcParams['image.interpolation'] = 'none'
+plt.rcParams['image.cmap'] = 'viridis'
+plt.rcParams['image.interpolation'] = 'none'
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
@@ -68,18 +68,20 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
 def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
                    path=None):
     """Generate subfigures, yielding each context for plotting."""
-    fig = plt.figure(figsize=(ncols*6, nrows*6))
     if titles is None:
-        titles = (str(x) for x in xrange(ncols * nrows))
+        titles = [str(x) for x in range(ncols * nrows)]
+    assert len(titles) == nrows * ncols
+    fig = plt.figure(figsize=(ncols*6, nrows*6))
     for i, title in enumerate(titles):
         ax = fig.add_subplot(nrows, ncols, i+1)
-        ax.set_title(title)
+        if title is not None:
+            ax.set_title(title)
         if xlabels is not None:
             ax.set_xlabel(xlabels[i])
         if ylabels is not None:
             ax.set_ylabel(ylabels[i])
         yield plt
-    plt.tight_layout()
+    # plt.tight_layout()
     if path is not None:
         plt.savefig(path, bbox_inches='tight')
     else:
