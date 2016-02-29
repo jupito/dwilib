@@ -75,7 +75,7 @@ def read_slice(filename, d):
         raise Exception('Orientation mismatch.')
     d.setdefault('shape', df.pixel_array.shape)
     if d['shape'] != df.pixel_array.shape:
-        raise Exception('Shape mismatch.')
+        raise Exception('Shape mismatch: {}'.format(filename))
     d.setdefault('dtype', df.pixel_array.dtype)
     if d['dtype'] != df.pixel_array.dtype:
         raise Exception('Type mismatch.')
