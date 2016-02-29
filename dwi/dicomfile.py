@@ -12,6 +12,8 @@ import dwi.util
 def read_dir(dirname):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
+    if os.path.isfile(dirname):
+        return read_files([dirname])
     # If there's a single subdir, descend.
     filenames = os.listdir(dirname)
     if len(filenames) == 1:
