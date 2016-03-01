@@ -12,13 +12,14 @@ def cmdline(*positionals, **options):
     """Construct a shell command string."""
     l = list(positionals)
     for k, v in sorted(options.iteritems()):
-        k = str(k)
-        dashes = '--' if len(k) > 1 else '-'
-        l.append(dashes + k)
-        if dwi.util.iterable(v) and not isinstance(v, basestring):
-            l.extend(v)
-        else:
-            l.append(v)
+        if v is not None:
+            k = str(k)
+            dashes = '--' if len(k) > 1 else '-'
+            l.append(dashes + k)
+            if dwi.util.iterable(v) and not isinstance(v, basestring):
+                l.extend(v)
+            else:
+                l.append(v)
     return ' '.join(str(x) for x in l)
 
 
