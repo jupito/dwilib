@@ -34,6 +34,8 @@ def parse_args():
                    help='rescaled voxel size in millimeters (try 0.25)')
     p.add_argument('--winsize', type=float, default=5,
                    help='window (cube) size in millimeters (default 5)')
+    p.add_argument('--voxelspacing', type=float, nargs=3,
+                   help='force voxel spacing (leave out to read from image)')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -177,6 +179,8 @@ def main():
     if args.verbose:
         print('Lesions:', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
+    if args.voxelspacing is not None:
+        voxel_spacing = args.voxelspacing
 
     if args.verbose:
         physical_size = tuple(x*y for x, y in zip(image.shape[:3],
