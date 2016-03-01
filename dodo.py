@@ -489,7 +489,9 @@ def get_task_grid(mode, c, s, ls):
     # fmt = 'h5'
     fmt = 'txt'
     out, target = grid_path(mode, c, s, ['raw'], fmt=fmt)
-    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out)
+    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out)
+    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+                             voxelspacing=(5, 1, 1))
     return {
         'name': name(mode, c, s),
         'actions': folders(out) + [cmd],
