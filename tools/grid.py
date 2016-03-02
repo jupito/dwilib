@@ -36,6 +36,8 @@ def parse_args():
                    help='window (cube) size in millimeters (default 5)')
     p.add_argument('--voxelspacing', type=float, nargs=3,
                    help='force voxel spacing (leave out to read from image)')
+    p.add_argument('--lesiontypes', metavar='TYPE', nargs='+',
+                   help='lesion types in mask order (CZ or PZ)')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
@@ -87,19 +89,28 @@ def generate_windows(imageshape, winshape, center):
         yield slices, relative
 
 
-def get_datapoint(image, prostate, lesion):
+def get_datapoint(image, prostate, lesion, lesiontype):
     """Extract output datapoint for a cube.
 
     The cube window is included if at least half of it is of prostate.
     """
-    assert image.shape == prostate.shape == lesion.shape
+    assert image.shape == prostate.shape == lesion.shape == lesiontype.shape
     if np.isnan(image).all():
         value = np.nan
     else:
         value = np.nanmean(image)
+    nneg = np.count_nonzero(lesiontype < 0)
+    npos = np.count_nonzero(lesiontype > 0)
+    # Label as lesiontype -1 or 1 based on majority, or 0 if no lesion.
+    lt = 0
+    if nneg > 0:
+        lt = -1
+    if npos > nneg:
+        lt = 1
     return (
         np.count_nonzero(prostate) / prostate.size,
         np.count_nonzero(lesion) / prostate.size,
+        lt,
         value,
     )
 
@@ -123,7 +134,7 @@ def filled(shape, value, **kwargs):
     return a
 
 
-def process(image, voxel_spacing, prostate, lesion, voxelsize,
+def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
             metric_winshape, verbose):
     """Process one parameter."""
     # Rescale image and masks.
@@ -138,6 +149,7 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
         lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
         lesion = float2bool_mask(lesion)
         assert image.shape == prostate.shape == lesion.shape
+        # TODO Also scale lesiontype.
 
     if verbose:
         physical_size = tuple(x*y for x, y in zip(image.shape, voxel_spacing))
@@ -155,10 +167,11 @@ def process(image, voxel_spacing, prostate, lesion, voxelsize,
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
     # TODO: Should determine output grid size from prostate size.
-    a = filled((20, 30, 30, 3), np.nan, dtype=np.float32)
+    a = filled((20, 30, 30, 4), np.nan, dtype=np.float32)
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
-        values = get_datapoint(image[slices], prostate[slices], lesion[slices])
+        values = get_datapoint(image[slices], prostate[slices], lesion[slices],
+                               lesiontype[slices])
         a[indices] = values
     return a
 
@@ -173,14 +186,26 @@ def main():
     voxel_spacing = attrs['voxel_spacing']
     prostate = dwi.files.read_mask(args.prostate,
                                    expected_voxel_spacing=voxel_spacing)
-    lesion = [dwi.files.read_mask(x, expected_voxel_spacing=voxel_spacing,
-                                  container=prostate) for x in args.lesions]
-    lesion = dwi.util.unify_masks(lesion)
+    lesions = [dwi.files.read_mask(x, expected_voxel_spacing=voxel_spacing,
+                                   container=prostate) for x in args.lesions]
+    lesion = dwi.util.unify_masks(lesions)
+    lesiontype = np.zeros_like(lesion, dtype=np.int8)
     if args.verbose:
         print('Lesions:', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
     if args.voxelspacing is not None:
         voxel_spacing = args.voxelspacing
+    if args.lesiontypes is not None:
+        print('Lesion types:', args.lesiontypes)
+        for lt, l in zip(args.lesiontypes, lesions):
+            if lt.lower() == 'cz':
+                lesiontype[l] = -1
+            elif lt.lower() == 'pz':
+                lesiontype[l] = 1
+            else:
+                raise ValueError('Invalid lesiontype: {}'.format(lt))
+    print(lesiontype.mean(), np.count_nonzero(lesiontype == 1),
+          np.count_nonzero(lesiontype == -1))
 
     if args.verbose:
         physical_size = tuple(x*y for x, y in zip(image.shape[:3],
@@ -194,7 +219,9 @@ def main():
     image = image[slices]
     prostate = prostate[slices]
     lesion = lesion[slices]
-    assert image.shape[:3] == prostate.shape == lesion.shape
+    lesiontype = lesiontype[slices]
+    assert (image.shape[:3] == prostate.shape == lesion.shape ==
+            lesiontype.shape)
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
@@ -203,13 +230,13 @@ def main():
     metric_winshape = (args.winsize,) * 3
     root, ext = os.path.splitext(args.output)
     for i, param in enumerate(attrs['parameters']):
-        a = process(image[..., i], voxel_spacing, prostate, lesion,
+        a = process(image[..., i], voxel_spacing, prostate, lesion, lesiontype,
                     args.voxelsize, metric_winshape, args.verbose)
         if ext == '.txt':
             # Exclude non-prostate cubes from ASCII output.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
-        params = ['prostate', 'lesion', param]
+        params = ['prostate', 'lesion', 'lesiontype', param]
         attrs = dict(parameters=params, n_lesions=len(args.lesions),
                      voxel_spacing=metric_winshape)
         outfile = '{r}-{i}{e}'.format(r=root, i=i, e=ext)
