@@ -98,7 +98,7 @@ def get_datapoint(image, prostate, lesion, lesiontype):
     if np.isnan(image).all():
         value = np.nan
     else:
-        value = np.nanmean(image)
+        value = np.nanmedian(image)
     nneg = np.count_nonzero(lesiontype < 0)
     npos = np.count_nonzero(lesiontype > 0)
     # Label as lesiontype -1 or 1 based on majority, or 0 if no lesion.
