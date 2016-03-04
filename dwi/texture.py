@@ -72,6 +72,7 @@ def abbrev(name):
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
+    img = np.asanyarray(img)
     d = OrderedDict()
     d['mean'] = np.mean(img)
     d['stddev'] = np.std(img)
