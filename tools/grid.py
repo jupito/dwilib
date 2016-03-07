@@ -14,6 +14,7 @@ import scipy.ndimage
 import scipy.stats
 
 import dwi.files
+import dwi.texture
 import dwi.util
 
 
@@ -91,16 +92,20 @@ def generate_windows(imageshape, winshape, center):
         yield slices, relative
 
 
-def get_datapoint(image, prostate, lesion, lesiontype):
+def get_datapoint(image, prostate, lesion, lesiontype, stat):
     """Extract output datapoint for a cube.
 
-    The cube window is included if at least half of it is of prostate.
+    If stat is None, median is used. Otherwise, see dwi.texture.stats().
     """
     assert image.shape == prostate.shape == lesion.shape == lesiontype.shape
     if np.isnan(image).all():
         value = np.nan
     else:
-        value = np.nanmedian(image)
+        image = image[np.isfinite(image)]  # Remove nan values.
+        if stat is None:
+            value = np.median(image)
+        else:
+            value = dwi.texture.stats(image)[stat]
     nneg = np.count_nonzero(lesiontype < 0)
     npos = np.count_nonzero(lesiontype > 0)
     # Label as lesiontype -1 or 1 based on majority, or 0 if no lesion.
@@ -137,7 +142,7 @@ def filled(shape, value, **kwargs):
 
 
 def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
-            metric_winshape, verbose):
+            metric_winshape, verbose, stat):
     """Process one parameter."""
     # Rescale image and masks.
     if voxelsize is not None:
@@ -173,7 +178,7 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     for slices, relative in windows:
         indices = tuple(s/2+r for s, r in zip(a.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
-                               lesiontype[slices])
+                               lesiontype[slices], stat)
         a[indices] = values
     return a
 
@@ -233,7 +238,7 @@ def main():
     root, ext = os.path.splitext(args.output)
     for i, param in enumerate(attrs['parameters']):
         a = process(image[..., i], voxel_spacing, prostate, lesion, lesiontype,
-                    args.voxelsize, metric_winshape, args.verbose)
+                    args.voxelsize, metric_winshape, args.verbose, None)
         if ext == '.txt':
             # Exclude non-prostate cubes from ASCII output.
             nans = np.isnan(a[..., -1])
