@@ -134,13 +134,6 @@ def print_correlations(data, params):
             print(s.format(params[i], params[j], rho, pvalue))
 
 
-def filled(shape, value, **kwargs):
-    """Return a new array of given shape and type, initialized by value."""
-    a = np.empty(shape, **kwargs)
-    a.fill(value)
-    return a
-
-
 def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
             metric_winshape, verbose, stat):
     """Process one parameter."""
@@ -173,14 +166,16 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
         print('Prostate centroid:', centroid)
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
+    # Create and fill grid array.
     # TODO: Should determine output grid size from prostate size.
-    a = filled((20, 30, 30, 4), np.nan, dtype=np.float32)
+    gridshape = (20, 30, 30, 4)
+    grid = np.full(gridshape, np.nan, dtype=np.float32)
     for slices, relative in windows:
-        indices = tuple(s/2+r for s, r in zip(a.shape, relative))
+        indices = tuple(s/2+r for s, r in zip(grid.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
                                lesiontype[slices], stat)
-        a[indices] = values
-    return a
+        grid[indices] = values
+    return grid
 
 
 def main():
