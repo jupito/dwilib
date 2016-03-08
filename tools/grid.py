@@ -167,10 +167,14 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
     # Create and fill grid array.
-    # gridshape = (20, 30, 30, 4)
-    minrel, maxrel = windows[0][1], windows[-1][1]
-    gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)] + [4]
-    grid = np.full(gridshape, np.nan, dtype=np.float32)
+    # gridshape = (20, 30, 30)
+    # minrel, maxrel = windows[0][1], windows[-1][1]
+    # gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)]
+    metric_gridshape = (100, 150, 150)  # Grid shape in millimeters.
+    gridshape = [g // w for g, w in zip(metric_gridshape, metric_winshape)]
+    gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
+    grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
+    print('Grid shape:', grid.shape)
     for slices, relative in windows:
         indices = tuple(s//2+r for s, r in zip(grid.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
