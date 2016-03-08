@@ -10,6 +10,7 @@ from itertools import product
 import os.path
 
 import numpy as np
+import scipy as sp
 import scipy.ndimage
 import scipy.stats
 
@@ -183,6 +184,16 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     return grid
 
 
+def filter_image(image):
+    """Filter image."""
+    print(np.isfinite(image).size)
+    for p in range(image.shape[-1]):
+        for i in range(image.shape[0]):
+            image[i, :, :, p] = sp.ndimage.filters.median_filter(
+                    image[i, :, :, p], size=(3, 3), mode='nearest')
+    print(np.isfinite(image).size)
+
+
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image, ondisk=True)
@@ -229,6 +240,8 @@ def main():
     lesiontype = lesiontype[slices]
     assert (image.shape[:3] == prostate.shape == lesion.shape ==
             lesiontype.shape)
+
+    # filter_image(image)
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
