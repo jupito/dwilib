@@ -167,11 +167,12 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
     # Create and fill grid array.
-    # TODO: Should determine output grid size from prostate size.
-    gridshape = (20, 30, 30, 4)
+    # gridshape = (20, 30, 30, 4)
+    minrel, maxrel = windows[0][1], windows[-1][1]
+    gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)] + [4]
     grid = np.full(gridshape, np.nan, dtype=np.float32)
     for slices, relative in windows:
-        indices = tuple(s/2+r for s, r in zip(grid.shape, relative))
+        indices = tuple(s//2+r for s, r in zip(grid.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
                                lesiontype[slices], stat)
         grid[indices] = values
