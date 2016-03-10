@@ -42,7 +42,7 @@ class Gui(object):
         fig.canvas.mpl_connect('button_release_event', self.on_click)
         fig.canvas.mpl_connect('motion_notify_event', self.on_motion)
         view = self.image[self.pos[0], :, :, self.pos[1]]
-        vmin, vmax = self.image.min(), self.image.max()
+        vmin, vmax = np.nanmin(self.image), np.nanmax(self.image)
         self.im = plt.imshow(view, interpolation='none', vmin=vmin, vmax=vmax)
         self.show_help()
         plt.show()
