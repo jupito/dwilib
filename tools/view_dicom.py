@@ -20,6 +20,26 @@ import dwi.util
 
 class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
+    cmaps = sorted([
+        'Blues_r',
+        'YlGnBu_r',
+        'bone',
+        'coolwarm',
+        'gray',
+        'jet',
+        'viridis',
+        ])
+    usage = '''Usage:
+    Horizontal mouse move: change slice (if enabled)
+    Vertical mouse move: change parameter (if enabled)
+    Mouse button 1: toggle update on mouse move for both axes
+    h: toggle horizontal update on mouse move
+    v: toggle vertical update on mouse move
+    g: toggle grid
+    1-{}: select colormap: {}
+    r: toggle reverse colormap
+    q: quit'''.format(len(cmaps), ' '.join(cmaps))
+
     def __init__(self, image, params):
         assert image.ndim == 4
         assert image.shape[-1] == len(params)
@@ -29,15 +49,6 @@ class Gui(object):
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
-        self.cmaps = sorted([
-            'Blues_r',
-            'YlGnBu_r',
-            'bone',
-            'coolwarm',
-            'gray',
-            'jet',
-            'viridis',
-            ])
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
@@ -104,18 +115,7 @@ class Gui(object):
         event.canvas.draw()
 
     def show_help(self):
-        usage = '''Usage:
-    Horizontal mouse move: change slice (if enabled)
-    Vertical mouse move: change parameter (if enabled)
-    Mouse button 1: toggle update on mouse move for both axes
-    h: toggle horizontal update on mouse move
-    v: toggle vertical update on mouse move
-    g: toggle grid
-    1-{}: select colormap: {}
-    r: toggle reverse colormap
-    q: quit'''
-        usage = usage.format(len(self.cmaps), ' '.join(self.cmaps))
-        print(usage)
+        print(self.usage)
         print('Slices, rows, columns, parameters: {}'.format(self.image.shape))
 
 
