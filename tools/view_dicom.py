@@ -153,6 +153,16 @@ def replace_nans(img):
     return n
 
 
+def scale(img):
+    """Scale image parameter-wise."""
+    if not np.issubdtype(img.dtype, float):
+        img = img.astype(np.float_)  # Integers cannot be scaled.
+    for i in range(img.shape[-1]):
+        img[:, :, :, i] = dwi.util.scale(img[:, :, :, i])
+    print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
+    return img
+
+
 def main():
     args = parse_args()
     img, attrs = dwi.files.read_pmap(args.path, ondisk=True,
@@ -194,11 +204,7 @@ def main():
         print('Normalized to range: [{}, {}]'.format(img.min(), img.max()))
 
     if args.scale:
-        for i, _ in enumerate(attrs['parameters']):
-            if not np.issubdtype(img.dtype, float):
-                img = img.astype(np.float_)  # Integers cannot be scaled.
-            img[:, :, :, i] = dwi.util.scale(img[:, :, :, i])
-        print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
+        img = scale(img)
 
     if not args.info:
         Gui(img, attrs['parameters'])
