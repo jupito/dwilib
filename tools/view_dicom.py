@@ -143,13 +143,17 @@ def reverse_cmap(name):
 
 
 def replace_nans(img):
-    """Set any NaN values to the global minimum. They are considered backgound.
-    Return the number of replaced voxels.
+    """Set any NaN voxels to parameter-wise minimum. They are considered
+    backgound. Return the number of replaced voxels.
     """
     nans = np.isnan(img)
     n = np.count_nonzero(nans)
     if n:
-        img[nans] = np.nanmin(img)
+        for i in range(img.shape[-1]):
+            v = img[..., i]
+            nans = np.isnan(v)
+            replacement = np.nanmin(v)
+            v[nans] = replacement
     return n
 
 
