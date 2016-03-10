@@ -154,6 +154,7 @@ def replace_nans(img):
             nans = np.isnan(v)
             replacement = np.nanmin(v)
             v[nans] = replacement
+        print('Replaced {} NaN voxels with parameter-wise minimums'.format(n))
     return n
 
 
@@ -162,7 +163,7 @@ def scale(img):
     if not np.issubdtype(img.dtype, float):
         img = img.astype(np.float_)  # Integers cannot be scaled.
     for i in range(img.shape[-1]):
-        img[:, :, :, i] = dwi.util.scale(img[:, :, :, i])
+        img[..., i] = dwi.util.scale(img[..., i])
     print('Scaled to range: [{}, {}]'.format(img.min(), img.max()))
     return img
 
@@ -189,8 +190,6 @@ def main():
         img = dwi.util.crop_image(img, args.subwindow, onebased=False).copy()
 
     n = replace_nans(img)
-    if n:
-        print('Replaced {} NaN voxels with global minimum'.format(n))
 
     if args.std:
         if args.verbose:
