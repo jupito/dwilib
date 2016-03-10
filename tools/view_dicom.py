@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-"""View a multi-slice, multi-b-value DWI DICOM image via the matplotlib GUI."""
+"""View a multi-slice, multi-parameter DICOM image or pmap via the matplotlib
+GUI."""
 
 # TODO Rename to general image viewer, not just dicom.
 
