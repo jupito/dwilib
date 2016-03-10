@@ -97,19 +97,20 @@ class Gui(object):
         event.canvas.draw()
 
     def show_help(self):
-        text = '''Usage:
+        usage = '''Usage:
     Horizontal mouse move: change slice (in update mode)
-    Vertical mouse move: change b-value (in update mode)
+    Vertical mouse move: change parameter (in update mode)
     Click: toggle update mode
     h: toggle horizontal update
     v: toggle vertical update
     e: toggle reverse colormap
     g: toggle grid
     {cmap_keys}: select colormap: {cmap_names}
-    q: quit'''.format(cmap_keys=', '.join(self.cmaps.keys()),
-                      cmap_names=', '.join(self.cmaps.values()))
-        print(text)
-        print('Slices, rows, columns, b-values: {}'.format(self.image.shape))
+    q: quit'''
+        usage = usage.format(cmap_keys=', '.join(self.cmaps.keys()),
+                             cmap_names=', '.join(self.cmaps.values()))
+        print(usage)
+        print('Slices, rows, columns, parameters: {}'.format(self.image.shape))
 
 
 def parse_args():
