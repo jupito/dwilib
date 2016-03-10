@@ -91,17 +91,18 @@ class Gui(object):
         self.redraw(event)
 
     def redraw(self, event):
+        slc, param = self.pos
         if event.xdata and event.ydata:
             row = int(event.ydata)
             col = int(event.xdata)
-            val = self.image[self.pos[0], row, col, self.pos[1]]
+            val = self.image[slc, row, col, param]
             s = ('\rPos: {s:2d},{r:3d},{c:3d},{p:2d}'
                  ' Value: {v:10g} Param: {n:{l}} ')
-            d = dict(r=row, c=col, s=self.pos[0], p=self.pos[1], v=val,
-                     n=self.params[self.pos[1]], l=self.max_param_length)
+            d = dict(r=row, c=col, s=slc, p=param, v=val, n=self.params[param],
+                     l=self.max_param_length)
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
-        view = self.image[self.pos[0], :, :, self.pos[1]]
+        view = self.image[slc, :, :, param]
         self.im.set_data(view)
         event.canvas.draw()
 
