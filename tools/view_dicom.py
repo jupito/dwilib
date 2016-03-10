@@ -115,9 +115,9 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('path',
                    help='DICOM directory or HDF5 file')
-    p.add_argument('--params', type=int, nargs='+',
+    p.add_argument('--params', '-p', type=int, nargs='+',
                    help='included parameter indices')
-    p.add_argument('--subwindow', '-s', metavar='i',
+    p.add_argument('--subwindow', '-w', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, zero-based)')
     p.add_argument('--verbose', '-v', action='count',
@@ -126,7 +126,7 @@ def parse_args():
                    help='standardization file to use')
     p.add_argument('--normalize', '-n', action='store_true',
                    help='normalize signal intensity curves')
-    p.add_argument('--scale', action='store_true',
+    p.add_argument('--scale', '-s', action='store_true',
                    help='scale each parameter independently')
     p.add_argument('--info', '-i', action='store_true',
                    help='show information only')
