@@ -35,6 +35,7 @@ class Gui(object):
             o='bone',
             r='gray',
             y='YlGnBu_r',
+            i='viridis',
         )
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
