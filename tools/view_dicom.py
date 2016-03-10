@@ -160,7 +160,7 @@ def replace_nans(img):
 
 
 def scale(img):
-    """Scale image parameter-wise."""
+    """Scale image parameter-wise. Must not contain nans."""
     if not np.issubdtype(img.dtype, float):
         img = img.astype(np.float_)  # Integers cannot be scaled.
     for i in range(img.shape[-1]):
