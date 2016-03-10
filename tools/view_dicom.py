@@ -48,6 +48,19 @@ class Gui(object):
         self.show_help()
         plt.show()
 
+    def toggle_reverse_cmap(self):
+        name = plt.get_cmap().name
+        name = reverse_cmap(name)
+        plt.set_cmap(name)
+        self.reverse_cmap = not self.reverse_cmap
+
+    def set_cmap(self, i):
+        if 0 <= i < len(self.cmaps):
+            name = self.cmaps[i]
+            if self.reverse_cmap:
+                name = reverse_cmap(name)
+            plt.set_cmap(name)
+
     def on_key(self, event):
         if event.key == 'q':
             plt.close()
@@ -56,17 +69,9 @@ class Gui(object):
         if event.key == 'v':
             self.update[1] = not self.update[1]
         if event.key == 'r':
-            name = plt.get_cmap().name
-            name = reverse_cmap(name)
-            plt.set_cmap(name)
-            self.reverse_cmap = not self.reverse_cmap
+            self.toggle_reverse_cmap()
         if event.key.isdigit():
-            i = int(event.key) - 1
-            if 0 <= i < len(self.cmaps):
-                name = self.cmaps[i]
-                if self.reverse_cmap:
-                    name = reverse_cmap(name)
-                plt.set_cmap(name)
+            self.set_cmap(int(event.key) - 1)
         self.redraw(event)
 
     def on_click(self, event):
