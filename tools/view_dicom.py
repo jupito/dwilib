@@ -49,6 +49,11 @@ class Gui(object):
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
+
+    def show(self):
+        """Activate the GUI."""
+        print(self.usage)
+        print('Slices, rows, columns, parameters: {}'.format(self.image.shape))
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
@@ -56,21 +61,7 @@ class Gui(object):
         view = self.image[self.pos[0], :, :, self.pos[1]]
         vmin, vmax = np.nanmin(self.image), np.nanmax(self.image)
         self.im = plt.imshow(view, interpolation='none', vmin=vmin, vmax=vmax)
-        self.show_help()
         plt.show()
-
-    def toggle_reverse_cmap(self):
-        name = plt.get_cmap().name
-        name = reverse_cmap(name)
-        plt.set_cmap(name)
-        self.reverse_cmap = not self.reverse_cmap
-
-    def set_cmap(self, i):
-        if 0 <= i < len(self.cmaps):
-            name = self.cmaps[i]
-            if self.reverse_cmap:
-                name = reverse_cmap(name)
-            plt.set_cmap(name)
 
     def on_key(self, event):
         if event.key == 'q':
@@ -114,9 +105,18 @@ class Gui(object):
         self.im.set_data(view)
         event.canvas.draw()
 
-    def show_help(self):
-        print(self.usage)
-        print('Slices, rows, columns, parameters: {}'.format(self.image.shape))
+    def toggle_reverse_cmap(self):
+        name = plt.get_cmap().name
+        name = reverse_cmap(name)
+        plt.set_cmap(name)
+        self.reverse_cmap = not self.reverse_cmap
+
+    def set_cmap(self, i):
+        if 0 <= i < len(self.cmaps):
+            name = self.cmaps[i]
+            if self.reverse_cmap:
+                name = reverse_cmap(name)
+            plt.set_cmap(name)
 
 
 def parse_args():
@@ -220,7 +220,8 @@ def main():
         img = scale(img)
 
     if not args.info:
-        Gui(img, attrs['parameters'])
+        gui = Gui(img, attrs['parameters'])
+        gui.show()
 
 
 if __name__ == '__main__':
