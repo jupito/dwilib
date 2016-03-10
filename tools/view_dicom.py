@@ -29,15 +29,15 @@ class Gui(object):
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
-        self.cmaps = dict(
-            b='Blues_r',
-            c='coolwarm',
-            j='jet',
-            o='bone',
-            r='gray',
-            y='YlGnBu_r',
-            i='viridis',
-        )
+        self.cmaps = sorted([
+            'Blues_r',
+            'YlGnBu_r',
+            'bone',
+            'coolwarm',
+            'gray',
+            'jet',
+            'viridis',
+            ])
         fig = plt.figure()
         fig.canvas.mpl_connect('key_press_event', self.on_key)
         fig.canvas.mpl_connect('button_release_event', self.on_click)
@@ -55,16 +55,18 @@ class Gui(object):
             self.update[0] = not self.update[0]
         if event.key == 'v':
             self.update[1] = not self.update[1]
-        if event.key == 'e':
+        if event.key == 'r':
             name = plt.get_cmap().name
             name = reverse_cmap(name)
             plt.set_cmap(name)
             self.reverse_cmap = not self.reverse_cmap
-        if event.key in self.cmaps:
-            name = self.cmaps[event.key]
-            if self.reverse_cmap:
-                name = reverse_cmap(name)
-            plt.set_cmap(name)
+        if event.key.isdigit():
+            i = int(event.key) - 1
+            if 0 <= i < len(self.cmaps):
+                name = self.cmaps[i]
+                if self.reverse_cmap:
+                    name = reverse_cmap(name)
+                plt.set_cmap(name)
         self.redraw(event)
 
     def on_click(self, event):
@@ -98,17 +100,16 @@ class Gui(object):
 
     def show_help(self):
         usage = '''Usage:
-    Horizontal mouse move: change slice (in update mode)
-    Vertical mouse move: change parameter (in update mode)
-    Click: toggle update mode
-    h: toggle horizontal update
-    v: toggle vertical update
-    e: toggle reverse colormap
+    Horizontal mouse move: change slice (if enabled)
+    Vertical mouse move: change parameter (if enabled)
+    Mouse button 1: toggle update on mouse move for both axes
+    h: toggle horizontal update on mouse move
+    v: toggle vertical update on mouse move
     g: toggle grid
-    {cmap_keys}: select colormap: {cmap_names}
+    1-{}: select colormap: {}
+    r: toggle reverse colormap
     q: quit'''
-        usage = usage.format(cmap_keys=', '.join(self.cmaps.keys()),
-                             cmap_names=', '.join(self.cmaps.values()))
+        usage = usage.format(len(self.cmaps), ' '.join(self.cmaps))
         print(usage)
         print('Slices, rows, columns, parameters: {}'.format(self.image.shape))
 
