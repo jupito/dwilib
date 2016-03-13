@@ -285,10 +285,10 @@ def gabor(img, sigmas=None, freqs=None):
     shape = len(thetas), len(sigmas), len(freqs), len(names)
     feats = np.zeros(shape, dtype=DTYPE)
     for i, j, k in np.ndindex(shape[:-1]):
-        real, imag = skimage.filters.gabor_filter(img, frequency=freqs[k],
-                                                  theta=thetas[i],
-                                                  sigma_x=sigmas[j],
-                                                  sigma_y=sigmas[j])
+        real, imag = skimage.filters.gabor(img, frequency=freqs[k],
+                                           theta=thetas[i],
+                                           sigma_x=sigmas[j],
+                                           sigma_y=sigmas[j])
         feats[i, j, k, :] = (np.mean(real), np.var(real),
                              np.mean(np.abs(real)),
                              np.mean(np.sqrt(real**2+imag**2)))
@@ -344,10 +344,13 @@ def hog(img):
 
     Averaged over directions for orientation invariance.
     """
+    # TODO: transform_sqrt=True is here to replicate old behaviour
+    # normalise=True, which was removed as incorrect in skimage 0.12. Should
+    # this also be removed here? Docs warn against using with negative values.
     kwargs = dict(orientations=8,
                   pixels_per_cell=img.shape,
                   cells_per_block=(1, 1),
-                  normalise=True)
+                  transform_sqrt=True)
     feats = skimage.feature.hog(img, **kwargs)
     return np.mean(feats)
 
