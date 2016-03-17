@@ -9,9 +9,13 @@ import pylab as pl
 import dwi.util
 
 
+VERBOSE = False
+
+
 # plt.rcParams['image.aspect'] = 'equal'
 plt.rcParams['image.cmap'] = 'viridis'
 plt.rcParams['image.interpolation'] = 'none'
+plt.rcParams['savefig.dpi'] = '300'
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
@@ -33,6 +37,8 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
             pl.imshow(img, vmin=vmin, vmax=vmax)
     pl.tight_layout()
     if outfile:
+        if VERBOSE:
+            print('Plotting to', path)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -59,6 +65,8 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
         pl.legend(loc='lower right')
     pl.tight_layout()
     if outfile:
+        if VERBOSE:
+            print('Plotting to', path)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -81,8 +89,10 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
         if ylabels is not None:
             ax.set_ylabel(ylabels[i])
         yield plt
-    # plt.tight_layout()
+    plt.tight_layout()
     if path is not None:
+        if VERBOSE:
+            print('Plotting to', path)
         plt.savefig(path, bbox_inches='tight')
     else:
         plt.show()
