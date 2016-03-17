@@ -191,7 +191,7 @@ def pick_params(pmap, attrs, params):
     return pmap, attrs
 
 
-def read_pmap(pathname, ondisk=False, fmt=None, params=None):
+def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
     """Read a parametric map.
 
     With parameter ondisk it will not be read into memory. Parameter params
@@ -217,6 +217,8 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None):
     attrs['parameters'] = [str(x) for x in attrs['parameters']]
     if params is not None:
         pmap, attrs = pick_params(pmap, attrs, params)
+    if dtype is not None:
+        pmap = pmap.astype(dtype)
     return pmap, attrs
 
 
