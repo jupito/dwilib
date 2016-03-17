@@ -181,6 +181,13 @@ def write_pmap(filename, pmap, attrs, fmt=None):
 def pick_params(pmap, attrs, params):
     """Select a subset of parameters by their indices."""
     params = list(params)
+    # Replace any strings with their integer or index counterparts.
+    for i, value in enumerate(params):
+        if isinstance(value, basestring):
+            if value.isdigit():
+                params[i] = int(value)
+            else:
+                params[i] = attrs['parameters'].index(value)
     pmap = pmap[..., params]
     if 'bset' in attrs and len(attrs['bset']) == len(attrs['parameters']):
         attrs['bset'] = [attrs['bset'][x] for x in params]
