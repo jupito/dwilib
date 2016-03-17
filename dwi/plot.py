@@ -15,7 +15,7 @@ VERBOSE = False
 # plt.rcParams['image.aspect'] = 'equal'
 plt.rcParams['image.cmap'] = 'viridis'
 plt.rcParams['image.interpolation'] = 'none'
-plt.rcParams['savefig.dpi'] = '300'
+plt.rcParams['savefig.dpi'] = '100'
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
@@ -38,7 +38,7 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
     pl.tight_layout()
     if outfile:
         if VERBOSE:
-            print('Plotting to', path)
+            print('Plotting to', outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -66,7 +66,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     pl.tight_layout()
     if outfile:
         if VERBOSE:
-            print('Plotting to', path)
+            print('Plotting to', outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -77,7 +77,11 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
                    path=None):
     """Generate subfigures, yielding each context for plotting."""
     if titles is None:
+        # Invent missing titles.
         titles = [str(x) for x in range(ncols * nrows)]
+    if len(titles) == 1:
+        # Multiply single title.
+        titles = titles * (ncols * nrows)
     assert len(titles) == nrows * ncols
     fig = plt.figure(figsize=(ncols*6, nrows*6))
     for i, title in enumerate(titles):
@@ -97,3 +101,14 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     else:
         plt.show()
     plt.close()
+
+
+def plot_grid(im, centroid, base=5, color=(1, 0, 0, 1), linestyle=(0, (1, 1)),
+              linewidth=1):
+    """Draw a centered grid on image, with good default style."""
+    assert len(centroid) == 2, centroid
+    for ax, c in zip([im.axes.yaxis, im.axes.xaxis], centroid):
+        ax.set_major_locator(mpl.ticker.IndexLocator(base=base,
+                                                     offset=round(c) % base))
+    im.axes.grid(b=True, color=color[:3], alpha=color[-1], linestyle=linestyle,
+                 linewidth=linewidth)
