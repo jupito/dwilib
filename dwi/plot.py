@@ -36,7 +36,7 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
                 ax.set_xlabel(xlabels[j])
             pl.imshow(img, vmin=vmin, vmax=vmax)
     pl.tight_layout()
-    if outfile:
+    if outfile is not None:
         if VERBOSE:
             print('Plotting to', outfile)
         pl.savefig(outfile, bbox_inches='tight')
@@ -64,7 +64,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
         pl.title('%s' % param)
         pl.legend(loc='lower right')
     pl.tight_layout()
-    if outfile:
+    if outfile is not None:
         if VERBOSE:
             print('Plotting to', outfile)
         pl.savefig(outfile, bbox_inches='tight')
