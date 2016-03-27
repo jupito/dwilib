@@ -1,13 +1,42 @@
 """Operations regarding miscellaneous files."""
 
 from __future__ import absolute_import, division, print_function
+from contextlib import contextmanager
 import os.path
 import re
+import shutil
+import tempfile
+import zipfile
 
 import numpy as np
 
 
 COMMENT_PREFIX = '#'
+
+
+@contextmanager
+def temp_dir():
+    """A temporary directory context that deletes it afterwards."""
+    tmpdir = tempfile.mkdtemp()
+    try:
+        yield tmpdir
+    finally:
+        shutil.rmtree(tmpdir)
+
+
+@contextmanager
+def read_archive(archive, max_size=None):
+    """Extract a ZIP archive into a temporary directory, use as a context."""
+    with zipfile.ZipFile(archive, 'r') as a:
+        infos = a.infolist()
+        total_size = sum(x.file_size for x in infos)
+        if max_size is not None and total_size > max_size:
+            raise ValueError('Archive content is too big', archive)
+        with temp_dir() as tmpdir:
+            # Extract one by one because the docs warn against extractall().
+            for info in infos:
+                a.extract(info, tmpdir)
+            yield tmpdir
 
 
 def toline(iterable):
@@ -214,6 +243,10 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
+    elif fmt in ['zip']:
+        with read_archive(pathname) as tempdir:
+            return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
+                             dtype=dtype)
     else:
         import dwi.dicomfile
         d = dwi.dicomfile.read_dir(pathname)
