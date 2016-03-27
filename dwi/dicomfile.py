@@ -125,7 +125,8 @@ def get_bvalue(df):
     elif 'FrameReferenceTime' in df:
         r = df.FrameReferenceTime / 1000
     else:
-        raise AttributeError('DICOM file does not contain a b-value')
+        print('DICOM without b-value, defaulting to zero')
+        return 0
     if r is not None:
         r = int(r) if r.is_integer() else float(r)
     return r
