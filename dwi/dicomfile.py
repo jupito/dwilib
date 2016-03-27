@@ -144,7 +144,7 @@ def get_pixels(df):
     """Return rescaled pixel array from DICOM object."""
     pixels = df.pixel_array
     pixels = pixels.astype(np.float64)
-    pixels = pixels * df.RescaleSlope + df.RescaleIntercept
+    pixels = pixels * df.get('RescaleSlope', 1) + df.get('RescaleIntercept', 0)
     # # Clipping should not be done.
     # lowest = df.WindowCenter - df.WindowWidth/2
     # highest = df.WindowCenter + df.WindowWidth/2
