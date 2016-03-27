@@ -10,6 +10,9 @@ import zipfile
 
 import numpy as np
 
+import dwi.asciifile
+from dwi.patient import GleasonScore, Lesion, Patient
+
 
 COMMENT_PREFIX = '#'
 
@@ -71,7 +74,6 @@ def read_patients_file(filename, include_lines=False):
 
     Row format: num name scan1,scan2,... score [location]
     """
-    from dwi.patient import GleasonScore, Lesion, Patient
     patients = []
     p = re.compile(r"""
                    (?P<num>\d+) \s+
@@ -200,7 +202,6 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         import dwi.hdf5
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
-        import dwi.asciifile
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
         dwi.asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
@@ -239,7 +240,6 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
         import dwi.hdf5
         pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
     elif fmt in ['txt', 'ascii']:
-        import dwi.asciifile
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
