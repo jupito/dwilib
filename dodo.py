@@ -51,7 +51,7 @@ def texture_methods():
         # 'haralick_mbb',
 
         'glcm',
-        'glcm_mbb',
+        # 'glcm_mbb',
         'lbp',
         'hog',
         'gabor',
@@ -59,7 +59,7 @@ def texture_methods():
         'hu',
         'zernike',
         'sobel',
-        'stats_all',
+        # 'stats_all',
         ]
 
 
@@ -432,8 +432,8 @@ def task_texture():
         mt = 'prostate'
         for c, s in cases_scans(mode, sl):
             for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
-                                       mth, ws, 'all')
+                # yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
+                #                        mth, ws, 'all')
                 yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
                                        'all')
 
@@ -481,7 +481,7 @@ def task_histogram():
             yield get_task_histogram(mode, mt, sl)
 
 
-def get_task_grid(mode, c, s, ls):
+def get_task_grid(mode, c, s, ls, lt=None):
     """Grid classifier."""
     pmap = pmap_path(mode, c, s)
     prostate = mask_path(mode, 'prostate', c, s)
@@ -489,9 +489,12 @@ def get_task_grid(mode, c, s, ls):
     # fmt = 'h5'
     fmt = 'txt'
     out, target = grid_path(mode, c, s, ['raw'], fmt=fmt)
-    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out)
+    if fmt == 'h5':
+        target = out
     cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
-                             voxelspacing=(5, 1, 1))
+                             voxelspacing=(5, 1, 1), lesiontypes=lt)
+    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+    #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
     return {
         'name': name(mode, c, s),
         'actions': folders(out) + [cmd],
@@ -502,7 +505,7 @@ def get_task_grid(mode, c, s, ls):
         }
 
 
-def get_task_grid_texture(mode, c, s, ls, mth, ws):
+def get_task_grid_texture(mode, c, s, ls, mth, ws, lt=None):
     """Grid classifier."""
     pmap = texture_path(mode, c, s, None, 'prostate', 'all', 0, mth, ws,
                         voxel='all')
@@ -511,7 +514,12 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws):
     # fmt = 'h5'
     fmt = 'txt'
     out, target = grid_path(mode, c, s, [mth, ws], fmt=fmt)
-    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out)
+    if fmt == 'h5':
+        target = out
+    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+                             voxelspacing=(5, 1, 1), lesiontypes=lt)
+    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+    #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
     return {
         'name': name(mode, c, s, mth, ws),
         'actions': folders(out) + [cmd],
@@ -522,15 +530,26 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws):
 
 def task_grid():
     """Grid classifier."""
+    # for mode, sl in product(MODES, SAMPLELISTS):
+    #     d = defaultdict(list)
+    #     for c, s, l in lesions(mode, sl):
+    #         d[(c, s)].append(l)
+    #     for k, ls in d.iteritems():
+    #         c, s = k
+    #         yield get_task_grid(mode, c, s, ls)
+    #         for mth, ws in texture_methods_winsizes(mode, 'prostate'):
+    #             yield get_task_grid_texture(mode, c, s, ls, mth, ws)
     for mode, sl in product(MODES, SAMPLELISTS):
         d = defaultdict(list)
-        for c, s, l in lesions(mode, sl):
-            d[(c, s)].append(l)
-        for k, ls in d.iteritems():
+        for c, s, l in dwi.patient.iterlesions(samplelist_path(mode, sl)):
+            c, l, lt = c.num, l.index + 1, l.location
+            d[(c, s)].append((l, lt))
+        for k, v in d.iteritems():
             c, s = k
-            yield get_task_grid(mode, c, s, ls)
+            ls, lt = [x[0] for x in v], [x[1] for x in v]
+            yield get_task_grid(mode, c, s, ls, lt=lt)
             for mth, ws in texture_methods_winsizes(mode, 'prostate'):
-                yield get_task_grid_texture(mode, c, s, ls, mth, ws)
+                yield get_task_grid_texture(mode, c, s, ls, mth, ws, lt=lt)
 
 
 # def task_check_mask_overlap():
