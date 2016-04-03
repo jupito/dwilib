@@ -11,6 +11,8 @@ import zipfile
 import numpy as np
 
 import dwi.asciifile
+import dwi.dicomfile
+import dwi.hdf5
 from dwi.patient import GleasonScore, Lesion, Patient
 
 
@@ -199,7 +201,6 @@ def write_pmap(filename, pmap, attrs, fmt=None):
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
     if fmt in ['hdf5', 'h5']:
-        import dwi.hdf5
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt in ['txt', 'ascii']:
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
@@ -237,7 +238,6 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
     if fmt is None:
         fmt = os.path.splitext(pathname)[1][1:]
     if fmt in ['hdf5', 'h5']:
-        import dwi.hdf5
         pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
     elif fmt in ['txt', 'ascii']:
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
@@ -248,7 +248,6 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)
     else:
-        import dwi.dicomfile
         d = dwi.dicomfile.read_dir(pathname)
         pmap = d.pop('image')
         attrs = dict(d)
