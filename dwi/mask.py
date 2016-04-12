@@ -212,18 +212,9 @@ def load_ascii(filename):
         raise Exception('No mask found in %s' % filename)
 
 
-def read_dicom_mask(path):
-    """Read a mask as a DICOM directory."""
-    d = dwi.dicomfile.read_dir(path)
-    image = d['image']
-    image = image.squeeze(axis=3)  # Remove single subvalue dimension.
-    mask = Mask3D(image)
-    return mask
-
-
 def read_mask(path):
-    """Read a mask either as a DICOM directory or an ASCII file."""
-    if os.path.isdir(path):
-        return read_dicom_mask(path)
+    """Read a mask."""
+    if path.lower().endswith('.mask') and not os.path.isdir(path):
+        return load_ascii(path)  # Old 2D ASCII mask.
     else:
-        return load_ascii(path)
+        return Mask3D(dwi.files.read_mask(path))
