@@ -137,18 +137,18 @@ def lesions(mode, samplelist):
                 yield p.num, scan, i+1
 
 
-def path_deps(*paths):
-    """Return list of path dependencies, i.e. the file(s) itself or the
-    directory contents.
-    """
-    # paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
-    for i, path in enumerate(paths):
-        if '*' in path or ('[' in path and ']' in path):
-            paths[i] = dwi.util.sglob(path)
-    # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
-    paths = [x for x in paths if not isdir(x)]  # Don't depend on (DICOM) dirs.
-    assert paths, 'Empty path dependency list'
-    return paths
+# def path_deps(*paths):
+#     """Return list of path dependencies, i.e. the file(s) itself or the
+#     directory contents.
+#     """
+#     # paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
+#     for i, path in enumerate(paths):
+#         if '*' in path or ('[' in path and ']' in path):
+#             paths[i] = dwi.util.sglob(path)
+#     # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
+#     paths = [x for x in paths if not isdir(x)]  # Don't depend on (DICOM) dirs.
+#     assert paths, 'Empty path dependency list'
+#     return paths
 
 
 #
@@ -169,7 +169,7 @@ def task_standardize_train():
     yield {
         'name': name(mode),
         'actions': [dwi.shell.standardize_train_cmd(inpaths, std_cfg, 'none')],
-        'file_dep': path_deps(*inpaths),
+        'file_dep': inpaths,
         'targets': [std_cfg],
         'clean': True,
         }
@@ -189,7 +189,7 @@ def task_standardize_transform():
         yield {
             'name': name(mode, case, scan),
             'actions': folders(outpath) + [cmd],
-            'file_dep': path_deps(cfgpath, inpath, mask),
+            'file_dep': [cfgpath, inpath, mask],
             'targets': [outpath],
             'clean': True,
             }
@@ -227,7 +227,7 @@ def task_make_subregion():
 #                 yield {
 #                     'name': name(mode, c, s, model),
 #                     'actions': folders(outpath) + [cmd],
-#                     'file_dep': path_deps(inpath, mask),
+#                     'file_dep': [inpath, mask],
 #                     'targets': [outpath],
 #                     'clean': True,
 #                     }
@@ -246,7 +246,7 @@ def task_make_subregion():
 #     return {
 #         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
 #         'actions': folders(outmask, outfig) + [cmd],
-#         'file_dep': path_deps(subregion, mask_p, mask_c, mask_n),
+#         'file_dep': [subregion, mask_p, mask_c, mask_n],
 #         'targets': [outmask, outfig],
 #         'clean': True,
 #         }
@@ -557,6 +557,6 @@ def task_grid():
 #             yield {
 #                 'name': name(mode, c, s, l),
 #                 'actions': folders(fig) + [cmd],
-#                 'file_dep': path_deps(container, other),
+#                 'file_dep': [container, other],
 #                 'targets': [fig],
 #                 }
