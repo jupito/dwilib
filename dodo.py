@@ -412,9 +412,8 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
         'actions': folders(outfile) + [cmd],
-        # 'file_dep': path_deps(inpath, mask),
+        'file_dep': [inpath, mask],
         'targets': [outfile],
-        'uptodate': [check_timestamp_unchanged(x) for x in (inpath, mask)],
         'clean': True,
         }
 
@@ -498,10 +497,8 @@ def get_task_grid(mode, c, s, ls, lt=None):
     return {
         'name': name(mode, c, s),
         'actions': folders(out) + [cmd],
-        # 'file_dep': path_deps(pmap, prostate, *lesion),
+        'file_dep': [pmap, prostate] + lesion,
         'targets': [target],
-        'uptodate': [check_timestamp_unchanged(x) for x in [pmap, prostate] +
-                     lesion],
         }
 
 
@@ -523,7 +520,7 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws, lt=None):
     return {
         'name': name(mode, c, s, mth, ws),
         'actions': folders(out) + [cmd],
-        'file_dep': path_deps(pmap, prostate, *lesion),
+        'file_dep': [pmap, prostate] + lesion,
         'targets': [target],
         }
 
