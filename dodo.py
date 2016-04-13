@@ -492,7 +492,7 @@ def get_task_grid(mode, c, s, ls, lt=None):
     if fmt == 'h5':
         target = out
     cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
-                             voxelspacing=(5, 1, 1), lesiontypes=lt)
+                             winsize=5, voxelspacing=(5, 1, 1), lesiontypes=lt)
     # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
     #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
     return {
@@ -517,7 +517,7 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws, lt=None):
     if fmt == 'h5':
         target = out
     cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
-                             voxelspacing=(5, 1, 1), lesiontypes=lt)
+                             winsize=5, voxelspacing=(5, 1, 1), lesiontypes=lt)
     # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
     #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
     return {
