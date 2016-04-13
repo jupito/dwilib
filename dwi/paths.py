@@ -29,9 +29,9 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
             elif len(mode) == 1:
                 path += '/{c}_*_{s}*'
             else:
-                path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}'
+                path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
         path = path.format(m=mode, c=case, s=scan)
-        return dwi.util.sglob(path, typ='dir')
+        return dwi.util.sglob(path)
     else:
         raise ValueError('Unknown format: {}'.format(fmt))
 
@@ -52,11 +52,11 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
         return 'masks_{mt}/{m}/{c}_{s}_{l}.h5'.format(**d)
     do_glob = True
     if masktype == 'prostate':
-        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*'
+        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*.zip'
     elif masktype == 'lesion':
-        path = 'masks_{mt}/{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*'
+        path = 'masks_{mt}/{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*.zip'
     elif masktype in ('CA', 'N'):
-        path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}'
+        path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}.zip'
     elif masktype == 'auto':
         path = 'masks_{mt}/{m}/{ap_}/{c}_{s}_auto.mask'
         do_glob = False  # Don't require existence, can be generated.
