@@ -6,7 +6,8 @@ from itertools import chain, product
 from os.path import dirname, isdir
 
 from doit import get_var
-from doit.tools import check_timestamp_unchanged, create_folder
+# from doit.tools import check_timestamp_unchanged
+from doit.tools import create_folder
 
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
@@ -205,9 +206,8 @@ def task_make_subregion():
                 yield {
                     'name': name(mode, case, scan),
                     'actions': folders(subregion) + [cmd],
-                    # 'file_dep': path_deps(mask),
+                    'file_dep': [mask],
                     'targets': [subregion],
-                    'uptodate': [check_timestamp_unchanged(mask)],
                     'clean': True,
                     }
 
@@ -272,9 +272,8 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
-        # 'file_dep': path_deps(mask, pmap),
+        'file_dep': [mask, pmap],
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
@@ -291,9 +290,8 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
-        # 'file_dep': path_deps(mask, pmap),
+        'file_dep': [mask, pmap],
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
@@ -308,9 +306,8 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     return {
         'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
-        # 'file_dep': [mask, pmap],
+        'file_dep': [mask, pmap],
         'targets': [roi],
-        'uptodate': [check_timestamp_unchanged(x) for x in [mask, pmap]],
         'clean': True,
         }
 
@@ -467,9 +464,8 @@ def get_task_histogram(mode, masktype, samplelist):
     return {
         'name': name(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
-        # 'file_dep': path_deps(*inpaths),
+        'file_dep': inpaths,
         'targets': [figpath],
-        'uptodate': [check_timestamp_unchanged(x) for x in inpaths],
         }
 
 
