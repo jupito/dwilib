@@ -1,5 +1,7 @@
 """Common path names."""
 
+# TODO: Get rid of messy globbing by by explicit data file naming.
+
 from __future__ import absolute_import, division, print_function
 import os
 
