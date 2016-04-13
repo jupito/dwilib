@@ -17,7 +17,7 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
         path = 'images/{m}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
-        return path.format(m=mode, c=case, s=scan)
+        return path.format(m=mode[:2], c=case, s=scan)
     elif fmt == 'dicom':
         if len(mode) == 1:
             path = 'dicoms/{m[0]}_*'
