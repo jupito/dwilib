@@ -247,8 +247,12 @@ def main():
     image = image.astype(np.float32)
     image[-prostate] = np.nan  # Set background to nan.
 
+    def indexed_path(path, i):
+        """Add an index to path before possible extension."""
+        root, ext = os.path.splitext(path)
+        return '{r}-{i}{e}'.format(r=root, i=i, e=ext)
+
     metric_winshape = (args.winsize,) * 3
-    root, ext = os.path.splitext(args.output)
     for i, param in enumerate(attrs['parameters']):
         a = process(image[..., i], voxel_spacing, prostate, lesion, lesiontype,
                     args.voxelsize, metric_winshape, args.verbose, None)
@@ -256,10 +260,10 @@ def main():
             # Exclude non-prostate cubes from ASCII output.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
-        params = ['prostate', 'lesion', 'lesiontype', param]
-        attrs = dict(parameters=params, n_lesions=len(args.lesions),
+        outparams = ['prostate', 'lesion', 'lesiontype', param]
+        attrs = dict(parameters=outparams, n_lesions=len(args.lesions),
                      voxel_spacing=metric_winshape)
-        outfile = '{r}-{i}{e}'.format(r=root, i=i, e=ext)
+        outfile = indexed_path(args.output, i)
         if args.verbose:
             print('Writing to {}'.format(outfile))
         dwi.files.write_pmap(outfile, a, attrs)
