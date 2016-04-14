@@ -204,7 +204,7 @@ def load_ascii(filename):
             if m.group(1) == 'slice':
                 slice = int(m.group(2))
         elif line[0] == '0' or line[0] == '1':
-            a = np.array(list(line), dtype=int)
+            a = np.array(list(line), dtype=np.int)
             arrays.append(a)
     if arrays:
         return Mask(slice, np.array(arrays))
