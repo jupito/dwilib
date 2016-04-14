@@ -184,8 +184,8 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     return grid
 
 
-def filter_image(image):
-    """Filter image."""
+def average_image(image):
+    """Do average filtering for image."""
     print(np.isfinite(image).size)
     for p in range(image.shape[-1]):
         for i in range(image.shape[0]):
@@ -241,7 +241,7 @@ def main():
     assert (image.shape[:3] == prostate.shape == lesion.shape ==
             lesiontype.shape)
 
-    # filter_image(image)
+    # average_image(image)
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
