@@ -253,17 +253,27 @@ def main():
         return '{r}-{i}{e}'.format(r=root, i=i, e=ext)
 
     metric_winshape = (args.winsize,) * 3
-    for i, param in enumerate(attrs['parameters']):
-        a = process(image[..., i], voxel_spacing, prostate, lesion, lesiontype,
-                    args.voxelsize, metric_winshape, args.verbose, None)
-        if ext == '.txt':
-            # Exclude non-prostate cubes from ASCII output.
+    if args.param is None:
+        params = attrs['parameters']  # Use average of each parameter.
+    else:
+        params = dwi.texture.stats([0]).keys()  # Use statistical features.
+    for i, param in enumerate(params):
+        if args.param is None:
+            img = image[..., i]
+            stat = None
+        else:
+            img = image[..., 0]
+            stat = param
+        a = process(img, voxel_spacing, prostate, lesion, lesiontype,
+                    args.voxelsize, metric_winshape, args.verbose, stat)
+        outfile = indexed_path(args.output, i)
+        if outfile.lower().endswith() == '.txt':
+            # Exclude non-prostate cubes from ASCII output, they are so many.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
         outparams = ['prostate', 'lesion', 'lesiontype', param]
         attrs = dict(parameters=outparams, n_lesions=len(args.lesions),
                      voxel_spacing=metric_winshape)
-        outfile = indexed_path(args.output, i)
         if args.verbose:
             print('Writing to {}'.format(outfile))
         dwi.files.write_pmap(outfile, a, attrs)
