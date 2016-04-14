@@ -379,7 +379,7 @@ def moment(img, p, q):
     center = width//2
     nc = lambda pos: (pos-center) / (width/2)  # Normalized coordinates [-1,1]
     f = lambda m, n: img[m, n] * nc(m)**p * nc(n)**q
-    a = np.fromfunction(f, img.shape, dtype=int)
+    a = np.fromfunction(f, img.shape, dtype=np.int)
     return a.sum()
 
 
