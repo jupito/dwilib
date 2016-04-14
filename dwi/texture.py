@@ -53,7 +53,7 @@ def normalize(pmap, levels=128):
         in_range = (0, 4095)
     else:
         raise ValueError('Invalid mode: {}'.format(MODE))
-    dwi.util.report('Normalizing:', MODE, in_range)
+    # dwi.util.report('Normalizing:', MODE, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     pmap //= int(round(256 / levels))
