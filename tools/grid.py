@@ -70,6 +70,7 @@ def rescale(img, src_voxel_spacing, dst_voxel_spacing):
 
 def float2bool_mask(a):
     """Convert float array to boolean mask (round, clip to [0, 1])."""
+    a = np.asarray(a)
     a = a.round()
     a.clip(0, 1, out=a)
     a = a.astype(np.bool)
@@ -123,16 +124,16 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
     )
 
 
-def print_correlations(data, params):
-    """Print correlations for testing."""
-    data = np.asarray(data)
-    print(data.shape, data.dtype)
-    indices = range(data.shape[-1])
-    for i, j in product(indices, indices):
-        if i < j:
-            rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
-            s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
-            print(s.format(params[i], params[j], rho, pvalue))
+# def print_correlations(data, params):
+#     """Print correlations for testing."""
+#     data = np.asarray(data)
+#     print(data.shape, data.dtype)
+#     indices = range(data.shape[-1])
+#     for i, j in product(indices, indices):
+#         if i < j:
+#             rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
+#             s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
+#             print(s.format(params[i], params[j], rho, pvalue))
 
 
 def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
@@ -194,6 +195,12 @@ def average_image(image):
     print(np.isfinite(image).size)
 
 
+def indexed_path(path, i):
+    """Add an index to path before possible extension."""
+    root, ext = os.path.splitext(path)
+    return '{r}-{i}{e}'.format(r=root, i=i, e=ext)
+
+
 def main():
     args = parse_args()
     image, attrs = dwi.files.read_pmap(args.image, ondisk=True)
@@ -247,11 +254,7 @@ def main():
     image = image.astype(np.float32)
     image[-prostate] = np.nan  # Set background to nan.
 
-    def indexed_path(path, i):
-        """Add an index to path before possible extension."""
-        root, ext = os.path.splitext(path)
-        return '{r}-{i}{e}'.format(r=root, i=i, e=ext)
-
+    outparams = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = (args.winsize,) * 3
     if args.param is None:
         params = attrs['parameters']  # Use average of each parameter.
@@ -271,8 +274,8 @@ def main():
             # Exclude non-prostate cubes from ASCII output, they are so many.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
-        outparams = ['prostate', 'lesion', 'lesiontype', param]
-        attrs = dict(parameters=outparams, n_lesions=len(args.lesions),
+        attrs = dict(parameters=outparams + [param],
+                     n_lesions=len(args.lesions),
                      voxel_spacing=metric_winshape)
         if args.verbose:
             print('Writing to {}'.format(outfile))
