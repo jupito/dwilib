@@ -486,9 +486,9 @@ def get_task_grid(mode, c, s, ls, lt=None):
     out, target = grid_path(mode, c, s, ['raw'], fmt=fmt)
     if fmt == 'h5':
         target = out
-    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+    cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, voxelsize=None,
                              winsize=5, voxelspacing=(5, 1, 1), lesiontypes=lt)
-    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
+    # cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, voxelsize=None,
     #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
     return {
         'name': name(mode, c, s),
