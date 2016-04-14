@@ -36,8 +36,8 @@ def load_data(pmaps, labels, group_ids):
             X.append(x)
             Y.append(label)
             G.append(group_id)
-    X = np.array(X, dtype=float)
-    Y = np.array(Y, dtype=float)
+    X = np.array(X, dtype=np.float)
+    Y = np.array(Y, dtype=np.float)
     return X, Y, G
 
 def scale(a, min=0.0, max=1.0):
@@ -91,8 +91,8 @@ def compute_performance(Y, P):
     """Compute performance over one group."""
     #perf = cindex(Y, P)
     perf = metrics.roc_auc_score(Y, P)
-    #Y = np.array(np.round(Y), dtype=int)
-    #P = np.array(np.round(P, 0), dtype=int)
+    #Y = np.array(np.round(Y), dtype=np.int)
+    #P = np.array(np.round(P, 0), dtype=np.int)
     #perf = metrics.accuracy_score(Y, P)
     return perf
 

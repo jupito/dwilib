@@ -51,7 +51,7 @@ def load_data(pmaps, labels, group_ids):
             X.append(x)
             Y.append(label)
             G.append(group_id)
-    X = np.array(X, dtype=float)
+    X = np.array(X, dtype=np.float)
     Y = np.array(Y)
     return X, Y, G
 
