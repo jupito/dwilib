@@ -267,7 +267,7 @@ def main():
         a = process(img, voxel_spacing, prostate, lesion, lesiontype,
                     args.voxelsize, metric_winshape, args.verbose, stat)
         outfile = indexed_path(args.output, i)
-        if outfile.lower().endswith() == '.txt':
+        if outfile.lower().endswith('.txt'):
             # Exclude non-prostate cubes from ASCII output, they are so many.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
