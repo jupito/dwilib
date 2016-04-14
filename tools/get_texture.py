@@ -89,7 +89,7 @@ def main():
             print('Using mask', args.mask)
     else:
         # A default mask for testing.
-        mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=bool))
+        mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=np.bool))
         # mask.array[9:-9, 50:-50, 50:-50] = True
         tuples = dwi.util.bounding_box(img)
         print('Using minimum bounding box as mask: {}'.format(tuples))
