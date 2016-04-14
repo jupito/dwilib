@@ -172,7 +172,7 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
     # minrel, maxrel = windows[0][1], windows[-1][1]
     # gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)]
     metric_gridshape = (100, 150, 150)  # Grid shape in millimeters.
-    gridshape = [g // w for g, w in zip(metric_gridshape, metric_winshape)]
+    gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
     gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
     print('Grid shape:', grid.shape)
