@@ -20,24 +20,24 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='increase verbosity')
-    p.add_argument('--input',
+    p.add_argument('--input', required=True,
                    help='input image')
-    p.add_argument('--mask',
+    p.add_argument('--mask', required=True,
                    help='mask file to use')
     p.add_argument('--mode', metavar='MODE', required=True,
                    help='imaging mode specification')
-    p.add_argument('--method', metavar='METHOD',
+    p.add_argument('--method', metavar='METHOD', required=True,
                    help='method')
     p.add_argument('--slices', default='maxfirst',
                    help='slice selection (maxfirst, max, all)')
     p.add_argument('--winspec', default='5',
                    help='window specification (side length, all, mbb)')
-    p.add_argument('--portion', type=float, required=False, default=0,
+    p.add_argument('--portion', type=float, default=0,
                    help='portion of selected voxels required for each window')
     p.add_argument('--voxel', choices=('all', 'mean'), default='all',
                    help='voxel to output (all, mean)')
-    p.add_argument('--output', metavar='FILENAME',
-                   help='output ASCII file')
+    p.add_argument('--output', metavar='FILENAME', required=True,
+                   help='output texture map file')
     return p.parse_args()
 
 
@@ -87,14 +87,14 @@ def main():
             mask = mask.convert_to_3d(img.shape[0])
         if args.verbose:
             print('Using mask', args.mask)
-    else:
-        # A default mask for testing.
-        mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=np.bool))
-        # mask.array[9:-9, 50:-50, 50:-50] = True
-        tuples = dwi.util.bounding_box(img)
-        print('Using minimum bounding box as mask: {}'.format(tuples))
-        slices = [slice(*t) for t in tuples]
-        mask.array[slices] = True
+    # else:
+    #     # A default mask for testing.
+    #     mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=np.bool))
+    #     # mask.array[9:-9, 50:-50, 50:-50] = True
+    #     tuples = dwi.util.bounding_box(img)
+    #     print('Using minimum bounding box as mask: {}'.format(tuples))
+    #     slices = [slice(*t) for t in tuples]
+    #     mask.array[slices] = True
 
     if img.shape != mask.shape():
         raise Exception('Image shape {} does not match mask shape {}'.format(
