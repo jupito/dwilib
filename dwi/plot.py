@@ -1,6 +1,7 @@
 """Plotting."""
 
 from __future__ import absolute_import, division, print_function
+import logging
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ import pylab as pl
 import dwi.util
 
 
-VERBOSE = False
+log = logging.getLogger(__name__)
 
 
 # plt.rcParams['image.aspect'] = 'equal'
@@ -37,8 +38,7 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
             pl.imshow(img, vmin=vmin, vmax=vmax)
     pl.tight_layout()
     if outfile is not None:
-        if VERBOSE:
-            print('Plotting to', outfile)
+        log.info('Plotting to %s', outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -65,8 +65,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
         pl.legend(loc='lower right')
     pl.tight_layout()
     if outfile is not None:
-        if VERBOSE:
-            print('Plotting to', outfile)
+        log.info('Plotting to %s', outfile)
         pl.savefig(outfile, bbox_inches='tight')
     else:
         pl.show()
@@ -95,8 +94,7 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
         yield plt
     plt.tight_layout()
     if path is not None:
-        if VERBOSE:
-            print('Plotting to', path)
+        log.info('Plotting to %s', path)
         plt.savefig(path, bbox_inches='tight')
     else:
         plt.show()
