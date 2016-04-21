@@ -82,7 +82,7 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     if len(titles) == 1:
         # Multiply single title.
         titles = titles * (ncols * nrows)
-    assert len(titles) == nrows * ncols
+    # assert len(titles) == nrows * ncols
     fig = plt.figure(figsize=(ncols*6, nrows*6))
     for i, title in enumerate(titles):
         ax = fig.add_subplot(nrows, ncols, i+1)
