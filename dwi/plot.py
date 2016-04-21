@@ -22,9 +22,6 @@ plt.rcParams['savefig.dpi'] = '100'
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
                 outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
-    pl.rcParams['image.cmap'] = 'gray'
-    pl.rcParams['image.aspect'] = 'equal'
-    pl.rcParams['image.interpolation'] = 'none'
     ncols, nrows = max(len(imgs) for imgs in Imgs), len(Imgs)
     fig = pl.figure(figsize=(ncols*6, nrows*6))
     for i, imgs in enumerate(Imgs):
