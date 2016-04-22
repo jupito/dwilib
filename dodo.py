@@ -460,7 +460,7 @@ def get_task_histogram(mode, masktype, samplelist):
         it = cases_scans(mode, samplelist)
     inpaths = [roi_path(mode, masktype, *x) for x in it]
     figpath = histogram_path(mode, masktype, samplelist)
-    cmd = dwi.shell.histogram_cmd(inpaths, figpath)
+    cmd = dwi.shell.histogram_cmd(inpaths, figpath, param=0)
     return {
         'name': name(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
