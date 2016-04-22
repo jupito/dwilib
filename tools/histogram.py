@@ -38,7 +38,7 @@ def histogram(a, m1=None, m2=None, bins=20):
         a = a[a < m2]
     mn, mx = a.min(), a.max()
     # bins = a.size / 1000000
-    hist, bin_edges = np.histogram(a, bins=bins, density=True)
+    hist, bin_edges = np.histogram(a, bins=bins, density=False)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
     return hist, bin_centers, mn, mx
 
@@ -65,6 +65,7 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
                 if smooth:
                     x, y = smoothen(x, y)
                 pl.plot(x, y)
+                # pl.bar(x, y, width=x[1]-x[0])
                 if minmin is None:
                     minmin = mn
                 if maxmax is None:
