@@ -7,6 +7,7 @@ import argparse
 import logging
 
 import numpy as np
+import scipy.ndimage
 import skimage.segmentation
 import sklearn.preprocessing
 
@@ -59,7 +60,8 @@ def label_groups(a, thresholds):
     return labels
 
 
-def segment(img, spacing):
+def get_markers(img):
+    assert img.ndim == 4
     markers = np.zeros(img.shape[0:3], dtype=np.int8)
 
     # Based on absolute value thresholds (non-scaled image).
@@ -94,13 +96,24 @@ def segment(img, spacing):
     # log.info('Seed position: %s', slices)
     # markers[slices] = 4
 
-    # return markers
+    return markers
 
+
+def segment(img, markers, spacing):
     labels = skimage.segmentation.random_walker(img, markers,
                                                 # beta=10,
                                                 multichannel=True,
                                                 spacing=spacing)
     return labels
+
+
+def float2bool_mask(a):
+    """Convert float array to boolean mask (round, clip to [0, 1])."""
+    a = np.asarray(a)
+    a = a.round()
+    a.clip(0, 1, out=a)
+    a = a.astype(np.bool)
+    return a
 
 
 def main():
@@ -114,15 +127,24 @@ def main():
     logging.basicConfig(level=loglevel)
 
     img, attrs = dwi.files.read_pmap(args.image, params=args.params)
+    spacing = attrs['voxel_spacing']
+
     log.info(img.shape)
     log.info(attrs['parameters'])
-    spacing = attrs['voxel_spacing']
+    log.info(spacing)
     mask = dwi.files.read_mask(args.mask) if args.mask else None
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
     # mask = mask[5:-5]
 
     # img = preprocess(img)
+
+    # Downsample.
+    img = scipy.ndimage.interpolation.zoom(img, (1, 0.5, 0.5, 1), order=0)
+    spacing = (spacing[0], 2*spacing[1], 2*spacing[2])
+    mask = mask.astype(np.float_)
+    mask = scipy.ndimage.interpolation.zoom(mask, (1, 0.5, 0.5), order=0)
+    mask = float2bool_mask(mask)
 
     # labels = label_groups(img[..., 0], np.percentile(img, [50, 99.5]))
     # labels = label_groups(img[0], [img[mask].min(), img[mask].max()])
@@ -131,7 +153,8 @@ def main():
     #     thresholds = np.percentile(img[i], [50, 99.5])
     #     labels[i] = label_groups(img[i, :, :, 0], thresholds)
     #     # labels[i] = segment(img[i])
-    labels = segment(img, spacing)
+    markers = get_markers(img)
+    labels = segment(img, markers, spacing)
     labels_scale = np.min(labels), np.max(labels)
     titles = [str(x) for x in range(len(img))]
     it = dwi.plot.generate_plots(nrows=4, ncols=5, titles=titles,
