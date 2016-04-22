@@ -218,3 +218,16 @@ def read_mask(path):
         return load_ascii(path)  # Old 2D ASCII mask.
     else:
         return Mask3D(dwi.files.read_mask(path))
+
+
+def border(mask):
+    """Outline mask border by using a sliding window."""
+    mask = np.asanyarray(mask)
+    output = np.zeros_like(mask, dtype=np.bool)
+    # Try to guess a good window shape; thicker border for bigger resolution.
+    winshape = [max(x//70, 3) for x in mask.shape]
+    for i, win in dwi.util.sliding_window(mask, winshape):
+        selected = np.count_nonzero(win) / win.size
+        if 0.3 < selected < 0.7:
+            output[i] = True
+    return output
