@@ -116,6 +116,13 @@ def float2bool_mask(a):
     return a
 
 
+def scale_mask(mask, factor):
+    mask = mask.astype(np.float_)
+    mask = scipy.ndimage.interpolation.zoom(mask, factor, order=0)
+    mask = float2bool_mask(mask)
+    return mask
+
+
 def main():
     args = parse_args()
     if args.verbose == 0:
@@ -140,11 +147,10 @@ def main():
     # img = preprocess(img)
 
     # Downsample.
-    img = scipy.ndimage.interpolation.zoom(img, (1, 0.5, 0.5, 1), order=0)
-    spacing = (spacing[0], 2*spacing[1], 2*spacing[2])
-    mask = mask.astype(np.float_)
-    mask = scipy.ndimage.interpolation.zoom(mask, (1, 0.5, 0.5), order=0)
-    mask = float2bool_mask(mask)
+    factor = (1, 0.5, 0.5)
+    img = scipy.ndimage.interpolation.zoom(img, factor + (1,), order=0)
+    spacing = [s/f for s, f in zip(spacing, factor)]
+    mask = scale_mask(mask, factor)
 
     # labels = label_groups(img[..., 0], np.percentile(img, [50, 99.5]))
     # labels = label_groups(img[0], [img[mask].min(), img[mask].max()])
