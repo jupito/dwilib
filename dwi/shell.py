@@ -116,9 +116,9 @@ def mask_out_cmd(src, dst, mask):
     return [rm, cp, mask]
 
 
-def histogram_cmd(inpaths, figpath):
-    return '{prg} -v --param 0 --input {i} --fig {f}'.format(
-        prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath)
+def histogram_cmd(inpaths, figpath, param=0):
+    return '{prg} -v --param {p} --input {i} --fig {f}'.format(
+        prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath, p=param)
 
 
 def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
