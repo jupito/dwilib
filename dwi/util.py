@@ -603,3 +603,14 @@ def atleast_nd(n, a):
 def unify_masks(masks):
     """Unify a sequence of masks into one."""
     return reduce(np.maximum, masks)
+
+
+def float2bool(a):
+    """Gracefully convert a numeric ndarray to boolean. Round it and clip to
+    [0, 1]. (Simply using np.astype(np.bool) does not work.)
+    """
+    a = np.asanyarray(a)
+    a = a.round()
+    a.clip(0, 1, out=a)
+    a = a.astype(np.bool)
+    return a

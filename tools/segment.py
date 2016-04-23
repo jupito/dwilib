@@ -36,6 +36,13 @@ def parse_args():
     return p.parse_args()
 
 
+def scale_mask(mask, factor):
+    mask = mask.astype(np.float_)
+    mask = scipy.ndimage.interpolation.zoom(mask, factor, order=0)
+    mask = dwi.util.float2bool(mask)
+    return mask
+
+
 def preprocess(img):
     assert img.ndim == 4
     log.info(dwi.util.fivenums(img))
@@ -66,10 +73,11 @@ def get_markers(img):
 
     # Based on absolute value thresholds (non-scaled image).
     bg, fg1, fg2 = np.percentile(img, 50), 1400, 1600
+    # bg, fg1, fg2 = np.percentile(img, 50), 100, 300  # B=2000
     markers[img[..., 0] < bg] = 1
-    markers[9:11][img[9:11][..., 0] > fg1] = 2
-    markers[:2][img[:2][..., 0] > fg1] = 3
-    markers[-2:][img[-2:][..., 0] > fg1] = 4
+    markers[8:12][img[8:12][..., 0] > fg1] = 2
+    markers[:3][img[:3][..., 0] > fg1] = 3
+    markers[-3:][img[-3:][..., 0] > fg1] = 4
     markers[img[..., 0] > fg2] = 0
 
     # # Based on percentile thresholds.
@@ -100,27 +108,26 @@ def get_markers(img):
 
 
 def segment(img, markers, spacing):
-    labels = skimage.segmentation.random_walker(img, markers,
-                                                # beta=10,
-                                                multichannel=True,
-                                                spacing=spacing)
+    kwargs = dict(
+        # beta=10,  # Default is 130.
+        multichannel=True,
+        spacing=spacing,
+        )
+    labels = skimage.segmentation.random_walker(img, markers, **kwargs)
     return labels
 
 
-def float2bool_mask(a):
-    """Convert float array to boolean mask (round, clip to [0, 1])."""
-    a = np.asarray(a)
-    a = a.round()
-    a.clip(0, 1, out=a)
-    a = a.astype(np.bool)
-    return a
-
-
-def scale_mask(mask, factor):
-    mask = mask.astype(np.float_)
-    mask = scipy.ndimage.interpolation.zoom(mask, factor, order=0)
-    mask = float2bool_mask(mask)
-    return mask
+def plot(img, mask, path):
+    assert img.ndim == 3
+    vmin, vmax = np.min(img), np.max(img)
+    titles = [str(x) for x in range(len(img))]
+    it = dwi.plot.generate_plots(nrows=4, ncols=5, titles=titles, path=path)
+    for i, plt in enumerate(it):
+        plt.imshow(img[i], vmin=vmin, vmax=vmax)
+        if mask is not None:
+            view = np.zeros(img.shape[1:3] + (4,), dtype=np.float16)
+            view[dwi.mask.border(mask[i])] = (1, 0, 0, 1)
+            plt.imshow(view)
 
 
 def main():
@@ -159,19 +166,13 @@ def main():
     #     thresholds = np.percentile(img[i], [50, 99.5])
     #     labels[i] = label_groups(img[i, :, :, 0], thresholds)
     #     # labels[i] = segment(img[i])
+
+    # B=2000
+    # labels = label_groups(img[..., 0], [50, 100, 150, 200, 250, 300, 350])
+
     markers = get_markers(img)
     labels = segment(img, markers, spacing)
-    labels_scale = np.min(labels), np.max(labels)
-    titles = [str(x) for x in range(len(img))]
-    it = dwi.plot.generate_plots(nrows=4, ncols=5, titles=titles,
-                                 path=args.fig)
-    for i, plt in enumerate(it):
-        # plt.imshow(img[i, :, :, 0], vmin=img_scale[0], vmax=img_scale[1])
-        plt.imshow(labels[i], vmin=labels_scale[0], vmax=labels_scale[1])
-        if mask is not None:
-            view = np.zeros(img.shape[1:3] + (4,), dtype=np.float16)
-            view[dwi.mask.border(mask[i])] = (1, 0, 0, 1)
-            plt.imshow(view)
+    plot(labels, mask, args.fig)
 
 
 if __name__ == '__main__':

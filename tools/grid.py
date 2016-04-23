@@ -68,15 +68,6 @@ def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     return output
 
 
-def float2bool_mask(a):
-    """Convert float array to boolean mask (round, clip to [0, 1])."""
-    a = np.asarray(a)
-    a = a.round()
-    a.clip(0, 1, out=a)
-    a = a.astype(np.bool)
-    return a
-
-
 def generate_windows(imageshape, winshape, center):
     """Generate slice objects for a grid of windows around given center.
 
@@ -146,10 +137,10 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
         image = rescale(image, src_voxel_spacing, voxel_spacing)
         prostate = prostate.astype(np.float_)
         prostate = rescale(prostate, src_voxel_spacing, voxel_spacing)
-        prostate = float2bool_mask(prostate)
+        prostate = dwi.util.float2bool(prostate)
         lesion = lesion.astype(np.float_)
         lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
-        lesion = float2bool_mask(lesion)
+        lesion = dwi.util.float2bool(lesion)
         assert image.shape == prostate.shape == lesion.shape
         # TODO Also scale lesiontype.
 
