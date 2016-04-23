@@ -287,7 +287,7 @@ def tilde(a):
     tilde.
     """
     typ = a.dtype
-    return (~a.astype(bool)).astype(typ)
+    return (~a.astype(np.bool)).astype(typ)
 
 
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
