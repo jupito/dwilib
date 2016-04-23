@@ -39,7 +39,7 @@ def parse_args():
 def scale_mask(mask, factor):
     mask = mask.astype(np.float_)
     mask = scipy.ndimage.interpolation.zoom(mask, factor, order=0)
-    mask = dwi.util.float2bool(mask)
+    mask = dwi.util.asbool(mask)
     return mask
 
 

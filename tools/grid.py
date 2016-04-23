@@ -137,10 +137,10 @@ def process(image, voxel_spacing, prostate, lesion, lesiontype, voxelsize,
         image = rescale(image, src_voxel_spacing, voxel_spacing)
         prostate = prostate.astype(np.float_)
         prostate = rescale(prostate, src_voxel_spacing, voxel_spacing)
-        prostate = dwi.util.float2bool(prostate)
+        prostate = dwi.util.asbool(prostate)
         lesion = lesion.astype(np.float_)
         lesion = rescale(lesion, src_voxel_spacing, voxel_spacing)
-        lesion = dwi.util.float2bool(lesion)
+        lesion = dwi.util.asbool(lesion)
         assert image.shape == prostate.shape == lesion.shape
         # TODO Also scale lesiontype.
 

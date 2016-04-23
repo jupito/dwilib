@@ -605,7 +605,7 @@ def unify_masks(masks):
     return reduce(np.maximum, masks)
 
 
-def float2bool(a):
+def asbool(a):
     """Gracefully convert a numeric ndarray to boolean. Round it and clip to
     [0, 1]. (Simply using np.astype(np.bool) does not work.)
     """
