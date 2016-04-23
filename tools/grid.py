@@ -280,6 +280,32 @@ def main():
         if args.verbose:
             print('Writing to {}'.format(outfile))
         dwi.files.write_pmap(outfile, a, attrs)
+    ###
+    # grid = None
+    # for i, param in enumerate(params):
+    #     if args.param is None:
+    #         img = image[..., i]
+    #         stat = None
+    #     else:
+    #         img = image[..., 0]
+    #         stat = param
+    #     a = process(img, voxel_spacing, prostate, lesion, lesiontype,
+    #                 args.voxelsize, metric_winshape, args.verbose, stat)
+    #     if grid is None:
+    #         shape = a.shape[0:-1] + (len(outparams + params),)
+    #         grid = np.empty(shape, dtype=a.dtype)
+    #         # grid[..., 0] = a[..., 0]
+    #         # grid[..., 1] = a[..., 1]
+    #         # grid[..., 2] = a[..., 2]
+    #         grid[..., 0:len(outparams)] = a[..., 0:-1]  # Init with basic.
+    #     grid[..., len(outparams)] = a[..., -1]  # Add each feature.
+    # outfile = args.output
+    # attrs = dict(parameters=outparams + [param], n_lesions=len(args.lesions),
+    #              voxel_spacing=metric_winshape)
+    # if args.verbose:
+    #     print('Writing {} to {}'.format(grid.shape, outfile))
+    # dwi.files.write_pmap(outfile, grid, attrs)
+    ###
 
 
 if __name__ == '__main__':
