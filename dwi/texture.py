@@ -219,29 +219,50 @@ def haralick_mbb(img, mask):
 # Local Binary Pattern (LBP) features
 
 
-def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
-    """Local Binary Pattern (LBP) frequency histogram map.
-
-    Invariant to global illumination change, local contrast magnitude, local
-    rotation.
-    """
-    # TODO: See if better replace Jonne's implementation with skimage/mahotas.
-    import dwi.lbp
-    lbp_data = dwi.lbp.lbp(img, neighbours, radius, roinv, uniform)
-    lbp_freq_data, n_patterns = dwi.lbp.get_freqs(lbp_data, winsize,
-                                                  neighbours, roinv, uniform)
-    return lbp_data, lbp_freq_data, n_patterns
+# def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
+#     """Local Binary Pattern (LBP) frequency histogram map.
+# 
+#     Invariant to global illumination change, local contrast magnitude, local
+#     rotation.
+#     """
+#     # TODO: See if better replace Jonne's implementation with skimage/mahotas.
+#     import dwi.lbp
+#     lbp_data = dwi.lbp.lbp(img, neighbours, radius, roinv, uniform)
+#     lbp_freq_data, n_patterns = dwi.lbp.get_freqs(lbp_data, winsize,
+#                                                   neighbours, roinv, uniform)
+#     return lbp_data, lbp_freq_data, n_patterns
+# 
+# 
+# def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
+#     """Local Binary Pattern (LBP) frequency histogram map."""
+#     if radius is None:
+#         radius = winsize // 2
+#     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
+#     output = np.rollaxis(freqs, -1)
+#     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
+#     if mask is not None:
+#         output[:, -mask] = 0
+#     return output, names
 
 
 def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     """Local Binary Pattern (LBP) frequency histogram map."""
     if radius is None:
         radius = winsize // 2
-    _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
-    output = np.rollaxis(freqs, -1)
+    n = neighbours + 2
+    freqs = skimage.feature.local_binary_pattern(img, neighbours, radius,
+                                                 method='uniform')
+    assert freqs.max() == n - 1, freqs.max()
+    output = np.zeros((n,) + img.shape, dtype=np.float16)
+    # for i, a in enumerate(output):
+    #     a[:, :] = (freqs == i)
+    for origin, win in dwi.util.sliding_window(freqs, winsize, mask=mask):
+        for i in range(n):
+            output[i][origin] = np.count_nonzero(win == i) / win.size
+    assert len(output) == n, output.shape
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
-    if mask is not None:
-        output[:, -mask] = 0
+    # if mask is not None:
+    #     output[:, -mask] = 0
     return output, names
 
 
