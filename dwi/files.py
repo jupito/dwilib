@@ -13,7 +13,7 @@ import numpy as np
 import dwi.asciifile
 import dwi.dicomfile
 import dwi.hdf5
-from dwi.patient import GleasonScore, Lesion, Patient
+import dwi.patient
 
 
 COMMENT_PREFIX = '#'
@@ -92,20 +92,23 @@ def read_patients_file(filename, include_lines=False):
             num = int(m.group('num'))
             name = m.group('name').lower()
             scans = sorted(m.group('scans').lower().split(','))
-            score = GleasonScore(m.group('score'))
-            lesions = [Lesion(0, score, 'xx')]
+            score = dwi.patient.GleasonScore(m.group('score'))
+            lesions = [dwi.patient.Lesion(0, score, 'xx')]
             if m.group('location'):
                 # New-style, multi-lesion file.
                 lesions = []
-                lesions.append(Lesion(0, GleasonScore(m.group('score')),
-                                      m.group('location').lower()))
+                lesions.append(dwi.patient.Lesion(0,
+                    dwi.patient.GleasonScore(m.group('score')),
+                    m.group('location').lower()))
                 if m.group('score2'):
-                    lesions.append(Lesion(1, GleasonScore(m.group('score2')),
-                                          m.group('location2').lower()))
+                    lesions.append(dwi.patient.Lesion(1,
+                        dwi.patient.GleasonScore(m.group('score2')),
+                        m.group('location2').lower()))
                 if m.group('score3'):
-                    lesions.append(Lesion(2, GleasonScore(m.group('score3')),
-                                          m.group('location3').lower()))
-            patient = Patient(num, name, scans, lesions)
+                    lesions.append(dwi.patient.Lesion(2,
+                        dwi.patient.GleasonScore(m.group('score3')),
+                        m.group('location3').lower()))
+            patient = dwi.patient.Patient(num, name, scans, lesions)
             if include_lines:
                 patient.line = line
             patients.append(patient)
