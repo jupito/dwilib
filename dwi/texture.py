@@ -14,7 +14,6 @@ Scikit-image and Mahotas libraries are used for the calculations.
 
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
-from itertools import product
 
 import numpy as np
 import scipy as sp
