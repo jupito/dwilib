@@ -172,50 +172,6 @@ def glcm_mbb(img, mask):
     return output, names
 
 
-def haralick(img, ignore_zeros=False):
-    """Haralick texture features.
-
-    14 features provided by mahotas. Averaged over 4 directions for orientation
-    invariance.
-
-    Note: This implementation has some issues, it fails with some input raising
-    an exception about eigenvectors not converging.
-    """
-    import mahotas
-    a = mahotas.features.texture.haralick(img, ignore_zeros,
-                                          compute_14th_feature=True)
-    a = np.mean(a, axis=0)
-    return a, mahotas.features.texture.haralick_labels
-
-
-def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
-    """Haralick texture feature map."""
-    img = normalize(img)
-    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats, names = haralick(win, ignore_zeros=ignore_zeros)
-        if output is None:
-            output = np.zeros((len(names),) + img.shape, dtype=DTYPE)
-        for i, v in enumerate(feats):
-            output[(i,) + pos] = v
-    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
-             enumerate(names)]
-    return output, names
-
-
-def haralick_mbb(img, mask):
-    """Haralick features for selected area inside minimum bounding box."""
-    img = normalize(img)
-    positions = dwi.util.bounding_box(mask)
-    slices = [slice(*t) for t in positions]
-    img = img[slices]
-    mask = mask[slices]
-    img[-mask] = 0
-    feats, names = haralick(img, ignore_zeros=True)
-    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n)) for i, n in
-             enumerate(names)]
-    return feats, names
-
-
 # Local Binary Pattern (LBP) features
 
 
@@ -264,26 +220,6 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     # if mask is not None:
     #     output[:, -mask] = 0
     return output, names
-
-
-def lbpf_dist(hist1, hist2, method='chi-squared', eps=1e-6):
-    """Measure the distance of two LBP frequency histograms.
-
-    Method can be one of the following:
-    intersection: histogram intersection
-    log-likelihood: log-likelihood
-    chi-squared: chi-squared
-    """
-    pairs = np.array([hist1, hist2]).T
-    if method == 'intersection':
-        r = sum(min(pair) for pair in pairs)
-    elif method == 'log-likelihood':
-        r = -sum(a*np.log(max(b, eps)) for a, b in pairs)
-    elif method == 'chi-squared':
-        r = sum((a-b)**2/(max(a+b, eps)) for a, b in pairs)
-    else:
-        raise Exception('Unknown distance measure: %s' % method)
-    return r
 
 
 # Gabor features
@@ -385,42 +321,6 @@ def hog_map(img, winsize, mask=None, output=None):
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['hog']
-    return output, names
-
-
-# Image moments
-
-
-def moment(img, p, q):
-    """Image moment. See Tuceryan 1994: Moment Based Texture Segmentation."""
-    img = np.asarray(img)
-    if img.ndim != 2 or img.shape[0] != img.shape[1]:
-        raise Exception('Image not square: {}'.format(img.shape))
-    width = img.shape[0]
-    center = width//2
-    nc = lambda pos: (pos-center) / (width/2)  # Normalized coordinates [-1,1]
-    f = lambda m, n: img[m, n] * nc(m)**p * nc(n)**q
-    a = np.fromfunction(f, img.shape, dtype=np.int)
-    return a.sum()
-
-
-def moments(img, max_order=2):
-    """Image moments of order up to p+q <= max_order."""
-    r = range(max_order+1)
-    tuples = (t for t in product(r, r) if sum(t) <= max_order)
-    d = OrderedDict(((p, q), moment(img, p, q)) for p, q in tuples)
-    return d
-
-
-def moment_map(img, winsize, max_order=12, mask=None, output=None):
-    """Image moment map."""
-    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = moments(win, max_order=max_order)
-        if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
-        for i, v in enumerate(feats.values()):
-            output[(i,) + pos] = v
-    names = ['moment{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 
 
@@ -583,12 +483,12 @@ METHODS = OrderedDict([
     # Methods that consider an n*n window.
     ('stats', stats_map),
     ('glcm', glcm_map),
-    ('haralick', haralick_map),
+    # ('haralick', haralick_map),
     ('lbp', lbp_freq_map),
     ('hog', hog_map),
     ('gabor', gabor_map),
     ('gaboralt', gabor_map_alt),
-    ('moment', moment_map),
+    # ('moment', moment_map),
     ('haar', haar_map),
     ('sobel', sobel_map),
     ('hu', hu_map),
@@ -597,7 +497,7 @@ METHODS = OrderedDict([
     # Methods that consider a minimum bounding box of selected voxels.
     ('stats_mbb', stats_mbb),
     ('glcm_mbb', glcm_mbb),
-    ('haralick_mbb', haralick_mbb),
+    # ('haralick_mbb', haralick_mbb),
     # Methods that consider all selected voxels.
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
