@@ -22,6 +22,7 @@ import skimage.exposure
 import skimage.feature
 import skimage.filters
 
+import dwi.hdf5
 import dwi.util
 
 
@@ -120,7 +121,6 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     Six features provided by scikit-image. Averaged over 4 directions for
     orientation invariance.
     """
-    from skimage.feature import greycomatrix, greycoprops
     assert img.ndim == 2
     assert img.dtype == np.ubyte
     # Prune distances too long for the window.
@@ -128,14 +128,15 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     # distances = [x for x in distances if x <= min(img.shape)-1]
     angles = (0, np.pi/4, np.pi/2, 3*np.pi/4)
     levels = img.max() + 1
-    glcm = greycomatrix(img, distances, angles, levels, symmetric=True,
-                        normed=True)
+    glcm = skimage.feature.greycomatrix(img, distances, angles, levels,
+                                        symmetric=True, normed=True)
     if ignore_zeros and np.min(img) == 0:
         # Drop information on the first grey-level if it's zero (background).
         glcm = glcm[1:, 1:, ...]
     d = OrderedDict()
     for name in names:
-        feats = greycoprops(glcm, name)  # Returns array (distance, angle).
+        # Returns array (distance, angle).
+        feats = skimage.feature.greycoprops(glcm, name)
         feats = np.mean(feats, axis=1)  # Average over angles.
         for dist, feat in zip(distances, feats):
             d[(name, dist)] = feat
@@ -533,7 +534,6 @@ def get_texture_map(img, call, winsize, mask, path=None):
                     # tmap = np.zeros(shape, dtype=DTYPE)
                     tmap = np.full(shape, np.nan, dtype=DTYPE)
                 else:
-                    import dwi.hdf5
                     tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE,
                                                 fillvalue=np.nan)
             feats = np.rollaxis(feats, 0, 3)
