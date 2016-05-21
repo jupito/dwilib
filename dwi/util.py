@@ -189,7 +189,13 @@ def bounding_box(array, pad=0):
 
     Parameter pad can be a tuple of each dimension or a single number. It can
     contain infinity for maximum padding.
+
+    Use example:
+        mbb = dwi.util.bounding_box(mask)
+        slices = [slice(*x) for x in mbb]
+        img = img[slices]
     """
+    # TODO: Should probably return slice objects right away.
     if np.isscalar(pad):
         pad = (pad,) * array.ndim
     r = []
