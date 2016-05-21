@@ -24,11 +24,12 @@ import skimage.filters
 
 import dwi.hdf5
 import dwi.util
+from dwi.texture_mahotas import haar_map, zernike_map
+# from dwi.texture_jp import lbp_freq_map
 
 
 DTYPE = np.float32  # Type used for storing texture features.
 MODE = None  # For now, set this for normalize(). TODO: Better solution.
-
 
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
@@ -173,32 +174,6 @@ def glcm_mbb(img, mask):
 
 
 # Local Binary Pattern (LBP) features
-
-
-# def lbp_freqs(img, winsize, neighbours=8, radius=1, roinv=1, uniform=1):
-#     """Local Binary Pattern (LBP) frequency histogram map.
-# 
-#     Invariant to global illumination change, local contrast magnitude, local
-#     rotation.
-#     """
-#     # TODO: See if better replace Jonne's implementation with skimage/mahotas.
-#     import dwi.lbp
-#     lbp_data = dwi.lbp.lbp(img, neighbours, radius, roinv, uniform)
-#     lbp_freq_data, n_patterns = dwi.lbp.get_freqs(lbp_data, winsize,
-#                                                   neighbours, roinv, uniform)
-#     return lbp_data, lbp_freq_data, n_patterns
-# 
-# 
-# def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
-#     """Local Binary Pattern (LBP) frequency histogram map."""
-#     if radius is None:
-#         radius = winsize // 2
-#     _, freqs, n = lbp_freqs(img, winsize, neighbours=neighbours, radius=radius)
-#     output = np.rollaxis(freqs, -1)
-#     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
-#     if mask is not None:
-#         output[:, -mask] = 0
-#     return output, names
 
 
 def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
@@ -358,102 +333,6 @@ def hu_map(img, winsize, mask=None, output=None):
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['hu({})'.format(i) for i in range(len(feats))]
-    return output, names
-
-
-# Zernike moments.
-
-
-def zernike(img, radius, degree=8, cm=None):
-    """Zernike moments.
-
-    This geometric moment derivate is based on alternative orthogonal
-    polynomials, which makes it more optimal wrt. information redundancy. These
-    are invariant to rotation.
-    """
-    import mahotas
-    img = np.asarray(img, dtype=np.double)
-    assert img.ndim == 2
-    feats = mahotas.features.zernike_moments(img, radius, degree=degree, cm=cm)
-    return feats
-
-
-def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
-    """Zernike moment map."""
-    if radius is None:
-        radius = winsize // 2
-    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = zernike(win, radius, degree=degree, cm=(radius, radius))
-        if output is None:
-            output = np.zeros((len(feats),) + img.shape, dtype=DTYPE)
-        for i, v in enumerate(feats):
-            output[(i,) + pos] = v
-    names = ['zernike({})'.format(i) for i in range(len(feats))]
-    return output, names
-
-
-# Haar transformation
-
-
-def haar(img):
-    """Haar wavelet transform."""
-    import mahotas
-    # Cannot have nans here, they might have global influence.
-    img = np.asarray_chkfinite(img)
-    assert img.ndim == 2
-    # assert img.shape[0] % 2 == img.shape[1] % 2 == 0
-    # Prune possible odd borders.
-    newshape = [x - x % 2 for x in img.shape]
-    img = img[:newshape[0], :newshape[1]]
-    a = mahotas.haar(img)
-    h, w = [x//2 for x in a.shape]
-    coeffs = [a[:h, :w], a[:h, w:],
-              a[h:, :w], a[h:, w:]]
-    coeffs = [sp.ndimage.interpolation.zoom(l, 2.) for l in coeffs]
-    return coeffs
-
-
-def haar_levels(img, nlevels=4, drop_approx=False):
-    """Multi-level Haar wavelet transform."""
-    levels = []
-    for _ in range(nlevels):
-        coeffs = haar(img)
-        levels.append(coeffs)
-        img = coeffs[0]  # Set source for next iteration step.
-    if drop_approx:
-        levels = [l[1:] for l in levels]
-    return levels
-
-
-def haar_features(win):
-    """Haar texture features of a single level."""
-    d = OrderedDict()
-    d['aav'] = np.mean(np.abs(win))
-    d['std'] = np.std(win)
-    return d
-
-
-def haar_map(img, winsize, nlevels=4, mask=None, output=None):
-    """Haar texture feature map."""
-    # Cannot have nans here, they might have global influence.
-    nans = np.isnan(img)
-    if np.count_nonzero(nans):
-        img[nans] = 0  # XXX: Replace with minimum value instead?
-    levels = haar_levels(img, nlevels=nlevels, drop_approx=True)
-    names = []
-    for i, coeffs in enumerate(levels):
-        for j, coeff in enumerate(coeffs):
-            for pos, win in dwi.util.sliding_window(coeff, winsize, mask):
-                feats = haar_features(win)
-                if output is None:
-                    output = np.zeros((len(levels), len(coeffs), len(feats),) +
-                                      coeff.shape, dtype=DTYPE)
-                for k, v in enumerate(feats.values()):
-                    output[(i, j, k,) + pos] = v
-            s = 'haar({level},{coeff},{feat})'
-            names += [s.format(level=i+1, coeff=j+1, feat=k) for k in
-                      feats.keys()]
-    output.shape = (-1,) + levels[0][0].shape
     return output, names
 
 
