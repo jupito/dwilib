@@ -31,6 +31,7 @@ from dwi.texture_mahotas import haar_map, zernike_map
 DTYPE = np.float32  # Type used for storing texture features.
 MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
+
 def normalize(pmap, levels=128):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
