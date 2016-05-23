@@ -91,7 +91,7 @@ def read_slice(filename, d):
     key = (position, bvalue, echotime)
     slices = d.setdefault('slices', {})
     if key in slices:
-        raise ValueError('Overlapping slices: {}, {}'.format(key, filename))
+        logging.error('Overlapping slices (%s), discarding %s', key, filename)
     slices[key] = pixels
 
 
