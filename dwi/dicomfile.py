@@ -1,6 +1,7 @@
 """Support for reading DWI data from DICOM files."""
 
 from __future__ import absolute_import, division, print_function
+import logging
 import os.path
 
 import numpy as np
@@ -66,7 +67,7 @@ def read_slice(filename, d):
     try:
         df = dicom.read_file(filename)
     except dicom.filereader.InvalidDicomError as e:
-        dwi.util.report('Error reading {f}: {e}'.format(f=filename, e=e))
+        logging.error('Error reading %s: %s', filename, e)
         return
     if 'PixelData' not in df:
         return
