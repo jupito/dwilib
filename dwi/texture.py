@@ -14,6 +14,7 @@ Scikit-image and Mahotas libraries are used for the calculations.
 
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
+import logging
 
 import numpy as np
 import scipy as sp
@@ -55,7 +56,7 @@ def normalize(pmap, levels=128):
         in_range = (0, 4095)
     else:
         raise ValueError('Invalid mode: {}'.format(MODE))
-    # dwi.util.report('Normalizing:', MODE, in_range)
+    # logging.info('Normalizing: %s, %s', MODE, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     pmap //= int(round(256 / levels))
@@ -261,7 +262,7 @@ def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
         for j, freq in enumerate(freqs):
             kernel = skimage.filters.gabor_kernel(freq, theta=theta)
             kernel = np.real(kernel)
-            dwi.util.report(i, j, theta, freq, kernel.shape)
+            logging.info(' '.join([i, j, theta, freq, kernel.shape]))
             a = sp.ndimage.filters.convolve(img[:, :], kernel)
             output[i, j, :, :] = a
     output = np.mean(output, axis=0)  # Average over directions.
