@@ -89,18 +89,19 @@ def main():
         print('# param  AUC  AUC_BS_mean  lower  upper')
     Auc_bs = []
     params_maxlen = max(len(p) for p in Params)
+    d = dict(l=params_maxlen)
     for x, y, param in zip(X, Y, Params):
+        d['param'] = param
+        s = '{param:{l}}  {auc:.3f}'
         if np.any(np.isnan(x)):
-            print(param, '\t', np.nan)
+            d['auc'] = np.nan
+            print(s.format(**d))
             continue
         _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=False)
         if args.autoflip and auc < 0.5:
             x = -x
             _, _, auc = dwi.util.calculate_roc_auc(y, x)
-        d = dict(param=param, l=params_maxlen, auc=auc)
-        fields = ['{auc:.3f}']
-        if args.verbose:
-            fields = ['{param:{l}}'] + fields
+        d['auc'] = auc
         if args.nboot:
             # Note: x may now be negated (ROC flipped).
             auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
@@ -108,8 +109,8 @@ def main():
             ci1, ci2 = dwi.util.ci(auc_bs)
             d.update(avg=avg, ci1=ci1, ci2=ci2)
             Auc_bs.append(auc_bs)
-            fields += ['{avg:.3f}', '{ci1:.3f}', '{ci2:.3f}']
-        print('  '.join(fields).format(**d))
+            s += '  {avg:.3f}  {ci1:.3f}  {ci2:.3f}'
+        print(s.format(**d))
 
     # Print bootstrapped AUC comparisons.
     if args.nboot and args.compare:
