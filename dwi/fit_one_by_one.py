@@ -7,9 +7,6 @@ import numpy as np
 from leastsqbound import leastsqbound
 
 
-LOGGER = None
-
-
 def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
     """Fit curves to data with multiple initializations.
 
@@ -36,18 +33,7 @@ def fit_curves_mi(f, xdata, ydatas, guesses, bounds, out_pmap):
 
     See files fit.py and models.py for more information on usage.
     """
-    if LOGGER:
-        import time
-        begin = time.time()
-        total = np.count_nonzero(-np.isnan(ydatas[..., 0]))
     for i, ydata in enumerate(ydatas):
-        if LOGGER:
-            if not np.isnan(ydata[0]):
-                done = np.count_nonzero(-np.isnan(ydatas[:i, 0]))
-                if done % 1000 == 0:
-                    LOGGER('{d} / {t} = {p:.0%}, {s:.2} s per voxel'.format(
-                        d=done, t=total, p=done/total,
-                        s=(time.time()-begin) / (done+1)))
         params, err = fit_curve_mi(f, xdata, ydata, guesses(ydata[0]), bounds)
         out_pmap[i, -1] = err
         if np.isfinite(err):
