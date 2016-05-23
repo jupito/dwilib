@@ -98,6 +98,7 @@ def main():
             print(s.format(**d))
             continue
         _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=False)
+        # Must flip here for the bootstrap to work.
         if args.autoflip and auc < 0.5:
             x = -x
             _, _, auc = dwi.util.calculate_roc_auc(y, x)
