@@ -126,7 +126,7 @@ def get_bvalue(df):
     elif 'FrameReferenceTime' in df:
         r = df.FrameReferenceTime / 1000
     else:
-        # print('DICOM without b-value, defaulting to zero')
+        # logging.warning('DICOM without b-value, defaulting to zero')
         return 0
     if r is not None:
         r = int(r) if r.is_integer() else float(r)
@@ -171,6 +171,6 @@ def get_slice_spacing(pos1, pos2):
     diffs = [x for x in diffs if x != 0]
     if len(diffs) != 1:
         # More than one axis differs: use multi-axis distance.
-        print('Ambiguous slice spacing: {}, {}'.format(pos1, pos2))
+        logging.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
         diffs = [dwi.util.distance(pos1, pos2)]
     return diffs[0]
