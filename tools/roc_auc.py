@@ -90,6 +90,9 @@ def main():
     Auc_bs = []
     params_maxlen = max(len(p) for p in Params)
     for x, y, param in zip(X, Y, Params):
+        if np.any(np.isnan(x)):
+            print(param, '\t', np.nan)
+            continue
         _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=False)
         if args.autoflip and auc < 0.5:
             x = -x
