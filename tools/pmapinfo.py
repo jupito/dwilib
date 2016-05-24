@@ -45,6 +45,7 @@ class Pmap(object):
     min = property(lambda self: np.nanmin(self._img))
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
+    spacing = property(lambda self: self._attrs['voxel_spacing'])
 
 
 def main():
