@@ -23,6 +23,10 @@ def parse_args():
     return p.parse_args()
 
 
+def shorten(o):
+    return str(o).translate(None, ' \t')
+
+
 class Pmap(object):
     def __init__(self, path):
         self.path = path
@@ -32,7 +36,7 @@ class Pmap(object):
                                                  x.startswith('_'))))
     file = property(lambda self: os.path.basename(self.path))
     root = property(lambda self: os.path.splitext(self.file)[0])
-    shape = property(lambda self: self._img.shape)
+    shape = property(lambda self: shorten(self._img.shape))
     type = property(lambda self: self._img.dtype)
     size = property(lambda self: self._img.size)
     finite = property(lambda self: np.count_nonzero(np.isfinite(self._img)))
@@ -45,7 +49,8 @@ class Pmap(object):
     min = property(lambda self: np.nanmin(self._img))
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
-    spacing = property(lambda self: self._attrs['voxel_spacing'])
+    spacing = property(lambda self: shorten(self._attrs['voxel_spacing']))
+    errors = property(lambda self: len(self._attrs.get('errors', [])))
 
 
 def main():
@@ -61,7 +66,7 @@ def main():
         pmap = Pmap(path)
         fmt = '{k}={v}' if args.verbose else '{v}'
         fields = (fmt.format(k=x, v=getattr(pmap, x)) for x in keys)
-        print(*fields)
+        print(*fields, sep='\t')
 
         # d = dict(path=path, paramlen=max(len(x) for x in attrs['parameters']))
         # for i, param in enumerate(attrs['parameters']):
