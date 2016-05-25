@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function
 import logging
 import os.path
+import re
 
 import numpy as np
 import dicom
@@ -40,7 +41,7 @@ def read_files(filenames):
 
     DICOM files without pixel data are silently skipped.
     """
-    d = {}
+    d = dict(errors=[])
     for f in filenames:
         read_slice(f, d)
     positions = sorted(d['positions'])
@@ -58,7 +59,8 @@ def read_files(filenames):
         slice_spacing = round(get_slice_spacing(positions[0], positions[1]), 5)
         d['voxel_spacing'] = (slice_spacing,) + d['voxel_spacing'][1:]
     r = dict(image=image, bset=bvalues, echotimes=echotimes,
-             parameters=parameters, voxel_spacing=d['voxel_spacing'])
+             parameters=parameters, voxel_spacing=d['voxel_spacing'],
+             errors=d['errors'])
     return r
 
 
@@ -92,6 +94,8 @@ def read_slice(filename, d):
     slices = d.setdefault('slices', {})
     if key in slices:
         logging.error('Overlapping slices (%s), discarding %s', key, filename)
+        s = 'Overlapping slices, discarding {}'.format(filename)
+        d['errors'].append(s)
     slices[key] = pixels
 
 
@@ -118,18 +122,33 @@ def construct_image(slices, positions, bvalues, echotimes):
 
 
 def get_bvalue(df):
-    """Return image b-value. It may also be stored as frame second."""
+    """Return image b-value. Default to 0 if not found.
+
+    It may also be stored as frame second.
+
+    Some Siemens scanners have it like this:
+    (0018,0024) SH [*ep_b0]      #   6, 1 SequenceName
+    (0018,0024) SH [*ep_b1500t]  #  10, 1 SequenceName
+    """
+    r = None
     if 'DiffusionBValue' in df:
         r = df.DiffusionBValue
     elif 'FrameTime' in df:
         r = df.FrameTime / 1000
     elif 'FrameReferenceTime' in df:
         r = df.FrameReferenceTime / 1000
-    else:
+    elif 'SequenceName' in df:
+        s = df.SequenceName
+        m = re.match(r'\*ep_b([0-9]+)t?', s)
+        if m:
+            r = int(m.group(1))
+    if r is None:
         # logging.warning('DICOM without b-value, defaulting to zero')
-        return 0
-    if r is not None:
+        r = 0
+    if isinstance(r, float):
+        # I'm not sure if they can be non-integer.
         r = int(r) if r.is_integer() else float(r)
+    assert isinstance(r, int) or isinstance(r, float), r
     return r
 
 
@@ -168,9 +187,7 @@ def get_slice_spacing(pos1, pos2):
     ImagePositionPatient sequences.
     """
     diffs = [abs(x-y) for x, y in zip(pos1, pos2)]
-    diffs = [x for x in diffs if x != 0]
-    if len(diffs) != 1:
+    if len([x for x in diffs if x > 0.05]) != 1:
         # More than one axis differs: use multi-axis distance.
         logging.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
-        diffs = [dwi.util.distance(pos1, pos2)]
-    return diffs[0]
+    return dwi.util.distance(pos1, pos2)
