@@ -485,23 +485,6 @@ def sglob(path, typ='any'):
     return sole(iglob(path, typ), path)
 
 
-def walker(top, types='f'):
-    """Yield all paths in subdirectories of root path. Kind of like find."""
-    if os.path.isdir(top):
-        def err(e):
-            print(e)
-        it = os.walk(top, onerror=err, followlinks=True)
-        for dirpath, dirnames, filenames in it:
-            if 'f' in types:
-                for p in filenames:
-                    yield os.path.join(dirpath, p)
-            if 'd' in types:
-                for p in dirnames:
-                    yield os.path.join(dirpath, p)
-    elif 'f' in types:
-        yield top
-
-
 def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
     # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
