@@ -35,7 +35,13 @@ class Pmap(object):
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
     spacing = property(lambda self: shorten(self._attrs['voxel_spacing']))
+    mbb = property(lambda self: shorten(mbb_shape(self._img)))
     errors = property(lambda self: len(self._attrs.get('errors', [])))
+
+
+def mbb_shape(img):
+    """Minimum bounding box shape."""
+    return tuple(b-a for a, b in dwi.util.bounding_box(img))
 
 
 def shorten(o):
