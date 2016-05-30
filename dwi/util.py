@@ -14,6 +14,8 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 import scipy.spatial
+import sklearn.metrics
+import sklearn.preprocessing
 
 
 @total_ordering
@@ -279,8 +281,6 @@ def calculate_roc_auc(y, x, autoflip=False, scale=True):
     By default, the samples are scaled, because sklearn.metrics.roc_curve()
     interprets very close samples as equal.
     """
-    import sklearn.metrics
-    import sklearn.preprocessing
     y = np.asarray(y)
     x = np.asarray(x)
     if scale:
