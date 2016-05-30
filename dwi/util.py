@@ -75,12 +75,6 @@ def iterable(x):
         return True
 
 
-def report(*args, **kwargs):
-    """Print to stderr and flush."""
-    print(*args, file=sys.stderr, **kwargs)
-    sys.stderr.flush()
-
-
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal, while
     ignoring nan values.
