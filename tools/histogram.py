@@ -29,7 +29,7 @@ def parse_args():
     return p.parse_args()
 
 
-def histogram(a, m1=None, m2=None, bins=20):
+def histogram(a, m1=None, m2=None, bins='auto'):
     """Create histogram from data between (m1, m2), with bin centers."""
     a = np.asarray(a)
     if m1 is not None:
@@ -37,7 +37,6 @@ def histogram(a, m1=None, m2=None, bins=20):
     if m2 is not None:
         a = a[a < m2]
     mn, mx = a.min(), a.max()
-    # bins = a.size / 1000000
     hist, bin_edges = np.histogram(a, bins=bins, density=False)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
     return hist, bin_centers, mn, mx
