@@ -127,6 +127,8 @@ def parse_args():
                    help='DICOM directory or HDF5 file')
     p.add_argument('--params', '-p', type=int, nargs='+',
                    help='included parameter indices')
+    p.add_argument('--mbb', action='store_true',
+                   help='take minimum bounding box')
     p.add_argument('--subwindow', '-w', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, zero-based)')
@@ -191,6 +193,10 @@ def main():
         print(e)
         with img.astype('float16'):
             img = img[:]
+
+    if args.mbb:
+        print('Taking minimum bounding_box from {}'.format(img.shape))
+        img = img[dwi.util.mbb(img)]
 
     print('Attributes:')
     for k, v in attrs.items():
