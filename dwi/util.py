@@ -191,7 +191,7 @@ def bounding_box(array, pad=0):
         slices = [slice(*x) for x in mbb]
         img = img[slices]
     """
-    # TODO: Should probably return slice objects right away.
+    array = np.asanyarray(array)
     if np.isscalar(pad):
         pad = (pad,) * array.ndim
     r = []
@@ -199,8 +199,12 @@ def bounding_box(array, pad=0):
         x = max(min(a)-p, 0)
         y = min(max(a)+1+p, l)
         r.append((x, y))
-    # return tuple(map(int, r))
     return tuple(r)
+
+
+def bbox(array, pad=0):
+    """Like bounding_box() but return slice objects."""
+    return tuple(slice(a, b) for a, b in bounding_box(array, pad=pad))
 
 
 def resample_bootstrap_single(a):
