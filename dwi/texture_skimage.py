@@ -40,12 +40,13 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
         glcm = glcm[1:, 1:, ...]
     d = OrderedDict()
     for name in names:
-        # Returns array (distance, angle).
+        # Returns array of features indexed by (distance, angle).
         feats = skimage.feature.greycoprops(glcm, name)
-        feats = np.mean(feats, axis=1)  # Average over angles.
-        for dist, feat in zip(distances, feats):
-            d[(name, dist)] = feat
-        d[(name, 'avg')] = np.mean(feats)
+        angular_means = np.mean(feats, axis=1)
+        angular_ranges = np.ptp(feats, axis=1)
+        for dist, am, ar in zip(distances, angular_means, angular_ranges):
+            d[(name, dist, 'mean')] = am
+            d[(name, dist, 'range')] = ar
     return d
 
 
