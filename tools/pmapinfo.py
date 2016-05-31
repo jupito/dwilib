@@ -24,16 +24,22 @@ class Pmap(object):
     shape = property(lambda self: shorten(self._img.shape))
     type = property(lambda self: self._img.dtype)
     size = property(lambda self: self._img.size)
+
     finite = property(lambda self: np.count_nonzero(np.isfinite(self._img)))
-    rfinite = property(lambda self: self.finite / self.size)
     nonzero = property(lambda self: np.count_nonzero(self._img))
+    neg = property(lambda self: np.count_nonzero(self._img < 0))
+
+    rfinite = property(lambda self: self.finite / self.size)
     rnonzero = property(lambda self: self.nonzero / self.size)
+    rneg = property(lambda self: self.neg / self.size)
+
     sum = property(lambda self: np.nansum(self._img))
     mean = property(lambda self: np.nanmean(self._img))
     std = property(lambda self: np.nanstd(self._img))
     min = property(lambda self: np.nanmin(self._img))
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
+    five = property(lambda self: shorten(dwi.util.fivenums(self._img)))
     spacing = property(lambda self: shorten(self._attrs['voxel_spacing']))
     mbb = property(lambda self: shorten(mbb_shape(self._img)))
     errors = property(lambda self: len(self._attrs.get('errors', [])))
