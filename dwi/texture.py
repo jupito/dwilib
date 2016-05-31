@@ -17,7 +17,6 @@ from collections import OrderedDict
 
 import numpy as np
 import scipy as sp
-import skimage
 import skimage.exposure
 
 import dwi.hdf5
@@ -32,14 +31,13 @@ DTYPE = np.float32  # Type used for storing texture features.
 MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
 
-def normalize(pmap, levels=128):
+def normalize(pmap, levels=64):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
     if MODE in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
-        # in_range = (0, 0.03)
-        in_range = (0, 0.005)
-        # in_range = (0, 0.002)
+        # in_range = (0, 0.005)
+        in_range = (0, 0.003)
     elif MODE in ('DWI-Kurt-K', 'T2w'):
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
