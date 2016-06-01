@@ -196,7 +196,7 @@ def main():
 
     if args.mbb:
         print('Taking minimum bounding_box from {}'.format(img.shape))
-        img = img[dwi.util.mbb(img)]
+        img = img[dwi.util.bbox(img)]
 
     print('Attributes:')
     for k, v in attrs.items():
