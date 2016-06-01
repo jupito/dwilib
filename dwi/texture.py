@@ -31,7 +31,7 @@ DTYPE = np.float32  # Type used for storing texture features.
 MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
 
-def normalize(pmap, mode=None, levels=64):
+def normalize(pmap, mode=None):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
     if mode is None:
@@ -61,9 +61,17 @@ def normalize(pmap, mode=None, levels=64):
         raise ValueError('Invalid mode: {}'.format(mode))
     # logging.info('Normalizing: %s, %s', mode, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
-    pmap = skimage.img_as_ubyte(pmap)
-    pmap //= int(round(256 / levels))
     return pmap
+
+
+def quantize(img, levels=64):
+    """Uniform quantization."""
+    img = np.asarray(img)
+    assert np.issubsctype(img, np.floating), img.dtype
+    assert np.all(img >= 0) and np.all(img <= 1)
+    img = skimage.img_as_ubyte(img)
+    img //= int(round(256 / levels))
+    return img
 
 
 def abbrev(name):
