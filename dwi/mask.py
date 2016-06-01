@@ -45,7 +45,7 @@ class Mask(object):
         if slice < 1:
             raise ValueError('Invalid slice: {}'.format(slice))
         self.slice = slice  # Slice number, one-based indexing
-        self.array = array.astype(bool)  # 2D mask of one slice.
+        self.array = array.astype(np.bool)  # 2D mask of one slice.
 
     def __repr__(self):
         return repr((self.slice, self.array.shape))
@@ -115,7 +115,7 @@ class Mask3D(object):
     def __init__(self, a):
         if a.ndim != 3:
             raise ValueError('Invalid mask dimensionality: {}'.format(a.shape))
-        self.array = a.astype(bool)
+        self.array = a.astype(np.bool)
 
     def __repr__(self):
         return repr(self.array.shape)
