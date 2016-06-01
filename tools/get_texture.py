@@ -134,14 +134,13 @@ def main():
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
     avg = (args.voxel == 'mean')
-    dwi.texture.MODE = args.mode
     path = None
     if not avg and args.mode.startswith('T2w') and args.method == 'gabor':
         path = args.output
         logging.warning('Output array is manipulated on disk, it is slow: %s',
                         path)
     if args.method in ('glcm', 'glcm_mbb'):
-        img = dwi.texture.quantize(dwi.texture.normalize(img))
+        img = dwi.texture.quantize(dwi.texture.normalize(img, args.mode))
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg, path=path)
     attrs['parameters'] = names

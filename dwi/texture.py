@@ -28,14 +28,11 @@ from dwi.texture_mahotas import haar_map, zernike_map
 
 
 DTYPE = np.float32  # Type used for storing texture features.
-MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
 
-def normalize(pmap, mode=None):
+def normalize(pmap, mode):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
-    if mode is None:
-        mode = MODE
     if mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
