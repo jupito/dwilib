@@ -4,6 +4,8 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
+from collections import OrderedDict
+import logging
 
 import numpy as np
 import pylab as pl
@@ -29,13 +31,19 @@ def parse_args():
     return p.parse_args()
 
 
-def histogram(a, m1=None, m2=None, bins='auto'):
+def histogram(a, m1=None, m2=None, inclusive=True, bins='doane'):
     """Create histogram from data between (m1, m2), with bin centers."""
     a = np.asarray(a)
     if m1 is not None:
-        a = a[a > m1]
+        if inclusive:
+            a = a[a >= m1]
+        else:
+            a = a[a > m1]
     if m2 is not None:
-        a = a[a < m2]
+        if inclusive:
+            a = a[a <= m2]
+        else:
+            a = a[a < m2]
     mn, mx = a.min(), a.max()
     hist, bin_edges = np.histogram(a, bins=bins, density=False)
     bin_centers = [np.mean(t) for t in zip(bin_edges, bin_edges[1:])]
@@ -55,9 +63,9 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
     ncols, nrows = len(Histograms), 1
     fig = pl.figure(figsize=(ncols*6, nrows*6))
     # pl.yscale('log')
-    for i, histograms in enumerate(Histograms):
+    for i, (rng, histograms) in enumerate(Histograms.items(), 1):
         if histograms:
-            fig.add_subplot(1, len(Histograms), i+1)
+            fig.add_subplot(1, len(Histograms), i)
             minmin, maxmax = None, None
             for hist, bins, mn, mx in histograms:
                 x, y = bins, hist
@@ -71,49 +79,50 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
                     maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
-            s = '[{:.5g}, {:.5g}]'.format(minmin, maxmax)
+            s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
+                                                  minmin, maxmax)
             if title is not None:
-                s = ' '.join([title, s])
+                s = title + '; ' + s
             pl.title(s)
     pl.tight_layout()
-    print('Plotting to {}...'.format(outfile))
+    logging.info('Plotting to %s...', outfile)
     pl.savefig(outfile, bbox_inches='tight')
     pl.close()
 
 
 def main():
     args = parse_args()
+    logging.basicConfig(level=logging.INFO)
 
-    histograms = []
-    histograms_std = []
+    ranges = [[0, 100], (0, 100), [0, 99], (1, 95)]
+    hists = OrderedDict()
     for path in args.input:
         img, attrs = dwi.files.read_pmap(path, params=[args.param])
         param = attrs['parameters'][0]
         original_shape, original_size = img.shape, img.size
+        img = img[dwi.util.bbox(img)]
         img = img[np.isfinite(img)]
+        if np.any(img < 0):
+            negatives = img[img < 0]
+            logging.warning('Image contains negatives: %s', path)
         if args.verbose:
             s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
             print(s.format(s=original_shape, t=img.dtype,
                            fp=img.size/original_size, m=np.mean(img),
                            fn=dwi.util.fivenums(img), param=param, p=path))
-        histograms.append(histogram(img, None, None))
-        # cutoffs = img.min(), img.max()
-        cutoffs = np.percentile(img, (0, 99))
-        histograms_std.append(histogram(img, *cutoffs))
-    plot_histograms([histograms, histograms_std], args.fig, title=param,
-                    smooth=args.smooth)
-
-    # All together.
-    # histograms = []
-    # histograms_std = []
-    # images = (dwi.files.read_pmap(x)[0].squeeze() for x in args.input)
-    # img = np.zeros((0,))
-    # for image in images:
-    #     img = np.concatenate([img, image])
-    # print(img.shape)
-    # histograms.append(histogram(img, None, None))
-    # histograms_std.append(histogram(img, img.min(), img.max()))
-    # plot_histograms([histograms, histograms_std], args.fig+'-together.png')
+        for rng in ranges:
+            if isinstance(rng, list):
+                incl = True
+            if isinstance(rng, tuple):
+                incl = False
+            m1, m2 = np.percentile(img, rng)
+            hists.setdefault(str(rng), []).append(histogram(img, m1, m2, incl))
+        # hists[0].append(histogram(img, None, None))
+        # hists[1].append(histogram(img, 0, 100))
+        # hists[2].append(histogram(img, 0.1, 99.9))
+        # hists[3].append(histogram(img, 1, 99))
+        # hists[4].append(histogram(img, 2, 98))
+    plot_histograms(hists, args.fig, title=param, smooth=args.smooth)
 
 
 if __name__ == '__main__':
