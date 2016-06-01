@@ -14,7 +14,6 @@ import dwi.util
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
 THRESHOLDS_STANDARD = ('3+3', '3+4')
 
-
 @total_ordering
 class GleasonScore(object):
     """Gleason score is a two or three-value measure of prostate cancer
