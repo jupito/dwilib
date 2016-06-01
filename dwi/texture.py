@@ -64,14 +64,14 @@ def normalize(pmap, mode=None):
     return pmap
 
 
-def quantize(img, levels=64):
-    """Uniform quantization."""
+def quantize(img, levels=64, dtype=np.uint8):
+    """Uniform quantization from float [0, 1] to int [0, levels-1]."""
     img = np.asarray(img)
     assert np.issubsctype(img, np.floating), img.dtype
     assert np.all(img >= 0) and np.all(img <= 1)
-    img = skimage.img_as_ubyte(img)
-    img //= int(round(256 / levels))
-    return img
+    # img = skimage.img_as_ubyte(img)
+    # img //= int(round(256 / levels))
+    return (img * levels).clip(0, levels-1).astype(dtype)
 
 
 def abbrev(name):
