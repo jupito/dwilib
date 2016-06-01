@@ -186,6 +186,8 @@ def bounding_box(array, pad=0):
     Parameter pad can be a tuple of each dimension or a single number. It can
     contain infinity for maximum padding.
 
+    The value to leave outside box is nan, if any, otherwise zero.
+
     Use example:
         mbb = dwi.util.bounding_box(mask)
         slices = [slice(*x) for x in mbb]
@@ -194,6 +196,9 @@ def bounding_box(array, pad=0):
     array = np.asanyarray(array)
     if np.isscalar(pad):
         pad = (pad,) * array.ndim
+    nans = np.isnan(array)
+    if np.any(nans):
+        array = ~nans
     r = []
     for a, l, p in zip(array.nonzero(), array.shape, pad):
         x = max(min(a)-p, 0)
