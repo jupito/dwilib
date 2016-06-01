@@ -151,6 +151,8 @@ def main():
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg, path=path)
     attrs['parameters'] = names
+    # Number of windows, or resulting texture map volume in general.
+    attrs['tmap_voxels'] = np.count_nonzero(pmask)
 
     if args.verbose:
         print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
