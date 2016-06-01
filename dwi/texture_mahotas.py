@@ -118,6 +118,8 @@ def haralick(img, ignore_zeros=False):
     Note: This implementation has some issues, it fails with some input raising
     an exception about eigenvectors not converging.
     """
+    assert img.ndim == 2, img.shape
+    assert img.dtype == np.uint8, img.dtype
     a = mahotas.features.texture.haralick(img, ignore_zeros,
                                           compute_14th_feature=True)
     a = np.mean(a, axis=0)
@@ -126,7 +128,6 @@ def haralick(img, ignore_zeros=False):
 
 def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     """Haralick texture feature map."""
-    img = dwi.texture.quantize(dwi.texture.normalize(img))
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win, ignore_zeros=ignore_zeros)
         if output is None:
@@ -141,7 +142,6 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
 
 def haralick_mbb(img, mask):
     """Haralick features for selected area inside minimum bounding box."""
-    img = dwi.texture.quantize(dwi.texture.normalize(img))
     positions = dwi.util.bounding_box(mask)
     slices = [slice(*t) for t in positions]
     img = img[slices]

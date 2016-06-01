@@ -55,7 +55,6 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
 def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
              output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
-    img = dwi.texture.quantize(dwi.texture.normalize(img))
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
@@ -69,7 +68,6 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
 
 def glcm_mbb(img, mask):
     """Single GLCM features for selected area inside minimum bounding box."""
-    img = dwi.texture.quantize(dwi.texture.normalize(img))
     positions = dwi.util.bounding_box(mask)
     slices = [slice(*t) for t in positions]
     img = img[slices]
