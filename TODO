@@ -1,3 +1,0 @@
-Move pmap writing from pmap.py and select_voxels.py to dwi.files.
-
-Create a class for subwindows and bounding boxes.
