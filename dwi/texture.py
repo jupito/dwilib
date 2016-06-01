@@ -31,32 +31,35 @@ DTYPE = np.float32  # Type used for storing texture features.
 MODE = None  # For now, set this for normalize(). TODO: Better solution.
 
 
-def normalize(pmap, levels=64):
+def normalize(pmap, mode=None, levels=64):
     """Normalize images within given range and convert to byte maps with given
     number of graylevels."""
-    if MODE in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
+    if mode is None:
+        mode = MODE
+    if mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
-        in_range = (0, 0.003)
-    elif MODE == 'DWI-Kurt-K':
+        in_range = (0, 0.004)
+        # in_range = (0, 0.003)
+    elif mode == 'DWI-Kurt-K':
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
         # in_range = tuple(np.percentile(pmap, (0, 99.8)))
         # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
         in_range = (0, 2)
-    elif MODE in ('T2', 'T2-fitted'):
+    elif mode in ('T2', 'T2-fitted'):
         in_range = (0, 300)
-    elif MODE == 'T2w-std':
+    elif mode == 'T2w-std':
+        in_range = (1, 4095)
+    elif mode == 'T2w':
         if pmap.dtype == np.int32:
             # The rescaler cannot handle int32.
             pmap = np.asarray(pmap, dtype=np.int16)
         assert pmap.dtype == np.int16
-        in_range = (1, 4095)
-    elif MODE == 'T2w':
         in_range = (0, 2000)
     else:
-        raise ValueError('Invalid mode: {}'.format(MODE))
-    # logging.info('Normalizing: %s, %s', MODE, in_range)
+        raise ValueError('Invalid mode: {}'.format(mode))
+    # logging.info('Normalizing: %s, %s', mode, in_range)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     pmap = skimage.img_as_ubyte(pmap)
     pmap //= int(round(256 / levels))
