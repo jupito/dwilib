@@ -38,19 +38,22 @@ def normalize(pmap, levels=64):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
         in_range = (0, 0.003)
-    elif MODE in ('DWI-Kurt-K', 'T2w'):
+    elif MODE == 'DWI-Kurt-K':
         # in_range = (pmap.min(), pmap.max())
         # in_range = (0, np.percentile(pmap, 99.8))
-        in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
         # in_range = tuple(np.percentile(pmap, (0, 99.8)))
+        # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
+        in_range = (0, 2)
     elif MODE in ('T2', 'T2-fitted'):
         in_range = (0, 300)
-    elif MODE in ('T2w-std',):
+    elif MODE == 'T2w-std':
         if pmap.dtype == np.int32:
             # The rescaler cannot handle int32.
             pmap = np.asarray(pmap, dtype=np.int16)
         assert pmap.dtype == np.int16
-        in_range = (0, 4095)
+        in_range = (1, 4095)
+    elif MODE == 'T2w':
+        in_range = (0, 2000)
     else:
         raise ValueError('Invalid mode: {}'.format(MODE))
     # logging.info('Normalizing: %s, %s', MODE, in_range)
