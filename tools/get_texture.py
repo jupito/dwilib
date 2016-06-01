@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 from collections import defaultdict
+import logging
 
 import numpy as np
 
@@ -73,8 +74,10 @@ def portion_mask(mask, winsize, portion=1, resort_to_max=True):
 
 def main():
     args = parse_args()
-    if args.verbose:
-        print('Reading image: {}'.format(args.input))
+    loglevel = logging.INFO if args.verbose else logging.WARNING
+    logging.basicConfig(level=loglevel)
+
+    logging.info('Reading image: %s', args.input)
     img, attrs = dwi.files.read_pmap(args.input)
     if args.mode == 'T2':
         assert attrs['echotimes'][0] == 0  # TODO: Could be another?
@@ -82,11 +85,10 @@ def main():
     assert img.ndim == 3
 
     if args.mask is not None:
+        logging.info('Using mask: %s', args.mask)
         mask = dwi.mask.read_mask(args.mask)
         if isinstance(mask, dwi.mask.Mask):
             mask = mask.convert_to_3d(img.shape[0])
-        if args.verbose:
-            print('Using mask', args.mask)
     # else:
     #     # A default mask for testing.
     #     mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=np.bool))
@@ -134,30 +136,26 @@ def main():
     else:
         raise ValueError('Invalid window spec: {}'.format(args.winspec))
 
-    if args.verbose:
-        print('Image: {s}, slice: {i}, voxels: {n}, window: {w}'.format(
-            s=img.shape, i=slice_indices, n=np.count_nonzero(mask.array),
-            w=args.winspec))
+    logging.info('Image: %s, slice: %s, voxels: %s, window: %s', img.shape,
+                 slice_indices, np.count_nonzero(mask.array), args.winspec)
 
-    if args.verbose:
-        print('Calculating {} texture features for {}...'.format(args.method,
-                                                                 args.mode))
+    logging.info('Calculating %s texture features for %s...', args.method,
+                 args.mode)
     avg = (args.voxel == 'mean')
     dwi.texture.MODE = args.mode
     path = None
     if not avg and args.mode.startswith('T2w') and args.method == 'gabor':
-        print('Note: output array is manipulated on disk, this is slower')
         path = args.output
+        logging.warning('Output array is manipulated on disk, it is slow: %s',
+                        path)
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg, path=path)
     attrs['parameters'] = names
     # Number of windows, or resulting texture map volume in general.
     attrs['tmap_voxels'] = np.count_nonzero(pmask)
 
-    if args.verbose:
-        print('Writing shape {s}, type {t} to {o}'.format(s=tmap.shape,
-                                                          t=tmap.dtype,
-                                                          o=args.output))
+    logging.info('Writing shape %s, type %s to %s', tmap.shape, tmap.dtype,
+                 args.output)
     if path is None:
         dwi.files.write_pmap(args.output, tmap, attrs)
     else:
