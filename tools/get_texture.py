@@ -89,14 +89,6 @@ def main():
         mask = dwi.mask.read_mask(args.mask)
         if isinstance(mask, dwi.mask.Mask):
             mask = mask.convert_to_3d(img.shape[0])
-    # else:
-    #     # A default mask for testing.
-    #     mask = dwi.mask.Mask3D(np.zeros_like(img, dtype=np.bool))
-    #     # mask.array[9:-9, 50:-50, 50:-50] = True
-    #     tuples = dwi.util.bounding_box(img)
-    #     print('Using minimum bounding box as mask: {}'.format(tuples))
-    #     slices = [slice(*t) for t in tuples]
-    #     mask.array[slices] = True
 
     if img.shape != mask.shape():
         raise Exception('Image shape {} does not match mask shape {}'.format(
