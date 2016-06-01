@@ -31,6 +31,8 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     # Prune distances too long for the window.
     # Commented out: problems with mbb - sometimes includes, sometimes not.
     # distances = [x for x in distances if x <= min(img.shape)-1]
+    max_distance = np.sqrt(img.shape[0]**2 + img.shape[1]**2) - 1
+    distances = [x for x in distances if x <= max_distance]
     angles = (0, np.pi/4, np.pi/2, 3*np.pi/4)
     levels = img.max() + 1
     glcm = skimage.feature.greycomatrix(img, distances, angles, levels,
