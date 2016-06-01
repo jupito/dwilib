@@ -26,8 +26,8 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     Six features provided by scikit-image. Averaged over 4 directions for
     orientation invariance.
     """
-    assert img.ndim == 2
-    assert img.dtype == np.ubyte
+    assert img.ndim == 2, img.shape
+    assert img.dtype == np.uint8, img.dtype
     # Prune distances too long for the window.
     # Commented out: problems with mbb - sometimes includes, sometimes not.
     # distances = [x for x in distances if x <= min(img.shape)-1]
