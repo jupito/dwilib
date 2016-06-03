@@ -105,9 +105,9 @@ class Gui(object):
         view = self.image[slc, :, :, param]
         self.im.set_data(view)
         event.canvas.draw()
-        plt.xlabel(slc)
-        plt.ylabel(param)
-        plt.title(self.params[param])
+        plt.xlabel(slc, fontsize='large')
+        plt.ylabel(param, fontsize='large', rotation='horizontal')
+        plt.title(self.params[param], fontsize='large')
 
     def toggle_reverse_cmap(self):
         name = plt.get_cmap().name
