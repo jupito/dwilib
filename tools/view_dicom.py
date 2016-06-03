@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 import dwi.dicomfile
 import dwi.files
+import dwi.mask
 import dwi.standardize
 import dwi.util
 
@@ -40,7 +41,7 @@ class Gui(object):
     r: toggle reverse colormap
     q: quit'''.format(len(cmaps), ' '.join(cmaps))
 
-    def __init__(self, image, params):
+    def __init__(self, image, params, mask=None):
         assert image.ndim == 4
         assert image.shape[-1] == len(params)
         self.image = image
@@ -49,6 +50,10 @@ class Gui(object):
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
+        self.mask = mask  # This is here so that can be toggled in future.
+        if self.mask is not None:
+            for img, msk in zip(self.image, self.mask):
+                img[dwi.mask.border(msk), :] = 1
 
     def show(self):
         """Activate the GUI."""
@@ -135,6 +140,8 @@ def parse_args():
     p.add_argument('--subwindow', '-w', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, zero-based)')
+    p.add_argument('--mask', '-m',
+                   help='mask file')
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
     p.add_argument('--std',
@@ -229,8 +236,13 @@ def main():
     if args.scale:
         img = scale(img)
 
+    if args.mask:
+        mask = dwi.files.read_mask(args.mask)
+    else:
+        mask = None
+
     if not args.info:
-        gui = Gui(img, attrs['parameters'])
+        gui = Gui(img, attrs['parameters'], mask=mask)
         gui.show()
 
 
