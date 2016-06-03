@@ -57,15 +57,17 @@ def normalize(pmap, mode):
     else:
         raise ValueError('Invalid mode: {}'.format(mode))
     # logging.info('Normalizing: %s, %s', mode, in_range)
+    pmap = pmap.astype(np.float32, copy=False)
+    pmap = np.nan_to_num(pmap)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
     return pmap
 
 
-def quantize(img, levels=64, dtype=np.uint8):
+def quantize(img, levels=32, dtype=np.uint8):
     """Uniform quantization from float [0, 1] to int [0, levels-1]."""
     img = np.asarray(img)
     assert np.issubsctype(img, np.floating), img.dtype
-    assert np.all(img >= 0) and np.all(img <= 1)
+    assert np.all(img >= 0) and np.all(img <= 1), (img.min(), img.max())
     # img = skimage.img_as_ubyte(img)
     # img //= int(round(256 / levels))
     return (img * levels).clip(0, levels-1).astype(dtype)
