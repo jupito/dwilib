@@ -90,7 +90,7 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
     freqs = skimage.feature.local_binary_pattern(img, neighbours, radius,
                                                  method='uniform')
     assert freqs.max() == n - 1, freqs.max()
-    output = np.zeros((n,) + img.shape, dtype=np.float16)
+    output = np.zeros((n,) + img.shape, dtype=np.float32)
     # for i, a in enumerate(output):
     #     a[:, :] = (freqs == i)
     for origin, win in dwi.util.sliding_window(freqs, winsize, mask=mask):
@@ -113,7 +113,7 @@ def gabor(img, sigmas=None, freqs=None):
     frequency as input parameter. Averaged over 4 directions for orientation
     invariance.
     """
-    img = np.asarray(img, dtype=np.double)
+    img = np.asarray(img, dtype=np.float32)
     if sigmas is None:
         sigmas = 1, 2, 3
     if freqs is None:
@@ -155,7 +155,7 @@ def gabor_map(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
 
 def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
     """Gabor texture feature map."""
-    img = np.asarray(img, dtype=np.double)
+    img = np.asarray(img, dtype=np.float32)
     if wavelengths is None:
         wavelengths = [2**i for i in range(1, 6)]
     freqs = [1/i for i in wavelengths]
@@ -219,7 +219,7 @@ def hu(img, postproc=True):
     These are a derivative of the geometric moments, that are invariant under
     translation, scaling, and rotation (and reflection, if absolute taken).
     """
-    img = np.asarray(img, dtype=np.double)
+    img = np.asarray(img, dtype=np.double)  # Requires np.double.
     assert img.ndim == 2
     m = skimage.measure.moments_central(img, img.shape[0]/2, img.shape[1]/2)
     m = skimage.measure.moments_normalized(m)
