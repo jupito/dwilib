@@ -106,6 +106,14 @@ def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
 # Gabor features
 
 
+GABOR_FEAT_NAMES = ('mean', 'var', 'absmean', 'mag')
+
+
+def gabor_feats(real, imag):
+    return (np.mean(real), np.var(real), np.mean(np.abs(real)),
+            np.mean(np.sqrt(real**2+imag**2)))
+
+
 def gabor(img, sigmas=None, freqs=None):
     """Gabor features.
 
@@ -119,7 +127,7 @@ def gabor(img, sigmas=None, freqs=None):
     if freqs is None:
         freqs = 0.1, 0.2, 0.3, 0.4
     thetas = tuple(np.pi/4*i for i in range(4))
-    names = 'mean', 'var', 'absmean', 'mag'
+    names = GABOR_FEAT_NAMES
     shape = len(thetas), len(sigmas), len(freqs), len(names)
     feats = np.zeros(shape, dtype=dwi.texture.DTYPE)
     for i, j, k in np.ndindex(shape[:-1]):
@@ -127,9 +135,7 @@ def gabor(img, sigmas=None, freqs=None):
                                            theta=thetas[i],
                                            sigma_x=sigmas[j],
                                            sigma_y=sigmas[j])
-        feats[i, j, k, :] = (np.mean(real), np.var(real),
-                             np.mean(np.abs(real)),
-                             np.mean(np.sqrt(real**2+imag**2)))
+        feats[i, j, k, :] = gabor_feats(real, imag)
     feats = np.mean(feats, axis=0)  # Average over directions.
     d = OrderedDict()
     for (i, j, k), value in np.ndenumerate(feats):
