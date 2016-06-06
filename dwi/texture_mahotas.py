@@ -21,7 +21,7 @@ def zernike(img, radius, degree=8, cm=None):
     polynomials, which makes it more optimal wrt. information redundancy. These
     are invariant to rotation.
     """
-    img = np.asarray(img, dtype=np.double)
+    img = np.asarray(img, dtype=np.float32)
     assert img.ndim == 2
     feats = mahotas.features.zernike_moments(img, radius, degree=degree, cm=cm)
     return feats
