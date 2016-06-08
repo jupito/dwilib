@@ -138,7 +138,7 @@ def main():
         logging.warning('Output array is manipulated on disk, it is slow: %s',
                         path)
     if args.method in ('glcm', 'glcm_mbb'):
-        img = dwi.texture.quantize(dwi.texture.normalize(img, args.mode))
+        img = dwi.util.quantize(dwi.util.normalize(img, args.mode))
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           mask=pmask, avg=avg, path=path)
     attrs['parameters'] = names

@@ -14,6 +14,7 @@ import numpy as np
 import scipy as sp
 import scipy.stats
 import scipy.spatial
+import skimage.exposure
 import sklearn.metrics
 import sklearn.preprocessing
 
@@ -589,3 +590,45 @@ def asbool(a):
     a.clip(0, 1, out=a)
     a = a.astype(np.bool)
     return a
+
+
+def normalize(pmap, mode):
+    """Normalize images within mode-specific range."""
+    if mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
+        assert pmap.dtype in [np.float32, np.float64]
+        # in_range = (0, 0.005)
+        in_range = (0, 0.004)
+        # in_range = (0, 0.003)
+    elif mode == 'DWI-Kurt-K':
+        # in_range = (pmap.min(), pmap.max())
+        # in_range = (0, np.percentile(pmap, 99.8))
+        # in_range = tuple(np.percentile(pmap, (0, 99.8)))
+        # in_range = tuple(np.percentile(pmap, (0.8, 99.2)))
+        in_range = (0, 2)
+    elif mode in ('T2', 'T2-fitted'):
+        in_range = (0, 300)
+    elif mode == 'T2w-std':
+        in_range = (1, 4095)
+    elif mode == 'T2w':
+        if pmap.dtype == np.int32:
+            # The rescaler cannot handle int32.
+            pmap = np.asarray(pmap, dtype=np.int16)
+        assert pmap.dtype == np.int16
+        in_range = (0, 2000)
+    else:
+        raise ValueError('Invalid mode: {}'.format(mode))
+    # logging.info('Normalizing: %s, %s', mode, in_range)
+    pmap = pmap.astype(np.float32, copy=False)
+    pmap = np.nan_to_num(pmap)
+    pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
+    return pmap
+
+
+def quantize(img, levels=32, dtype=np.uint8):
+    """Uniform quantization from float [0, 1] to int [0, levels-1]."""
+    img = np.asarray(img)
+    assert np.issubsctype(img, np.floating), img.dtype
+    assert np.all(img >= 0) and np.all(img <= 1), (img.min(), img.max())
+    # img = skimage.img_as_ubyte(img)
+    # img //= int(round(256 / levels))
+    return (img * levels).clip(0, levels-1).astype(dtype)
