@@ -112,8 +112,8 @@ def main():
 
     # Use only selected slices to save memory.
     if args.voxel == 'mean':
-        img = img[slice_indices]
-        mask.array = mask.array[slice_indices]
+        img = img[slice_indices].copy()
+        mask.array = mask.array[slice_indices].copy()
         dwi.texture.DTYPE = np.double
     # dwi.texture.DTYPE = np.double
 
