@@ -20,11 +20,8 @@ import scipy as sp
 
 import dwi.hdf5
 import dwi.util
+import dwi.texture_mahotas
 import dwi.texture_skimage
-from dwi.texture_skimage import (glcm_map, glcm_mbb, lbp_freq_map, hog_map,
-                                 gabor_map, sobel_map, hu_map)
-from dwi.texture_mahotas import haar_map, zernike_map
-# from dwi.texture_jp import lbp_freq_map
 
 
 DTYPE = np.float32  # Type used for storing texture features.
@@ -85,22 +82,22 @@ def stats_mbb(img, mask):
 METHODS = OrderedDict([
     # Methods that consider an n*n window.
     ('stats', stats_map),
-    ('glcm', glcm_map),
-    # ('haralick', haralick_map),
-    ('lbp', lbp_freq_map),
-    ('hog', hog_map),
-    ('gabor', gabor_map),
+    ('glcm', dwi.texture_skimage.glcm_map),
+    # ('haralick', dwi.texture_mahotas.haralick_map),
+    ('lbp', dwi.texture_skimage.lbp_freq_map),
+    ('hog', dwi.texture_skimage.hog_map),
+    ('gabor', dwi.texture_skimage.gabor_map),
     ('gabornew', dwi.texture_skimage.gabor_map_new),
-    # ('gaboralt', gabor_map_alt),
-    # ('moment', moment_map),
-    ('haar', haar_map),
-    ('hu', hu_map),
-    ('zernike', zernike_map),
-    ('sobel', sobel_map),
+    ('haar', dwi.texture_mahotas.haar_map),
+    ('hu', dwi.texture_skimage.hu_map),
+    ('zernike', dwi.texture_mahotas.zernike_map),
+    ('sobel', dwi.texture_skimage.sobel_map),
+
     # Methods that consider a minimum bounding box of selected voxels.
     ('stats_mbb', stats_mbb),
-    ('glcm_mbb', glcm_mbb),
-    # ('haralick_mbb', haralick_mbb),
+    ('glcm_mbb', dwi.texture_skimage.glcm_mbb),
+    # ('haralick_mbb', dwi.texture_mahotas.haralick_mbb),
+
     # Methods that consider all selected voxels.
     ('stats_all', stats_mbb),  # Use the same mbb function.
     ])
