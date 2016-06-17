@@ -20,6 +20,7 @@ import scipy as sp
 
 import dwi.hdf5
 import dwi.util
+import dwi.texture_skimage
 from dwi.texture_skimage import (glcm_map, glcm_mbb, lbp_freq_map, hog_map,
                                  gabor_map, sobel_map, hu_map)
 from dwi.texture_mahotas import haar_map, zernike_map
@@ -89,6 +90,7 @@ METHODS = OrderedDict([
     ('lbp', lbp_freq_map),
     ('hog', hog_map),
     ('gabor', gabor_map),
+    ('gabornew', dwi.texture_skimage.gabor_map_new),
     # ('gaboralt', gabor_map_alt),
     # ('moment', moment_map),
     ('haar', haar_map),

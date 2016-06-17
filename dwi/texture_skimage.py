@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
+from itertools import product
 import logging
 
 import numpy as np
@@ -159,6 +160,50 @@ def gabor_map(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
     return output, names
 
 
+def gabor_featmap(real, imag, winsize, mask):
+    """Get Gabor feature map of shape (feats, height, width) from the filtered
+    image.
+    """
+    assert real.shape == imag.shape, (real.shape, imag.shape)
+    rit = iter(dwi.util.sliding_window(real, winsize, mask=mask))
+    iit = iter(dwi.util.sliding_window(imag, winsize, mask=mask))
+    output = np.full((len(GABOR_FEAT_NAMES),) + real.shape, np.nan)
+    for ((y, x), rwin), (_, iwin) in zip(rit, iit):
+        output[:, y, x] = gabor_feats(rwin, iwin)
+    return output
+
+
+def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
+    """Gabor texture feature map. This is the (more) correct way."""
+    # TODO: Replace gabor_map with this one.
+    img = np.asarray(img, dtype=np.float32)
+    if sigmas is None:
+        sigmas = 1, 2, 3
+    if freqs is None:
+        freqs = 0.1, 0.2, 0.3, 0.4
+    thetas = tuple(np.pi/4*i for i in range(4))
+    featnames = GABOR_FEAT_NAMES
+    shape = len(thetas), len(sigmas), len(freqs), 2
+    feats = np.zeros(shape, dtype=dwi.texture.DTYPE)
+    tmaps = []
+    outnames = []
+    a = np.zeros((len(thetas), len(featnames)) + img.shape, dtype=np.float32)
+    for sigma, freq in product(sigmas, freqs):
+        for t, theta in enumerate(thetas):
+            real, imag = skimage.filters.gabor(img, frequency=freq,
+                                               theta=theta,
+                                               sigma_x=sigma,
+                                               sigma_y=sigma)
+            a[t, :, :, :] = gabor_featmap(real, imag, winsize, mask)
+        featmaps = np.mean(a, axis=0)  # Mean over directions.
+        for featmap, name in zip(featmaps, featnames):
+            tmaps.append(featmap)
+            s = 'gabornew{}'.format((sigma, freq, name)).translate(None, " '")
+            outnames.append(s)
+    output = np.array(tmaps)
+    return output, outnames
+
+
 def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
     """Gabor texture feature map."""
     img = np.asarray(img, dtype=np.float32)
@@ -248,6 +293,7 @@ def hu_map(img, winsize, mask=None, output=None):
                               dtype=dwi.texture.DTYPE)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
+    # TODO: Shift indices in feature names to be one-based.
     names = ['hu({})'.format(i) for i in range(len(feats))]
     return output, names
 
