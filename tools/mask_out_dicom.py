@@ -1,6 +1,10 @@
 #!/usr/bin/env python2
 
-"""Zero out all voxels in multi-file DICOM image according to a mask."""
+"""Zero out all voxels in multi-file DICOM image according to a mask.
+
+First index all filenames by slice position, then one-by-one open them again
+and and set the non-selected voxel to zero according to the mask slice.
+"""
 
 from __future__ import absolute_import, division, print_function
 import argparse
@@ -27,7 +31,9 @@ def parse_args():
 
 
 def get_slices(dirname):
-    """Return filename lists indexed by slice position."""
+    """Return filename lists indexed by slice position.
+
+    E.g. slices[4] in result contains a list of filenames for the 5th slice."""
     filenames = os.listdir(dirname)
     pathnames = [os.path.join(dirname, f) for f in filenames]
     orientation = None
