@@ -129,7 +129,6 @@ def get_texture_map(img, call, winsize, mask, path=None):
             if tmap is None:
                 shape = img.shape + (len(names),)
                 if path is None:
-                    # tmap = np.zeros(shape, dtype=DTYPE)
                     tmap = np.full(shape, np.nan, dtype=DTYPE)
                 else:
                     tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE,
