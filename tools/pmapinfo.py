@@ -66,14 +66,14 @@ def shorten(o):
 
 def parse_args():
     available_keys = sorted(x for x in dir(Pmap) if not x.startswith('_'))
-    epilog = 'Available keys: {}.'.format(' '.join(available_keys))
+    epilog = 'Available keys: {}'.format(','.join(available_keys))
     p = argparse.ArgumentParser(description=__doc__, epilog=epilog)
     p.add_argument('path', nargs='+',
                    help='input pmap files')
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
     p.add_argument('-k', '--keys', default='shape,path',
-                   help='comma-separated keys')
+                   help='comma-separated keys for specifiying requested info')
     return p.parse_args()
 
 
