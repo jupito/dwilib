@@ -105,8 +105,7 @@ METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    tmap = np.empty(img.shape + (len(names),), dtype=DTYPE)
-    tmap.fill(np.nan)
+    tmap = np.full(img.shape + (len(names),), np.nan, dtype=DTYPE)
     tmap[mask, :] = feats
     return tmap, names
 
@@ -117,8 +116,7 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                tmap = np.empty(img.shape + (len(names),), dtype=DTYPE)
-                tmap.fill(np.nan)
+                tmap = np.full(img.shape + (len(names),), np.nan, dtype=DTYPE)
             tmap[i, mask_slice, :] = feats
     return tmap, names
 
