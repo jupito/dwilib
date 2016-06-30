@@ -13,6 +13,8 @@ import dwi.util
 
 
 class Pmap(object):
+    """Open pmap to request properties from."""
+
     def __init__(self, path):
         self.path = path
         self._img, self._attrs = dwi.files.read_pmap(path)
