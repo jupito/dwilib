@@ -17,13 +17,13 @@ class Pmap(object):
         self.path = path
         self._img, self._attrs = dwi.files.read_pmap(path)
 
-    keys = property(lambda self: ','.join(sorted(x for x in dir(self) if not
-                                                 x.startswith('_'))))
     file = property(lambda self: os.path.basename(self.path))
     root = property(lambda self: os.path.splitext(self.file)[0])
-    shape = property(lambda self: shorten(self._img.shape))
     type = property(lambda self: self._img.dtype)
+    shape = property(lambda self: shorten(self._img.shape))
     size = property(lambda self: self._img.size)
+    mbb = property(lambda self: shorten(mbb_shape(self._img)))
+    spacing = property(lambda self: shorten(self._attrs['voxel_spacing']))
 
     finite = property(lambda self: np.count_nonzero(np.isfinite(self._img)))
     nonzero = property(lambda self: np.count_nonzero(self._img))
@@ -40,9 +40,21 @@ class Pmap(object):
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
     five = property(lambda self: shorten(dwi.util.fivenums(self._img)))
-    spacing = property(lambda self: shorten(self._attrs['voxel_spacing']))
-    mbb = property(lambda self: shorten(mbb_shape(self._img)))
+
     errors = property(lambda self: len(self._attrs.get('errors', [])))
+    ce16 = property(lambda self: cast_success_rate(self._img, np.float16))
+    ce32 = property(lambda self: cast_success_rate(self._img, np.float32))
+
+
+def cast_success_rate(a, dtype):
+    """Return the relative amount of ndarray elements that stay close to
+    original after type casting.
+    """
+    a = a[np.isfinite(a)]
+    # diff = np.abs(a-a.astype(dtype))
+    # return np.max(diff), np.mean(diff)
+    # return np.var(a - a.astype(dtype)) / a.mean()
+    return np.count_nonzero(np.isclose(a, a.astype(dtype))) / a.size
 
 
 def mbb_shape(img):
@@ -51,11 +63,14 @@ def mbb_shape(img):
 
 
 def shorten(o):
-    return str(o).translate(None, ' \t')
+    """Make object string and remove all whitespace."""
+    return ''.join(str(o).split())
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description=__doc__)
+    available_keys = sorted(x for x in dir(Pmap) if not x.startswith('_'))
+    epilog = 'Available keys: {}.'.format(' '.join(available_keys))
+    p = argparse.ArgumentParser(description=__doc__, epilog=epilog)
     p.add_argument('path', nargs='+',
                    help='input pmap files')
     p.add_argument('-v', '--verbose', action='count',
