@@ -51,9 +51,6 @@ def cast_success_rate(a, dtype):
     original after type casting.
     """
     a = a[np.isfinite(a)]
-    # diff = np.abs(a-a.astype(dtype))
-    # return np.max(diff), np.mean(diff)
-    # return np.var(a - a.astype(dtype)) / a.mean()
     return np.count_nonzero(np.isclose(a, a.astype(dtype))) / a.size
 
 
