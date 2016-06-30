@@ -42,16 +42,16 @@ class Pmap(object):
     five = property(lambda self: shorten(dwi.util.fivenums(self._img)))
 
     errors = property(lambda self: len(self._attrs.get('errors', [])))
-    ce16 = property(lambda self: cast_success_rate(self._img, np.float16))
-    ce32 = property(lambda self: cast_success_rate(self._img, np.float32))
+    ce16 = property(lambda self: cast_errors(self._img, np.float16))
+    ce32 = property(lambda self: cast_errors(self._img, np.float32))
 
 
-def cast_success_rate(a, dtype):
-    """Return the relative amount of ndarray elements that stay close to
-    original after type casting.
+def cast_errors(a, dtype):
+    """Return the number of finite ndarray elements that do not stay close to
+    the original value after type casting. See numpy.isclose().
     """
     a = a[np.isfinite(a)]
-    return np.count_nonzero(np.isclose(a, a.astype(dtype))) / a.size
+    return a.size - np.count_nonzero(np.isclose(a, a.astype(dtype)))
 
 
 def mbb_shape(img):
