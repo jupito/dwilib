@@ -41,7 +41,7 @@ class Pmap(object):
     max = property(lambda self: np.nanmax(self._img))
     five = property(lambda self: shorten(dwi.util.fivenums(self._img)))
 
-    errors = property(lambda self: len(self._attrs.get('errors', [])))
+    errors = property(lambda self: len(self._attrs.get('errors', ())))
     ce16 = property(lambda self: cast_errors(self._img, np.float16))
     ce32 = property(lambda self: cast_errors(self._img, np.float32))
 
