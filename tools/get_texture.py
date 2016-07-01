@@ -139,8 +139,12 @@ def main():
                         path)
     if args.method in ('glcm', 'glcm_mbb'):
         img = dwi.util.quantize(dwi.util.normalize(img, args.mode))
+
+    dwi.texture.rcParams['texture.avg'] = avg
+    dwi.texture.rcParams['texture.path'] = path
+
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
-                                          mask=pmask, avg=avg, path=path)
+                                          pmask)
     attrs['parameters'] = names
     # Number of windows, or resulting texture map volume in general.
     attrs['tmap_voxels'] = np.count_nonzero(pmask)

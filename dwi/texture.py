@@ -24,6 +24,17 @@ import dwi.texture_mahotas
 import dwi.texture_skimage
 
 
+# Default runtime configuration parameters. Somewhat similar to matplotlib.
+# TODO: Move these to dwi/__init__.py for more general use.
+rcParamsDefault = {
+        'texture.avg': False,  # Boolean: average result texture map?
+        'texture.path': None,  # Write result directly to disk, if string.
+        # TODO: Add texture method specific rc groups.
+        }
+# Modifiable runtime configuration parameters.
+# TODO: Read from file.
+rcParams = dict(rcParamsDefault)
+
 DTYPE = np.float32  # Type used for storing texture features.
 
 
@@ -121,7 +132,8 @@ def get_texture_mbb(img, call, mask):
     return tmap, names
 
 
-def get_texture_map(img, call, winsize, mask, path=None):
+def get_texture_map(img, call, winsize, mask):
+    path = rcParams['texture.path']
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
@@ -139,8 +151,9 @@ def get_texture_map(img, call, winsize, mask, path=None):
     return tmap, names
 
 
-def get_texture(img, method, winspec, mask, avg=False, path=None):
+def get_texture(img, method, winspec, mask):
     """General texture map layer."""
+    avg = rcParams['texture.avg']
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
@@ -170,7 +183,7 @@ def get_texture(img, method, winspec, mask, avg=False, path=None):
             tmap = np.nanmean(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
     else:
-        tmap, names = get_texture_map(img, call, int(winspec), mask, path=path)
+        tmap, names = get_texture_map(img, call, int(winspec), mask)
         assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
         if avg:
             # Take average of all selected voxels.
