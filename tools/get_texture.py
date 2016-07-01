@@ -75,7 +75,7 @@ def portion_mask(mask, winsize, portion=1, resort_to_max=True):
 def main():
     args = parse_args()
     loglevel = logging.INFO if args.verbose else logging.WARNING
-    logging.basicConfig(level=loglevel)
+    logging.basicConfig(level=loglevel, stream=logging.sys.stdout)
 
     logging.info('Reading image: %s', args.input)
     img, attrs = dwi.files.read_pmap(args.input)
