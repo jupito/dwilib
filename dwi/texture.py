@@ -31,7 +31,10 @@ rcParamsDefault = {
         'texture.avg': False,  # Boolean: average result texture map?
         'texture.path': None,  # Write result directly to disk, if string.
         'texture.dtype': np.float32,  # Output texture map type.
-        # TODO: Add texture method specific rc groups.
+
+        'texture.gabor.orientations': 6,  # Number of orientations.
+        'texture.gabor.sigmas': (1, 2, 3),
+        'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
         }
 # Modifiable runtime configuration parameters.
 # TODO: Read from file.

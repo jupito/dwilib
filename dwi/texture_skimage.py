@@ -115,7 +115,12 @@ def gabor_feats(real, imag):
             np.mean(np.sqrt(real**2+imag**2)))
 
 
-def gabor(img, sigmas=None, freqs=None):
+def get_thetas(n):
+    """Divide a half-circle into n angles."""
+    return tuple(np.pi/n*i for i in range(n))
+
+
+def gabor(img):
     """Gabor features.
 
     Window size is wavelength 1. Frequency is 1/wavelength; the library uses
@@ -123,12 +128,9 @@ def gabor(img, sigmas=None, freqs=None):
     invariance.
     """
     img = np.asarray(img, dtype=np.float32)
-    if sigmas is None:
-        sigmas = 1, 2, 3
-    if freqs is None:
-        freqs = 0.1, 0.2, 0.3, 0.4
-    n_orientations = 6
-    thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
+    sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
+    freqs = dwi.texture.rcParams['texture.gabor.freqs']
+    thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
     names = GABOR_FEAT_NAMES
     shape = len(thetas), len(sigmas), len(freqs), len(names)
     dtype = dwi.texture.rcParams['texture.dtype']
@@ -147,10 +149,10 @@ def gabor(img, sigmas=None, freqs=None):
     return d
 
 
-def gabor_map(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
+def gabor_map(img, winsize, mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = gabor(win, sigmas=sigmas, freqs=freqs)
+        feats = gabor(win)
         if output is None:
             dtype = dwi.texture.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
@@ -175,16 +177,13 @@ def gabor_featmap(real, imag, winsize, mask):
     return output
 
 
-# def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
+# def gabor_map_new(img, winsize, mask=None, output=None):
 #     """Gabor texture feature map. This is the (more) correct way."""
 #     # TODO: Replace gabor_map with this one.
 #     img = np.asarray(img, dtype=np.float32)
-#     if sigmas is None:
-#         sigmas = 1, 2, 3
-#     if freqs is None:
-#         freqs = 0.1, 0.2, 0.3, 0.4
-#     n_orientations = 6
-#     thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
+#     sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
+#     freqs = dwi.texture.rcParams['texture.gabor.freqs']
+#     thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
 #     featnames = GABOR_FEAT_NAMES
 #     tmaps = []
 #     outnames = []
@@ -205,16 +204,13 @@ def gabor_featmap(real, imag, winsize, mask):
 #     return output, outnames
 
 
-def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
+def gabor_map_new(img, winsize, mask=None, output=None):
     """Gabor texture feature map. This is the (more) correct way."""
     # TODO: Replace gabor_map with this one.
     img = np.asarray(img, dtype=np.float32)
-    if sigmas is None:
-        sigmas = 1, 2, 3
-    if freqs is None:
-        freqs = 0.1, 0.2, 0.3, 0.4
-    n_orientations = 6
-    thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
+    sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
+    freqs = dwi.texture.rcParams['texture.gabor.freqs']
+    thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
     featnames = GABOR_FEAT_NAMES
     tmaps = []
     outnames = []
