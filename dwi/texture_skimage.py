@@ -59,8 +59,8 @@ def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, value in enumerate(feats.values()):
             output[(i,) + pos] = value
     names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
@@ -131,7 +131,8 @@ def gabor(img, sigmas=None, freqs=None):
     thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
     names = GABOR_FEAT_NAMES
     shape = len(thetas), len(sigmas), len(freqs), len(names)
-    feats = np.zeros(shape, dtype=dwi.texture.DTYPE)
+    dtype = dwi.texture.rcParams['texture.dtype']
+    feats = np.zeros(shape, dtype=dtype)
     for i, j, k in np.ndindex(shape[:-1]):
         real, imag = skimage.filters.gabor(img, frequency=freqs[k],
                                            theta=thetas[i],
@@ -151,8 +152,8 @@ def gabor_map(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win, sigmas=sigmas, freqs=freqs)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
     names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
@@ -174,6 +175,36 @@ def gabor_featmap(real, imag, winsize, mask):
     return output
 
 
+# def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
+#     """Gabor texture feature map. This is the (more) correct way."""
+#     # TODO: Replace gabor_map with this one.
+#     img = np.asarray(img, dtype=np.float32)
+#     if sigmas is None:
+#         sigmas = 1, 2, 3
+#     if freqs is None:
+#         freqs = 0.1, 0.2, 0.3, 0.4
+#     n_orientations = 6
+#     thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
+#     featnames = GABOR_FEAT_NAMES
+#     tmaps = []
+#     outnames = []
+#     a = np.zeros((len(thetas), len(featnames)) + img.shape, dtype=np.float32)
+#     for sigma, freq in product(sigmas, freqs):
+#         for t, theta in enumerate(thetas):
+#             real, imag = skimage.filters.gabor(img, frequency=freq,
+#                                                theta=theta,
+#                                                sigma_x=sigma,
+#                                                sigma_y=sigma)
+#             a[t, :, :, :] = gabor_featmap(real, imag, winsize, mask)
+#         featmaps = np.mean(a, axis=0)  # Mean over directions.
+#         for featmap, name in zip(featmaps, featnames):
+#             tmaps.append(featmap)
+#             s = 'gabornew{}'.format((sigma, freq, name)).translate(None, " '")
+#             outnames.append(s)
+#     output = np.array(tmaps)
+#     return output, outnames
+
+
 def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None):
     """Gabor texture feature map. This is the (more) correct way."""
     # TODO: Replace gabor_map with this one.
@@ -185,19 +216,20 @@ def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None)
     n_orientations = 6
     thetas = tuple(np.pi/n_orientations*i for i in range(n_orientations))
     featnames = GABOR_FEAT_NAMES
-    shape = len(thetas), len(sigmas), len(freqs), 2
-    feats = np.zeros(shape, dtype=dwi.texture.DTYPE)
     tmaps = []
     outnames = []
-    a = np.zeros((len(thetas), len(featnames)) + img.shape, dtype=np.float32)
+    reals = np.empty((len(thetas),) + img.shape, dtype=np.float32)
+    imags = np.empty_like(reals)
     for sigma, freq in product(sigmas, freqs):
         for t, theta in enumerate(thetas):
-            real, imag = skimage.filters.gabor(img, frequency=freq,
-                                               theta=theta,
-                                               sigma_x=sigma,
-                                               sigma_y=sigma)
-            a[t, :, :, :] = gabor_featmap(real, imag, winsize, mask)
-        featmaps = np.mean(a, axis=0)  # Mean over directions.
+            reals[t], imags[t] = skimage.filters.gabor(img, frequency=freq,
+                                                       theta=theta,
+                                                       sigma_x=sigma,
+                                                       sigma_y=sigma)
+        # Sum orientations for invariance.
+        real = np.sum(reals, axis=0)
+        imag = np.sum(imags, axis=0)
+        featmaps = gabor_featmap(real, imag, winsize, mask)
         for featmap, name in zip(featmaps, featnames):
             tmaps.append(featmap)
             s = 'gabornew{}'.format((sigma, freq, name)).translate(None, " '")
@@ -214,8 +246,8 @@ def gabor_map_new(img, winsize, sigmas=None, freqs=None, mask=None, output=None)
 #     freqs = [1/i for i in wavelengths]
 #     thetas = [np.pi/4*i for i in range(4)]
 #     if output is None:
-#         output = np.zeros((len(thetas), len(freqs)) + img.shape,
-#                           dtype=dwi.texture.DTYPE)
+#         dtype = dwi.texture.rcParams['texture.dtype']
+#         output = np.zeros((len(thetas), len(freqs)) + img.shape, dtype=dtype)
 #     img = (img - img.mean()) / img.std()
 #     for i, theta in enumerate(thetas):
 #         for j, freq in enumerate(freqs):
@@ -253,8 +285,8 @@ def hog_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = [hog(win)]
         if output is None:
-            output = np.zeros((len(feats),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['hog']
@@ -291,8 +323,8 @@ def hu_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hu(win)
         if output is None:
-            output = np.zeros((len(feats),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     # TODO: Shift indices in feature names to be one-based.

@@ -34,8 +34,8 @@ def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = zernike(win, radius, degree=degree, cm=(radius, radius))
         if output is None:
-            output = np.zeros((len(feats),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['zernike({})'.format(i) for i in range(len(feats))]
@@ -95,8 +95,9 @@ def haar_map(img, winsize, nlevels=4, mask=None, output=None):
             for pos, win in dwi.util.sliding_window(coeff, winsize, mask):
                 feats = haar_features(win)
                 if output is None:
+                    dtype = dwi.texture.rcParams['texture.dtype']
                     output = np.zeros((len(levels), len(coeffs), len(feats),) +
-                                      coeff.shape, dtype=dwi.texture.DTYPE)
+                                      coeff.shape, dtype=dtype)
                 for k, v in enumerate(feats.values()):
                     output[(i, j, k,) + pos] = v
             s = 'haar({level},{coeff},{feat})'
@@ -131,8 +132,8 @@ def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win, ignore_zeros=ignore_zeros)
         if output is None:
-            output = np.zeros((len(names),) + img.shape,
-                              dtype=dwi.texture.DTYPE)
+            dtype = dwi.texture.rcParams['texture.dtype']
+            output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
     names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.texture.abbrev(n))
