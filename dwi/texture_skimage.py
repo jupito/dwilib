@@ -177,33 +177,6 @@ def gabor_featmap(real, imag, winsize, mask):
     return output
 
 
-# def gabor_map_new(img, winsize, mask=None, output=None):
-#     """Gabor texture feature map. This is the (more) correct way."""
-#     # TODO: Replace gabor_map with this one.
-#     img = np.asarray(img, dtype=np.float32)
-#     sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
-#     freqs = dwi.texture.rcParams['texture.gabor.freqs']
-#     thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
-#     featnames = GABOR_FEAT_NAMES
-#     tmaps = []
-#     outnames = []
-#     a = np.zeros((len(thetas), len(featnames)) + img.shape, dtype=np.float32)
-#     for sigma, freq in product(sigmas, freqs):
-#         for t, theta in enumerate(thetas):
-#             real, imag = skimage.filters.gabor(img, frequency=freq,
-#                                                theta=theta,
-#                                                sigma_x=sigma,
-#                                                sigma_y=sigma)
-#             a[t, :, :, :] = gabor_featmap(real, imag, winsize, mask)
-#         featmaps = np.mean(a, axis=0)  # Mean over directions.
-#         for featmap, name in zip(featmaps, featnames):
-#             tmaps.append(featmap)
-#             s = 'gabornew{}'.format((sigma, freq, name)).translate(None, " '")
-#             outnames.append(s)
-#     output = np.array(tmaps)
-#     return output, outnames
-
-
 def gabor_map_new(img, winsize, mask=None, output=None):
     """Gabor texture feature map. This is the (more) correct way."""
     # TODO: Replace gabor_map with this one.
