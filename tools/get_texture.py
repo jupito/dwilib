@@ -137,10 +137,9 @@ def main():
         dwi.texture.rcParams['texture.avg'] = True
     else:
         dwi.texture.rcParams['texture.avg'] = False
-        if args.mode.startswith('T2w') and args.method == 'gabor':
+        if args.mode.startswith('T2w') and args.method.startswith('gabor'):
+            # These result arrays can get quite huge (if float64).
             dwi.texture.rcParams['texture.path'] = args.output
-            logging.warning('Array is manipulated on disk, it is slow: %s',
-                            args.output)
 
     if args.method in ('glcm', 'glcm_mbb'):
         img = dwi.util.quantize(dwi.util.normalize(img, args.mode))

@@ -14,6 +14,7 @@ Scikit-image and Mahotas libraries are used for the calculations.
 
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
+import logging
 
 import numpy as np
 import scipy as sp
@@ -143,6 +144,8 @@ def get_texture_map(img, call, winsize, mask):
                 if path is None:
                     tmap = np.full(shape, np.nan, dtype=DTYPE)
                 else:
+                    s = 'Array is manipulated on disk, it is slow: %s'
+                    logging.warning(s, args.output)
                     tmap = dwi.hdf5.create_hdf5(path, shape, DTYPE,
                                                 fillvalue=np.nan)
             feats = np.rollaxis(feats, 0, 3)
