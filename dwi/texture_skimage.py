@@ -234,29 +234,6 @@ def gabor_map_new(img, winsize, mask=None, output=None):
     return output, outnames
 
 
-# def gabor_map_alt(img, winsize, wavelengths=None, mask=None, output=None):
-#     """Gabor texture feature map."""
-#     img = np.asarray(img, dtype=np.float32)
-#     if wavelengths is None:
-#         wavelengths = [2**i for i in range(1, 6)]
-#     freqs = [1/i for i in wavelengths]
-#     thetas = [np.pi/4*i for i in range(4)]
-#     if output is None:
-#         dtype = dwi.texture.rcParams['texture.dtype']
-#         output = np.zeros((len(thetas), len(freqs)) + img.shape, dtype=dtype)
-#     img = (img - img.mean()) / img.std()
-#     for i, theta in enumerate(thetas):
-#         for j, freq in enumerate(freqs):
-#             kernel = skimage.filters.gabor_kernel(freq, theta=theta)
-#             kernel = np.real(kernel)
-#             logging.info(' '.join([i, j, theta, freq, kernel.shape]))
-#             a = sp.ndimage.filters.convolve(img[:, :], kernel)
-#             output[i, j, :, :] = a
-#     output = np.mean(output, axis=0)  # Average over directions.
-#     names = ['gabor({})'.format(x) for x in wavelengths]
-#     return output, names
-
-
 # Histogram of Oriented Gradients (HOG)
 
 
