@@ -131,17 +131,19 @@ def main():
 
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
-    avg = (args.voxel == 'mean')
-    path = None
-    if not avg and args.mode.startswith('T2w') and args.method == 'gabor':
-        path = args.output
-        logging.warning('Output array is manipulated on disk, it is slow: %s',
-                        path)
+
+
+    if args.voxel == 'mean':
+        dwi.texture.rcParams['texture.avg'] = True
+    else:
+        dwi.texture.rcParams['texture.avg'] = False
+        if args.mode.startswith('T2w') and args.method == 'gabor':
+            dwi.texture.rcParams['texture.path'] = args.output
+            logging.warning('Array is manipulated on disk, it is slow: %s',
+                            args.output)
+
     if args.method in ('glcm', 'glcm_mbb'):
         img = dwi.util.quantize(dwi.util.normalize(img, args.mode))
-
-    dwi.texture.rcParams['texture.avg'] = avg
-    dwi.texture.rcParams['texture.path'] = path
 
     tmap, names = dwi.texture.get_texture(img, args.method, args.winspec,
                                           pmask)
@@ -151,12 +153,12 @@ def main():
 
     logging.info('Writing shape %s, type %s to %s', tmap.shape, tmap.dtype,
                  args.output)
-    if path is None:
-        dwi.files.write_pmap(args.output, tmap, attrs)
-    else:
+    if dwi.texture.rcParams['texture.path']:
         attrs['shape'] = tmap.shape
         attrs['dtype'] = str(tmap.dtype)
         tmap.attrs.update(attrs)
+    else:
+        dwi.files.write_pmap(args.output, tmap, attrs)
 
 
 if __name__ == '__main__':
