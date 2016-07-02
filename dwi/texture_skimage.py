@@ -86,10 +86,10 @@ def glcm_mbb(img, mask):
 # Local Binary Pattern (LBP) features
 
 
-def lbp_freq_map(img, winsize, neighbours=8, radius=None, mask=None):
+def lbp_freq_map(img, winsize, mask=None):
     """Local Binary Pattern (LBP) frequency histogram map."""
-    if radius is None:
-        radius = winsize // 2
+    neighbours = dwi.texture.rcParams['texture.lbp.neighbours']
+    radius = winsize // 2
     n = neighbours + 2
     freqs = skimage.feature.local_binary_pattern(img, neighbours, radius,
                                                  method='uniform')

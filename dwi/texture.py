@@ -39,6 +39,8 @@ rcParamsDefault = {
         'texture.gabor.orientations': 6,  # Number of orientations.
         'texture.gabor.sigmas': (1, 2, 3),
         'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
+
+        'texture.lbp.neighbours': 8,  # Number of neighbours.
         }
 # Modifiable runtime configuration parameters.
 # TODO: Read from file.
