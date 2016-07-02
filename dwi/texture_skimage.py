@@ -15,6 +15,11 @@ import dwi.texture
 import dwi.util
 
 
+def get_angles(n):
+    """Divide a half-circle into n angles."""
+    return tuple(np.pi/n*i for i in range(n))
+
+
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
 PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
@@ -34,7 +39,7 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     # distances = [x for x in distances if x <= min(img.shape)-1]
     max_distance = np.sqrt(img.shape[0]**2 + img.shape[1]**2) - 1
     distances = [x for x in distances if x <= max_distance]
-    angles = (0, np.pi/4, np.pi/2, 3*np.pi/4)
+    angles = get_angles(4)
     levels = img.max() + 1
     glcm = skimage.feature.greycomatrix(img, distances, angles, levels,
                                         symmetric=True, normed=True)
@@ -115,11 +120,6 @@ def gabor_feats(real, imag):
             np.mean(np.sqrt(real**2+imag**2)))
 
 
-def get_thetas(n):
-    """Divide a half-circle into n angles."""
-    return tuple(np.pi/n*i for i in range(n))
-
-
 def gabor(img):
     """Gabor features.
 
@@ -130,7 +130,7 @@ def gabor(img):
     img = np.asarray(img, dtype=np.float32)
     sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
     freqs = dwi.texture.rcParams['texture.gabor.freqs']
-    thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
+    thetas = get_angles(dwi.texture.rcParams['texture.gabor.orientations'])
     names = GABOR_FEAT_NAMES
     shape = len(thetas), len(sigmas), len(freqs), len(names)
     dtype = dwi.texture.rcParams['texture.dtype']
@@ -183,7 +183,7 @@ def gabor_map_new(img, winsize, mask=None, output=None):
     img = np.asarray(img, dtype=np.float32)
     sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
     freqs = dwi.texture.rcParams['texture.gabor.freqs']
-    thetas = get_thetas(dwi.texture.rcParams['texture.gabor.orientations'])
+    thetas = get_angles(dwi.texture.rcParams['texture.gabor.orientations'])
     featnames = GABOR_FEAT_NAMES
     tmaps = []
     outnames = []
