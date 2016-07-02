@@ -22,16 +22,15 @@ def get_angles(n):
 
 # Grey-Level Co-Occurrence Matrix (GLCM) features
 
-PROPNAMES = 'contrast dissimilarity homogeneity energy correlation ASM'.split()
 
-
-def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
-               ignore_zeros=False):
+def glcm_props(img, ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features.
 
     Six features provided by scikit-image. Averaged over 4 directions for
     orientation invariance.
     """
+    names = dwi.texture.rcParams['texture.glcm.names']
+    distances = dwi.texture.rcParams['texture.glcm.distances']
     assert img.ndim == 2, img.shape
     assert img.dtype == np.uint8, img.dtype
     # Prune distances too long for the window.
@@ -58,11 +57,10 @@ def glcm_props(img, names=PROPNAMES, distances=(1, 2, 3, 4),
     return d
 
 
-def glcm_map(img, winsize, names=PROPNAMES, ignore_zeros=False, mask=None,
-             output=None):
+def glcm_map(img, winsize, ignore_zeros=False, mask=None, output=None):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = glcm_props(win, names, ignore_zeros=ignore_zeros)
+        feats = glcm_props(win, ignore_zeros=ignore_zeros)
         if output is None:
             dtype = dwi.texture.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)

@@ -32,6 +32,10 @@ rcParamsDefault = {
         'texture.path': None,  # Write result directly to disk, if string.
         'texture.dtype': np.float32,  # Output texture map type.
 
+        'texture.glcm.names': ('contrast', 'dissimilarity', 'homogeneity',
+                               'energy', 'correlation', 'ASM'),
+        'texture.glcm.distances': (1, 2, 3, 4),  # GLCM pixel distances.
+
         'texture.gabor.orientations': 6,  # Number of orientations.
         'texture.gabor.sigmas': (1, 2, 3),
         'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
