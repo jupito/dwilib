@@ -219,7 +219,7 @@ def hog(img):
     kwargs = dict(orientations=8,
                   pixels_per_cell=img.shape,
                   cells_per_block=(1, 1),
-                  transform_sqrt=True)
+                  transform_sqrt=False)
     feats = skimage.feature.hog(img, **kwargs)
     return np.mean(feats)
 
