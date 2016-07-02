@@ -59,6 +59,10 @@ def abbrev(name):
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
+    # TODO: Remove median, q1, q3. Rename min, max to decile0, decile10.
+    # TODO: Consider renaming decileX to percentileX*10.
+    # TODO: Consider IQR, MAD, interdecile range, midhinge, trimean, trimmed
+    # mean, winsorized mean.
     img = np.asanyarray(img)
     d = OrderedDict()
     d['mean'] = np.mean(img)
@@ -72,18 +76,17 @@ def stats(img):
     return d
 
 
-def stats_map(img, winsize, names=None, mask=None, output=None):
+def stats_map(img, winsize, mask=None, output=None):
     """Statistical texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = stats(win)
-        if names is None:
-            names = d.keys()
+        names = d.keys()
         if output is None:
             dtype = rcParams['texture.dtype']
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
-        for i, name in enumerate(names):
-            output[(i,) + pos] = d[name]
-    names = ['stats({})'.format(n) for n in names]
+        for i, value in enumerate(d.values()):
+            output[(i,) + pos] = value
+    names = ['stats({})'.format(x) for x in names]
     return output, names
 
 
@@ -93,7 +96,7 @@ def stats_mbb(img, mask):
     voxels = img[mask]
     feats = stats(voxels)
     output = feats.values()
-    names = ['stats({})'.format(k) for k in feats.keys()]
+    names = ['stats({})'.format(x) for x in feats.keys()]
     return output, names
 
 
