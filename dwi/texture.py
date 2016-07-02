@@ -25,32 +25,6 @@ import dwi.texture_mahotas
 import dwi.texture_skimage
 
 
-# Default runtime configuration parameters. Somewhat similar to matplotlib.
-# TODO: Move these to dwi/__init__.py for more general use.
-rcParamsDefault = {
-        'texture.avg': False,  # Boolean: average result texture map?
-        'texture.path': None,  # Write result directly to disk, if string.
-        'texture.dtype': np.float32,  # Output texture map type.
-
-        'texture.glcm.names': ('contrast', 'dissimilarity', 'homogeneity',
-                               'energy', 'correlation', 'ASM'),
-        'texture.glcm.distances': (1, 2, 3, 4),  # GLCM pixel distances.
-
-        'texture.gabor.orientations': 6,  # Number of orientations.
-        'texture.gabor.sigmas': (1, 2, 3),
-        'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
-
-        'texture.lbp.neighbours': 8,  # Number of neighbours.
-
-        'texture.zernike.degree': 8,  # Maximum degree.
-
-        'texture.haar.levels': 4,  # Numer of levels.
-        }
-# Modifiable runtime configuration parameters.
-# TODO: Read from file.
-rcParams = dict(rcParamsDefault)
-
-
 def abbrev(name):
     """Abbreviate multiword feature name."""
     if ' ' in name:
@@ -86,7 +60,7 @@ def stats_map(img, winsize, mask=None, output=None):
         d = stats(win)
         names = d.keys()
         if output is None:
-            dtype = rcParams['texture.dtype']
+            dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, value in enumerate(d.values()):
             output[(i,) + pos] = value
@@ -133,7 +107,7 @@ METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    dtype = rcParams['texture.dtype']
+    dtype = dwi.rcParams['texture.dtype']
     tmap = np.full(img.shape + (len(names),), np.nan, dtype=dtype)
     tmap[mask, :] = feats
     return tmap, names
@@ -145,21 +119,21 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                dtype = rcParams['texture.dtype']
+                dtype = dwi.rcParams['texture.dtype']
                 tmap = np.full(img.shape + (len(names),), np.nan, dtype=dtype)
             tmap[i, mask_slice, :] = feats
     return tmap, names
 
 
 def get_texture_map(img, call, winsize, mask):
-    path = rcParams['texture.path']
+    path = dwi.rcParams['texture.path']
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
                 shape = img.shape + (len(names),)
-                dtype = rcParams['texture.dtype']
+                dtype = dwi.rcParams['texture.dtype']
                 if path is None:
                     tmap = np.full(shape, np.nan, dtype=dtype)
                 else:
@@ -175,8 +149,8 @@ def get_texture_map(img, call, winsize, mask):
 
 def get_texture(img, method, winspec, mask):
     """General texture map layer."""
-    avg = rcParams['texture.avg']
-    dtype = rcParams['texture.dtype']
+    avg = dwi.rcParams['texture.avg']
+    dtype = dwi.rcParams['texture.dtype']
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool

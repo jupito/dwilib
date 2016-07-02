@@ -134,12 +134,12 @@ def main():
 
 
     if args.voxel == 'mean':
-        dwi.texture.rcParams['texture.avg'] = True
+        dwi.rcParams['texture.avg'] = True
     else:
-        dwi.texture.rcParams['texture.avg'] = False
+        dwi.rcParams['texture.avg'] = False
         if args.mode.startswith('T2w') and args.method.startswith('gabor'):
             # These result arrays can get quite huge (if float64).
-            dwi.texture.rcParams['texture.path'] = args.output
+            dwi.rcParams['texture.path'] = args.output
 
     if args.method in ('glcm', 'glcm_mbb'):
         img = dwi.util.quantize(dwi.util.normalize(img, args.mode))
@@ -152,7 +152,7 @@ def main():
 
     logging.info('Writing shape %s, type %s to %s', tmap.shape, tmap.dtype,
                  args.output)
-    if dwi.texture.rcParams['texture.path']:
+    if dwi.rcParams['texture.path']:
         attrs['shape'] = tmap.shape
         attrs['dtype'] = str(tmap.dtype)
         tmap.attrs.update(attrs)

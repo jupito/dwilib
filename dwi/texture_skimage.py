@@ -29,8 +29,8 @@ def glcm_props(img, ignore_zeros=False):
     Six features provided by scikit-image. Averaged over 4 directions for
     orientation invariance.
     """
-    names = dwi.texture.rcParams['texture.glcm.names']
-    distances = dwi.texture.rcParams['texture.glcm.distances']
+    names = dwi.rcParams['texture.glcm.names']
+    distances = dwi.rcParams['texture.glcm.distances']
     assert img.ndim == 2, img.shape
     assert img.dtype == np.uint8, img.dtype
     # Prune distances too long for the window.
@@ -62,7 +62,7 @@ def glcm_map(img, winsize, mask=None, output=None, ignore_zeros=False):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, ignore_zeros=ignore_zeros)
         if output is None:
-            dtype = dwi.texture.rcParams['texture.dtype']
+            dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, value in enumerate(feats.values()):
             output[(i,) + pos] = value
@@ -88,7 +88,7 @@ def glcm_mbb(img, mask):
 
 def lbp_freq_map(img, winsize, mask=None):
     """Local Binary Pattern (LBP) frequency histogram map."""
-    neighbours = dwi.texture.rcParams['texture.lbp.neighbours']
+    neighbours = dwi.rcParams['texture.lbp.neighbours']
     radius = winsize // 2
     n = neighbours + 2
     freqs = skimage.feature.local_binary_pattern(img, neighbours, radius,
@@ -126,12 +126,12 @@ def gabor(img):
     invariance.
     """
     img = np.asarray(img, dtype=np.float32)
-    sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
-    freqs = dwi.texture.rcParams['texture.gabor.freqs']
-    thetas = get_angles(dwi.texture.rcParams['texture.gabor.orientations'])
+    sigmas = dwi.rcParams['texture.gabor.sigmas']
+    freqs = dwi.rcParams['texture.gabor.freqs']
+    thetas = get_angles(dwi.rcParams['texture.gabor.orientations'])
     names = GABOR_FEAT_NAMES
     shape = len(thetas), len(sigmas), len(freqs), len(names)
-    dtype = dwi.texture.rcParams['texture.dtype']
+    dtype = dwi.rcParams['texture.dtype']
     feats = np.zeros(shape, dtype=dtype)
     for i, j, k in np.ndindex(shape[:-1]):
         real, imag = skimage.filters.gabor(img, frequency=freqs[k],
@@ -152,7 +152,7 @@ def gabor_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win)
         if output is None:
-            dtype = dwi.texture.rcParams['texture.dtype']
+            dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
@@ -179,9 +179,9 @@ def gabor_map_new(img, winsize, mask=None, output=None):
     """Gabor texture feature map. This is the (more) correct way."""
     # TODO: Replace gabor_map with this one.
     img = np.asarray(img, dtype=np.float32)
-    sigmas = dwi.texture.rcParams['texture.gabor.sigmas']
-    freqs = dwi.texture.rcParams['texture.gabor.freqs']
-    thetas = get_angles(dwi.texture.rcParams['texture.gabor.orientations'])
+    sigmas = dwi.rcParams['texture.gabor.sigmas']
+    freqs = dwi.rcParams['texture.gabor.freqs']
+    thetas = get_angles(dwi.rcParams['texture.gabor.orientations'])
     featnames = GABOR_FEAT_NAMES
     tmaps = []
     outnames = []
@@ -229,7 +229,7 @@ def hog_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = [hog(win)]
         if output is None:
-            dtype = dwi.texture.rcParams['texture.dtype']
+            dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
@@ -267,7 +267,7 @@ def hu_map(img, winsize, mask=None, output=None):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = hu(win)
         if output is None:
-            dtype = dwi.texture.rcParams['texture.dtype']
+            dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
