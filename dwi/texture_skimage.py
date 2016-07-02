@@ -57,7 +57,7 @@ def glcm_props(img, ignore_zeros=False):
     return d
 
 
-def glcm_map(img, winsize, ignore_zeros=False, mask=None, output=None):
+def glcm_map(img, winsize, mask=None, output=None, ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = glcm_props(win, ignore_zeros=ignore_zeros)
