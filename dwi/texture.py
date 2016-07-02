@@ -41,6 +41,10 @@ rcParamsDefault = {
         'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
 
         'texture.lbp.neighbours': 8,  # Number of neighbours.
+
+        'texture.zernike.degree': 8,  # Maximum degree.
+
+        'texture.haar.levels': 4,  # Numer of levels.
         }
 # Modifiable runtime configuration parameters.
 # TODO: Read from file.

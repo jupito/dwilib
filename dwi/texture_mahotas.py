@@ -27,10 +27,10 @@ def zernike(img, radius, degree=8, cm=None):
     return feats
 
 
-def zernike_map(img, winsize, radius=None, degree=8, mask=None, output=None):
+def zernike_map(img, winsize, mask=None, output=None):
     """Zernike moment map."""
-    if radius is None:
-        radius = winsize // 2
+    degree = dwi.texture.rcParams['texture.zernike.degree']
+    radius = winsize // 2
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = zernike(win, radius, degree=degree, cm=(radius, radius))
         if output is None:
@@ -62,7 +62,7 @@ def haar(img):
     return coeffs
 
 
-def haar_levels(img, nlevels=4, drop_approx=False):
+def haar_levels(img, nlevels, drop_approx=False):
     """Multi-level Haar wavelet transform."""
     levels = []
     for _ in range(nlevels):
@@ -82,13 +82,14 @@ def haar_features(win):
     return d
 
 
-def haar_map(img, winsize, nlevels=4, mask=None, output=None):
+def haar_map(img, winsize, mask=None, output=None):
     """Haar texture feature map."""
+    nlevels = dwi.texture.rcParams['texture.haar.levels']
     # Cannot have nans here, they might have global influence.
     nans = np.isnan(img)
     if np.count_nonzero(nans):
         img[nans] = 0  # XXX: Replace with minimum value instead?
-    levels = haar_levels(img, nlevels=nlevels, drop_approx=True)
+    levels = haar_levels(img, nlevels, drop_approx=True)
     names = []
     for i, coeffs in enumerate(levels):
         for j, coeff in enumerate(coeffs):
@@ -127,7 +128,7 @@ def haralick(img, ignore_zeros=False):
     return a, mahotas.features.texture.haralick_labels
 
 
-def haralick_map(img, winsize, ignore_zeros=False, mask=None, output=None):
+def haralick_map(img, winsize, mask=None, output=None, ignore_zeros=False):
     """Haralick texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win, ignore_zeros=ignore_zeros)
