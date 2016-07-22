@@ -12,8 +12,9 @@ rcParamsDefault = {
         'texture.glcm.distances': (1, 2, 3, 4),  # GLCM pixel distances.
 
         'texture.gabor.orientations': 6,  # Number of orientations.
-        'texture.gabor.sigmas': (1, 2, 3),
-        'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4),
+        # 'texture.gabor.sigmas': (1, 2, 3),
+        'texture.gabor.sigmas': (None,),
+        'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4, 0.5),
 
         'texture.lbp.neighbours': 8,  # Number of neighbours.
 

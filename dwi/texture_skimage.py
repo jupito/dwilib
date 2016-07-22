@@ -147,7 +147,7 @@ def gabor(img):
     return d
 
 
-def gabor_map(img, winsize, mask=None, output=None):
+def gabor_map_old(img, winsize, mask=None, output=None):
     """Gabor texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = gabor(win)
@@ -156,7 +156,8 @@ def gabor_map(img, winsize, mask=None, output=None):
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats.values()):
             output[(i,) + pos] = v
-    names = ['gabor{}'.format(t).translate(None, " '") for t in feats.keys()]
+    names = ['gaborold{}'.format(t).translate(None, " '") for t in
+             feats.keys()]
     # fin = np.isfinite(output)
     # output[-fin] = 0  # Make non-finites zero.
     return output, names
@@ -175,9 +176,32 @@ def gabor_featmap(real, imag, winsize, mask):
     return output
 
 
-def gabor_map_new(img, winsize, mask=None, output=None):
+def get_sigma_x(frequency, bandwidth=1):
+    """Get sigma x for Gabor filter by setting frequency cut-off to -6dB, with
+    bandwidth in octaves.
+
+    See Clausi &al. 2000: Designing Gabor filters for optimal texture
+    separability. Bandwidth of one octave is suggested for default value.
+    """
+    return ((np.sqrt(np.log(2)) * (2**bandwidth + 1)) /
+            (np.sqrt(2) * np.pi * frequency * (2**bandwidth - 1)))
+
+
+def get_sigma_y(frequency, bandwidth=None):
+    """Get sigma y for Gabor filter by setting frequency cut-off to -6dB, with
+    bandwidth in octaves.
+
+    See Clausi &al. 2000: Designing Gabor filters for optimal texture
+    separability. Bandwidth of one octave is suggested for default value.
+    """
+    if bandwidth is None:
+        bandwidth = np.pi / 6  # 30 degrees.
+    return (np.sqrt(np.log(2)) /
+            (np.sqrt(2) * np.pi * frequency * np.tan(bandwidth / 2)))
+
+
+def gabor_map(img, winsize, mask=None, output=None):
     """Gabor texture feature map. This is the (more) correct way."""
-    # TODO: Replace gabor_map with this one.
     img = np.asarray(img, dtype=np.float32)
     sigmas = dwi.rcParams['texture.gabor.sigmas']
     freqs = dwi.rcParams['texture.gabor.freqs']
@@ -188,18 +212,30 @@ def gabor_map_new(img, winsize, mask=None, output=None):
     reals = np.empty((len(thetas),) + img.shape, dtype=np.float32)
     imags = np.empty_like(reals)
     for sigma, freq in product(sigmas, freqs):
+        if sigma is None:
+            sigma_x = get_sigma_x(freq)
+            sigma_y = get_sigma_y(freq)
+        else:
+            sigma_x = sigma_y = sigma
         for t, theta in enumerate(thetas):
             reals[t], imags[t] = skimage.filters.gabor(img, frequency=freq,
                                                        theta=theta,
-                                                       sigma_x=sigma,
-                                                       sigma_y=sigma)
+                                                       # bandwidth=1)
+                                                       sigma_x=sigma_x,
+                                                       sigma_y=sigma_y)
+            reals[t][np.isnan(reals[t])] = 0
+            imags[t][np.isnan(imags[t])] = 0
+            assert np.all(np.isfinite(reals[t])), ('r', freq, theta)
+            assert np.all(np.isfinite(imags[t])), ('i', freq, theta)
         # Sum orientations for invariance.
         real = np.sum(reals, axis=0)
         imag = np.sum(imags, axis=0)
         featmaps = gabor_featmap(real, imag, winsize, mask)
         for featmap, name in zip(featmaps, featnames):
             tmaps.append(featmap)
-            s = 'gabornew{}'.format((sigma, freq, name)).translate(None, " '")
+            # s = 'gabor{}'.format((sigma_x, sigma_y, freq,
+            #                       name)).translate(None, " '")
+            s = 'gabor{}'.format((freq, name)).translate(None, " '")
             outnames.append(s)
     output = np.array(tmaps)
     return output, outnames
