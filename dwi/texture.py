@@ -37,7 +37,6 @@ def abbrev(name):
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
-    # TODO: Remove median, q1, q3. Rename min, max to decile0, decile10.
     # TODO: Consider renaming decileX to percentileX*10.
     # TODO: Consider IQR, MAD, interdecile range, midhinge, trimean, trimmed
     # mean, winsorized mean.
@@ -47,6 +46,7 @@ def stats(img):
     d['stddev'] = np.std(img)
     d['range'] = np.max(img) - np.min(img)
     d.update(dwi.util.fivenumd(img))
+    del d['median']  # This will be 'decile5'.
     for i in range(1, 10):
         d['decile%i' % i] = np.percentile(img, i*10)
     d['kurtosis'] = sp.stats.kurtosis(img.ravel())
@@ -89,7 +89,7 @@ METHODS = OrderedDict([
     ('lbp', dwi.texture_skimage.lbp_freq_map),
     ('hog', dwi.texture_skimage.hog_map),
     ('gabor', dwi.texture_skimage.gabor_map),
-    ('gabornew', dwi.texture_skimage.gabor_map_new),
+    ('gaborold', dwi.texture_skimage.gabor_map_old),
     ('haar', dwi.texture_mahotas.haar_map),
     ('hu', dwi.texture_skimage.hu_map),
     ('zernike', dwi.texture_mahotas.zernike_map),
@@ -138,7 +138,7 @@ def get_texture_map(img, call, winsize, mask):
                     tmap = np.full(shape, np.nan, dtype=dtype)
                 else:
                     s = 'Array is manipulated on disk, it is slow: %s'
-                    logging.warning(s, args.output)
+                    logging.warning(s, path)
                     tmap = dwi.hdf5.create_hdf5(path, shape, dtype,
                                                 fillvalue=np.nan)
             feats = np.rollaxis(feats, 0, 3)
