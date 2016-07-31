@@ -37,18 +37,17 @@ def abbrev(name):
 
 def stats(img):
     """Statistical texture features that don't consider spatial relations."""
-    # TODO: Consider renaming decileX to percentileX*10.
     # TODO: Consider IQR, MAD, interdecile range, midhinge, trimean, trimmed
     # mean, winsorized mean.
     img = np.asanyarray(img)
     d = OrderedDict()
+    # Add percentiles.
+    p_ranks = sorted(list(range(0, 101, 10)) + [25, 75])
+    for p_rank, p in zip(p_ranks, np.percentile(img, p_ranks)):
+        d['p{:03d}'.format(p_rank)] = p
+    d['range'] = d['p100'] - d['p000']
     d['mean'] = np.mean(img)
     d['stddev'] = np.std(img)
-    d['range'] = np.max(img) - np.min(img)
-    d.update(dwi.util.fivenumd(img))
-    del d['median']  # This will be 'decile5'.
-    for i in range(1, 10):
-        d['decile%i' % i] = np.percentile(img, i*10)
     d['kurtosis'] = sp.stats.kurtosis(img.ravel())
     d['skewness'] = sp.stats.skew(img.ravel())
     return d
