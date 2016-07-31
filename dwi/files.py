@@ -54,6 +54,8 @@ def valid_lines(filename):
     with open(filename, 'rU') as f:
         for line in f:
             line = line.strip()
+            # TODO: Try this one from matplotlib._rc_params_in_file()
+            # strippedline = line.split('#', 1)[0].strip()
             if line and not line.startswith(COMMENT_PREFIX):
                 yield line
 
