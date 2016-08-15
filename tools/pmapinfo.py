@@ -63,6 +63,8 @@ def mbb_shape(img):
 
 def shorten(o):
     """Make object string and remove all whitespace."""
+    if isinstance(o, np.ndarray):
+        o = list(o)
     return ''.join(str(o).split())
 
 
