@@ -107,3 +107,18 @@ def plot_grid(im, centroid, base=5, color=(1, 0, 0, 1), linestyle=(0, (1, 1)),
                                                      offset=round(c) % base))
     im.axes.grid(b=True, color=color[:3], alpha=color[-1], linestyle=linestyle,
                  linewidth=linewidth)
+
+
+def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
+    """Add a vertical color bar to an image plot."""
+    # Size matched to graph.
+    # Copied from http://stackoverflow.com/questions/18195758/
+    #     set-matplotlib-colorbar-size-to-match-graph
+    from mpl_toolkits import axes_grid1
+    divider = axes_grid1.make_axes_locatable(im.axes)
+    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1/aspect)
+    pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
+    current_ax = plt.gca()
+    cax = divider.append_axes('right', size=width, pad=pad)
+    plt.sca(current_ax)
+    return im.axes.figure.colorbar(im, cax=cax, **kwargs)
