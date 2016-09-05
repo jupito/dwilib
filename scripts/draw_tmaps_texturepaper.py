@@ -222,7 +222,7 @@ def main():
             scores = '/'.join(str(x.score) for x in l)
             images, param = read(mode, c, s, texture_spec)
             title = '{}, {}-{}, {}, {}'.format(mode, c, s, scores, param)
-            path = '{o}/tmap_{m}_{p}_{c:03}-{s}.png'.format(f=args.outdir,
+            path = '{o}/tmap_{m}_{p}_{c:03}-{s}.png'.format(o=args.outdir,
                 m=mode, p=param, c=c, s=s)
             plot(images, title, path)
 
