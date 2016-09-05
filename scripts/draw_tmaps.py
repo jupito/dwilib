@@ -194,7 +194,7 @@ def plot(images, title, path):
     for i, plt in enumerate(it):
         dwi.plot.noticks(plt)
         f = funcs[i]
-        plt.title(f.__name__)
+        plt.title(f.__name__.replace('_', ' '))
         f()
 
 
