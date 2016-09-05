@@ -379,6 +379,7 @@ def scale(a):
 
 def clip_pmap(img, params):
     """Clip pmap's parameter-specific intensity outliers in-place."""
+    # XXX: Obsolete.
     for i in range(img.shape[-1]):
         if params[i].startswith('ADC'):
             img[..., i].clip(0, 0.002, out=img[..., i])
