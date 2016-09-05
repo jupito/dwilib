@@ -70,7 +70,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
 
 
 def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
-                   title_kwargs=None, path=None):
+                   title_kwargs=None, suptitle=None, path=None):
     """Generate subfigures, yielding each context for plotting."""
     if titles is None:
         # Invent missing titles.
@@ -80,6 +80,8 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
         titles = titles * (ncols * nrows)
     # assert len(titles) == nrows * ncols
     fig = plt.figure(figsize=(ncols*6, nrows*6))
+    if suptitle:
+        fig.suptitle(suptitle)
     for i, title in enumerate(titles):
         ax = fig.add_subplot(nrows, ncols, i+1)
         if title is not None:
