@@ -98,6 +98,17 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     plt.close()
 
 
+def noticks(plt):
+    """Show no ticks."""
+    # plt.xticks([])
+    # plt.yticks([])
+    plt.tick_params(
+        axis='both', which='both',
+        bottom='off', top='off', left='off', right='off',
+        labelbottom='off', labeltop='off', labelleft='off', labelright='off',
+    )
+
+
 def plot_grid(im, centroid, base=5, color=(1, 0, 0, 1), linestyle=(0, (1, 1)),
               linewidth=1):
     """Draw a centered grid on image, with good default style."""
