@@ -6,6 +6,7 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
+from collections import namedtuple
 import logging
 
 import numpy as np
@@ -97,9 +98,9 @@ def read_pmap(mode, case, scan, img_slice):
 def read_tmap(mode, case, scan, img_slice, texture_spec):
     mode = dwi.util.ImageMode(mode)
     tmap = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
-                                  texture_spec['method'],
-                                  texture_spec['winsize'], voxel='all')
-    param = '{winsize}-{method}({feature})'.format(**texture_spec)
+                                  texture_spec.method, texture_spec.winsize,
+                                  voxel='all')
+    param = '{winsize}-{method}({feature})'.format(**texture_spec._asdict())
     tmap, attrs = dwi.files.read_pmap(tmap, ondisk=True, params=[param])
     tmap = tmap[img_slice, :, :, 0]
     assert param == attrs['parameters'][0]
@@ -173,29 +174,28 @@ def plot(images, title, path):
     """Plot."""
     trange = dict(vmin=np.nanmin(images['tmap']),
                   vmax=np.nanmax(images['tmap']))
-    def pink_image():
+    def pink_image(plt):
         plt.imshow(images['pink'])
-    def prostate_outline():
-        show_image(plt, images['pmap'], color=0, colorbar=1)
-        show_outline(plt, images['pmask'])
-    def lesion_outline():
+    # def prostate_outline():
+    #     show_image(plt, images['pmap'], color=0, colorbar=1)
+    #     show_outline(plt, images['pmask'])
+    def lesion_outline(plt):
         show_image(plt, images['pmap'], color=0, colorbar=1)
         show_outline(plt, images['lmask'])
-    def prostate_texture():
+    def prostate_texture(plt):
         show_image(plt, images['pmap'], color=0, colorbar=0)
         show_image(plt, images['tmap'], color=1, colorbar=1)
         show_outline(plt, images['lmask'])
-    def lesion_texture():
+    def lesion_texture(plt):
         show_image(plt, images['pmap'], color=0, colorbar=0)
         show_image(plt, images['tmap_lesion'], color=1, colorbar=1, **trange)
-    funcs = [pink_image, prostate_outline, lesion_outline, prostate_texture,
-             lesion_texture]
+    funcs = [pink_image, lesion_outline, prostate_texture, lesion_texture]
     it = dwi.plot.generate_plots(ncols=len(funcs), suptitle=title, path=path)
     for i, plt in enumerate(it):
         dwi.plot.noticks(plt)
         f = funcs[i]
         plt.title(f.__name__.replace('_', ' '))
-        f()
+        f(plt)
 
 
 def cases_scans_lesions(mode, samplelist):
@@ -212,18 +212,21 @@ def main():
     args = parse_args()
     logging.basicConfig(level=logging.INFO)
 
+    TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
+
     for line in dwi.files.valid_lines(args.featlist):
-        mode, ws, mt, ft = line.split()
-        texture_spec = dict(winsize=ws, method=mt, feature=ft)
+        words = line.split()
+        mode = words[0]
+        texture_spec = TextureSpec(*words[1:])
         print(mode, texture_spec)
         for c, s, l in cases_scans_lesions(mode, args.samplelist):
-            # if c not in [42, 111]:
+            # if c not in [42, 5]:
             #     continue
             scores = '/'.join(str(x.score) for x in l)
             images, param = read(mode, c, s, texture_spec)
             title = '{}, {}-{}, {}, {}'.format(mode, c, s, scores, param)
-            path = '{o}/tmap_{m}_{p}_{c:03}-{s}.png'.format(o=args.outdir,
-                m=mode, p=param, c=c, s=s)
+            d = dict(o=args.outdir, m=mode, p=param, c=c, s=s)
+            path = '{o}/tmap_{m}_{p}_{c:03}-{s}.png'.format(**d)
             plot(images, title, path)
 
 
