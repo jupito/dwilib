@@ -68,8 +68,8 @@ def main():
 
     if args.verbose:
         print('# l-auc p-auc p/total l/p p-threshold l-threshold n param')
-    d = dict(p=param, pt=args.thresholds[0], lt=args.thresholds[1],
-             ppt=ppt, lpp=lpp, la=auc_l, n=len(x), pa=auc_p)
+    d = dict(p=param, pt=args.thresholds[0], lt=args.thresholds[1], n=len(x),
+             ppt=ppt, lpp=lpp, la=auc_l, pa=auc_p)
     s = '{la:.3f}  {pa:.3f}  {ppt:.3f}  {lpp:.3f}  {pt}  {lt}  {n}  {p}'
     print(s.format(**d))
 
