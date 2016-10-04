@@ -64,12 +64,12 @@ def parse_args():
 #             print(s.format(py=py, px=px, a=auc))
 
 
-def floor_or_ceil(a, threshold=0.5, out=None):
-    """Return floor or ceiling based on a minimum threshold."""
-    if a < threshold:
-        return np.floor(a, out=out)
-    else:
-        return np.ceil(a, out=out)
+# def floor_or_ceil(a, threshold=0.5, out=None):
+#     """Return floor or ceiling based on a minimum threshold."""
+#     if a < threshold:
+#         return np.floor(a, out=out)
+#     else:
+#         return np.ceil(a, out=out)
 
 
 def main():
@@ -90,21 +90,38 @@ def main():
         print('Means:', np.mean(pmap, axis=0))
         print('Total sample size:', len(pmap))
 
-    # Replace percentages with integer labels according to thresholds.
-    for a in pmap:
-        a[0] = floor_or_ceil(a[0], args.thresholds[0])
-        a[1] = floor_or_ceil(a[1], args.thresholds[1])
-    prostate = pmap[pmap[:, 0] == 1]  # Samples labeled as prostate.
+    # # Replace percentages with integer labels according to thresholds.
+    # for a in pmap:
+    #     a[0] = floor_or_ceil(a[0], args.thresholds[0])
+    #     a[1] = floor_or_ceil(a[1], args.thresholds[1])
+    # prostate = pmap[pmap[:, 0] > 0]  # Samples labeled as prostate.
 
-    ppt = np.mean(pmap[:, 0])  # Total prostate per image volume.
-    lpp = np.mean(prostate[:, 1])  # Total lesion per prostate volume.
+    # ppt = np.mean(pmap[:, 0])  # Total prostate per image volume.
+    # lpp = np.mean(prostate[:, 1])  # Total lesion per prostate volume.
 
-    index = -1  # Last value on row is the intensity.
+    # index = -1  # Last value on row is the intensity.
+    # param = params[index]
+    # # ROC AUC of sample value vs. sample being lesion.
+    # y = prostate[:, 1]
+    # x = prostate[:, index]
+    # _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+
+    # Sample values are in the last column.
+    index = -1
     param = params[index]
-    # ROC AUC of sample value vs. sample being lesion.
-    y = prostate[:, 1]
-    x = prostate[:, index]
-    _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
+    x = pmap[:, index]
+
+    # Labels.
+    y_prostate = pmap[:, 0] >= args.thresholds[0]
+    y_lesion = pmap[:, 1] >= args.thresholds[1]
+
+    # Average volume percentages.
+    ppt = np.mean(y_prostate)  # Prostate per total.
+    lpp = np.mean(y_lesion[y_prostate])  # Lesion per prostate.
+
+    # ROC AUC of prostate sample value predicting sample being lesion.
+    _, _, auc = dwi.util.calculate_roc_auc(y_lesion[y_prostate], x[y_prostate],
+                                           autoflip=True)
 
     if args.verbose:
         print('# auc p/total l/p p-threshold l-threshold param')
