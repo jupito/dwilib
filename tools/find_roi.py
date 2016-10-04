@@ -143,7 +143,7 @@ def draw(data, param, filename):
 def write_mask(d, filename):
     """Write mask. XXX: Here only single-slice ones."""
     slice_index = d['roi_corner'][0]
-    a = np.zeros((d['original_shape'][1:3]), dtype=int)
+    a = np.zeros((d['original_shape'][1:3]), dtype=np.int)
     _, y, x = d['roi_coords']
     y_offset, x_offset = d['subregion'][2], d['subregion'][4]
     y = (y[0]+y_offset, y[1]+y_offset)
