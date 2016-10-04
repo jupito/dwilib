@@ -78,16 +78,17 @@ def main():
     pmaps = [x[0] for x in tuples]
     attrs = [x[1] for x in tuples]
     params = attrs[0]['parameters']
-    # print(params)
-    if not all(x['parameters'] == params for x in attrs):
+    if args.verbose > 1:
+        print('Parameters:', params)
+    if (any(x['parameters'] != params for x in attrs) or
+        any(x.shape[-1] != len(params) for x in pmaps)):
         raise ValueError('Nonuniform parameters')
-    for pmap in pmaps:
-        assert pmap.shape[-1] == len(params)
-        pmap.shape = (-1, len(params))
-        # print(pmap.shape)
-    pmap = np.concatenate(pmaps)
-    # print(pmap.shape)
-    # print(np.mean(pmap, axis=0))
+
+    # Flatten and concatenate pmaps.
+    pmap = np.concatenate([x.reshape((-1, len(params))) for x in pmaps])
+    if args.verbose > 1:
+        print('Means:', np.mean(pmap, axis=0))
+        print('Total sample size:', len(pmap))
 
     # Replace percentages with integer labels according to thresholds.
     for a in pmap:
