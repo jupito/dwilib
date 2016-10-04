@@ -146,7 +146,7 @@ def parse_args():
                    help='be more verbose')
     p.add_argument('--std',
                    help='standardization file to use')
-    p.add_argument('--normalize', '-n', action='store_true',
+    p.add_argument('--normalize', '-n', metavar='MODE',
                    help='normalize signal intensity curves')
     p.add_argument('--scale', '-s', action='store_true',
                    help='scale each parameter independently')
@@ -228,10 +228,14 @@ def main():
         nv=img.size, nz=np.count_nonzero(img), nn=img.size-n))
     print('Five-num: {}'.format(dwi.util.fivenums(img)))
 
+    # Normalize wrt. signal intensity curve start or imaging parameter specs.
     if args.normalize:
-        for si in img.reshape((-1, img.shape[-1])):
-            dwi.util.normalize_si_curve_fix(si)
-        print('Normalized to range: [{}, {}]'.format(img.min(), img.max()))
+        print('Normalizing as {}...'.format(args.normalize))
+        if args.normalize == 'DWI':
+            for si in img.reshape((-1, img.shape[-1])):
+                dwi.util.normalize_si_curve_fix(si)
+        else:
+            img = dwi.util.normalize(img, args.normalize).astype(np.float16)
 
     if args.scale:
         img = scale(img)
