@@ -94,22 +94,23 @@ def main():
     for a in pmap:
         a[0] = floor_or_ceil(a[0], args.thresholds[0])
         a[1] = floor_or_ceil(a[1], args.thresholds[1])
+    prostate = pmap[pmap[:, 0] == 1]  # Samples labeled as prostate.
 
-    i_val = -1  # Last value on row is the intensity.
-    d = dict(pt=args.thresholds[0], lt=args.thresholds[1], param=params[i_val])
-    d['ppt'] = np.count_nonzero(pmap[:, 0]) / len(pmap)  # Prostate per total.
-    pmap = pmap[pmap[:, 0] > 0]  # Include only prostate cubes.
-    d['lpp'] = np.count_nonzero(pmap[:, 1]) / len(pmap)  # Lesion per prostate.
-    # ROC AUC of sample value vs. cube being lesion.
-    _, _, d['auc'] = dwi.util.calculate_roc_auc(pmap[:, 1], pmap[:, i_val],
-                                                autoflip=True)
+    ppt = np.mean(pmap[:, 0])  # Total prostate per image volume.
+    lpp = np.mean(prostate[:, 1])  # Total lesion per prostate volume.
+
+    index = -1  # Last value on row is the intensity.
+    param = params[index]
+    # ROC AUC of sample value vs. sample being lesion.
+    y = prostate[:, 1]
+    x = prostate[:, index]
+    _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=True)
 
     if args.verbose:
         print('# auc p/total l/p p-threshold l-threshold param')
-    print('{auc:.3f}  {ppt:.3f}  {lpp:.3f}  {pt}  {lt}  {param}'.format(**d))
-    # print(np.mean(pmap, axis=0))
-    # print_correlations(pmap, params)
-    # print_aucs_(pmap, params)
+    d = dict(p=param, pt=args.thresholds[0], lt=args.thresholds[1],
+             ppt=ppt, lpp=lpp, auc=auc)
+    print('{auc:.3f}  {ppt:.3f}  {lpp:.3f}  {pt}  {lt}  {p}'.format(**d))
 
 
 if __name__ == '__main__':
