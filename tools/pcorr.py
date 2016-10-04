@@ -91,11 +91,12 @@ def main():
     for a in pmap:
         a[0] = floor_or_ceil(a[0], args.thresholds[0])
         a[1] = floor_or_ceil(a[1], args.thresholds[1])
-    d = dict(pt=args.thresholds[0], lt=args.thresholds[1], param=params[2])
+    i_val = -1  # Last value on row is the intensity.
+    d = dict(pt=args.thresholds[0], lt=args.thresholds[1], param=params[i_val])
     d['ppt'] = np.count_nonzero(pmap[:, 0]) / len(pmap)
     pmap = pmap[pmap[:, 0] > 0]  # Include only prostate cubes.
     d['lpp'] = np.count_nonzero(pmap[:, 1]) / len(pmap)
-    _, _, d['auc'] = dwi.util.calculate_roc_auc(pmap[:, 1], pmap[:, 2],
+    _, _, d['auc'] = dwi.util.calculate_roc_auc(pmap[:, 1], pmap[:, i_val],
                                                 autoflip=True)
     if args.verbose:
         print('# auc p/total l/p p-threshold l-threshold param')
