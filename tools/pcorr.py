@@ -41,7 +41,6 @@ def main():
     pmap = np.concatenate([x.reshape((-1, len(params))) for x in pmaps])
     if args.verbose > 1:
         print('Means:', np.mean(pmap, axis=0))
-        print('Total sample size:', len(pmap))
 
     # Sample values are in the last column.
     index = -1
@@ -49,6 +48,7 @@ def main():
     x = pmap[:, index]
 
     # Labels.
+    assert params[:2] == ['prostate', 'lesion']
     y_prostate = pmap[:, 0] >= args.thresholds[0]
     y_lesion = pmap[:, 1] >= args.thresholds[1]
 
@@ -56,15 +56,18 @@ def main():
     ppt = np.mean(y_prostate)  # Prostate per total.
     lpp = np.mean(y_lesion[y_prostate])  # Lesion per prostate.
 
-    # ROC AUC of prostate sample value predicting sample being lesion.
-    _, _, auc = dwi.util.calculate_roc_auc(y_lesion[y_prostate], x[y_prostate],
-                                           autoflip=True)
+    # ROC AUC of prostate against image.
+    _, _, auc_p = dwi.util.calculate_roc_auc(y_prostate, x, autoflip=True)
+    # ROC AUC of lesion against prostate.
+    _, _, auc_l = dwi.util.calculate_roc_auc(y_lesion[y_prostate],
+                                             x[y_prostate], autoflip=True)
 
     if args.verbose:
-        print('# auc p/total l/p p-threshold l-threshold param')
+        print('# l-auc p-auc p/total l/p p-threshold l-threshold n param')
     d = dict(p=param, pt=args.thresholds[0], lt=args.thresholds[1],
-             ppt=ppt, lpp=lpp, auc=auc)
-    print('{auc:.3f}  {ppt:.3f}  {lpp:.3f}  {pt}  {lt}  {p}'.format(**d))
+             ppt=ppt, lpp=lpp, la=auc_l, n=len(x), pa=auc_p)
+    s = '{la:.3f}  {pa:.3f}  {ppt:.3f}  {lpp:.3f}  {pt}  {lt}  {n}  {p}'
+    print(s.format(**d))
 
 
 if __name__ == '__main__':
