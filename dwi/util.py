@@ -377,16 +377,6 @@ def scale(a):
     return (a-mn) / (mx-mn)
 
 
-def clip_pmap(img, params):
-    """Clip pmap's parameter-specific intensity outliers in-place."""
-    # XXX: Obsolete.
-    for i in range(img.shape[-1]):
-        if params[i].startswith('ADC'):
-            img[..., i].clip(0, 0.002, out=img[..., i])
-        elif params[i].startswith('K'):
-            img[..., i].clip(0, 2, out=img[..., i])
-
-
 def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
     """Clip percentile outliers, while ignoring nan values."""
     a = np.asanyarray(a)

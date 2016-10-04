@@ -53,6 +53,16 @@ def parse_args():
     return p.parse_args()
 
 
+def clip_pmap(img, params):
+    """Clip pmap's parameter-specific intensity outliers in-place."""
+    # XXX: Obsolete, use dwi.util.normalize().
+    for i in range(img.shape[-1]):
+        if params[i].startswith('ADC'):
+            img[..., i].clip(0, 0.002, out=img[..., i])
+        elif params[i].startswith('K'):
+            img[..., i].clip(0, 2, out=img[..., i])
+
+
 def draw_roi(img, pos, color):
     """Draw a rectangle ROI on a layer."""
     y, x = pos
@@ -85,7 +95,7 @@ def draw(data, param, filename):
 
     slice_index = data['roi_corner'][0]
     pmap = data['image'][slice_index, :, :, 0:1].copy()
-    dwi.util.clip_pmap(pmap, [param])
+    clip_pmap(pmap, [param])
     pmap = pmap[..., 0]
 
     cancer_pos = (-1, -1)
@@ -172,7 +182,7 @@ def main():
     dwi.dataset.dataset_read_roi_masks(data, args.roimaskdir)
     if args.clip:
         for d in data:
-            dwi.util.clip_pmap(d['image'], params)
+            clip_pmap(d['image'], params)
 
     for d in data:
         print('{case} {scan}: {score} {subregion}'.format(**d))
