@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
-"""Calculate correlation between parameters in parametric maps."""
+"""Calculate AUC for predicting prostate in image, lesion in prostate.
+
+Written for the grid data.
+"""
 
 from __future__ import absolute_import, division, print_function
 import argparse
@@ -18,7 +21,8 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
-    p.add_argument('--thresholds', nargs=2, type=float, default=[0.5, 0.1],
+    p.add_argument('--thresholds', '-t', nargs=2, type=float,
+                   default=(0.5, 0.1),
                    help='thresholds for labeling as prostate, lesion')
     p.add_argument('pmaps', nargs='+',
                    help='input pmaps')
