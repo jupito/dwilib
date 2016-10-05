@@ -41,13 +41,16 @@ def show_image(plt, image, colorbar=True, scale=None, **kwargs):
         dwi.plot.add_colorbar(im, pad_fraction=0)
 
 
-def show_outline(plt, mask):
+def show_outline(plt, masks, cmaps=None):
     """Show outline."""
-    view = np.full_like(mask, np.nan, dtype=np.float16)
-    view = dwi.mask.border(mask, out=view)
-    cmap = 'coolwarm'
-    d = dict(cmap=cmap, interpolation='nearest', vmin=0, vmax=1, alpha=1.0)
-    plt.imshow(view, **d)
+    if cmaps is None:
+        cmaps = ('coolwarm', 'viridis', 'hot')
+    assert len(masks) <= len(cmaps)
+    for mask, cmap in zip(masks, cmaps):
+        view = np.full_like(mask, np.nan, dtype=np.float16)
+        view = dwi.mask.border(mask, out=view)
+        d = dict(cmap=cmap, interpolation='nearest', vmin=0, vmax=1, alpha=1.0)
+        plt.imshow(view, **d)
 
 
 def get_lesion_mask(masks, slice_index=None):
@@ -94,7 +97,7 @@ def read_lmask(mode, case, scan):
 
     slice_index = slice_indices.get((case, scan, str(mode)))
     lmask, img_slice = get_lesion_mask(masks, slice_index=slice_index)
-    return lmask, img_slice
+    return lmask, img_slice, [x[img_slice] for x in masks]
 
 
 def read_pmap(mode, case, scan, img_slice):
@@ -162,21 +165,26 @@ def read(mode, case, scan, texture_spec):
         # histology = np.eye(5)
         raise
 
-    lmask, img_slice = read_lmask(mode, case, scan)
+    lmask, img_slice, lmasks = read_lmask(mode, case, scan)
     pmap = read_pmap(mode, case, scan, img_slice)
     tmap, param, tscale = read_tmap(mode, case, scan, img_slice, texture_spec)
 
     bb = dwi.util.bbox(np.isfinite(tmap), 10)
-    pmap = pmap[bb]
-    tmap = tmap[bb]
-    lmask = lmask[bb]
+    pmap = pmap[bb].copy()
+    tmap = tmap[bb].copy()
+    lmask = lmask[bb].copy()
+    lmasks = [x[bb].copy() for x in lmasks]
 
     if mode.startswith('DWI'):
         pmap = rescale(pmap, 2)
         tmap = rescale(tmap, 2)
         lmask = rescale_as_float(lmask, 2)
+        lmasks = [rescale_as_float(x, 2) for x in lmasks]
 
-    lmask[np.isnan(tmap)] = False  # Remove lesion voxels outside prostate.
+    # Remove lesion voxels outside prostate.
+    lmask[np.isnan(tmap)] = False
+    for mask in lmasks:
+        lmask[np.isnan(tmap)] = False
     pmap_prostate = np.where(np.isfinite(tmap), pmap, np.nan)
     tmap_lesion = np.where(lmask, tmap, np.nan)
     pmask = np.isfinite(tmap)
@@ -184,7 +192,9 @@ def read(mode, case, scan, texture_spec):
     images = dict(pmap=pmap, tmap=tmap, lmask=lmask,
                   pmap_prostate=pmap_prostate, tmap_lesion=tmap_lesion,
                   pmask=pmask)
-    assert len(set(x.shape for x in images.values())) == 1
+    assert len({x.shape for x in images.values()} |
+               {x.shape for x in lmasks}) == 1
+    images['lmasks'] = lmasks
     images['histology'] = histology
     images['tscale'] = tscale
     return images, param
@@ -202,10 +212,10 @@ def plot(images, title, path):
     #     show_image(plt, images['pmap'], scale=pscale, cmap='gray')
     def prostate_pmap(plt):
         show_image(plt, images['pmap_prostate'], scale=pscale, cmap='gray')
-        show_outline(plt, images['lmask'])
+        show_outline(plt, images['lmasks'])
     def prostate_texture(plt):
         show_image(plt, images['tmap'], scale=tscale)
-        show_outline(plt, images['lmask'])
+        show_outline(plt, images['lmasks'])
     def lesion_texture(plt):
         # show_image(plt, images['tmap_lesion'], scale=tscale)
         show_image(plt, images['tmap_lesion'])
@@ -235,7 +245,9 @@ def main():
     # logging.basicConfig(level=logging.INFO)
 
     TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
-    thresholds = None  # ('3+3', '3+4')
+    # thresholds = None
+    # thresholds = ('3+3', '3+4')
+    thresholds = ('3+3',)
     blacklist = []  # + [21, 22, 27, 42, 74, 79]
     whitelist = []  # + [23, 24, 26, 29, 64]
 
@@ -258,7 +270,9 @@ def main():
                 logging.error(e)
                 continue
 
-            lesions = ', '.join('{} {} {}'.format(x.score, x.location, x.label)
+            labelnames = ['low', 'high']
+            lesions = ', '.join('{} {} {}'.format(x.score, x.location,
+                                                  labelnames[x.label])
                                 for x in l)
             d = dict(m=mode, c=c, s=s, l=lesions, tw=int(texture_spec.winsize),
                      tm=texture_spec.method, tf=texture_spec.feature)
