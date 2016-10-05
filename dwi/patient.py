@@ -95,6 +95,17 @@ class Patient(object):
         return self.num, self.name, self.scans, self.lesions
 
 
+def label_lesions(patients, thresholds=None):
+    """Label lesions according to score groups."""
+    # Alternative: np.searchsorted(thresholds, [x.score for x in l])
+    if thresholds is None:
+        thresholds = THRESHOLDS_STANDARD
+    thresholds = [GleasonScore(x) for x in thresholds]
+    lesions = (l for p in patients for l in p.lesions)
+    for l in lesions:
+        l.label = sum(l.score > x for x in thresholds)
+
+
 def scan_in_patients(patients, num, scan):
     """Is this scan listed in the patients sequence?"""
     for p in patients:

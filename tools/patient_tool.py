@@ -29,16 +29,6 @@ def parse_args():
     return args
 
 
-def label_lesions(patients, thresholds):
-    """Label lesions according to score groups. Also add reference to
-    patient."""
-    thresholds = [dwi.patient.GleasonScore(t) for t in thresholds]
-    for p in patients:
-        for l in p.lesions:
-            l.label = sum(l.score > t for t in thresholds)
-            l.patient = p
-
-
 def label_patients(patients, group_sizes):
     """Label patients according to their lesion labels.
 
@@ -76,7 +66,11 @@ def main():
     patients = dwi.files.read_patients_file(args.patients, include_lines=True)
     scores = dwi.patient.get_gleason_scores(patients)
     thresholds = args.thresholds or scores
-    label_lesions(patients, thresholds)
+    dwi.patient.label_lesions(patients, thresholds)
+
+    # For convenience, refer to patients in lesions.
+    for p, l in ((p, l) for p in patients for l in p.lesions):
+        l.patient = p
 
     # for p, s, l in dwi.patient.iterlesions(patients):
     #     print(p.num, l.index, l.score, l.label)
