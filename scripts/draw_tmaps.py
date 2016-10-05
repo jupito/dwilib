@@ -22,11 +22,11 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--verbose', '-v', action='count',
-                   help='be more verbose')
-    p.add_argument('--featlist', '-f', default='feats.txt')
-    p.add_argument('--samplelist', '-s', default='all')
-    p.add_argument('--outdir', '-o', default='figs')
+    p.add_argument('-v', '--verbose', action='count',
+                   help='increase verbosity')
+    p.add_argument('-f', '--featlist', default='feats.txt')
+    p.add_argument('-s', '--samplelist', default='all')
+    p.add_argument('-o', '--outdir', default='figs')
     return p.parse_args()
 
 
