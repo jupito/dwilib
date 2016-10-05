@@ -9,7 +9,6 @@ import argparse
 from collections import namedtuple
 import logging
 import os.path
-import re
 
 import numpy as np
 
@@ -199,8 +198,8 @@ def plot(images, title, path):
     def histology_image(plt):
         plt.imshow(images['histology'])
         # plt.title('histology section')
-    def pmap(plt):
-        show_image(plt, images['pmap'], scale=pscale, cmap='gray')
+    # def pmap(plt):
+    #     show_image(plt, images['pmap'], scale=pscale, cmap='gray')
     def prostate_pmap(plt):
         show_image(plt, images['pmap_prostate'], scale=pscale, cmap='gray')
         show_outline(plt, images['lmask'])
@@ -221,13 +220,12 @@ def plot(images, title, path):
 
 
 def cases_scans_lesions(mode, samplelist, thresholds=None):
+    """Iterate (case_id, scan_id, lesions)."""
     mode = dwi.util.ImageMode(mode)
     path = dwi.paths.samplelist_path(mode, samplelist)
     patients = dwi.files.read_patients_file(path)
     dwi.patient.label_lesions(patients, thresholds=thresholds)
-    for p in patients:
-        for scan in p.scans:
-            yield p.num, scan, p.lesions
+    return ((p.num, s, p.lesions) for p in patients for s in p.scans)
 
 
 def main():
@@ -237,17 +235,17 @@ def main():
     # logging.basicConfig(level=logging.INFO)
 
     TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
-    blacklist = [] # + [21, 22, 27, 42, 74, 79]
-    whitelist = [] # + [23, 24, 26, 29, 64]
-    thresholds = ('3+3', '3+4')
+    thresholds = None  # ('3+3', '3+4')
+    blacklist = []  # + [21, 22, 27, 42, 74, 79]
+    whitelist = []  # + [23, 24, 26, 29, 64]
 
     for i, line in enumerate(dwi.files.valid_lines(args.featlist)):
         words = line.split()
         mode = words[0]
         texture_spec = TextureSpec(*words[1:])
         print(i, mode, texture_spec)
-        for c, s, l in cases_scans_lesions(mode, args.samplelist,
-                                           thresholds=thresholds):
+        it = cases_scans_lesions(mode, args.samplelist, thresholds=thresholds)
+        for c, s, l in it:
             if blacklist and c in blacklist:
                 continue
             if whitelist and c not in whitelist:
@@ -255,7 +253,7 @@ def main():
             if 0 not in (x.label for x in l):
                 continue
             try:
-                images, param = read(mode, c, s, texture_spec)
+                images, _ = read(mode, c, s, texture_spec)
             except IOError as e:
                 logging.error(e)
                 continue
