@@ -68,6 +68,9 @@ class Lesion(object):
     def __repr__(self):
         return repr((self.index, self.score, self.location))
 
+    def __eq__(self, other):
+        return (self.score, self.location) == (other.score, other.location)
+
 
 @total_ordering
 class Patient(object):
