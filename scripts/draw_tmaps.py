@@ -220,10 +220,11 @@ def plot(images, title, path):
         f(plt)
 
 
-def cases_scans_lesions(mode, samplelist):
+def cases_scans_lesions(mode, samplelist, thresholds=None):
     mode = dwi.util.ImageMode(mode)
     path = dwi.paths.samplelist_path(mode, samplelist)
     patients = dwi.files.read_patients_file(path)
+    dwi.patient.label_lesions(patients, thresholds=thresholds)
     for p in patients:
         for scan in p.scans:
             yield p.num, scan, p.lesions
@@ -232,43 +233,39 @@ def cases_scans_lesions(mode, samplelist):
 def main():
     """Main."""
     args = parse_args()
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig()
+    # logging.basicConfig(level=logging.INFO)
 
     TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
-    blacklist = [21, 22, 27, 42, 74, 79]
-    whitelist = [23, 24, 26, 29, 64]
+    blacklist = [] # + [21, 22, 27, 42, 74, 79]
+    whitelist = [] # + [23, 24, 26, 29, 64]
+    thresholds = ('3+3', '3+4')
 
     for i, line in enumerate(dwi.files.valid_lines(args.featlist)):
         words = line.split()
         mode = words[0]
         texture_spec = TextureSpec(*words[1:])
         print(i, mode, texture_spec)
-        for c, s, l in cases_scans_lesions(mode, args.samplelist):
-            # if c not in [64]:
-            #     continue
+        for c, s, l in cases_scans_lesions(mode, args.samplelist,
+                                           thresholds=thresholds):
             if blacklist and c in blacklist:
                 continue
             if whitelist and c not in whitelist:
                 continue
-            if len(l) < 2:
-                continue
-            if all(x.score == l[0].score for x in l):
+            if 0 not in (x.label for x in l):
                 continue
             try:
                 images, param = read(mode, c, s, texture_spec)
             except IOError as e:
                 logging.error(e)
                 continue
-            scores = '/'.join(str(x.score) for x in l)
-            locations = '/'.join(str(x.location) for x in l)
-            param = re.sub(r'^([0-9]-)', r'0\1', param)  # Two-digit winsize.
-            title = '{}, {}-{}, {}, {}, {}'.format(mode, c, s, scores,
-                                                   locations, param)
-            # d = dict(o=args.outdir, m=mode, p=param, c=c, s=s)
-            # path = '{o}/{c:03}-{s}_{m}_{p}.png'.format(**d)
-            d = dict(m=mode, c=c, s=s, tw=int(texture_spec.winsize),
+
+            lesions = ', '.join('{} {} {}'.format(x.score, x.location, x.label)
+                                for x in l)
+            d = dict(m=mode, c=c, s=s, l=lesions, tw=int(texture_spec.winsize),
                      tm=texture_spec.method, tf=texture_spec.feature)
-            filename = ('{c:03}-{s}_{m}_{tm}({tf})-{tw:02}.png').format(**d)
+            title = '{c}-{s} ({l})\n{m} {tm}({tf})-{tw:02}'.format(**d)
+            filename = '{c:03}-{s}_{m}_{tm}({tf})-{tw:02}.png'.format(**d)
             plot(images, title, os.path.join(args.outdir, filename))
 
 
