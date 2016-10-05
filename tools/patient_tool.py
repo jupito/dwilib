@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 import itertools
+import random
 
 import dwi.files
 import dwi.patient
@@ -63,7 +64,6 @@ def random_split(seq, ratio=0.5, surplus=0):
 
     Parameter surplus defines the group where odd elements are put.
     """
-    import random
     assert surplus == 0 or surplus == 1
     k = int(ratio * len(seq) + 0.5 * surplus)
     a = random.sample(seq, k)
