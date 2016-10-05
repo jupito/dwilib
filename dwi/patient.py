@@ -183,8 +183,8 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     Label thresholds are maximum scores of each label group. Labels are ordinal
     of score if no thresholds provided."""
     # TODO: Support for selecting measurements over scan pairs
-    thresholds = tuple(GleasonScore(x) for x in thresholds)
     patients = dwi.files.read_patients_file(patients_file)
+    dwi.patient.label_lesions(patients, thresholds=thresholds)
     data = []
     for patient, scan, lesion in iterlesions(patients):
         if not multiroi and lesion.index != 0:
@@ -192,8 +192,6 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
         if location is not None and lesion.location != location:
             continue
         case = patient.num
-        score = lesion.score
-        label = sum(score > t for t in thresholds)
         roi = lesion.index if multiroi else None
         try:
             pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
@@ -205,8 +203,9 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
                 continue
             else:
                 raise
-        d = dict(case=case, scan=scan, roi=lesion.index, score=score,
-                 label=label, pmap=pmap, params=params, pathname=pathname)
+        d = dict(case=case, scan=scan, roi=lesion.index, score=lesion.score,
+                 label=lesion.label, pmap=pmap, params=params,
+                 pathname=pathname)
         data.append(d)
         if pmap.shape != data[0]['pmap'].shape:
             raise Exception('Irregular shape: %s' % pathname)
