@@ -1,7 +1,10 @@
 #!/usr/bin/env python2
 
 """Calculate reproducibility coefficients for parametric maps by Bland-Altman
-analysis. Input consists of pmap scan pairs grouped together."""
+analysis. Input consists of pmap scan pairs grouped together.
+"""
+
+# TODO: Cleaner output.
 
 from __future__ import absolute_import, division, print_function
 import argparse
@@ -205,6 +208,11 @@ def main():
              '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'
              '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'
              '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]')
+        # s = (
+        #      '{corr:.2f}'
+        #      '    {icc:.2f}    {icc_bs:.2f}[{icc_ci1:.2f}-{icc_ci2:.2f}]'
+        #      '    {param:7}'
+        #      )
         print(s.format(**d))
 
 
