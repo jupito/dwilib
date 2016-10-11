@@ -77,15 +77,15 @@ def read_patients_file(filename, include_lines=False):
     Row format: num name scan1,scan2,... score [location]
     """
     patients = []
-    p = re.compile(r"""
-                   (?P<num>\d+) \s+
-                   (?P<name>\w+) \s+
-                   (?P<scans>[\w,]+) \s+
-                   (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
-                   ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
-                   ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
-                   """,
-                   flags=re.VERBOSE)
+    regexp = r"""
+        (?P<num>\d+) \s+
+        (?P<name>\w+) \s+
+        (?P<scans>[\w,]+) \s+
+        (?P<score>\d\+\d(\+\d)?) \s* (?P<location>\w+)? \s*
+        ((?P<score2>\d\+\d(\+\d)?) \s+ (?P<location2>\w+))? \s*
+        ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
+        """
+    p = re.compile(regexp, flags=re.VERBOSE)
     for line in valid_lines(filename):
         m = p.match(line)
         if m:
