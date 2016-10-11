@@ -145,6 +145,8 @@ def task_standardize_train():
 
     Pay attention to the sample list: all samples should be used.
     """
+    if MODE[0] != 'T2w':
+        return
     mode = MODE - 'std'
     std_cfg = std_cfg_path(mode)
     # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
@@ -161,6 +163,8 @@ def task_standardize_train():
 
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
+    if MODE[0] != 'T2w':
+        return
     mode = MODE - 'std'
     sl = SAMPLELIST
     cfgpath = std_cfg_path(mode)
