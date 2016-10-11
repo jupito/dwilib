@@ -1,5 +1,8 @@
 """Routines for handling patient lists."""
 
+# TODO: Functions read_pmaps, read_pmap, grouping should be replaced with
+# something better, they're still used by tools/{roc_auc,correlation}.py.
+
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 
@@ -11,6 +14,7 @@ import dwi.util
 
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
 THRESHOLDS_STANDARD = ('3+3', '3+4')
+
 
 @total_ordering
 class GleasonScore(object):
