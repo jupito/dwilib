@@ -110,11 +110,19 @@ def dataset_read_samples(cases_scans):
     return data
 
 
+def get_patient(patients, num):
+    """Search a patient from sequence by patient number."""
+    for p in patients:
+        if p.num == num:
+            return p
+    raise Exception('Patient not found: {}'.format(num))
+
+
 def dataset_read_patientinfo(data, patients_file):
     """Add patient info to dataset."""
     patientsinfo = dwi.files.read_patients_file(patients_file)
     for d in data:
-        d['score'] = dwi.patient.get_patient(patientsinfo, d['case']).score
+        d['score'] = get_patient(patientsinfo, d['case']).score
 
 
 def dataset_read_subregions(data, subregion_dir):

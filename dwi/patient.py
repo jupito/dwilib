@@ -111,27 +111,7 @@ def label_lesions(patients, thresholds=None):
 
 def scan_in_patients(patients, num, scan):
     """Is this scan listed in the patients sequence?"""
-    for p in patients:
-        if p.num == num and scan in p.scans:
-            return True
-    return False
-
-
-def get_patient(patients, num):
-    """Search a patient from sequence by patient number."""
-    for p in patients:
-        if p.num == num:
-            return p
-    raise Exception('Patient not found: {}'.format(num))
-
-
-def get_gleason_scores(patients):
-    """Get all separate Gleason scores, sorted."""
-    # return sorted({p.score for p in patients})
-    scores = set()
-    for p in patients:
-        scores.update(l.score for l in p.lesions)
-    return sorted(scores)
+    return any(num == p.num and scan in p.scans for p in patients)
 
 
 def load_files(patients, filenames, pairs=False):
@@ -214,22 +194,6 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     return data
 
 
-def grouping(data):
-    """Return different scores sorted, grouped scores, and their sample sizes.
-
-    See read_pmaps()."""
-    scores = [d['score'] for d in data]
-    labels = [d['label'] for d in data]
-    n_labels = max(labels) + 1
-    groups = [[] for _ in range(n_labels)]
-    for s, l in zip(scores, labels):
-        groups[l].append(s)
-    different_scores = sorted(set(scores))
-    group_scores = [sorted(set(g)) for g in groups]
-    group_sizes = [len(g) for g in groups]
-    return different_scores, group_scores, group_sizes
-
-
 def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     """Read single pmap."""
     d = dict(d=dirname, c=case, s=scan, r=roi)
@@ -259,3 +223,19 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     else:
         pmap = pmap[[int(voxel)]]  # Use single voxel only.
     return pmap, params, af.filename
+
+
+def grouping(data):
+    """Return different scores sorted, grouped scores, and their sample sizes.
+
+    See read_pmaps()."""
+    scores = [d['score'] for d in data]
+    labels = [d['label'] for d in data]
+    n_labels = max(labels) + 1
+    groups = [[] for _ in range(n_labels)]
+    for s, l in zip(scores, labels):
+        groups[l].append(s)
+    different_scores = sorted(set(scores))
+    group_scores = [sorted(set(g)) for g in groups]
+    group_sizes = [len(g) for g in groups]
+    return different_scores, group_scores, group_sizes
