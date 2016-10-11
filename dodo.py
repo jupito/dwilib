@@ -58,7 +58,7 @@ def texture_winsizes(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode[0] in ('T2', 'T2w'):
-        return xrange(3, 30, 4)
+        return xrange(3, 36, 4)
     else:
         return xrange(3, 16, 2)
 
