@@ -45,23 +45,7 @@ def folders(*paths):
 
 
 def texture_methods():
-    return [
-        # 'stats',
-        # 'haralick',
-        # 'moment',
-        # 'haralick_mbb',
-
-        'glcm',
-        # 'glcm_mbb',
-        'lbp',
-        'hog',
-        'gabor',
-        'haar',
-        'hu',
-        'zernike',
-        'sobel',
-        # 'stats_all',
-        ]
+    return dwi.rcParams['texture.methods']
 
 
 def texture_winsizes(masktype, mode, method):
