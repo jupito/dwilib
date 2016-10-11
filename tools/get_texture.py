@@ -132,7 +132,6 @@ def main():
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
 
-
     if args.voxel == 'mean':
         dwi.rcParams['texture.avg'] = True
     else:
