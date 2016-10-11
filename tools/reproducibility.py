@@ -8,6 +8,7 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import glob
 import os.path
+import re
 
 import numpy as np
 
@@ -158,6 +159,41 @@ def sort_pmapfiles(paths):
     return sorted(paths, key=sortkey)
 
 
+def parse_filename(filename):
+    """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
+    # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
+    m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
+    if m:
+        num, name, scan = m.groups()
+        num = int(num)
+        name = name.lower()
+        scan = scan.lower()
+        return num, name, scan
+    raise Exception('Cannot parse filename: {}'.format(filename))
+
+
+def parse_num_scan(filename):
+    """Like parse_filename() but return only num, scan."""
+    num, _, scan = parse_filename(filename)
+    return num, scan
+
+
+def scan_pairs(afs):
+    """Check that the ascii files are correctly paired as scan baselines.
+    Return list of (patient number, scan 1, scan 2) tuples.
+    """
+    baselines = dwi.util.pairs(afs)
+    r = []
+    for af1, af2 in zip(*baselines):
+        num1, scan1 = parse_num_scan(af1.basename)
+        num2, scan2 = parse_num_scan(af2.basename)
+        if num1 != num2 or scan1[0] != scan2[0]:
+            raise Exception('Not a pair: {}, {}'.format(af1.basename,
+                                                        af2.basename))
+        r.append((num1, scan1, scan2))
+    return r
+
+
 def scan_in_patients(patients, num, scan):
     """Is this scan listed in the patients sequence?"""
     return any(num == p.num and scan in p.scans for p in patients)
@@ -172,13 +208,13 @@ def load_files(patients, filenames, pairs=False):
         if len(l) > 0:
             filenames = l
     for f in filenames:
-        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
+        num, scan = parse_num_scan(os.path.basename(f))
         if patients is None or scan_in_patients(patients, num, scan):
             pmapfiles.append(f)
     afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
     if pairs:
-        dwi.util.scan_pairs(afs)
-    ids = [dwi.util.parse_num_scan(af.basename) for af in afs]
+        scan_pairs(afs)
+    ids = [parse_num_scan(af.basename) for af in afs]
     pmaps = [af.a for af in afs]
     pmaps = np.array(pmaps)
     params = afs[0].params()

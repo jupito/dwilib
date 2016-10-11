@@ -7,8 +7,6 @@ from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice
 import os
 import random
-import re
-import sys
 
 import numpy as np
 import scipy as sp
@@ -484,41 +482,6 @@ def iglob(path, typ='any'):
 def sglob(path, typ='any'):
     """Single glob: glob exactly one file."""
     return sole(iglob(path, typ), path)
-
-
-def parse_filename(filename):
-    """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
-    # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
-    m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
-    if m:
-        num, name, scan = m.groups()
-        num = int(num)
-        name = name.lower()
-        scan = scan.lower()
-        return num, name, scan
-    raise Exception('Cannot parse filename: {}'.format(filename))
-
-
-def parse_num_scan(filename):
-    """Like parse_filename() but return only num, scan."""
-    num, _, scan = parse_filename(filename)
-    return num, scan
-
-
-def scan_pairs(afs):
-    """Check that the ascii files are correctly paired as scan baselines.
-    Return list of (patient number, scan 1, scan 2) tuples.
-    """
-    baselines = pairs(afs)
-    r = []
-    for af1, af2 in zip(*baselines):
-        num1, scan1 = parse_num_scan(af1.basename)
-        num2, scan2 = parse_num_scan(af2.basename)
-        if num1 != num2 or scan1[0] != scan2[0]:
-            raise Exception('Not a pair: {}, {}'.format(af1.basename,
-                                                        af2.basename))
-        r.append((num1, scan1, scan2))
-    return r
 
 
 def centroid(img):
