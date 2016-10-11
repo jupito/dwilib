@@ -178,15 +178,26 @@ def main():
         X = pmaps[:, i, :]  # Use single voxel only.
 
     if args.verbose > 1:
-        print('Samples: %i, features: %i, voxel: %s' % (X.shape[0], X.shape[1],
-                                                        args.voxel))
-        print('Number of bootstraps: %d' % args.nboot)
+        s = 'Samples: {}, features: {}, voxel: {}, bootstraps: {}'
+        print(s.format(X.shape[0], X.shape[1], args.voxel, args.nboot))
 
     # Print coefficients for each parameter.
     if args.verbose:
-        print('# param    avg[lower-upper]'
-              '    msd/avg    CI/avg    wCV    CoR/avg'
-              '    ICC    bsICC[lower-upper]')
+        print('# avg[lower-upper] '
+              'msd/avg CI/avg wCV CoR/avg '
+              'ICC bsICC[lower-upper] '
+              'param')
+    output = (
+        '{avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}] '
+        '{msdr:.4f} {cir:.4f} {wcv:.4f} {corr:.4f} '
+        '{icc:5.2f} {icc_bs:5.2f}[{icc_ci1:5.2f}-{icc_ci2:5.2f}] '
+        '{param}'
+        )
+    output = (
+        '{corr:7.2f} '
+        '{icc:5.2f} {icc_bs:5.2f}[{icc_ci1:5.2f}-{icc_ci2:5.2f}] '
+        '{param}'
+        )
     skipped_params = 'SI0N C RMSE'.split()
     for values, param in zip(X.T, params):
         if param in skipped_params:
@@ -204,16 +215,7 @@ def main():
         d['icc'] = icc(baselines)
         (d['icc_bs'], d['icc_ci1'],
          d['icc_ci2']) = bootstrap_icc(baselines, nboot=args.nboot)
-        s = ('{param:7}'
-             '    {avg:.8f}[{avg_ci1:.8f}-{avg_ci2:.8f}]'
-             '    {msdr:.4f}    {cir:.4f}    {wcv:.4f}    {corr:.4f}'
-             '    {icc:.4f}    {icc_bs:.4f}[{icc_ci1:.4f}-{icc_ci2:.4f}]')
-        # s = (
-        #      '{corr:.2f}'
-        #      '    {icc:.2f}    {icc_bs:.2f}[{icc_ci1:.2f}-{icc_ci2:.2f}]'
-        #      '    {param:7}'
-        #      )
-        print(s.format(**d))
+        print(output.format(**d))
 
 
 if __name__ == '__main__':
