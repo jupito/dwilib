@@ -257,11 +257,11 @@ def main():
         '{icc:5.2f} {icc_bs:5.2f}[{icc_ci1:5.2f}-{icc_ci2:5.2f}] '
         '{param}'
         )
-    output = (
-        '{corr:7.2f} '
-        '{icc:5.2f} {icc_bs:5.2f}[{icc_ci1:5.2f}-{icc_ci2:5.2f}] '
-        '{param}'
-        )
+    # output = (
+    #     '{corr:7.2f} '
+    #     '{icc:5.2f} {icc_bs:5.2f}[{icc_ci1:5.2f}-{icc_ci2:5.2f}] '
+    #     '{param}'
+    #     )
     skipped_params = 'SI0N C RMSE'.split()
     for values, param in zip(X.T, params):
         if param in skipped_params:
