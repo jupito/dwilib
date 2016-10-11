@@ -13,7 +13,7 @@ import numpy as np
 import dwi.asciifile
 import dwi.dicomfile
 import dwi.hdf5
-import dwi.patient
+from dwi.patient import Patient, Lesion
 
 
 COMMENT_PREFIX = '#'
@@ -76,7 +76,6 @@ def read_patients_file(filename, include_lines=False):
 
     Row format: num name scan1,scan2,... score [location]
     """
-    patients = []
     regexp = r"""
         (?P<num>\d+) \s+
         (?P<name>\w+) \s+
@@ -86,6 +85,7 @@ def read_patients_file(filename, include_lines=False):
         ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
         """
     p = re.compile(regexp, flags=re.VERBOSE)
+    patients = []
     for line in valid_lines(filename):
         m = p.match(line)
         if m is None:
@@ -93,23 +93,16 @@ def read_patients_file(filename, include_lines=False):
         num = int(m.group('num'))
         name = m.group('name').lower()
         scans = sorted(m.group('scans').lower().split(','))
-        score = dwi.patient.GleasonScore(m.group('score'))
-        lesions = [dwi.patient.Lesion(0, score, 'xx')]
+        les = [Lesion(0, m.group('score'), 'xx')]
         if m.group('location'):
             # New-style, multi-lesion file.
-            lesions = []
-            score = dwi.patient.GleasonScore(m.group('score'))
-            loc = m.group('location').lower()
-            lesions.append(dwi.patient.Lesion(0, score, loc))
+            les = []
+            les.append(Lesion(0, m.group('score'), m.group('location')))
             if m.group('score2'):
-                score = dwi.patient.GleasonScore(m.group('score2'))
-                loc = m.group('location2').lower()
-                lesions.append(dwi.patient.Lesion(1, score, loc))
+                les.append(Lesion(1, m.group('score2'), m.group('location2')))
             if m.group('score3'):
-                score = dwi.patient.GleasonScore(m.group('score3'))
-                loc = m.group('location3').lower()
-                lesions.append(dwi.patient.Lesion(2, score, loc))
-        patient = dwi.patient.Patient(num, name, scans, lesions)
+                les.append(Lesion(2, m.group('score3'), m.group('location3')))
+        patient = Patient(num, name, scans, les)
         if include_lines:
             patient.line = line
         patients.append(patient)
