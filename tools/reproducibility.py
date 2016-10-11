@@ -48,7 +48,7 @@ def mean_squared_difference(a1, a2):
     return msd
 
 
-def coefficients(a1, a2, avgfun=np.mean):
+def repeatability_coeff(a1, a2, avgfun=np.mean):
     """Return average, average squared difference, confidence interval,
     within-patient coefficient of variance, coefficient of repeatability."""
     a1 = np.asanyarray(a1)
@@ -245,7 +245,7 @@ def main():
         s = 'Samples: {}, features: {}, voxel: {}, bootstraps: {}'
         print(s.format(X.shape[0], X.shape[1], args.voxel, args.nboot))
 
-    # Print coefficients for each parameter.
+    # Print results for each parameter.
     if args.verbose:
         print('# avg[lower-upper] '
               'msd/avg CI/avg wCV CoR/avg '
@@ -272,7 +272,7 @@ def main():
             plot(values, param, args.figdir)
         baselines = dwi.util.pairs(values)
         d = dict(param=param)
-        d.update(coefficients(*baselines, avgfun=np.median))
+        d.update(repeatability_coeff(*baselines, avgfun=np.median))
         d['msdr'] = d['msd']/d['avg']
         d['cir'] = d['ci']/d['avg']
         d['corr'] = d['cor']/d['avg']
