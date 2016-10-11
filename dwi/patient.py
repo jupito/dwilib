@@ -76,8 +76,8 @@ class Lesion(object):
 class Patient(object):
     """Patient case."""
     def __init__(self, num, name, scans, lesions):
-        self.num = num
-        self.name = name
+        self.num = int(num)
+        self.name = str(name).lower()
         self.scans = scans
         self.lesions = lesions
         self.score = lesions[0].score  # For backwards compatibility.

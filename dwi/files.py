@@ -77,8 +77,8 @@ def read_patients_file(filename, include_lines=False):
         m = p.match(line)
         if m is None:
             raise Exception('Invalid line in patients file: %s', line)
-        num = int(m.group('num'))
-        name = m.group('name').lower()
+        num = m.group('num')
+        name = m.group('name')
         scans = sorted(m.group('scans').lower().split(','))
         les = [Lesion(0, m.group('score'), 'xx')]
         if m.group('location'):
