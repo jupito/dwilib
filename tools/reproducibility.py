@@ -147,9 +147,18 @@ def plot(values, param, figdir):
             plt.axis('tight')
 
 
+def glob_if_needed(filenames):
+    """Workaround for platforms without shell-level globbing."""
+    if len(filenames) == 1:
+        lst = glob.glob(filenames[0])
+        if len(lst) > 0:
+            filenames = lst
+    return filenames
+
+
 def sort_pmapfiles(paths):
-    """Kludge to sort input files for Windows without shell doing it. Requires
-    certain format.
+    """Kludge to sort input files for platforms where globbing leaves them
+    unsorted. Requires certain format.
     """
     def sortkey(path):
         head, tail = os.path.split(path)
@@ -163,19 +172,10 @@ def parse_filename(filename):
     """Parse input filename formatted as 'num_name_hB_[12][ab]_*'."""
     # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
     m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
-    if m:
-        num, name, scan = m.groups()
-        num = int(num)
-        name = name.lower()
-        scan = scan.lower()
-        return num, name, scan
-    raise Exception('Cannot parse filename: {}'.format(filename))
-
-
-def parse_num_scan(filename):
-    """Like parse_filename() but return only num, scan."""
-    num, _, scan = parse_filename(filename)
-    return num, scan
+    if m is None:
+        raise Exception('Cannot parse filename: {}'.format(filename))
+    num, name, scan = m.groups()
+    return int(num), name.lower(), scan.lower()
 
 
 def scan_pairs(afs):
@@ -185,8 +185,8 @@ def scan_pairs(afs):
     baselines = dwi.util.pairs(afs)
     r = []
     for af1, af2 in zip(*baselines):
-        num1, scan1 = parse_num_scan(af1.basename)
-        num2, scan2 = parse_num_scan(af2.basename)
+        num1, _, scan1 = parse_filename(af1.basename)
+        num2, _, scan2 = parse_filename(af2.basename)
         if num1 != num2 or scan1[0] != scan2[0]:
             raise Exception('Not a pair: {}, {}'.format(af1.basename,
                                                         af2.basename))
@@ -202,24 +202,18 @@ def scan_in_patients(patients, num, scan):
 def load_files(patients, filenames, pairs=False):
     """Load pmap files. If pairs=True, require scan pairs together."""
     pmapfiles = []
-    if len(filenames) == 1:
-        # Workaround for platforms without shell-level globbing.
-        l = glob.glob(filenames[0])
-        if len(l) > 0:
-            filenames = l
     for f in filenames:
-        num, scan = parse_num_scan(os.path.basename(f))
+        num, _, scan = parse_filename(os.path.basename(f))
         if patients is None or scan_in_patients(patients, num, scan):
             pmapfiles.append(f)
     afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
     if pairs:
         scan_pairs(afs)
-    ids = [parse_num_scan(af.basename) for af in afs]
     pmaps = [af.a for af in afs]
     pmaps = np.array(pmaps)
     params = afs[0].params()
     assert pmaps.shape[-1] == len(params), 'Parameter name mismatch.'
-    return pmaps, ids, params
+    return pmaps, params
 
 
 def main():
@@ -229,8 +223,9 @@ def main():
     else:
         patients = None
 
-    paths = sort_pmapfiles(args.pmaps)  # XXX: Temporary kludge.
-    pmaps, _, params = load_files(patients, paths, pairs=True)
+    paths = glob_if_needed(args.pmaps)
+    paths = sort_pmapfiles(paths)  # XXX: Temporary kludge.
+    pmaps, params = load_files(patients, paths, pairs=True)
 
     # Select voxel to use.
     if args.voxel == 'mean':
