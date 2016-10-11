@@ -250,7 +250,7 @@ def hog(img):
     # TODO: transform_sqrt=True is here to replicate old behaviour
     # normalise=True, which was removed as incorrect in skimage 0.12. Should
     # this also be removed here? Docs warn against using with negative values.
-    kwargs = dict(orientations=8,
+    kwargs = dict(orientations=dwi.rcParams['texture.hog.orientations'],
                   pixels_per_cell=img.shape,
                   cells_per_block=(1, 1),
                   transform_sqrt=False)
