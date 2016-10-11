@@ -3,6 +3,8 @@
 Use read_ascii_file() and write_ascii_file() to read and write.
 """
 
+# NOTE: Obsolete, don't use for new code.
+
 from __future__ import absolute_import, division, print_function
 import os
 import re
@@ -28,18 +30,18 @@ class AsciiFile(object):
     def __str__(self):
         return '{}\n{}\n{}'.format(self.filename, self.d, self.a.shape)
 
-    def subwindow(self):
-        a = re.findall(r'\d+', self.d.get('subwindow', ''))
-        if not a:
-            a = dwi.util.fabricate_subwindow(len(self.a))
-        return tuple(int(x) for x in a)
+    # def subwindow(self):
+    #     a = re.findall(r'\d+', self.d.get('subwindow', ''))
+    #     if not a:
+    #         a = dwi.util.fabricate_subwindow(len(self.a))
+    #     return tuple(int(x) for x in a)
 
-    def bset(self):
-        """Return the b-value set. Fabricate if not present."""
-        a = re.findall(r'[\d.]+', self.d.get('bset', ''))
-        if not a:
-            a = range(len(self.a[0]))
-        return tuple(float(x) for x in a)
+    # def bset(self):
+    #     """Return the b-value set. Fabricate if not present."""
+    #     a = re.findall(r'[\d.]+', self.d.get('bset', ''))
+    #     if not a:
+    #         a = range(len(self.a[0]))
+    #     return tuple(float(x) for x in a)
 
     def params(self):
         r = range(self.a.shape[1])
