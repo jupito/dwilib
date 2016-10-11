@@ -6,6 +6,7 @@ analysis. Input consists of pmap scan pairs grouped together."""
 from __future__ import absolute_import, division, print_function
 import argparse
 import numpy as np
+import os
 
 import dwi.files
 import dwi.patient
@@ -142,13 +143,27 @@ def plot(values, param, figdir):
             plt.axis('tight')
 
 
+def sort_pmapfiles(paths):
+    """Kludge to sort input files for Windows without shell doing it. Requires
+    certain format.
+    """
+    def sortkey(path):
+        head, tail = os.path.split(path)
+        root, ext = os.path.splitext(tail)
+        c, s, l = root.split('_')
+        return head, c, l, s
+    return sorted(paths, key=sortkey)
+
+
 def main():
     args = parse_args()
     if args.patients:
         patients = dwi.files.read_patients_file(args.patients)
     else:
         patients = None
-    pmaps, _, params = dwi.patient.load_files(patients, args.pmaps, pairs=True)
+
+    paths = sort_pmapfiles(args.pmaps)  # XXX: Temporary kludge.
+    pmaps, _, params = dwi.patient.load_files(patients, paths, pairs=True)
 
     # Select voxel to use.
     if args.voxel == 'mean':
