@@ -6,7 +6,6 @@ from itertools import product
 import logging
 
 import numpy as np
-import scipy as sp
 import skimage.feature
 import skimage.filters
 import skimage.measure
