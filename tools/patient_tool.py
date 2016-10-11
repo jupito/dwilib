@@ -29,15 +29,6 @@ def parse_args():
     return args
 
 
-def get_gleason_scores(patients):
-    """Get all separate Gleason scores, sorted."""
-    # return sorted({p.score for p in patients})
-    scores = set()
-    for p in patients:
-        scores.update(l.score for l in p.lesions)
-    return sorted(scores)
-
-
 def label_patients(patients, group_sizes):
     """Label patients according to their lesion labels.
 
@@ -73,7 +64,8 @@ def random_split(seq, ratio=0.5, surplus=0):
 def main():
     args = parse_args()
     patients = dwi.files.read_patients_file(args.patients, include_lines=True)
-    scores = get_gleason_scores(patients)
+    # Get all separate Gleason scores.
+    scores = sorted({l.score for p in patients for l in p.lesions})
     thresholds = args.thresholds or scores
     dwi.patient.label_lesions(patients, thresholds)
 
