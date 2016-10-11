@@ -233,9 +233,7 @@ def gabor_map(img, winsize, mask=None, output=None):
         featmaps = gabor_featmap(real, imag, winsize, mask)
         for featmap, name in zip(featmaps, featnames):
             tmaps.append(featmap)
-            # s = 'gabor{}'.format((sigma_x, sigma_y, freq,
-            #                       name)).translate(None, " '")
-            s = 'gabor{}'.format((freq, name)).translate(None, " '")
+            s = 'gabor{}'.format((sigma, freq, name)).translate(None, " '")
             outnames.append(s)
     output = np.array(tmaps)
     return output, outnames
