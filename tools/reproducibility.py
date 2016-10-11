@@ -135,6 +135,10 @@ def plot(values, param, figdir):
             bottom = np.min(pairs, axis=1)
             height = np.max(pairs, axis=1) - bottom
             plt.bar(left, height, bottom=bottom, color='lightgray')
+            # bottom = range(n)
+            # left = np.min(pairs, axis=1)
+            # width = np.max(pairs, axis=1) - left
+            # plt.barh(bottom, width, left=left, color='lightgray')
             plt.axis('tight')
 
 
