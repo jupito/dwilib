@@ -7,7 +7,6 @@ import argparse
 
 import numpy as np
 
-import dwi.dwimage
 import dwi.files
 import dwi.mask
 import dwi.models
