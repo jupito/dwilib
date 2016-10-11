@@ -61,9 +61,9 @@ class GleasonScore(object):
 class Lesion(object):
     """Lesion is a lump of cancer tissue."""
     def __init__(self, index, score, location):
-        self.index = index  # No. in patient.
-        self.score = score  # Gleason score.
-        self.location = location  # PZ or CZ.
+        self.index = int(index)  # No. in patient.
+        self.score = GleasonScore(score)  # Gleason score.
+        self.location = str(location).lower()  # PZ or CZ.
 
     def __repr__(self):
         return repr((self.index, self.score, self.location))
