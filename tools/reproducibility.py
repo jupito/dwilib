@@ -4,12 +4,12 @@
 analysis. Input consists of pmap scan pairs grouped together.
 """
 
-# TODO: Cleaner output.
-
 from __future__ import absolute_import, division, print_function
 import argparse
+import glob
+import os.path
+
 import numpy as np
-import os
 
 import dwi.files
 import dwi.patient
@@ -158,6 +158,34 @@ def sort_pmapfiles(paths):
     return sorted(paths, key=sortkey)
 
 
+def scan_in_patients(patients, num, scan):
+    """Is this scan listed in the patients sequence?"""
+    return any(num == p.num and scan in p.scans for p in patients)
+
+
+def load_files(patients, filenames, pairs=False):
+    """Load pmap files. If pairs=True, require scan pairs together."""
+    pmapfiles = []
+    if len(filenames) == 1:
+        # Workaround for platforms without shell-level globbing.
+        l = glob.glob(filenames[0])
+        if len(l) > 0:
+            filenames = l
+    for f in filenames:
+        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
+        if patients is None or scan_in_patients(patients, num, scan):
+            pmapfiles.append(f)
+    afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
+    if pairs:
+        dwi.util.scan_pairs(afs)
+    ids = [dwi.util.parse_num_scan(af.basename) for af in afs]
+    pmaps = [af.a for af in afs]
+    pmaps = np.array(pmaps)
+    params = afs[0].params()
+    assert pmaps.shape[-1] == len(params), 'Parameter name mismatch.'
+    return pmaps, ids, params
+
+
 def main():
     args = parse_args()
     if args.patients:
@@ -166,7 +194,7 @@ def main():
         patients = None
 
     paths = sort_pmapfiles(args.pmaps)  # XXX: Temporary kludge.
-    pmaps, _, params = dwi.patient.load_files(patients, paths, pairs=True)
+    pmaps, _, params = load_files(patients, paths, pairs=True)
 
     # Select voxel to use.
     if args.voxel == 'mean':

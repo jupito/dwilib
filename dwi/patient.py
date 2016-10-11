@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
-import glob
-import os.path
 
 import numpy as np
 
@@ -107,34 +105,6 @@ def label_lesions(patients, thresholds=None):
     lesions = (l for p in patients for l in p.lesions)
     for l in lesions:
         l.label = sum(l.score > x for x in thresholds)
-
-
-def scan_in_patients(patients, num, scan):
-    """Is this scan listed in the patients sequence?"""
-    return any(num == p.num and scan in p.scans for p in patients)
-
-
-def load_files(patients, filenames, pairs=False):
-    """Load pmap files. If pairs=True, require scan pairs together."""
-    pmapfiles = []
-    if len(filenames) == 1:
-        # Workaround for platforms without shell-level globbing.
-        l = glob.glob(filenames[0])
-        if len(l) > 0:
-            filenames = l
-    for f in filenames:
-        num, scan = dwi.util.parse_num_scan(os.path.basename(f))
-        if patients is None or scan_in_patients(patients, num, scan):
-            pmapfiles.append(f)
-    afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
-    if pairs:
-        dwi.util.scan_pairs(afs)
-    ids = [dwi.util.parse_num_scan(af.basename) for af in afs]
-    pmaps = [af.a for af in afs]
-    pmaps = np.array(pmaps)
-    params = afs[0].params()
-    assert pmaps.shape[-1] == len(params), 'Parameter name mismatch.'
-    return pmaps, ids, params
 
 
 def cases_scans(patients, cases=None, scans=None):
