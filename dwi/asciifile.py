@@ -34,17 +34,6 @@ class AsciiFile(object):
             a = dwi.util.fabricate_subwindow(len(self.a))
         return tuple(int(x) for x in a)
 
-    def subwinsize(self):
-        # NOTE: Obsolete.
-        a = self.subwindow()
-        r = []
-        for i in range(len(a)//2):
-            r.append(a[i*2+1] - a[i*2])
-        return tuple(r)
-
-    def subwindow_shape(self):
-        return dwi.util.subwindow_shape(self.subwindow())
-
     def bset(self):
         """Return the b-value set. Fabricate if not present."""
         a = re.findall(r'[\d.]+', self.d.get('bset', ''))
