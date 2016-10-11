@@ -58,19 +58,6 @@ def valid_lines(filename):
                 yield line
 
 
-def read_subwindows(filename):
-    """Read a list of subwindows from file, return in a dictionary."""
-    r = {}
-    for line in valid_lines(filename):
-        words = line.split()
-        if len(words) != 8:
-            raise Exception('Cannot parse subwindow: %s' % line)
-        case, scan = int(words[0]), words[1]
-        subwindow = [int(x) for x in words[2:]]
-        r[(case, scan)] = subwindow
-    return r
-
-
 def read_patients_file(filename, include_lines=False):
     """Load a list of patients.
 
@@ -123,17 +110,6 @@ def read_sample_list(filename):
             d = dict(case=case, name=name, scans=scans)
             entries.append(d)
     return entries
-
-
-def read_mask_file(filename):
-    """Read a ROI mask file. XXX: Deprecated, use dwi.mask module instead."""
-    arrays = []
-    for line in valid_lines(filename):
-        if line[0] == '0' or line[0] == '1':
-            a = np.array(list(line), dtype=int)
-            arrays.append(a)
-    mask = np.array(arrays)
-    return mask
 
 
 def read_subregion_file(filename):
