@@ -42,7 +42,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
     With parameter "ondisk" True it will not be read into memory."""
     try:
         f = h5py.File(filename, 'r')
-    except IOError, e:
+    except IOError as e:
         if e.filename is None:
             e.filename = filename
         raise
