@@ -219,6 +219,7 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)
     else:
+        # No extension, assume it's a DICOM directory.
         d = dwi.dicomfile.read_dir(pathname)
         pmap = d.pop('image')
         attrs = dict(d)
@@ -244,12 +245,11 @@ def read_mask(path, expected_voxel_spacing=None, n_dec=3, container=None,
     mask, attrs = read_pmap(path)
     mask = mask[..., 0].astype(np.bool)
     if expected_voxel_spacing is not None:
-        voxel_spacing = [round(x, n_dec) for x in attrs['voxel_spacing']]
-        expected_voxel_spacing = [round(x, n_dec) for x in
-                                  expected_voxel_spacing]
-        if voxel_spacing != expected_voxel_spacing:
-            raise ValueError('Expected voxel spacing {}, got {}'.format(
-                expected_voxel_spacing, voxel_spacing))
+        vs = [round(x, n_dec) for x in attrs['voxel_spacing']]
+        evs = [round(x, n_dec) for x in expected_voxel_spacing]
+        if vs != evs:
+            s = '{}: Expected voxel spacing {}, got {}'
+            raise ValueError(s.format(path, evs, vs))
     if container is not None:
         portion_outside_container = (np.count_nonzero(mask[~container]) /
                                      np.count_nonzero(mask))
