@@ -2,8 +2,8 @@
 
 from __future__ import absolute_import, division, print_function
 from collections import defaultdict
-from itertools import chain, product
-from os.path import dirname, isdir
+from itertools import product
+from os.path import dirname
 
 from doit import get_var
 # from doit.tools import check_timestamp_unchanged
@@ -119,20 +119,6 @@ def lesions(mode, samplelist):
         for scan in p.scans:
             for i, _ in enumerate(p.lesions):
                 yield p.num, scan, i+1
-
-
-# def path_deps(*paths):
-#     """Return list of path dependencies, i.e. the file(s) itself or the
-#     directory contents.
-#     """
-#     # paths = [dwi.util.sglob(x) for x in paths]  # First make sure all exist.
-#     for i, path in enumerate(paths):
-#         if '*' in path or ('[' in path and ']' in path):
-#             paths[i] = dwi.util.sglob(path)
-#     # paths = list(chain(f for p in paths for f in dwi.util.walker(p)))
-#     paths = [x for x in paths if not isdir(x)]  # Don't depend on (DICOM) dirs.
-#     assert paths, 'Empty path dependency list'
-#     return paths
 
 
 #
