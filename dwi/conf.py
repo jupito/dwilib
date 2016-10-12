@@ -22,8 +22,8 @@ rcParamsDefault = {
         'sobel',
         'stats_all',
         ],
-    'texture.winsizes.large': range(3, 36, 4),  # T2, T2w.
-    'texture.winsizes.small': range(3, 16, 2),  # DWI.
+    'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
+    'texture.winsizes.small': (3, 16, 2),  # DWI.
     'texture.avg': False,  # Boolean: average result texture map?
     'texture.path': None,  # Write result directly to disk, if string.
     'texture.dtype': 'float32',  # Output texture map type.

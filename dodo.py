@@ -60,9 +60,9 @@ def texture_winsizes(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode[0] in ('T2', 'T2w'):
-        return dwi.rcParams['texture.winsizes.large']
+        return range(*dwi.rcParams['texture.winsizes.large'])
     else:
-        return dwi.rcParams['texture.winsizes.small']
+        return range(*dwi.rcParams['texture.winsizes.small'])
 
 
 def texture_methods_winsizes(mode, masktype):
