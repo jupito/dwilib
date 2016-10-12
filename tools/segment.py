@@ -7,7 +7,7 @@ import argparse
 import logging
 
 import numpy as np
-import scipy.ndimage
+from scipy import ndimage
 import skimage.segmentation
 import sklearn.preprocessing
 
@@ -38,7 +38,7 @@ def parse_args():
 
 def scale_mask(mask, factor):
     mask = mask.astype(np.float_)
-    mask = scipy.ndimage.interpolation.zoom(mask, factor, order=0)
+    mask = ndimage.interpolation.zoom(mask, factor, order=0)
     mask = dwi.util.asbool(mask)
     return mask
 
@@ -155,7 +155,7 @@ def main():
 
     # Downsample.
     factor = (1, 0.5, 0.5)
-    img = scipy.ndimage.interpolation.zoom(img, factor + (1,), order=0)
+    img = ndimage.interpolation.zoom(img, factor + (1,), order=0)
     spacing = [s/f for s, f in zip(spacing, factor)]
     mask = scale_mask(mask, factor)
 
