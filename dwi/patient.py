@@ -111,15 +111,6 @@ def label_lesions(patients, thresholds=None):
         l.label = sum(l.score > x for x in thresholds)
 
 
-def cases_scans(patients, cases=None, scans=None):
-    """Generate all case, scan combinations, with optional whitelists."""
-    for p in patients:
-        if cases is None or p.num in cases:
-            for s in p.scans:
-                if scans is None or s in scans:
-                    yield p.num, s
-
-
 def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
     if isinstance(patients, basestring):
