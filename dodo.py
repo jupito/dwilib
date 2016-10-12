@@ -1,5 +1,7 @@
 """PyDoIt file for automating tasks."""
 
+# TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
+
 from __future__ import absolute_import, division, print_function
 from collections import defaultdict
 from itertools import product
