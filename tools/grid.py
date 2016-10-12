@@ -10,9 +10,8 @@ from itertools import product
 import os.path
 
 import numpy as np
-import scipy as sp
-import scipy.ndimage
-import scipy.stats
+from scipy import ndimage
+# from scipy import stats
 
 import dwi.files
 import dwi.texture
@@ -64,7 +63,7 @@ def rescale(img, src_voxel_spacing, dst_voxel_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
     factor = tuple(s/d for s, d in zip(src_voxel_spacing, dst_voxel_spacing))
     print('Scaling, factor:', factor)
-    output = scipy.ndimage.interpolation.zoom(img, factor, order=0)
+    output = ndimage.interpolation.zoom(img, factor, order=0)
     return output
 
 
@@ -112,7 +111,7 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
         np.count_nonzero(lesion) / prostate.size,
         lt,
         value,
-    )
+        )
 
 
 # def print_correlations(data, params):
@@ -122,7 +121,7 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
 #     indices = range(data.shape[-1])
 #     for i, j in product(indices, indices):
 #         if i < j:
-#             rho, pvalue = scipy.stats.spearmanr(data[:, i], data[:, j])
+#             rho, pvalue = stats.spearmanr(data[:, i], data[:, j])
 #             s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
 #             print(s.format(params[i], params[j], rho, pvalue))
 
@@ -181,7 +180,7 @@ def average_image(image):
     print(np.isfinite(image).size)
     for p in range(image.shape[-1]):
         for i in range(image.shape[0]):
-            image[i, :, :, p] = sp.ndimage.filters.median_filter(
+            image[i, :, :, p] = ndimage.filters.median_filter(
                     image[i, :, :, p], size=(3, 3), mode='nearest')
     print(np.isfinite(image).size)
 

@@ -9,9 +9,7 @@ import os
 import random
 
 import numpy as np
-import scipy as sp
-import scipy.stats
-import scipy.spatial
+from scipy import stats, spatial
 import skimage.exposure
 import sklearn.metrics
 import sklearn.preprocessing
@@ -318,7 +316,7 @@ def compare_aucs(aucs1, aucs2):
     aucs2 = np.asarray(aucs2)
     D = aucs1 - aucs2
     z = np.mean(D) / np.std(D)
-    p = 1.0 - sp.stats.norm.cdf(abs(z))
+    p = 1.0 - stats.norm.cdf(abs(z))
     return np.mean(D), z, p
 
 
@@ -335,7 +333,7 @@ def ci(x, p=0.05):
 
 def distance(a, b):
     """Return the Euclidean distance of two vectors."""
-    return sp.spatial.distance.euclidean(a, b)
+    return spatial.distance.euclidean(a, b)
 
 
 def normalize_si_curve(si):
