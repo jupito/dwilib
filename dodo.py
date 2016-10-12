@@ -58,9 +58,9 @@ def texture_winsizes(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode[0] in ('T2', 'T2w'):
-        return xrange(3, 36, 4)
+        return range(3, 36, 4)
     else:
-        return xrange(3, 16, 2)
+        return range(3, 16, 2)
 
 
 def texture_methods_winsizes(mode, masktype):
@@ -81,8 +81,8 @@ def find_roi_param_combinations(mode):
     find_roi_params = [
         [1, 2, 3],  # ROI depth min
         [1, 2, 3],  # ROI depth max
-        xrange(2, 13),  # ROI side min (3 was not good)
-        xrange(3, 13),  # ROI side max
+        range(2, 13),  # ROI side min (3 was not good)
+        range(3, 13),  # ROI side max
         range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
         ]
     if mode[0] == 'DWI':
