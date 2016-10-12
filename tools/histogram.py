@@ -9,7 +9,7 @@ import logging
 
 import numpy as np
 import pylab as pl
-import scipy.interpolate
+from scipy import interpolate
 
 import dwi.files
 import dwi.util
@@ -53,7 +53,7 @@ def histogram(a, m1=None, m2=None, inclusive=True, bins='doane'):
 def smoothen(x, y):
     """Smoothen histogram."""
     x_smooth = np.linspace(min(x), max(x), 300)
-    y_smooth = scipy.interpolate.spline(x, y, x_smooth)
+    y_smooth = interpolate.spline(x, y, x_smooth)
     y_smooth[y_smooth < 0] = 0  # Don't let it dive negative.
     return x_smooth, y_smooth
 
@@ -91,6 +91,7 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
 
 
 def main():
+    """Main."""
     args = parse_args()
     logging.basicConfig(level=logging.INFO)
 
@@ -103,7 +104,7 @@ def main():
         img = img[dwi.util.bbox(img)]
         img = img[np.isfinite(img)]
         if np.any(img < 0):
-            negatives = img[img < 0]
+            # negatives = img[img < 0]
             logging.warning('Image contains negatives: %s', path)
         if args.verbose:
             s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
