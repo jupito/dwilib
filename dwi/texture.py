@@ -25,13 +25,6 @@ import dwi.texture_mahotas
 import dwi.texture_skimage
 
 
-def abbrev(name):
-    """Abbreviate multiword feature name."""
-    if ' ' in name:
-        name = ''.join(word[0] for word in name.split())
-    return name
-
-
 # Basic statistical features
 
 

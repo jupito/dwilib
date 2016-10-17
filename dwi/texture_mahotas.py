@@ -4,11 +4,18 @@ from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 
 import numpy as np
-import scipy as sp
+from scipy import ndimage
 import mahotas
 
 import dwi.texture
 import dwi.util
+
+
+def abbrev(name):
+    """Abbreviate multiword feature name."""
+    if ' ' in name:
+        name = ''.join(word[0] for word in name.split())
+    return name
 
 
 # Zernike moments.
@@ -58,7 +65,7 @@ def haar(img):
     h, w = [x//2 for x in a.shape]
     coeffs = [a[:h, :w], a[:h, w:],
               a[h:, :w], a[h:, w:]]
-    coeffs = [sp.ndimage.interpolation.zoom(l, 2.) for l in coeffs]
+    coeffs = [ndimage.interpolation.zoom(l, 2.) for l in coeffs]
     return coeffs
 
 
@@ -137,7 +144,7 @@ def haralick_map(img, winsize, mask=None, output=None, ignore_zeros=False):
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
-    names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.texture.abbrev(n))
+    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n))
              for i, n in enumerate(names)]
     return output, names
 
@@ -150,6 +157,6 @@ def haralick_mbb(img, mask):
     mask = mask[slices]
     img[-mask] = 0
     feats, names = haralick(img, ignore_zeros=True)
-    names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.texture.abbrev(n))
+    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n))
              for i, n in enumerate(names)]
     return feats, names
