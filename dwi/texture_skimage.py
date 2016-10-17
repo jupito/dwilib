@@ -146,22 +146,6 @@ def gabor(img):
     return d
 
 
-def gabor_map_old(img, winsize, mask=None, output=None):
-    """Gabor texture feature map."""
-    for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
-        feats = gabor(win)
-        if output is None:
-            dtype = dwi.rcParams['texture.dtype']
-            output = np.zeros((len(feats),) + img.shape, dtype=dtype)
-        for i, v in enumerate(feats.values()):
-            output[(i,) + pos] = v
-    names = ['gaborold{}'.format(t).translate(None, " '") for t in
-             feats.keys()]
-    # fin = np.isfinite(output)
-    # output[-fin] = 0  # Make non-finites zero.
-    return output, names
-
-
 def gabor_featmap(real, imag, winsize, mask):
     """Get Gabor feature map of shape (feats, height, width) from the filtered
     image.

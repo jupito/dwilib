@@ -88,7 +88,6 @@ METHODS = OrderedDict([
     ('lbp', dwi.texture_skimage.lbp_freq_map),
     ('hog', dwi.texture_skimage.hog_map),
     ('gabor', dwi.texture_skimage.gabor_map),
-    ('gaborold', dwi.texture_skimage.gabor_map_old),
     ('haar', dwi.texture_mahotas.haar_map),
     ('hu', dwi.texture_skimage.hu_map),
     ('zernike', dwi.texture_mahotas.zernike_map),
