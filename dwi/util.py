@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 import glob
-from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice
 import os
 
@@ -180,13 +179,6 @@ def fivenum(a):
     quartile 3, maximum), while ignoring nan values.
     """
     return tuple(np.nanpercentile(a, (0, 25, 50, 75, 100)))
-
-
-def fivenumd(a):
-    """Return the Tukey five-number summary (minimum, quartile 1, median,
-    quartile 3, maximum) as an ordered dictionary, while ignoring nan values.
-    """
-    return OrderedDict(zip('min q1 median q3 max'.split(), fivenum(a)))
 
 
 def fivenums(a):
