@@ -86,7 +86,7 @@ def main():
 
     if args.mask is None:
         mask = np.zeros_like(img, dtype=np.bool)
-        mbb = dwi.util.bbox(img, pad=30)
+        mbb = dwi.util.bbox(img, pad=0)
         logging.info('MBB mask: %s', mbb)
         mask[mbb] = True
         mask = dwi.mask.Mask3D(mask)
