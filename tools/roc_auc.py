@@ -9,6 +9,7 @@ import numpy as np
 
 import dwi.patient
 import dwi.plot
+import dwi.stats
 import dwi.util
 
 
@@ -105,9 +106,9 @@ def main():
         d['auc'] = auc
         if args.nboot:
             # Note: x may now be negated (ROC flipped).
-            auc_bs = dwi.util.bootstrap_aucs(y, x, args.nboot)
+            auc_bs = dwi.stats.bootstrap_aucs(y, x, args.nboot)
             avg = np.mean(auc_bs)
-            ci1, ci2 = dwi.util.ci(auc_bs)
+            ci1, ci2 = dwi.stats.conf_int(auc_bs)
             d.update(avg=avg, ci1=ci1, ci2=ci2)
             Auc_bs.append(auc_bs)
             s += '  {avg:.3f}  {ci1:.3f}  {ci2:.3f}'
@@ -123,7 +124,7 @@ def main():
                 if i == j or (i, j) in done or (j, i) in done:
                     continue
                 done.append((i, j))
-                d, z, p = dwi.util.compare_aucs(Auc_bs[i], Auc_bs[j])
+                d, z, p = dwi.stats.compare_aucs(Auc_bs[i], Auc_bs[j])
                 s = '{pi:{l}}  {pj:{l}}  {d:+.4f}  {z:+.4f}  {p:.4f}'
                 print(s.format(pi=param_i, pj=param_j, d=d, z=z, p=p,
                                l=params_maxlen))

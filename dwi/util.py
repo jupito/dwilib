@@ -6,10 +6,9 @@ import glob
 from collections import defaultdict, OrderedDict
 from itertools import ifilter, islice
 import os
-import random
 
 import numpy as np
-from scipy import stats, spatial
+from scipy import spatial
 import skimage.exposure
 import sklearn.metrics
 import sklearn.preprocessing
@@ -178,34 +177,6 @@ def bbox(array, pad=0):
     return tuple(slice(a, b) for a, b in bounding_box(array, pad=pad))
 
 
-def resample_bootstrap_single(a):
-    """Get a bootstrap resampled group for single array."""
-    indices = [random.randint(0, len(a)-1) for _ in a]
-    return a[indices]
-
-
-def resample_bootstrap(Y, X):
-    """Get a bootstrap resampled group without stratification."""
-    indices = [random.randint(0, len(Y)-1) for _ in Y]
-    return Y[indices], X[indices]
-
-
-def resample_bootstrap_stratified(Y, X):
-    """Get a bootstrap resampled group with stratification.
-
-    Note that as a side-effect the resulting Y array will be sorted, but that
-    doesn't matter because X will be randomized accordingly.
-    """
-    uniques = np.unique(Y)
-    indices = []
-    for u in uniques:
-        l = get_indices(Y, u)
-        l_rnd = [l[random.randint(0, len(l)-1)] for _ in l]
-        for v in l_rnd:
-            indices.append(v)
-    return Y[indices], X[indices]
-
-
 def fivenum(a):
     """Return the Tukey five-number summary (minimum, quartile 1, median,
     quartile 3, maximum), while ignoring nan values.
@@ -226,22 +197,6 @@ def fivenums(a):
                                                              f='.4g')
 
 
-def stem_and_leaf(values):
-    """A quick and dirty text mode stem-and-leaf diagram for non-negative real
-    values. Uses integer part as stem and first decimal as leaf.
-    """
-    stems = defaultdict(list)
-    for v in sorted(values):
-        stem = int(v)
-        leaf = int((v-stem) * 10)
-        stems[stem].append(leaf)
-    lines = []
-    for i in range(min(stems), max(stems)+1):
-        leaves = ''.join(str(x) for x in stems[i])
-        lines.append('{i:2}|{l}'.format(i=i, l=leaves))
-    return lines
-
-
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
     """Calculate ROC and AUC from data points and their classifications.
 
@@ -257,39 +212,6 @@ def calculate_roc_auc(y, x, autoflip=False, scale=True):
     if autoflip and auc < 0.5:
         fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False, scale=False)
     return fpr, tpr, auc
-
-
-def bootstrap_aucs(y, x, n=2000):
-    """Produce an array of bootstrapped ROC AUCs."""
-    aucs = np.zeros(n)
-    for i in range(n):
-        yb, xb = resample_bootstrap_stratified(y, x)
-        _, _, auc = calculate_roc_auc(yb, xb)
-        aucs[i] = auc
-    return aucs
-
-
-def compare_aucs(aucs1, aucs2):
-    """Compare two arrays of (bootstrapped) ROC AUC values, with the method
-    described in pROC software.
-    """
-    aucs1 = np.asarray(aucs1)
-    aucs2 = np.asarray(aucs2)
-    D = aucs1 - aucs2
-    z = np.mean(D) / np.std(D)
-    p = 1.0 - stats.norm.cdf(abs(z))
-    return np.mean(D), z, p
-
-
-def ci(x, p=0.05):
-    """Confidence interval of a normally distributed array."""
-    x = sorted(x)
-    l = len(x)
-    i1 = int(round((p/2) * l + 0.5))
-    i2 = int(round((1-p/2) * l - 0.5))
-    ci1 = x[i1]
-    ci2 = x[i2]
-    return ci1, ci2
 
 
 def distance(a, b):
@@ -388,13 +310,6 @@ def centroid(img):
         c = np.nansum([i*x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
     return tuple(centers)
-
-
-def rmse(a, b):
-    """Root mean square error."""
-    a = np.asarray(a)
-    b = np.asarray(b)
-    return np.sqrt(np.mean((a - b)**2))
 
 
 def mapped(shape, dtype, filler=None):
