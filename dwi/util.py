@@ -82,32 +82,6 @@ def all_equal(a):
     return np.nanmin(a) == np.nanmax(a)
 
 
-def make2d(size, height=None):
-    """Turn 1d size into 2d shape by growing the height until it fits."""
-    if height:
-        assert height <= size
-        width = size // height
-        if height * width == size:
-            return height, width
-        else:
-            return make2d(size, height+1)
-    else:
-        return make2d(size, int(np.sqrt(size)))
-
-
-def fabricate_subwindow(size, height=None):
-    """Fabricate a subwindow specification."""
-    height, width = make2d(size, height=height)
-    return 0, height, 0, width
-
-
-def chunks(seq, n):
-    """Return sequence as chunks of n elements."""
-    if len(seq) % n:
-        raise Exception('Sequence length not divisible.')
-    return (seq[i:i+n] for i in xrange(0, len(seq), n))
-
-
 def pairs(seq):
     """Return sequence split in two, each containing every second item."""
     if len(seq) % 2:
@@ -147,11 +121,6 @@ def select_subwindow(image, subwindow, onebased=False):
     copy = image.copy()
     copy[-mask] = np.nan
     return copy
-
-
-def subwindow_shape(subwindow):
-    """Return subwindow shape."""
-    return tuple(b-a for a, b in chunks(subwindow, 2))
 
 
 def sliding_window(a, winshape, mask=None):
@@ -273,14 +242,6 @@ def stem_and_leaf(values):
     return lines
 
 
-def tilde(a):
-    """Logical 'not' operator for NumPy objects that behaves like MATLAB
-    tilde.
-    """
-    typ = a.dtype
-    return (~a.astype(np.bool)).astype(typ)
-
-
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
     """Calculate ROC and AUC from data points and their classifications.
 
@@ -371,76 +332,6 @@ def scale(a):
     a = np.asanyarray(a)
     mn, mx = np.nanmin(a), np.nanmax(a)
     return (a-mn) / (mx-mn)
-
-
-def clip_outliers(a, min_pc=0, max_pc=99.8, out=None):
-    """Clip percentile outliers, while ignoring nan values."""
-    a = np.asanyarray(a)
-    min_score = np.nanpercentile(a, min_pc)
-    max_score = np.nanpercentile(a, max_pc)
-    return a.clip(min_score, max_score, out=out)
-
-
-def add_dummy_feature(X):
-    """Add an extra dummy feature to an array of samples."""
-    r = np.ones((X.shape[0], X.shape[1]+1), dtype=X.dtype)
-    r[:, :-1] = X
-    return r
-
-
-def split_roi(pmaps):
-    """Split samples to ROI1 and 2."""
-    l = pmaps.shape[1]
-    if l > 1:
-        pmaps1 = pmaps[:, :l//2, :]
-        pmaps2 = pmaps[:, l//2:, :]
-    else:
-        pmaps1 = pmaps
-        pmaps2 = []
-    return pmaps1, pmaps2
-
-
-def select_measurements(pmaps, numsscans, meas):
-    """Select measurement baselines to use."""
-    if meas == 'all':
-        r = pmaps, numsscans
-    elif meas == 'mean':
-        r = baseline_mean(pmaps, numsscans)
-    elif meas == 'a':
-        r = pmaps[0::2], numsscans[0::2]
-    elif meas == 'b':
-        r = pmaps[1::2], numsscans[1::2]
-    else:
-        raise Exception('Invalid measurement identifier: %s' % meas)
-    return r
-
-
-def baseline_mean(pmaps, numsscans):
-    """Take means of each pair of pmaps."""
-    baselines = np.array(pairs(pmaps))
-    pmaps = np.mean(baselines, axis=0)
-    numsscans = pairs(numsscans)[0]
-    return pmaps, numsscans
-
-
-def get_group_id(groups, value):
-    """Get group id of a single value."""
-    for i, group in enumerate(groups):
-        if value in group:
-            return i
-    return len(groups)
-
-
-def group_labels(groups, values):
-    """Replace labels with group id's.
-
-    Parameter groups is a sequence of sequences that indicate labels belonging
-    to each group. Default group will be len(groups).
-    """
-    group_ids = []
-    for value in values:
-        group_ids.append(get_group_id(groups, value))
-    return group_ids
 
 
 def take(n, iterable):
