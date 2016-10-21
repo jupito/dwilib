@@ -7,6 +7,7 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 from itertools import product
+import logging
 import os.path
 
 import numpy as np
@@ -44,6 +45,25 @@ def parse_args():
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output ASCII file')
     return p.parse_args()
+
+
+def get_lesiontype_array(lesiontypes, lesions):
+    """Create lesiontype array. It contains -1 or 1 depending on lesion type,
+    or zero where no lesion.
+    """
+    lesiontype = np.zeros_like(lesions[0], dtype=np.int8)
+    if lesiontypes is not None:
+        logging.info('Lesion types: %s', lesiontypes)
+        for lt, l in zip(lesiontypes, lesions):
+            if lt.lower() == 'cz':
+                lesiontype[l] = -1
+            elif lt.lower() == 'pz':
+                lesiontype[l] = 1
+            else:
+                raise ValueError('Invalid lesiontype: {}'.format(lt))
+    logging.info([lesiontype.mean(), np.count_nonzero(lesiontype == 1),
+                  np.count_nonzero(lesiontype == -1)])
+    return lesiontype
 
 
 def get_mbb(mask, spacing, pad):
@@ -194,6 +214,9 @@ def indexed_path(path, i):
 def main():
     """Main."""
     args = parse_args()
+    loglevel = logging.INFO if args.verbose else logging.WARNING
+    logging.basicConfig(level=loglevel)
+
     image, attrs = dwi.files.read_pmap(args.image, ondisk=True)
     if args.param is not None:
         image = image[..., args.param]
@@ -209,24 +232,12 @@ def main():
     lesion = dwi.util.unify_masks(lesions)
 
     if args.verbose:
-        print('Lesions:', len(args.lesions))
+        logging.info('Lesions: %i', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
     if args.voxelspacing is not None:
         spacing = args.voxelspacing
 
-    # Create lesiontype array.
-    lesiontype = np.zeros_like(lesion, dtype=np.int8)
-    if args.lesiontypes is not None:
-        print('Lesion types:', args.lesiontypes)
-        for lt, l in zip(args.lesiontypes, lesions):
-            if lt.lower() == 'cz':
-                lesiontype[l] = -1
-            elif lt.lower() == 'pz':
-                lesiontype[l] = 1
-            else:
-                raise ValueError('Invalid lesiontype: {}'.format(lt))
-    print(lesiontype.mean(), np.count_nonzero(lesiontype == 1),
-          np.count_nonzero(lesiontype == -1))
+    lesiontype = get_lesiontype_array(args.lesiontypes, lesions)
 
     if args.verbose:
         physical_size = tuple(x*y for x, y in zip(image.shape[:3], spacing))
