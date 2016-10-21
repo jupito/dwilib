@@ -23,7 +23,7 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--input', required=True,
                    help='input image')
-    p.add_argument('--mask', required=True,
+    p.add_argument('--mask',
                    help='mask file to use')
     p.add_argument('--mode', metavar='MODE', required=True,
                    help='imaging mode specification')
@@ -84,7 +84,13 @@ def main():
     img = img[..., 0]
     assert img.ndim == 3
 
-    if args.mask is not None:
+    if args.mask is None:
+        mask = np.zeros_like(img, dtype=np.bool)
+        mbb = dwi.util.bbox(img, pad=30)
+        logging.info('MBB mask: %s', mbb)
+        mask[mbb] = True
+        mask = dwi.mask.Mask3D(mask)
+    else:
         logging.info('Using mask: %s', args.mask)
         mask = dwi.mask.read_mask(args.mask)
         if isinstance(mask, dwi.mask.Mask):
