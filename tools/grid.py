@@ -147,7 +147,7 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
 
 
 def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
-            metric_winshape, verbose, stat):
+            metric_winshape, stat, centroid=None, verbose=0):
     """Process one parameter."""
     # Rescale image and masks.
     if voxelsize is not None:
@@ -172,7 +172,8 @@ def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
     # Extract grid datapoints.
     voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
                                                            spacing))
-    centroid = dwi.util.centroid(prostate)
+    if centroid is None:
+        centroid = dwi.util.centroid(prostate)
     if verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
@@ -258,7 +259,7 @@ def main():
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
-    image[-prostate] = np.nan  # Set background to nan.
+    # image[-prostate] = np.nan  # Set background to nan.
 
     outparams = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = (args.winsize,) * 3
@@ -266,6 +267,7 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
+    d = dict(centroid=(0, 0, 0), verbose=args.verbose)
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
@@ -274,7 +276,7 @@ def main():
             img = image[..., 0]
             stat = param
         a = process(img, spacing, prostate, lesion, lesiontype, args.voxelsize,
-                    metric_winshape, args.verbose, stat)
+                    metric_winshape, stat, **d)
         outfile = indexed_path(args.output, i)
         if outfile.lower().endswith('.txt'):
             # Exclude non-prostate cubes from ASCII output, they are so many.
@@ -295,7 +297,7 @@ def main():
     #         img = image[..., 0]
     #         stat = param
     #     a = process(img, spacing, prostate, lesion, lesiontype,
-    #                 args.voxelsize, metric_winshape, args.verbose, stat)
+    #                 args.voxelsize, metric_winshape, stat, **d)
     #     if grid is None:
     #         shape = a.shape[0:-1] + (len(outparams + params),)
     #         grid = np.empty(shape, dtype=a.dtype)
