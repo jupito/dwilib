@@ -259,7 +259,7 @@ def main():
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
-    # image[-prostate] = np.nan  # Set background to nan.
+    image[-prostate] = np.nan  # Set background to nan.
 
     outparams = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = (args.winsize,) * 3
@@ -267,7 +267,7 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
-    d = dict(centroid=(0, 0, 0), verbose=args.verbose)
+    d = dict(centroid=None, verbose=args.verbose)
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
