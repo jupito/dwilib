@@ -98,11 +98,11 @@ def main():
             d['auc'] = np.nan
             print(s.format(**d))
             continue
-        _, _, auc = dwi.util.calculate_roc_auc(y, x, autoflip=False)
+        _, _, auc = dwi.stats.calculate_roc_auc(y, x, autoflip=False)
         # Must flip here for the bootstrap to work.
         if args.autoflip and auc < 0.5:
             x = -x
-            _, _, auc = dwi.util.calculate_roc_auc(y, x)
+            _, _, auc = dwi.stats.calculate_roc_auc(y, x)
         d['auc'] = auc
         if args.nboot:
             # Note: x may now be negated (ROC flipped).

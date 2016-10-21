@@ -13,6 +13,7 @@ import numpy as np
 import scipy.stats
 
 import dwi.files
+import dwi.stats
 import dwi.util
 
 
@@ -61,10 +62,10 @@ def main():
     lpp = np.mean(y_lesion[y_prostate])  # Lesion per prostate.
 
     # ROC AUC of prostate against image.
-    _, _, auc_p = dwi.util.calculate_roc_auc(y_prostate, x, autoflip=True)
+    _, _, auc_p = dwi.stats.calculate_roc_auc(y_prostate, x, autoflip=True)
     # ROC AUC of lesion against prostate.
-    _, _, auc_l = dwi.util.calculate_roc_auc(y_lesion[y_prostate],
-                                             x[y_prostate], autoflip=True)
+    _, _, auc_l = dwi.stats.calculate_roc_auc(y_lesion[y_prostate],
+                                              x[y_prostate], autoflip=True)
 
     if args.verbose:
         print('# l-auc p-auc p/total l/p p-threshold l-threshold n param')

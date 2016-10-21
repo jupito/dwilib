@@ -7,6 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pylab as pl
 
+import dwi.stats
 import dwi.util
 
 
@@ -50,7 +51,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     n_rows, n_cols = len(params), 1
     pl.figure(figsize=(n_cols*6, n_rows*6))
     for x, y, param, row in zip(X, Y, params, range(n_rows)):
-        fpr, tpr, auc = dwi.util.calculate_roc_auc(y, x, autoflip=autoflip)
+        fpr, tpr, auc = dwi.stats.calculate_roc_auc(y, x, autoflip=autoflip)
         pl.subplot2grid((n_rows, n_cols), (row, 0))
         pl.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % auc)
         pl.plot([0, 1], [0, 1], 'k--')

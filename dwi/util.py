@@ -10,8 +10,6 @@ import os
 import numpy as np
 from scipy import spatial
 import skimage.exposure
-import sklearn.metrics
-import sklearn.preprocessing
 
 
 @total_ordering
@@ -195,23 +193,6 @@ def fivenums(a):
     """Return the Tukey five-number summary as a formatted string."""
     return '({:{f}}, {:{f}}, {:{f}}, {:{f}}, {:{f}})'.format(*fivenum(a),
                                                              f='.4g')
-
-
-def calculate_roc_auc(y, x, autoflip=False, scale=True):
-    """Calculate ROC and AUC from data points and their classifications.
-
-    By default, the samples are scaled, because sklearn.metrics.roc_curve()
-    interprets very close samples as equal.
-    """
-    y = np.asarray(y)
-    x = np.asarray(x)
-    if scale:
-        x = sklearn.preprocessing.scale(x)
-    fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
-    auc = sklearn.metrics.auc(fpr, tpr)
-    if autoflip and auc < 0.5:
-        fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False, scale=False)
-    return fpr, tpr, auc
 
 
 def distance(a, b):

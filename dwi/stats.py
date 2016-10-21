@@ -5,6 +5,8 @@ import random
 
 import numpy as np
 from scipy import stats
+import sklearn.metrics
+import sklearn.preprocessing
 
 import dwi.util
 
@@ -60,12 +62,29 @@ def resample_bootstrap_stratified(Y, X):
     return Y[indices], X[indices]
 
 
+def calculate_roc_auc(y, x, autoflip=False, scale=True):
+    """Calculate ROC and AUC from data points and their classifications.
+
+    By default, the samples are scaled, because sklearn.metrics.roc_curve()
+    interprets very close samples as equal.
+    """
+    y = np.asarray(y)
+    x = np.asarray(x)
+    if scale:
+        x = sklearn.preprocessing.scale(x)
+    fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
+    auc = sklearn.metrics.auc(fpr, tpr)
+    if autoflip and auc < 0.5:
+        fpr, tpr, auc = calculate_roc_auc(y, -x, autoflip=False, scale=False)
+    return fpr, tpr, auc
+
+
 def bootstrap_aucs(y, x, n=2000):
     """Produce an array of bootstrapped ROC AUCs."""
     aucs = np.zeros(n)
     for i in range(n):
         yb, xb = resample_bootstrap_stratified(y, x)
-        _, _, auc = dwi.util.calculate_roc_auc(yb, xb)
+        _, _, auc = calculate_roc_auc(yb, xb)
         aucs[i] = auc
     return aucs
 
