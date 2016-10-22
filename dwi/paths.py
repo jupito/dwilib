@@ -48,6 +48,8 @@ def subregion_path(mode, case=None, scan=None):
 def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
               fmt='dicom'):
     """Return path and deps of masks of different types."""
+    if masktype == 'all':
+        return None
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
     if fmt == 'hdf5':

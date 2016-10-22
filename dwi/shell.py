@@ -45,17 +45,19 @@ def standardize_transform_cmd(cfgpath, inpath, outpath, mask=None):
                       o=outpath, m=mask)
 
 
-def get_texture_cmd(mode, inpath, method, winsize, slices, portion, mask,
-                    outpath, voxel):
+def get_texture_cmd(mode, inpath, method, winsize, slices, portion, outpath,
+                    voxel, mask=None):
     d = dict(prg=DWILIB+'/get_texture.py', m=mode, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
     cmd = ('{prg} -v'
            ' --mode {m}'
-           ' --input {i} --mask {mask}'
+           ' --input {i}'
            ' --slices {slices} --portion {portion}'
            ' --method {mth} --winspec {ws} --voxel {vx}'
            ' --output {o}')
+    if mask is not None:
+        cmd += ' --mask {mask}'
     return cmd.format(**d)
 
 

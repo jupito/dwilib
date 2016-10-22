@@ -376,16 +376,19 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
                      method, winsize, voxel):
     """Generate texture features."""
     inpath = pmap_path(mode, case, scan)
+    deps = [inpath]
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
+    if mask is not None:
+        deps.append(mask)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
     cmd = dwi.shell.get_texture_cmd(mode, inpath, method, winsize, slices,
-                                    portion, mask, outfile, voxel)
+                                    portion, outfile, voxel, mask=mask)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
         'actions': folders(outfile) + [cmd],
-        'file_dep': [inpath, mask],
+        'file_dep': deps,
         'targets': [outfile],
         'clean': True,
         }
@@ -406,6 +409,11 @@ def task_texture():
             for mth, ws in texture_methods_winsizes(mode, mt):
                 # yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
                 #                        mth, ws, 'all')
+                yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
+                                       'all')
+        mt = 'all'
+        for c, s in cases_scans(mode, sl):
+            for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
                                        'all')
 
@@ -462,10 +470,10 @@ def get_task_grid(mode, c, s, ls, lt=None):
     out, target = grid_path(mode, c, s, ['raw'], fmt=fmt)
     if fmt == 'h5':
         target = out
+    z = 5
+    # z = 1
     cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, voxelsize=None,
-                             winsize=5, voxelspacing=(5, 1, 1), lesiontypes=lt)
-    # cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, voxelsize=None,
-    #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
+                             winsize=z, voxelspacing=(z, 1, 1), lesiontypes=lt)
     return {
         'name': name(mode, c, s),
         'actions': folders(out) + [cmd],
@@ -485,10 +493,10 @@ def get_task_grid_texture(mode, c, s, ls, mth, ws, lt=None):
     out, target = grid_path(mode, c, s, [mth, ws], fmt=fmt)
     if fmt == 'h5':
         target = out
+    z = 5
+    # z = 1
     cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
-                             winsize=5, voxelspacing=(5, 1, 1), lesiontypes=lt)
-    # cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, voxelsize=None,
-    #                          winsize=1, voxelspacing=(1, 1, 1), lesiontypes=lt)
+                             winsize=z, voxelspacing=(z, 1, 1), lesiontypes=lt)
     return {
         'name': name(mode, c, s, mth, ws),
         'actions': folders(out) + [cmd],
