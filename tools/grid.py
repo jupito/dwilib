@@ -40,6 +40,8 @@ def parse_args():
                    help='window (cube) size in millimeters (default 5)')
     p.add_argument('--voxelspacing', type=float, nargs=3,
                    help='force voxel spacing (leave out to read from image)')
+    p.add_argument('--centroid', type=int, nargs=3,
+                   help='centroid (leave out to use prostate mask centroid)')
     p.add_argument('--lesiontypes', metavar='TYPE', nargs='+',
                    help='lesion types in mask order (CZ or PZ)')
     p.add_argument('--output', metavar='FILENAME', required=True,
@@ -267,7 +269,7 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
-    d = dict(centroid=None, verbose=args.verbose)
+    d = dict(centroid=args.centroid, verbose=args.verbose)
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
