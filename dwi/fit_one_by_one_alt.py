@@ -74,7 +74,9 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds, step=1.0e-7):
 
 def fit_curve(f, xdata, ydata, guess, bounds, step=1.0e-7):
     """Fit a curve to data."""
-    residual = lambda p, x, y: rmse(f, p, xdata, ydata)
+    def residual(p, x, y):
+        return rmse(f, p, xdata, ydata)
+
     d = dwi.minimize.gradient_descent(residual, init=guess, step=step,
                                       args=[xdata, ydata])
     return d
