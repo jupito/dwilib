@@ -62,7 +62,9 @@ def fit_curve_mi(f, xdata, ydata, guesses, bounds):
 
 def fit_curve(f, xdata, ydata, guess, bounds):
     """Fit a curve to data."""
-    residual = lambda p, x, y: f(p, x) - y
+    def residual(p, x, y):
+        return f(p, x) - y
+
     params, ier = leastsqbound(residual, guess, args=(xdata, ydata),
                                bounds=bounds)
     if 0 < ier < 5:
