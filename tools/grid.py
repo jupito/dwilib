@@ -261,7 +261,7 @@ def main():
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
-    image[-prostate] = np.nan  # Set background to nan.
+    # image[-prostate] = np.nan  # Set background to nan.
 
     outparams = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = (args.winsize,) * 3
