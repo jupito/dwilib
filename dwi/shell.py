@@ -1,11 +1,11 @@
 """Shell commands for calculation tasks."""
 
 from __future__ import absolute_import, division, print_function
+from pathlib2 import Path
 
 import dwi.util
 
-
-DWILIB = '~/src/dwilib/tools'
+DWILIB = Path.home() / 'src' / 'dwilib' / 'tools'
 
 
 def cmdline(*positionals, **options):
@@ -32,7 +32,7 @@ def standardize_train_cmd(infiles, cfgpath, thresholding):
     """Standardize MRI images: training phase."""
     infiles = paths_on_cmdline(infiles)
     cmd = '{prg} -v --train {o} {i} --thresholding {t}'
-    return cmd.format(prg=DWILIB+'/standardize.py', o=cfgpath, i=infiles,
+    return cmd.format(prg=DWILIB/'standardize.py', o=cfgpath, i=infiles,
                       t=thresholding)
 
 
@@ -41,13 +41,13 @@ def standardize_transform_cmd(cfgpath, inpath, outpath, mask=None):
     cmd = '{prg} -v --transform {c} {i} {o}'
     if mask:
         cmd += ' --mask {m}'
-    return cmd.format(prg=DWILIB+'/standardize.py', c=cfgpath, i=inpath,
+    return cmd.format(prg=DWILIB/'standardize.py', c=cfgpath, i=inpath,
                       o=outpath, m=mask)
 
 
 def get_texture_cmd(mode, inpath, method, winsize, slices, portion, outpath,
                     voxel, mask=None):
-    d = dict(prg=DWILIB+'/get_texture.py', m=mode, i=inpath, mask=mask,
+    d = dict(prg=DWILIB/'get_texture.py', m=mode, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)
     cmd = ('{prg} -v'
@@ -62,7 +62,7 @@ def get_texture_cmd(mode, inpath, method, winsize, slices, portion, outpath,
 
 
 # def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
-#     d = dict(prg=DWILIB+'/find_roi.py', m=mode,
+#     d = dict(prg=DWILIB/'find_roi.py', m=mode,
 #              slf=samplelist_path(mode, SAMPLELIST), pd=pmap_path(mode),
 #              srd=subregion_path(mode), c=case, s=scan,
 #              ap=' '.join(algparams),
@@ -74,7 +74,7 @@ def get_texture_cmd(mode, inpath, method, winsize, slices, portion, outpath,
 
 def make_subregion_cmd(mask, subregion):
     cmd = '{prg} -i {mask} --pad 10 -s {sr}'
-    return cmd.format(prg=DWILIB+'/masktool.py', mask=mask, sr=subregion)
+    return cmd.format(prg=DWILIB/'masktool.py', mask=mask, sr=subregion)
 
 
 def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
@@ -88,12 +88,12 @@ def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
         cmd += ' --astype {t}'
     if keepmasked:
         cmd += ' --keepmasked'
-    return cmd.format(prg=DWILIB+'/select_voxels.py', i=inpath, o=outpath,
+    return cmd.format(prg=DWILIB/'select_voxels.py', i=inpath, o=outpath,
                       m=mask, t=astype)
 
 
 # def auc_cmd(mode, threshold, algparams, outfile):
-#     d = dict(prg=DWILIB+'/roc_auc.py', m=mode,
+#     d = dict(prg=DWILIB/'roc_auc.py', m=mode,
 #              slf=samplelist_path(mode, SAMPLELIST), t=threshold,
 #              i=roi_path(mode, 'auto', algparams=algparams),
 #              ap_='_'.join(algparams), o=outfile)
@@ -102,7 +102,7 @@ def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
 
 
 # def correlation_cmd(mode, thresholds, algparams, outfile):
-#     d = dict(prg=DWILIB+'/correlation.py', m=mode,
+#     d = dict(prg=DWILIB/'correlation.py', m=mode,
 #              slf=samplelist_path(mode, SAMPLELIST), t=thresholds,
 #              i=roi_path(mode, 'auto', algparams=algparams),
 #              ap_='_'.join(algparams), o=outfile)
@@ -111,7 +111,7 @@ def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
 
 
 def mask_out_cmd(src, dst, mask):
-    d = dict(prg=DWILIB+'/mask_out_dicom.py', src=src, dst=dst, mask=mask)
+    d = dict(prg=DWILIB/'mask_out_dicom.py', src=src, dst=dst, mask=mask)
     rm = 'rm -Rf {dst}'.format(**d)  # Remove destination image
     cp = 'cp -R --no-preserve=all {src} {dst}'.format(**d)  # Copy source
     mask = '{prg} --mask {mask} --image {dst}'.format(**d)  # Mask image
@@ -120,7 +120,7 @@ def mask_out_cmd(src, dst, mask):
 
 def histogram_cmd(inpaths, figpath, param=0):
     return '{prg} -v --param {p} --input {i} --fig {f}'.format(
-        prg=DWILIB+'/histogram.py', i=' '.join(inpaths), f=figpath, p=param)
+        prg=DWILIB/'histogram.py', i=' '.join(inpaths), f=figpath, p=param)
 
 
 def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
@@ -131,7 +131,7 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
         s += ' --mbb {mbb[0]} {mbb[1]} {mbb[2]}'
     if params is not None:
         s += ' --params {params}'
-    return s.format(prg=DWILIB+'/fit.py', i=infile, o=outfile, model=model,
+    return s.format(prg=DWILIB/'fit.py', i=infile, o=outfile, model=model,
                     mask=mask, mbb=mbb,
                     params=' '.join(str(x) for x in params))
 
@@ -146,10 +146,10 @@ def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
         d.update(voxelspacing=voxelspacing)
     if lesiontypes is not None:
         d.update(lesiontypes=lesiontypes)
-    return cmdline(DWILIB+'/grid.py', **d)
+    return cmdline(DWILIB/'grid.py', **d)
 
 
 def check_mask_overlap_cmd(container, other, fig):
     s = '{prg} -v {c} {o} --fig {f}'
-    return s.format(prg=DWILIB+'/check_mask_overlap.py', c=container, o=other,
+    return s.format(prg=DWILIB/'check_mask_overlap.py', c=container, o=other,
                     f=fig)
