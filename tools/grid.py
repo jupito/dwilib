@@ -32,7 +32,7 @@ def parse_args():
                    help='prostate mask')
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
-    p.add_argument('--mbb', type=float, required=True,
+    p.add_argument('--mbb', type=float,
                    help='minimum bounding box padding in millimeters')
     p.add_argument('--voxelsize', type=float,
                    help='rescaled voxel size in millimeters (try 0.25)')
@@ -148,6 +148,19 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
 #             print(s.format(params[i], params[j], rho, pvalue))
 
 
+def create_grid(metric_winshape):
+    """Create and fill grid array."""
+    # gridshape = (20, 30, 30)
+    # minrel, maxrel = windows[0][1], windows[-1][1]
+    # gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)]
+    metric_gridshape = (100, 150, 150)  # Grid shape in millimeters.
+    gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
+    gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
+    grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
+    logging.info('Grid shape: %s', grid.shape)
+    return grid
+
+
 def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
             metric_winshape, stat, centroid=None, verbose=0):
     """Process one parameter."""
@@ -181,15 +194,7 @@ def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
         print('Prostate centroid:', centroid)
     windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
-    # Create and fill grid array.
-    # gridshape = (20, 30, 30)
-    # minrel, maxrel = windows[0][1], windows[-1][1]
-    # gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)]
-    metric_gridshape = (100, 150, 150)  # Grid shape in millimeters.
-    gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
-    gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
-    grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
-    print('Grid shape:', grid.shape)
+    grid = create_grid(metric_winshape)
     for slices, relative in windows:
         indices = tuple(s//2+r for s, r in zip(grid.shape, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
@@ -248,8 +253,11 @@ def main():
         print('\tVoxel spacing:', spacing)
         print('\tPhysical size:', physical_size)
 
-    # Crop MBB. The remaining image is now stored in memory.
-    slices = get_mbb(prostate, spacing, args.mbb)
+    # Crop MBB. The remaining image is stored in memory.
+    if args.mbb is None:
+        slices = tuple(slice(0, x) for x in image.shape[:3])
+    else:
+        slices = get_mbb(prostate, spacing, args.mbb)
     image = image[slices]
     prostate = prostate[slices]
     lesion = lesion[slices]
