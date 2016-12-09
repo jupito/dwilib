@@ -509,34 +509,32 @@ def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15):
 def task_grid():
     """Grid classifier."""
     # for mode, sl in product(MODES, SAMPLELISTS):
-    #     d = defaultdict(list)
+    #     lesioninfo = defaultdict(list)
     #     for c, s, l in lesions(mode, sl):
-    #         d[(c, s)].append(l)
-    #     for k, ls in d.iteritems():
+    #         lesioninfo[(c, s)].append(l)
+    #     for k, ls in lesioninfo.iteritems():
     #         c, s = k
     #         yield get_task_grid(mode, c, s, ls)
     #         mt = 'prostate'
     #         for mth, ws in texture_methods_winsizes(mode, mt):
     #             yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws)
     for mode, sl in product(MODES, SAMPLELISTS):
-        d = defaultdict(list)
+        lesioninfo = defaultdict(list)
         for c, s, l in dwi.patient.iterlesions(samplelist_path(mode, sl)):
             c, l, lt = c.num, l.index + 1, l.location
-            d[(c, s)].append((l, lt))
-        for k, v in d.iteritems():
+            lesioninfo[(c, s)].append((l, lt))
+        for k, v in lesioninfo.iteritems():
             c, s = k
             ls, lt = [x[0] for x in v], [x[1] for x in v]
             yield get_task_grid(mode, c, s, ls, lt=lt)
             # mt = 'prostate'
-            # mbb = 15
+            d = dict(lt=lt, mbb=15)
             # for mth, ws in texture_methods_winsizes(mode, mt):
-            #     yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=lt,
-            #                                 mbb=mbb)
+            #     yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
             mt = 'all'
-            mbb = None
+            d = dict(lt=lt, mbb=None)
             for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=lt,
-                                            mbb=mbb)
+                yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
 
 
 # def task_check_mask_overlap():
