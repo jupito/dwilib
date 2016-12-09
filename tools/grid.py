@@ -46,7 +46,7 @@ def parse_args():
     p.add_argument('--lesiontypes', metavar='TYPE', nargs='+',
                    help='lesion types in mask order (CZ or PZ)')
     p.add_argument('--output', metavar='FILENAME', required=True,
-                   help='output ASCII file')
+                   help='output pmap file')
     return p.parse_args()
 
 
