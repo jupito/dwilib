@@ -70,8 +70,8 @@ def get_lesiontype_array(lesiontypes, lesions):
 
 def get_mbb(mask, spacing, pad):
     """Get mask minimum bounding box as slices, with minimum padding in mm."""
-    padding = tuple(int(np.ceil(pad / x)) for x in spacing)
-    physical_padding = tuple(x * y for x, y in zip(padding, spacing))
+    padding = [int(np.ceil(pad / x)) for x in spacing]
+    physical_padding = [x * y for x, y in zip(padding, spacing)]
     mbb = dwi.util.bounding_box(mask, padding)
     slices = tuple(slice(*x) for x in mbb)
     print('Cropping minimum bounding box with pad:', pad)
@@ -83,7 +83,7 @@ def get_mbb(mask, spacing, pad):
 
 def rescale(img, src_spacing, dst_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
-    factor = tuple(s/d for s, d in zip(src_spacing, dst_spacing))
+    factor = [s/d for s, d in zip(src_spacing, dst_spacing)]
     print('Scaling, factor:', factor)
     output = ndimage.interpolation.zoom(img, factor, order=0)
     return output
@@ -175,7 +175,7 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
     # Rescale image and masks.
     if voxelsize is not None:
         src_spacing = spacing
-        spacing = (voxelsize,) * 3
+        spacing = [voxelsize] * 3
         image = rescale(image, src_spacing, spacing)
         prostate = prostate.astype(np.float_)
         prostate = rescale(prostate, src_spacing, spacing)
@@ -187,15 +187,15 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
         # TODO Also scale lesiontype.
 
     if verbose:
-        physical_size = tuple(x*y for x, y in zip(image.shape, spacing))
+        physical_size = [x*y for x, y in zip(image.shape, spacing)]
         print('Transformed image:', image.shape, image.dtype)
         print('\tVoxel spacing:', spacing)
         print('\tPhysical size:', physical_size)
 
     # Extract grid datapoints. Grid placing is based either on prostate
     # centroid, or image corner.
-    voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
-                                                           spacing))
+    voxel_winshape = [int(round(x/y)) for x, y in zip(metric_winshape,
+                                                      spacing)]
     if centroid is None:
         centroid = dwi.util.centroid(prostate)
         grid = create_grid_centroid(metric_winshape)
@@ -262,7 +262,7 @@ def main():
     lesiontype = get_lesiontype_array(args.lesiontypes, lesions)
 
     if args.verbose:
-        physical_size = tuple(x*y for x, y in zip(image.shape[:3], spacing))
+        physical_size = [x*y for x, y in zip(image.shape[:3], spacing)]
         print('Image:', image.shape, image.dtype)
         print('\tVoxel spacing:', spacing)
         print('\tPhysical size:', physical_size)
@@ -286,7 +286,7 @@ def main():
     # image[-prostate] = np.nan  # Set background to nan.
 
     outparams = ['prostate', 'lesion', 'lesiontype']
-    metric_winshape = (args.winsize,) * 3
+    metric_winshape = [args.winsize] * 3
     if args.param is None:
         params = attrs['parameters']  # Use average of each parameter.
     else:
