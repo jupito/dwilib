@@ -460,13 +460,11 @@ def task_histogram():
             yield get_task_histogram(mode, mt, sl)
 
 
-def get_task_grid(mode, c, s, ls, lt=None, mbb=15):
+def get_task_grid(mode, c, s, ls, lt=None, mbb=15, fmt='txt'):
     """Grid classifier."""
     pmap = pmap_path(mode, c, s)
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    # fmt = 'h5'
-    fmt = 'txt'
     out, target = grid_path(mode, c, s, ['raw'], fmt=fmt)
     if fmt == 'h5':
         target = out
@@ -483,13 +481,12 @@ def get_task_grid(mode, c, s, ls, lt=None, mbb=15):
         }
 
 
-def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15):
+def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15,
+                          fmt='txt'):
     """Grid classifier."""
     pmap = texture_path(mode, c, s, None, mt, 'all', 0, mth, ws, voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    # fmt = 'h5'
-    fmt = 'txt'
     out, target = grid_path(mode, c, s, [mth, ws], fmt=fmt)
     if fmt == 'h5':
         target = out
@@ -508,16 +505,6 @@ def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15):
 
 def task_grid():
     """Grid classifier."""
-    # for mode, sl in product(MODES, SAMPLELISTS):
-    #     lesioninfo = defaultdict(list)
-    #     for c, s, l in lesions(mode, sl):
-    #         lesioninfo[(c, s)].append(l)
-    #     for k, ls in lesioninfo.iteritems():
-    #         c, s = k
-    #         yield get_task_grid(mode, c, s, ls)
-    #         mt = 'prostate'
-    #         for mth, ws in texture_methods_winsizes(mode, mt):
-    #             yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws)
     for mode, sl in product(MODES, SAMPLELISTS):
         lesioninfo = defaultdict(list)
         for c, s, l in dwi.patient.iterlesions(samplelist_path(mode, sl)):
@@ -526,13 +513,13 @@ def task_grid():
         for k, v in lesioninfo.iteritems():
             c, s = k
             ls, lt = [x[0] for x in v], [x[1] for x in v]
-            yield get_task_grid(mode, c, s, ls, lt=lt)
+            d = dict(lt=lt, mbb=None, fmt='txt')
+            d['fmt'] = 'h5'
+            yield get_task_grid(mode, c, s, ls, **d)
             # mt = 'prostate'
-            d = dict(lt=lt, mbb=15)
             # for mth, ws in texture_methods_winsizes(mode, mt):
             #     yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
             mt = 'all'
-            d = dict(lt=lt, mbb=None)
             for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
 
