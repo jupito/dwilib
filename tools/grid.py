@@ -212,8 +212,8 @@ def average_image(image):
     d = dict(size=(3, 3), mode='nearest')
     for p in range(image.shape[-1]):
         for i in range(image.shape[0]):
-            tpl = (i, Ellipsis, p)
-            image[tpl] = ndimage.filters.median_filter(image[tpl], **d)
+            ix = (i, slice(None), slice(None), p)
+            image[ix] = ndimage.filters.median_filter(image[ix], **d)
     print(np.isfinite(image).size)
 
 
