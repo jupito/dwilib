@@ -148,14 +148,22 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
 #             print(s.format(params[i], params[j], rho, pvalue))
 
 
-def create_grid(metric_winshape):
-    """Create and fill grid array."""
+def create_grid_centroid(metric_winshape):
+    """Create and fill grid array based on prostate centroid."""
     # gridshape = (20, 30, 30)
     # minrel, maxrel = windows[0][1], windows[-1][1]
     # gridshape = [mx-mn+1 for mn, mx in zip(minrel, maxrel)]
     metric_gridshape = (100, 150, 150)  # Grid shape in millimeters.
     gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
     gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
+    grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
+    logging.info('Grid shape: %s', grid.shape)
+    return grid
+
+
+def create_grid_corner(image, winshape):
+    """Create and fill grid array based on corner."""
+    gridshape = [i//w for i, w in zip(image.shape, winshape)]
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
     logging.info('Grid shape: %s', grid.shape)
     return grid
@@ -184,19 +192,25 @@ def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
         print('\tVoxel spacing:', spacing)
         print('\tPhysical size:', physical_size)
 
-    # Extract grid datapoints.
+    # Extract grid datapoints. Grid placing is based either on prostate
+    # centroid, or image corner.
     voxel_winshape = tuple(int(round(x/y)) for x, y in zip(metric_winshape,
                                                            spacing))
     if centroid is None:
         centroid = dwi.util.centroid(prostate)
+        grid = create_grid_centroid(metric_winshape)
+        grid_base = [s//2 for s in grid.shape]
+    else:
+        grid = create_grid_corner(image, voxel_winshape)
+        grid_base = [0, 0, 0]
+
     if verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
         print('Prostate centroid:', centroid)
-    windows = list(generate_windows(image.shape, voxel_winshape, centroid))
 
-    grid = create_grid(metric_winshape)
+    windows = list(generate_windows(image.shape, voxel_winshape, centroid))
     for slices, relative in windows:
-        indices = tuple(s//2+r for s, r in zip(grid.shape, relative))
+        indices = tuple(c+r for c, r in zip(grid_base, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
                                lesiontype[slices], stat)
         grid[indices] = values
@@ -315,9 +329,9 @@ def main():
     #         # grid[..., 1] = a[..., 1]
     #         # grid[..., 2] = a[..., 2]
     #         grid[..., 0:len(outparams)] = a[..., 0:-1]  # Init with basic.
-    #     grid[..., len(outparams)] = a[..., -1]  # Add each feature.
+    #     grid[..., len(outparams)+i] = a[..., -1]  # Add each feature.
     # outfile = args.output
-    # attrs = dict(parameters=outparams + [param], n_lesions=len(args.lesions),
+    # attrs = dict(parameters=outparams + params, n_lesions=len(args.lesions),
     #              spacing=metric_winshape)
     # if args.verbose:
     #     print('Writing {} to {}'.format(grid.shape, outfile))
