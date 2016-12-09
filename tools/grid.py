@@ -169,8 +169,8 @@ def create_grid_corner(image, winshape):
     return grid
 
 
-def process(image, spacing, prostate, lesion, lesiontype, voxelsize,
-            metric_winshape, stat, centroid=None, verbose=0):
+def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
+            stat, voxelsize=None, centroid=None, verbose=0):
     """Process one parameter."""
     # Rescale image and masks.
     if voxelsize is not None:
@@ -291,7 +291,8 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
-    d = dict(centroid=args.centroid, verbose=args.verbose)
+    d = dict(voxelsize=args.voxelsize, centroid=args.centroid,
+             verbose=args.verbose)
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
@@ -299,7 +300,7 @@ def main():
         else:
             img = image[..., 0]
             stat = param
-        a = process(img, spacing, prostate, lesion, lesiontype, args.voxelsize,
+        a = process(img, spacing, prostate, lesion, lesiontype,
                     metric_winshape, stat, **d)
         outfile = indexed_path(args.output, i)
         if outfile.lower().endswith('.txt'):
@@ -321,7 +322,7 @@ def main():
     #         img = image[..., 0]
     #         stat = param
     #     a = process(img, spacing, prostate, lesion, lesiontype,
-    #                 args.voxelsize, metric_winshape, stat, **d)
+    #                 metric_winshape, stat, **d)
     #     if grid is None:
     #         shape = a.shape[0:-1] + (len(outparams + params),)
     #         grid = np.empty(shape, dtype=a.dtype)
