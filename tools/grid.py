@@ -17,6 +17,8 @@ import dwi.files
 import dwi.texture
 import dwi.util
 
+log = logging.getLogger('grid')
+
 
 def parse_args():
     """Parse command-line arguments."""
@@ -54,7 +56,6 @@ def get_lesiontype_array(lesiontypes, lesions):
     """
     lesiontype = np.zeros_like(lesions[0], dtype=np.int8)
     if lesiontypes is not None:
-        logging.info('Lesion types: %s', lesiontypes)
         for lt, l in zip(lesiontypes, lesions):
             if lt.lower() == 'cz':
                 lesiontype[l] = -1
@@ -62,8 +63,9 @@ def get_lesiontype_array(lesiontypes, lesions):
                 lesiontype[l] = 1
             else:
                 raise ValueError('Invalid lesiontype: {}'.format(lt))
-    logging.info([lesiontype.mean(), np.count_nonzero(lesiontype == 1),
-                  np.count_nonzero(lesiontype == -1)])
+    log.info('Lesion types: %s, +1: %i, -1: %i', lesiontypes,
+             np.count_nonzero(lesiontype == 1),
+             np.count_nonzero(lesiontype == -1))
     return lesiontype
 
 
@@ -73,17 +75,17 @@ def get_mbb(mask, spacing, pad):
     physical_padding = [x * y for x, y in zip(padding, spacing)]
     mbb = dwi.util.bounding_box(mask, padding)
     slices = tuple(slice(*x) for x in mbb)
-    print('Cropping minimum bounding box with pad:', pad)
-    print('\tVoxel padding:', padding)
-    print('\tPhysical padding:', physical_padding)
-    print('\tMinimum bounding box:', mbb)
+    log.info('Cropping minimum bounding box, padding: %s', pad)
+    log.info('\tVoxel padding: %s', padding)
+    log.info('\tPhysical padding: %s', physical_padding)
+    log.info('\tMinimum bounding box: %s', mbb)
     return slices
 
 
 def rescale(img, src_spacing, dst_spacing):
     """Rescale image according to voxel spacing sequences (mm per voxel)."""
     factor = [s/d for s, d in zip(src_spacing, dst_spacing)]
-    print('Scaling, factor:', factor)
+    log.info('Scaling by factor: %s', factor)
     output = ndimage.interpolation.zoom(img, factor, order=0)
     return output
 
@@ -144,7 +146,7 @@ def create_grid_centroid(metric_winshape):
     gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
     gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
-    logging.info('Grid shape: %s', grid.shape)
+    log.info('Grid shape: %s', grid.shape)
     return grid
 
 
@@ -152,12 +154,12 @@ def create_grid_corner(image, winshape):
     """Create and fill grid array based on corner."""
     gridshape = [i//w for i, w in zip(image.shape, winshape)]
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
-    logging.info('Grid shape: %s', grid.shape)
+    log.info('Grid shape: %s', grid.shape)
     return grid
 
 
 def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
-            stat, voxelsize=None, use_centroid=False, verbose=0):
+            stat, voxelsize=None, use_centroid=False):
     """Process one parameter."""
     # Rescale image and masks.
     if voxelsize is not None:
@@ -173,17 +175,17 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
         assert image.shape == prostate.shape == lesion.shape
         # TODO Also scale lesiontype.
 
-    if verbose:
-        physical_size = [x*y for x, y in zip(image.shape, spacing)]
-        print('Transformed image:', image.shape, image.dtype)
-        print('\tVoxel spacing:', spacing)
-        print('\tPhysical size:', physical_size)
+        phys_size = [x*y for x, y in zip(image.shape, spacing)]
+        log.info('Transformed image: %s %s', image.shape, image.dtype)
+        log.info('Voxel spacing: %s, physical size: %s', spacing, phys_size)
 
     # Extract grid datapoints. Grid placing is based either on prostate
     # centroid, or image corner.
     voxel_winshape = [int(round(x/y)) for x, y in zip(metric_winshape,
                                                       spacing)]
-    centroid = dwi.util.centroid(prostate)
+    log.info('Window metric: %s, voxel: %s', metric_winshape, voxel_winshape)
+
+    centroid = [round(x, 2) for x in dwi.util.centroid(prostate)]
     if use_centroid:
         base = centroid
         grid = create_grid_centroid(metric_winshape)
@@ -192,10 +194,7 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
         base = [0] * 3
         grid = create_grid_corner(image, voxel_winshape)
         grid_base = [0] * 3
-
-    if verbose:
-        print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
-        print('Prostate centroid (image base):', centroid, base)
+    log.info('Prostate centroid: %s, base: %s', centroid, base)
 
     windows = list(generate_windows(image.shape, voxel_winshape, base))
     for slices, relative in windows:
@@ -208,13 +207,11 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
 
 def average_image(image):
     """Do average filtering for image."""
-    print(np.isfinite(image).size)
     d = dict(size=(3, 3), mode='nearest')
     for p in range(image.shape[-1]):
         for i in range(image.shape[0]):
             ix = (i, slice(None), slice(None), p)
             image[ix] = ndimage.filters.median_filter(image[ix], **d)
-    print(np.isfinite(image).size)
 
 
 def indexed_path(path, i):
@@ -243,19 +240,16 @@ def main():
                                    container=prostate) for x in args.lesions]
     lesion = dwi.util.unify_masks(lesions)
 
-    if args.verbose:
-        logging.info('Lesions: %i', len(args.lesions))
     assert image.shape[:3] == prostate.shape == lesion.shape
     if args.voxelspacing is not None:
         spacing = args.voxelspacing
 
-    lesiontype = get_lesiontype_array(args.lesiontypes, lesions)
+    phys_size = [x*y for x, y in zip(image.shape[:3], spacing)]
+    log.info('Image: %s %s', image.shape, image.dtype)
+    log.info('Voxel spacing: %s, physical size: %s', spacing, phys_size)
+    log.info('Lesions: %i', len(args.lesions))
 
-    if args.verbose:
-        physical_size = [x*y for x, y in zip(image.shape[:3], spacing)]
-        print('Image:', image.shape, image.dtype)
-        print('\tVoxel spacing:', spacing)
-        print('\tPhysical size:', physical_size)
+    lesiontype = get_lesiontype_array(args.lesiontypes, lesions)
 
     # Crop MBB. The remaining image is stored in memory.
     if args.mbb is None:
@@ -281,8 +275,7 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
-    d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid,
-             verbose=args.verbose)
+    d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid)
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
@@ -299,8 +292,7 @@ def main():
             a = a[~nans]
         attrs = dict(parameters=outparams + [param],
                      n_lesions=len(args.lesions), spacing=metric_winshape)
-        if args.verbose:
-            print('Writing to {}'.format(outfile))
+        log.info('Writing to %s', outfile)
         dwi.files.write_pmap(outfile, a, attrs)
     ###
     # grid = None
@@ -324,8 +316,7 @@ def main():
     # outfile = args.output
     # attrs = dict(parameters=outparams + params, n_lesions=len(args.lesions),
     #              spacing=metric_winshape)
-    # if args.verbose:
-    #     print('Writing {} to {}'.format(grid.shape, outfile))
+    # log.info('Writing %s to %s', grid.shape, outfile)
     # dwi.files.write_pmap(outfile, grid, attrs)
     ###
 
