@@ -518,8 +518,8 @@ def task_grid():
             mt = 'prostate'
             d['mbb'] = 15
             yield get_task_grid(mode, c, s, ls, mt, **d)
-            # for mth, ws in texture_methods_winsizes(mode, mt):
-            #     yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
+            for mth, ws in texture_methods_winsizes(mode, mt):
+                yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
             mt = 'all'
             d['mbb'] = None
             for mth, ws in texture_methods_winsizes(mode, mt):
