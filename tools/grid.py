@@ -40,8 +40,8 @@ def parse_args():
                    help='window (cube) size in millimeters (default 5)')
     p.add_argument('--voxelspacing', type=float, nargs=3,
                    help='force voxel spacing (leave out to read from image)')
-    p.add_argument('--centroid', type=int, nargs=3,
-                   help='centroid (leave out to use prostate mask centroid)')
+    p.add_argument('--use_centroid', action='store_true',
+                   help='align by prostate centroid instead of image corner')
     p.add_argument('--lesiontypes', metavar='TYPE', nargs='+',
                    help='lesion types in mask order (CZ or PZ)')
     p.add_argument('--output', metavar='FILENAME', required=True,
@@ -170,7 +170,7 @@ def create_grid_corner(image, winshape):
 
 
 def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
-            stat, voxelsize=None, centroid=None, verbose=0):
+            stat, voxelsize=None, use_centroid=False, verbose=0):
     """Process one parameter."""
     # Rescale image and masks.
     if voxelsize is not None:
@@ -196,19 +196,21 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
     # centroid, or image corner.
     voxel_winshape = [int(round(x/y)) for x, y in zip(metric_winshape,
                                                       spacing)]
-    if centroid is None:
-        centroid = dwi.util.centroid(prostate)
+    centroid = dwi.util.centroid(prostate)
+    if use_centroid:
+        base = centroid
         grid = create_grid_centroid(metric_winshape)
         grid_base = [s//2 for s in grid.shape]
     else:
+        base = [0] * 3
         grid = create_grid_corner(image, voxel_winshape)
-        grid_base = [0, 0, 0]
+        grid_base = [0] * 3
 
     if verbose:
         print('Window shape (metric, voxel):', metric_winshape, voxel_winshape)
-        print('Prostate centroid:', centroid)
+        print('Prostate centroid (image base):', centroid, base)
 
-    windows = list(generate_windows(image.shape, voxel_winshape, centroid))
+    windows = list(generate_windows(image.shape, voxel_winshape, base))
     for slices, relative in windows:
         indices = tuple(c+r for c, r in zip(grid_base, relative))
         values = get_datapoint(image[slices], prostate[slices], lesion[slices],
@@ -220,10 +222,11 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
 def average_image(image):
     """Do average filtering for image."""
     print(np.isfinite(image).size)
+    d = dict(size=(3, 3), mode='nearest')
     for p in range(image.shape[-1]):
         for i in range(image.shape[0]):
-            image[i, :, :, p] = ndimage.filters.median_filter(
-                image[i, :, :, p], size=(3, 3), mode='nearest')
+            tpl = (i, Ellipsis, p)
+            image[tpl] = ndimage.filters.median_filter(image[tpl], **d)
     print(np.isfinite(image).size)
 
 
@@ -291,7 +294,7 @@ def main():
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
-    d = dict(voxelsize=args.voxelsize, centroid=args.centroid,
+    d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid,
              verbose=args.verbose)
     for i, param in enumerate(params):
         if args.param is None:
