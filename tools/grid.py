@@ -43,6 +43,8 @@ def parse_args():
                    help='force voxel spacing (leave out to read from image)')
     p.add_argument('--use_centroid', action='store_true',
                    help='align by prostate centroid instead of image corner')
+    p.add_argument('--nanbg', action='store_true',
+                   help='set non-prostate background to nan')
     p.add_argument('--lesiontypes', metavar='TYPE', nargs='+',
                    help='lesion types in mask order (CZ or PZ)')
     p.add_argument('--output', metavar='FILENAME', required=True,
@@ -142,7 +144,6 @@ def create_grid_centroid(metric_winshape, metric_gridshape=(100, 150, 150)):
     gridshape = [int(g//w) for g, w in zip(metric_gridshape, metric_winshape)]
     gridshape = [x + x % 2 for x in gridshape]  # Make any odds even.
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
-    log.info('Grid shape: %s', grid.shape)
     return grid
 
 
@@ -150,13 +151,13 @@ def create_grid_corner(image, winshape):
     """Create and fill grid array based on corner."""
     gridshape = [i//w for i, w in zip(image.shape, winshape)]
     grid = np.full(gridshape + [4], np.nan, dtype=np.float32)
-    log.info('Grid shape: %s', grid.shape)
     return grid
 
 
 def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
             stat, voxelsize=None, use_centroid=False):
     """Process one parameter."""
+    # TODO: Should do them all at the same time.
     # Rescale image and masks.
     if voxelsize is not None:
         src_spacing = spacing
@@ -179,7 +180,7 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
     # centroid, or image corner.
     voxel_winshape = [int(round(x/y)) for x, y in zip(metric_winshape,
                                                       spacing)]
-    log.info('Window metric: %s, voxel: %s', metric_winshape, voxel_winshape)
+    log.debug('Window metric: %s, voxel: %s', metric_winshape, voxel_winshape)
 
     centroid = [round(x, 2) for x in dwi.util.centroid(prostate)]
     if use_centroid:
@@ -190,7 +191,7 @@ def process(image, spacing, prostate, lesion, lesiontype, metric_winshape,
         base = [0] * 3
         grid = create_grid_corner(image, voxel_winshape)
         grid_base = [0] * 3
-    log.info('Prostate centroid: %s, base: %s', centroid, base)
+    log.debug('Prostate centroid: %s, base: %s', centroid, base)
 
     windows = list(generate_windows(image.shape, voxel_winshape, base))
     for slices, relative in windows:
@@ -263,7 +264,8 @@ def main():
 
     assert image.ndim == 4, image.ndim
     image = image.astype(np.float32)
-    # image[-prostate] = np.nan  # Set background to nan.
+    if args.nanbg:
+        image[-prostate] = np.nan  # Set background to nan.
 
     basic = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = [args.winsize] * 3
@@ -285,6 +287,7 @@ def main():
         if grid is None:
             shape = a.shape[0:-1] + (len(basic) + len(params),)
             grid = np.empty(shape, dtype=a.dtype)
+            log.info('Grid shape: %s', grid.shape)
             grid[..., 0:len(basic)] = a[..., 0:-1]  # Init with basic.
         grid[..., len(basic)+i] = a[..., -1]  # Add each feature.
     outfile = args.output
