@@ -272,25 +272,6 @@ def main():
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
     d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid)
-    # # Each parameter into separate file.
-    # for i, param in enumerate(params):
-    #     if args.param is None:
-    #         img = image[..., i]
-    #         stat = None
-    #     else:
-    #         img = image[..., 0]
-    #         stat = param
-    #     a = process(img, spacing, prostate, lesion, lesiontype,
-    #                 metric_winshape, stat, **d)
-    #     outfile = indexed_path(args.output, i)
-    #     if outfile.lower().endswith('.txt'):
-    #         # Exclude non-prostate cubes from ASCII output, they are so many.
-    #         nans = np.isnan(a[..., -1])
-    #         a = a[~nans]
-    #     attrs = dict(n_lesions=len(args.lesions), spacing=metric_winshape)
-    #     attrs['parameters'] = basic + [param]
-    #     log.info('Writing %s to %s', a.shape, outfile)
-    #     dwi.files.write_pmap(outfile, a, attrs)
     grid = None
     for i, param in enumerate(params):
         if args.param is None:
