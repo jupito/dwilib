@@ -269,13 +269,14 @@ def main():
     image = image.astype(np.float32)
     # image[-prostate] = np.nan  # Set background to nan.
 
-    outparams = ['prostate', 'lesion', 'lesiontype']
+    basic = ['prostate', 'lesion', 'lesiontype']
     metric_winshape = [args.winsize] * 3
     if args.param is None:
         params = attrs['parameters']  # Use average of each parameter.
     else:
         params = dwi.texture.stats([0]).keys()  # Use statistical features.
     d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid)
+    ##
     for i, param in enumerate(params):
         if args.param is None:
             img = image[..., i]
@@ -290,9 +291,9 @@ def main():
             # Exclude non-prostate cubes from ASCII output, they are so many.
             nans = np.isnan(a[..., -1])
             a = a[~nans]
-        attrs = dict(parameters=outparams + [param],
-                     n_lesions=len(args.lesions), spacing=metric_winshape)
-        log.info('Writing to %s', outfile)
+        attrs = dict(n_lesions=len(args.lesions), spacing=metric_winshape)
+        attrs['parameters'] = basic + [param]
+        log.info('Writing %s to %s', a.shape, outfile)
         dwi.files.write_pmap(outfile, a, attrs)
     ###
     # grid = None
@@ -306,16 +307,13 @@ def main():
     #     a = process(img, spacing, prostate, lesion, lesiontype,
     #                 metric_winshape, stat, **d)
     #     if grid is None:
-    #         shape = a.shape[0:-1] + (len(outparams + params),)
+    #         shape = a.shape[0:-1] + (len(basic) + len(params),)
     #         grid = np.empty(shape, dtype=a.dtype)
-    #         # grid[..., 0] = a[..., 0]
-    #         # grid[..., 1] = a[..., 1]
-    #         # grid[..., 2] = a[..., 2]
-    #         grid[..., 0:len(outparams)] = a[..., 0:-1]  # Init with basic.
-    #     grid[..., len(outparams)+i] = a[..., -1]  # Add each feature.
+    #         grid[..., 0:len(basic)] = a[..., 0:-1]  # Init with basic.
+    #     grid[..., len(basic)+i] = a[..., -1]  # Add each feature.
     # outfile = args.output
-    # attrs = dict(parameters=outparams + params, n_lesions=len(args.lesions),
-    #              spacing=metric_winshape)
+    # attrs = dict(n_lesions=len(args.lesions), spacing=metric_winshape)
+    # attrs['parameters'] = basic + params
     # log.info('Writing %s to %s', grid.shape, outfile)
     # dwi.files.write_pmap(outfile, grid, attrs)
     ###
