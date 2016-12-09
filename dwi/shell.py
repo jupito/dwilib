@@ -119,8 +119,9 @@ def mask_out_cmd(src, dst, mask):
 
 
 def histogram_cmd(inpaths, figpath, param=0):
-    return '{prg} -v --param {p} --input {i} --fig {f}'.format(
-        prg=DWILIB/'histogram.py', i=' '.join(inpaths), f=figpath, p=param)
+    d = dict(prg=DWILIB/'histogram.py', i=' '.join(inpaths), f=figpath,
+             p=param)
+    return '{prg} -v --param {p} --input {i} --fig {f}'.format(**d)
 
 
 def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
@@ -137,7 +138,8 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
 
 
 def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
-             winsize=5, voxelspacing=None, lesiontypes=None):
+             winsize=5, voxelspacing=None, lesiontypes=None,
+             use_centroid=False):
     d = dict(v=(), mbb=mbb, voxelsize=voxelsize, winsize=winsize, image=image,
              prostate=prostate, lesions=lesions, output=outpath)
     if param is not None:
@@ -146,6 +148,8 @@ def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
         d.update(voxelspacing=voxelspacing)
     if lesiontypes is not None:
         d.update(lesiontypes=lesiontypes)
+    if use_centroid:
+        d.update(use_centroid=())
     return cmdline(DWILIB/'grid.py', **d)
 
 
