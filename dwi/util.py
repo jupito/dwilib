@@ -145,7 +145,7 @@ def sliding_window(a, winshape, mask=None):
 def bounding_box(array, pad=0):
     """Return the minimum bounding box with optional padding.
 
-    Parameter pad can be a tuple of each dimension or a single number. It can
+    Parameter pad can be a single integer or a sequence of dimensions. It may
     contain infinity for maximum padding.
 
     The value to leave outside box is nan, if any, otherwise zero.
