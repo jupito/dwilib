@@ -120,17 +120,18 @@ def histogram_path(mode, roi, samplelist):
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
 
 
-def grid_path(mode, case, scan, parts, fmt='txt'):
+def grid_path(mode, case, scan, mt, parts, fmt='txt'):
     """Return path to the first of the grid files.
 
     FIXME: The first element in the resulting tuple no more exists as file.
     """
-    components = ['grid', '{m}']
+    components = ['grid_{mt}', '{m}']
     if parts:
         components.append('-'.join(str(x) for x in parts))
     if case is not None and scan is not None:
         components.append('{c}-{s}.{f}')
-    path = os.path.join(*components).format(m=mode, c=case, s=scan, f=fmt)
+    path = os.path.join(*components).format(m=mode, c=case, s=scan, mt=mt,
+                                            f=fmt)
     root, ext = os.path.splitext(path)
     target = '{r}-0{e}'.format(r=root, e=ext)
     return path, target
