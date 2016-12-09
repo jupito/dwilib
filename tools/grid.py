@@ -12,7 +12,6 @@ import os.path
 
 import numpy as np
 from scipy import ndimage
-# from scipy import stats
 
 import dwi.files
 import dwi.texture
@@ -134,18 +133,6 @@ def get_datapoint(image, prostate, lesion, lesiontype, stat):
         lt,
         value,
         )
-
-
-# def print_correlations(data, params):
-#     """Print correlations for testing."""
-#     data = np.asarray(data)
-#     print(data.shape, data.dtype)
-#     indices = range(data.shape[-1])
-#     for i, j in product(indices, indices):
-#         if i < j:
-#             rho, pvalue = stats.spearmanr(data[:, i], data[:, j])
-#             s = 'Spearman: {:8} {:8} {:+1.4f} {:+1.4f}'
-#             print(s.format(params[i], params[j], rho, pvalue))
 
 
 def create_grid_centroid(metric_winshape):
