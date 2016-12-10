@@ -460,7 +460,8 @@ def task_histogram():
             yield get_task_histogram(mode, mt, sl)
 
 
-def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=15, fmt='txt'):
+def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
+                  fmt='txt'):
     """Grid classifier."""
     pmap = pmap_path(mode, c, s)
     prostate = mask_path(mode, 'prostate', c, s)
@@ -471,7 +472,7 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=15, fmt='txt'):
     z = 5
     # z = 1
     d = dict(mbb=mbb, voxelsize=None, winsize=z, voxelspacing=(z, 1, 1),
-             lesiontypes=lt, use_centroid=False)
+             lesiontypes=lt, use_centroid=False, nanbg=nanbg)
     cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, **d)
     return {
         'name': name(mode, c, s, mt),
@@ -481,8 +482,8 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=15, fmt='txt'):
         }
 
 
-def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15,
-                          fmt='txt'):
+def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=None,
+                          nanbg=False, fmt='txt'):
     """Grid classifier."""
     pmap = texture_path(mode, c, s, None, mt, 'all', 0, mth, ws, voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
@@ -493,7 +494,7 @@ def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=15,
     z = 5
     # z = 1
     d = dict(mbb=mbb, voxelsize=None, winsize=z, voxelspacing=(z, 1, 1),
-             lesiontypes=lt, use_centroid=False)
+             lesiontypes=lt, use_centroid=False, nanbg=nanbg)
     cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, **d)
     return {
         'name': name(mode, c, s, mt, mth, ws),
@@ -513,15 +514,18 @@ def task_grid():
         for k, v in lesioninfo.iteritems():
             c, s = k
             ls, lt = [x[0] for x in v], [x[1] for x in v]
-            d = dict(lt=lt, mbb=None, fmt='txt')
-            d['fmt'] = 'h5'
+
+            d = dict(lt=lt, mbb=None, fmt='h5')
+
             mt = 'prostate'
-            d['mbb'] = 15
+            d['nanbg'] = True
             yield get_task_grid(mode, c, s, ls, mt, **d)
             for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
+
             mt = 'all'
-            d['mbb'] = None
+            d['nanbg'] = False
+            yield get_task_grid(mode, c, s, ls, mt, **d)
             for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
 
