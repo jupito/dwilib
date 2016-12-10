@@ -34,7 +34,7 @@ def parse_args():
     p.add_argument('--lesions', metavar='MASKFILE', nargs='+', required=True,
                    help='lesion masks')
     p.add_argument('--mbb', type=float,
-                   help='minimum bounding box padding in millimeters')
+                   help='minimum bounding box padding in millimeters (try 15)')
     p.add_argument('--voxelsize', type=float,
                    help='rescaled voxel size in millimeters (try 0.25)')
     p.add_argument('--winsize', type=float, default=5,
