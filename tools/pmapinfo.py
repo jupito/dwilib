@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
-import os.path
+from pathlib import Path
 
 import numpy as np
 
@@ -16,11 +16,11 @@ class Pmap(object):
     """Open pmap to request properties from."""
 
     def __init__(self, path):
-        self.path = path
-        self._img, self._attrs = dwi.files.read_pmap(path)
+        self.path = Path(path)
+        self._img, self._attrs = dwi.files.read_pmap(str(path))
 
-    file = property(lambda self: os.path.basename(self.path))
-    root = property(lambda self: os.path.splitext(self.file)[0])
+    name = property(lambda self: self.path.name)
+    stem = property(lambda self: self.path.stem)
     type = property(lambda self: self._img.dtype)
     shape = property(lambda self: shorten(self._img.shape))
     size = property(lambda self: self._img.size)
