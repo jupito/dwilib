@@ -154,6 +154,11 @@ def write_subregion_file(filename, win, comment=''):
             f.write('%i\n' % entry)
 
 
+def guess_format(path):
+    """Guess file format identifier from it's suffix."""
+    return os.path.splitext(path)[1][1:]
+
+
 def write_pmap(filename, pmap, attrs, fmt=None):
     """Write parametric map file either as HDF5 or ASCII."""
     pmap = np.asanyarray(pmap)
@@ -170,7 +175,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
     assert all(isinstance(x, str) for x in
                attrs['parameters']), attrs['parameters']
     if fmt is None:
-        fmt = os.path.splitext(filename)[1][1:]
+        fmt = guess_format(filename)
     if fmt == 'h5':
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt == 'txt':
@@ -207,7 +212,7 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
     tells which parameter indices should be included.
     """
     if fmt is None:
-        fmt = os.path.splitext(pathname)[1][1:]
+        fmt = guess_format(pathname)
     if fmt == 'h5':
         pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
     elif fmt == 'txt':
