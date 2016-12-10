@@ -15,11 +15,12 @@ def samplelist_path(mode, samplelist):
 def pmap_path(mode, case=None, scan=None, fmt='dicom'):
     if 'std' in mode or mode == 'T2-fitted':
         fmt = 'hdf5'  # TODO: Temporary redirection.
+    d = dict(m=mode, m_=mode[:2], c=case, s=scan)
     if fmt == 'hdf5':
-        path = 'images/{m}'
+        path = 'images/{m_}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
-        return path.format(m=mode[:2], c=case, s=scan)
+        return path.format(**d)
     elif fmt == 'dicom':
         if len(mode) == 1:
             path = 'dicoms/{m[0]}_*'
@@ -32,7 +33,7 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
                 path += '/{c}_*_{s}*.zip*'
             else:
                 path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
-        path = path.format(m=mode, c=case, s=scan)
+        path = path.format(**d)
         return dwi.util.sglob(path)
     else:
         raise ValueError('Unknown format: {}'.format(fmt))
@@ -98,6 +99,9 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
         ext = 'txt'
     else:
         ext = 'h5'
+    d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
+             portion=portion, mth=method, ws=winsize, ap_='_'.join(algparams),
+             vx=voxel, ext=ext)
     path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if masktype == 'auto':
         path += '/{ap_}'
@@ -105,9 +109,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
     if method is not None and winsize is not None:
         path += '_{mth}-{ws}'
     path += '.{ext}'
-    return path.format(m=mode, c=case, s=scan, l=lesion, mt=masktype,
-                       slices=slices, portion=portion, mth=method, ws=winsize,
-                       ap_='_'.join(algparams), vx=voxel, ext=ext)
+    return path.format(**d)
 
 
 def std_cfg_path(mode):
