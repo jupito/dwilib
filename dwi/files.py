@@ -171,9 +171,9 @@ def write_pmap(filename, pmap, attrs, fmt=None):
                attrs['parameters']), attrs['parameters']
     if fmt is None:
         fmt = os.path.splitext(filename)[1][1:]
-    if fmt in ['hdf5', 'h5']:
+    if fmt == 'h5':
         dwi.hdf5.write_hdf5(filename, pmap, attrs)
-    elif fmt in ['txt', 'ascii']:
+    elif fmt == 'txt':
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
         dwi.asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
@@ -208,13 +208,13 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
     """
     if fmt is None:
         fmt = os.path.splitext(pathname)[1][1:]
-    if fmt in ['hdf5', 'h5']:
+    if fmt == 'h5':
         pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
-    elif fmt in ['txt', 'ascii']:
+    elif fmt == 'txt':
         attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
-    elif fmt in ['zip']:
+    elif fmt == 'zip':
         with read_archive(pathname) as tempdir:
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)

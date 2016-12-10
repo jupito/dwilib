@@ -14,9 +14,9 @@ def samplelist_path(mode, samplelist):
 
 def pmap_path(mode, case=None, scan=None, fmt='dicom'):
     if 'std' in mode or mode == 'T2-fitted':
-        fmt = 'hdf5'  # TODO: Temporary redirection.
+        fmt = 'h5'  # TODO: Temporary redirection.
     d = dict(m=mode, m_=mode[:2], c=case, s=scan)
-    if fmt == 'hdf5':
+    if fmt == 'h5':
         path = 'images/{m_}'
         if case is not None and scan is not None:
             path += '/{c}-{s}.h5'
@@ -53,7 +53,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
         return None
     d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
              ap_='_'.join(algparams))
-    if fmt == 'hdf5':
+    if fmt == 'h5':
         return 'masks_{mt}/{m}/{c}_{s}_{l}.h5'.format(**d)
     do_glob = True
     if masktype == 'prostate':
@@ -95,13 +95,9 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
                  winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
-    if voxel == 'mean':
-        ext = 'txt'
-    else:
-        ext = 'h5'
     d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
              portion=portion, mth=method, ws=winsize, ap_='_'.join(algparams),
-             vx=voxel, ext=ext)
+             vx=voxel, ext=('txt' if voxel == 'mean' else 'h5'))
     path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if masktype == 'auto':
         path += '/{ap_}'

@@ -194,7 +194,7 @@ def task_make_subregion():
 #         if mode[0] in ('T2',):
 #             for c, s in cases_scans(mode, sl):
 #                 inpath = pmap_path(mode, c, s)
-#                 outpath = pmap_path(mode+'fitted', c, s, fmt='hdf5')
+#                 outpath = pmap_path(mode+'fitted', c, s, fmt='h5')
 #                 model = 'T2'
 #                 mask = mask_path(mode, 'prostate', c, s)
 #                 mbb = (0, 20, 20)
