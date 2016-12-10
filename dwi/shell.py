@@ -139,7 +139,7 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
 
 def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
              winsize=5, voxelspacing=None, lesiontypes=None,
-             use_centroid=False):
+             use_centroid=False, nanbg=False):
     d = dict(v=(), mbb=mbb, voxelsize=voxelsize, winsize=winsize, image=image,
              prostate=prostate, lesions=lesions, output=outpath)
     if param is not None:
@@ -150,6 +150,8 @@ def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
         d.update(lesiontypes=lesiontypes)
     if use_centroid:
         d.update(use_centroid=())
+    if nanbg:
+        d.update(nanbg=())
     return cmdline(DWILIB/'grid.py', **d)
 
 
