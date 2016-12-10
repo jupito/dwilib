@@ -3,7 +3,7 @@
 # TODO: Get rid of messy globbing by by explicit data file naming.
 
 from __future__ import absolute_import, division, print_function
-import os.path
+from pathlib import Path
 
 import dwi.util
 
@@ -118,18 +118,33 @@ def histogram_path(mode, roi, samplelist):
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
 
 
+# def grid_path_OLD(mode, case, scan, mt, parts, fmt='txt'):
+#     """Return path to the first of the grid files.
+# 
+#     FIXME: The first element in the resulting tuple no more exists as file.
+#     """
+#     import os.path
+#     components = ['grid_{mt}', '{m}']
+#     if parts:
+#         components.append('-'.join(str(x) for x in parts))
+#     if case is not None and scan is not None:
+#         components.append('{c}-{s}.{f}')
+#     path = os.path.join(*components).format(m=mode, c=case, s=scan, mt=mt,
+#                                             f=fmt)
+#     root, ext = os.path.splitext(path)
+#     target = '{r}-0{e}'.format(r=root, e=ext)
+#     return path, target
+
+
 def grid_path(mode, case, scan, mt, parts, fmt='txt'):
     """Return path to the first of the grid files.
 
     FIXME: The first element in the resulting tuple no more exists as file.
     """
-    components = ['grid_{mt}', '{m}']
+    path = Path('grid_{mt}/{m}'.format(mt=mt, m=mode))
     if parts:
-        components.append('-'.join(str(x) for x in parts))
+        path /= '-'.join(str(x) for x in parts)
     if case is not None and scan is not None:
-        components.append('{c}-{s}.{f}')
-    path = os.path.join(*components).format(m=mode, c=case, s=scan, mt=mt,
-                                            f=fmt)
-    root, ext = os.path.splitext(path)
-    target = '{r}-0{e}'.format(r=root, e=ext)
-    return path, target
+        path /= '{c}-{s}.{f}'.format(c=case, s=scan, f=fmt)
+    target = '{r}-0{e}'.format(r=path.stem, e=path.suffix)
+    return str(path), target
