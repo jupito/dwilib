@@ -78,9 +78,9 @@ def get_mbb(mask, spacing, pad):
     mbb = dwi.util.bounding_box(mask, padding)
     slices = tuple(slice(*x) for x in mbb)
     log.info('Cropping minimum bounding box, padding: %s', pad)
-    log.info('\tVoxel padding: %s', padding)
-    log.info('\tPhysical padding: %s', physical_padding)
-    log.info('\tMinimum bounding box: %s', mbb)
+    log.debug('\tVoxel padding: %s', padding)
+    log.debug('\tPhysical padding: %s', physical_padding)
+    log.debug('\tMinimum bounding box: %s', mbb)
     return slices
 
 
@@ -217,11 +217,17 @@ def indexed_path(path, i):
     return '{r}-{i}{e}'.format(r=root, i=i, e=ext)
 
 
+def set_loggin(verbosity=0):
+    """Set up logging."""
+    import sys
+    loglevel = logging.INFO if verbosity else logging.WARNING
+    logging.basicConfig(level=loglevel, stream=sys.stdout)
+
+
 def main():
     """Main."""
     args = parse_args()
-    loglevel = logging.INFO if args.verbose else logging.WARNING
-    logging.basicConfig(level=loglevel)
+    set_loggin(verbosity=args.verbose)
 
     image, attrs = dwi.files.read_pmap(args.image, ondisk=True)
     if args.param is not None:
@@ -243,8 +249,8 @@ def main():
 
     phys_size = [x*y for x, y in zip(image.shape[:3], spacing)]
     log.info('Image: %s %s', image.shape, image.dtype)
-    log.info('Voxel spacing: %s, physical size: %s', spacing, phys_size)
-    log.info('Lesions: %i', len(args.lesions))
+    log.debug('Voxel spacing: %s, physical size: %s', spacing, phys_size)
+    log.debug('Lesions: %i', len(args.lesions))
 
     lesiontype = get_lesiontype_array(args.lesiontypes, lesions)
 
