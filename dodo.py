@@ -140,9 +140,10 @@ def task_standardize_train():
     # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
     inpaths = [roi_path(mode, 'prostate', c, s) for c, s in cases_scans(mode,
                                                                         'all')]
+    cmd = dwi.shell.standardize_train_cmd(inpaths, std_cfg, 'none')
     yield {
         'name': name(mode),
-        'actions': [dwi.shell.standardize_train_cmd(inpaths, std_cfg, 'none')],
+        'actions': [cmd],
         'file_dep': inpaths,
         'targets': [std_cfg],
         'clean': True,
