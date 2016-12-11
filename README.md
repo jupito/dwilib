@@ -34,6 +34,7 @@ Requirements
 - [scikit-image](http://scikit-image.org/) (if doing texture analysis)
 - [Mahotas](http://luispedro.org/software/mahotas/) (if doing texture analysis)
 - [DoIt](http://pydoit.org/) (if using the build tool)
+- pathlib2
 
 Todo or In Progress
 -------------------
