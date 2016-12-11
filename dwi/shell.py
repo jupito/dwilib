@@ -5,7 +5,7 @@ from pathlib2 import Path
 
 import dwi.util
 
-DWILIB = Path.home() / 'src' / 'dwilib' / 'tools'
+DWILIB = Path.home() / 'src/dwilib/tools'
 
 
 def paths_on_cmdline(paths):
