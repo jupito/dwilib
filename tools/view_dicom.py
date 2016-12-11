@@ -41,7 +41,7 @@ class Gui(object):
     r: toggle reverse colormap
     q: quit'''.format(len(cmaps), ' '.join(cmaps))
 
-    def __init__(self, image, params, mask=None):
+    def __init__(self, image, params, label=None, mask=None):
         assert image.ndim == 4
         assert image.shape[-1] == len(params)
         self.image = image
@@ -50,6 +50,9 @@ class Gui(object):
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.reverse_cmap = False
+        if label is None:
+            label = str(image.shape)
+        self.label = label
         self.mask = mask  # This is here so that can be toggled in future.
         if self.mask is not None:
             for img, msk in zip(self.image, self.mask):
@@ -112,7 +115,8 @@ class Gui(object):
         event.canvas.draw()
         plt.xlabel(slc, fontsize='large')
         plt.ylabel(param, fontsize='large', rotation='horizontal')
-        plt.title(self.params[param], fontsize='large')
+        title = '\n'.join([self.label, self.params[param]])
+        plt.title(title, fontsize='large')
 
     def toggle_reverse_cmap(self):
         name = plt.get_cmap().name
@@ -246,7 +250,7 @@ def main():
         mask = None
 
     if not args.info:
-        gui = Gui(img, attrs['parameters'], mask=mask)
+        gui = Gui(img, attrs['parameters'], label=args.path, mask=mask)
         gui.show()
 
 
