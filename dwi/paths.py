@@ -3,7 +3,8 @@
 # TODO: Get rid of messy globbing by by explicit data file naming.
 
 from __future__ import absolute_import, division, print_function
-from pathlib import Path
+
+from pathlib2 import Path
 
 import dwi.util
 

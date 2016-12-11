@@ -4,8 +4,8 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
-from pathlib import Path
 
+from pathlib2 import Path
 import numpy as np
 
 import dwi.files
