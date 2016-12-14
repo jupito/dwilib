@@ -42,9 +42,6 @@ class ImageMode(object):
     def __eq__(self, other):
         return tuple(self) == tuple(ImageMode(other))
 
-    def __ne__(self, other):
-        return tuple(self) != tuple(ImageMode(other))
-
     def __hash__(self):
         return hash(tuple(self))
 
