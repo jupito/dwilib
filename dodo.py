@@ -140,7 +140,7 @@ def task_standardize_train():
     # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
     inpaths = [roi_path(mode, 'prostate', c, s) for c, s in cases_scans(mode,
                                                                         'all')]
-    cmd = dwi.shell.standardize_train_cmd(inpaths, std_cfg, 'none')
+    cmd = dwi.shell.standardize_train(inpaths, std_cfg, 'none')
     yield {
         'name': name(mode),
         'actions': [cmd],
@@ -161,8 +161,8 @@ def task_standardize_transform():
         inpath = pmap_path(mode, case, scan)
         mask = mask_path(mode, 'prostate', case, scan)
         outpath = pmap_path(mode + 'std', case, scan)
-        cmd = dwi.shell.standardize_transform_cmd(cfgpath, inpath, outpath,
-                                                  mask=mask)
+        cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
+                                              mask=mask)
         yield {
             'name': name(mode, case, scan),
             'actions': folders(outpath) + [cmd],
@@ -179,7 +179,7 @@ def task_make_subregion():
             for case, scan in cases_scans(mode, sl):
                 mask = mask_path(mode, 'prostate', case, scan)
                 subregion = subregion_path(mode, case, scan)
-                cmd = dwi.shell.make_subregion_cmd(mask, subregion)
+                cmd = dwi.shell.make_subregion(mask, subregion)
                 yield {
                     'name': name(mode, case, scan),
                     'actions': folders(subregion) + [cmd],
@@ -199,8 +199,8 @@ def task_make_subregion():
 #                 model = 'T2'
 #                 mask = mask_path(mode, 'prostate', c, s)
 #                 mbb = (0, 20, 20)
-#                 cmd = dwi.shell.fit_cmd(inpath, outpath, model, mask=mask,
-#                                         mbb=mbb)
+#                 cmd = dwi.shell.fit(inpath, outpath, model, mask=mask,
+#                                     mbb=mbb)
 #                 yield {
 #                     'name': name(mode, c, s, model),
 #                     'actions': folders(outpath) + [cmd],
@@ -219,7 +219,7 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     d = dict(mask=mask, keepmasked=True)
     if 'std' in mode:
         d['astype'] = 'float32'  # Integers cannot have nans.
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, **d)
+    cmd = dwi.shell.select_voxels(pmap, roi, **d)
     return {
         'name': name(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
@@ -237,7 +237,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     d = dict(mask=mask, keepmasked=(masktype == 'prostate'))
     if 'std' in mode:
         d['astype'] = 'float32'  # Integers cannot have nans.
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, **d)
+    cmd = dwi.shell.select_voxels(pmap, roi, **d)
     return {
         'name': name(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
@@ -253,7 +253,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
     roi = roi_path(mode, 'auto', case, scan, algparams=algparams)
     pmap = pmap_path(mode, case, scan)
-    cmd = dwi.shell.select_voxels_cmd(pmap, roi, mask=mask, keepmasked=False)
+    cmd = dwi.shell.select_voxels(pmap, roi, mask=mask, keepmasked=False)
     return {
         'name': name(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
@@ -315,8 +315,8 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
         deps.append(mask)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
-    cmd = dwi.shell.get_texture_cmd(mode, inpath, method, winsize, slices,
-                                    portion, outfile, voxel, mask=mask)
+    cmd = dwi.shell.get_texture(mode, inpath, method, winsize, slices, portion,
+                                outfile, voxel, mask=mask)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
@@ -361,7 +361,7 @@ def task_merge_textures():
                            texture_methods_winsizes(mode, mt)]
                 outfile = texture_path(mode, c, s, l, mt+'_merged',
                                        slices, portion, None, None)
-                cmd = dwi.shell.select_voxels_cmd(' '.join(infiles), outfile)
+                cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
                 yield {
                     'name': name(mode, c, s, l, mt, slices, portion),
                     'actions': folders(outfile) + [cmd],
@@ -377,7 +377,7 @@ def get_task_histogram(mode, masktype, samplelist):
         it = cases_scans(mode, samplelist)
     inpaths = [roi_path(mode, masktype, *x) for x in it]
     figpath = histogram_path(mode, masktype, samplelist)
-    cmd = dwi.shell.histogram_cmd(inpaths, figpath, param=0)
+    cmd = dwi.shell.histogram(inpaths, figpath, param=0)
     return {
         'name': name(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
@@ -406,7 +406,7 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
     # z = 1
     d = dict(mbb=mbb, voxelsize=None, winsize=z, voxelspacing=(z, 1, 1),
              lesiontypes=lt, use_centroid=False, nanbg=nanbg)
-    cmd = dwi.shell.grid_cmd(pmap, 0, prostate, lesion, out, **d)
+    cmd = dwi.shell.grid(pmap, 0, prostate, lesion, out, **d)
     return {
         'name': name(mode, c, s, mt),
         'actions': folders(out) + [cmd],
@@ -428,7 +428,7 @@ def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=None,
     # z = 1
     d = dict(mbb=mbb, voxelsize=None, winsize=z, voxelspacing=(z, 1, 1),
              lesiontypes=lt, use_centroid=False, nanbg=nanbg)
-    cmd = dwi.shell.grid_cmd(pmap, None, prostate, lesion, out, **d)
+    cmd = dwi.shell.grid(pmap, None, prostate, lesion, out, **d)
     return {
         'name': name(mode, c, s, mt, mth, ws),
         'actions': folders(out) + [cmd],
