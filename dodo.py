@@ -210,32 +210,6 @@ def task_make_subregion():
 #                     }
 
 
-# def get_task_find_roi(mode, case, scan, algparams):
-#     d = dict(m=mode, c=case, s=scan, ap_='_'.join(algparams))
-#     outmask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-#     outfig = 'find_roi_images/{m}/{ap_}/{c}_{s}.png'.format(**d)
-#     subregion = subregion_path(mode, case, scan)
-#     mask_p = mask_path(mode, 'prostate', case, scan)
-#     mask_c = mask_path(mode, 'CA', case, scan)
-#     mask_n = mask_path(mode, 'N', case, scan)
-#     cmd = dwi.shell.find_roi_cmd(mode, case, scan, algparams, outmask,
-#                                  outfig)
-#     return {
-#         'name': '{m}_{ap_}_{c}_{s}'.format(**d),
-#         'actions': folders(outmask, outfig) + [cmd],
-#         'file_dep': [subregion, mask_p, mask_c, mask_n],
-#         'targets': [outmask, outfig],
-#         'clean': True,
-#         }
-
-
-# def task_find_roi():
-#     """Find a cancer ROI automatically."""
-#     for algparams in find_roi_param_combinations(MODE):
-#         for case, scan in cases_scans(MODE, SAMPLELIST):
-#             yield get_task_find_roi(MODE, case, scan, algparams)
-
-
 def get_task_select_roi_lesion(mode, case, scan, lesion):
     """Select ROIs from the pmap DICOMs based on masks."""
     masktype = 'lesion'
@@ -329,48 +303,6 @@ def task_select_roi():
         'task_dep': ['select_roi_lesion', 'select_roi_manual',
                      'select_roi_auto'],
         }
-
-
-# def get_task_autoroi_auc(mode, threshold):
-#     """Evaluate auto-ROI prediction ability by ROC AUC with Gleason score."""
-#     d = dict(m=mode, sl=SAMPLELIST, t=threshold)
-#     outfile = 'autoroi_auc_{t}_{m}_{sl}.txt'.format(**d)
-#     cmds = ['echo -n > {o}'.format(o=outfile)]
-#     for algparams in find_roi_param_combinations(mode):
-#         cmds.append(dwi.shell.auc_cmd(mode, threshold, algparams, outfile))
-#     return {
-#         'name': 'autoroi_auc_{sl}_{m}_{t}'.format(**d),
-#         'actions': cmds,
-#         'task_dep': ['select_roi_auto'],
-#         'targets': [outfile],
-#         'clean': True,
-#         }
-
-
-# def get_task_autoroi_correlation(mode, thresholds):
-#     """Evaluate auto-ROI prediction ability by correlation with Gleason
-#     score."""
-#     d = dict(m=mode, sl=SAMPLELIST, t_=thresholds.replace(' ', ','))
-#     outfile = 'autoroi_correlation_{t_}_{m}_{sl}.txt'.format(**d)
-#     cmds = ['echo -n > {o}'.format(o=outfile)]
-#     for algparams in find_roi_param_combinations(mode):
-#         cmds.append(dwi.shell.correlation_cmd(mode, thresholds, algparams,
-#                                               outfile))
-#     return {
-#         'name': 'autoroi_correlation_{sl}_{m}_{t_}'.format(**d),
-#         'actions': cmds,
-#         'task_dep': ['select_roi_auto'],
-#         'targets': [outfile],
-#         'clean': True,
-#         }
-
-
-# def task_evaluate_autoroi():
-#     """Evaluate auto-ROI prediction ability."""
-#     yield get_task_autoroi_auc(MODE, '3+3')
-#     yield get_task_autoroi_auc(MODE, '3+4')
-#     yield get_task_autoroi_correlation(MODE, '3+3 3+4')
-#     yield get_task_autoroi_correlation(MODE, '')
 
 
 def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
@@ -529,20 +461,3 @@ def task_grid():
             yield get_task_grid(mode, c, s, ls, mt, **d)
             for mth, ws in texture_methods_winsizes(mode, mt):
                 yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
-
-
-# def task_check_mask_overlap():
-#     """Check mask overlap."""
-#     for mode, sl in product(MODES, SAMPLELISTS):
-#         for c, s, l in lesions(mode, sl):
-#             container = mask_path(mode, 'prostate', c, s)
-#             other = mask_path(mode, 'lesion', c, s, l)
-#             fig = 'maskoverlap/{m}/{c}-{s}-{l}.png'.format(m=mode[0], c=c,
-#                                                            s=s, l=l)
-#             cmd = dwi.shell.check_mask_overlap_cmd(container, other, fig)
-#             yield {
-#                 'name': name(mode, c, s, l),
-#                 'actions': folders(fig) + [cmd],
-#                 'file_dep': [container, other],
-#                 'targets': [fig],
-#                 }

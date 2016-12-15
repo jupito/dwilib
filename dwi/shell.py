@@ -48,18 +48,6 @@ def get_texture_cmd(mode, inpath, method, winsize, slices, portion, outpath,
     return cmd.format(**d)
 
 
-# def find_roi_cmd(mode, case, scan, algparams, outmask, outfig):
-#     d = dict(prg=DWILIB/'find_roi.py', m=mode,
-#              slf=samplelist_path(mode, SAMPLELIST), pd=pmap_path(mode),
-#              srd=subregion_path(mode), c=case, s=scan,
-#              ap=' '.join(algparams),
-#              outmask=outmask, outfig=outfig)
-#     cmd = ('{prg} --patients {slf} --pmapdir {pd} --subregiondir {srd} '
-#            '--param {m[2]} --cases {c} --scans {s} --algparams {ap} '
-#            '--outmask {outmask} --outfig {outfig}')
-#     return cmd.format(**d))
-
-
 def make_subregion_cmd(mask, subregion):
     d = dict(prg=DWILIB/'masktool.py', mask=mask, sr=subregion)
     cmd = '{prg} -i {mask} --pad 10 -s {sr}'
@@ -80,26 +68,6 @@ def select_voxels_cmd(inpath, outpath, mask=None, source_attrs=False,
     if keepmasked:
         cmd += ' --keepmasked'
     return cmd.format(**d)
-
-
-# def auc_cmd(mode, threshold, algparams, outfile):
-#     d = dict(prg=DWILIB/'roc_auc.py', m=mode,
-#              slf=samplelist_path(mode, SAMPLELIST), t=threshold,
-#              i=roi_path(mode, 'auto', algparams=algparams),
-#              ap_='_'.join(algparams), o=outfile)
-#     cmd = (r'echo `{prg} --patients {slf} --threshold {t} --voxel mean'
-#            '--autoflip --pmapdir {i}` {ap_} >> {o}')
-#     return cmd.format(**d)
-
-
-# def correlation_cmd(mode, thresholds, algparams, outfile):
-#     d = dict(prg=DWILIB/'correlation.py', m=mode,
-#              slf=samplelist_path(mode, SAMPLELIST), t=thresholds,
-#              i=roi_path(mode, 'auto', algparams=algparams),
-#              ap_='_'.join(algparams), o=outfile)
-#     cmd = (r'echo `{prg} --patients {slf} --thresholds {t} --voxel mean'
-#            '--pmapdir {i}` {ap_} >> {o}')
-#     return cmd.format(**d)
 
 
 def mask_out_cmd(src, dst, mask):
