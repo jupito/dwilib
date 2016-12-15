@@ -10,7 +10,7 @@ import dwi.util
 
 
 def samplelist_path(mode, samplelist):
-    return 'patients_{m[0]}_{l}.txt'.format(m=mode, l=samplelist)
+    return 'patients/patients_{m[0]}_{l}.txt'.format(m=mode, l=samplelist)
 
 
 def pmap_path(mode, case=None, scan=None, fmt='dicom'):
@@ -117,24 +117,6 @@ def std_cfg_path(mode):
 def histogram_path(mode, roi, samplelist):
     """Return path to histogram plot."""
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
-
-
-# def grid_path_OLD(mode, case, scan, mt, parts, fmt='txt'):
-#     """Return path to the first of the grid files.
-# 
-#     FIXME: The first element in the resulting tuple no more exists as file.
-#     """
-#     import os.path
-#     components = ['grid_{mt}', '{m}']
-#     if parts:
-#         components.append('-'.join(str(x) for x in parts))
-#     if case is not None and scan is not None:
-#         components.append('{c}-{s}.{f}')
-#     path = os.path.join(*components).format(m=mode, c=case, s=scan, mt=mt,
-#                                             f=fmt)
-#     root, ext = os.path.splitext(path)
-#     target = '{r}-0{e}'.format(r=root, e=ext)
-#     return path, target
 
 
 def grid_path(mode, case, scan, mt, parts, fmt='txt'):
