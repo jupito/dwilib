@@ -53,9 +53,6 @@ class GleasonScore(object):
     def __eq__(self, other):
         return self.score == GleasonScore(other).score
 
-    def __ne__(self, other):
-        return self.score != GleasonScore(other).score
-
     def __hash__(self):
         return hash(self.score)
 
