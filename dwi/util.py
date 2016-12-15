@@ -49,12 +49,12 @@ class ImageMode(object):
         """Append a component."""
         return self.__class__(self.value + (other,))
 
-    def __sub__(self, other):
-        """Remove a tailing component."""
-        v = self.value
-        if v[-1] == other:
-            v = v[:-1]
-        return self.__class__(v)
+    # def __sub__(self, other):
+    #     """Remove a tailing component."""
+    #     v = self.value
+    #     if v[-1] == other:
+    #         v = v[:-1]
+    #     return self.__class__(v)
 
 
 def iterable(x):

@@ -135,7 +135,8 @@ def task_standardize_train():
     """
     if MODE[0] != 'T2w':
         return
-    mode = MODE - 'std'
+    # mode = MODE - 'std'
+    mode = MODE[:-1] if MODE[-1] == 'std' else MODE
     std_cfg = std_cfg_path(mode)
     # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
     inpaths = [roi_path(mode, 'prostate', c, s) for c, s in cases_scans(mode,
@@ -154,7 +155,8 @@ def task_standardize_transform():
     """Standardize MRI images: transform phase."""
     if MODE[0] != 'T2w':
         return
-    mode = MODE - 'std'
+    # mode = MODE - 'std'
+    mode = MODE[:-1] if MODE[-1] == 'std' else MODE
     sl = SAMPLELIST
     cfgpath = std_cfg_path(mode)
     for case, scan in cases_scans(mode, sl):
