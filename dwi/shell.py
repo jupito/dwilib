@@ -130,38 +130,36 @@ def fit_cmd(infile, outfile, model, mask=None, mbb=None, params=None):
     return cmd.format(**d)
 
 
-def cmdline(*positionals, **options):
-    """Construct a shell command string."""
-    # TODO: Not good, replace with something simple.
-    lst = list(positionals)
-    for k, v in sorted(options.iteritems()):
-        if v is not None:
-            k = str(k)
-            dashes = '--' if len(k) > 1 else '-'
-            lst.append(dashes + k)
-            if dwi.util.iterable(v) and not isinstance(v, basestring):
-                lst.extend(v)
-            else:
-                lst.append(v)
-    return ' '.join(str(x) for x in lst)
+def arglist(args):
+    return ' '.join(str(x) for x in args)
 
 
 def grid_cmd(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
              winsize=5, voxelspacing=None, lesiontypes=None,
              use_centroid=False, nanbg=False):
-    d = dict(v=(), mbb=mbb, voxelsize=voxelsize, winsize=winsize, image=image,
-             prostate=prostate, lesions=lesions, output=outpath)
+    prg = DWILIB / 'grid.py'
+    lesions = arglist(lesions)
+    voxelspacing = arglist(voxelspacing)
+    lesiontypes = arglist(lesiontypes)
+    cmd = ('{prg} -v --image {image} --prostate {prostate} --lesions {lesions}'
+           ' --output {outpath}')
     if param is not None:
-        d.update(param=param)
+        cmd += ' --param {param}'
+    if voxelsize is not None:
+        cmd += ' --voxelsize {voxelsize}'
+    if winsize is not None:
+        cmd += ' --winsize {winsize}'
+    if mbb is not None:
+        cmd += ' --mbb {mbb}'
     if voxelspacing is not None:
-        d.update(voxelspacing=voxelspacing)
+        cmd += ' --voxelspacing {voxelspacing}'
     if lesiontypes is not None:
-        d.update(lesiontypes=lesiontypes)
+        cmd += ' --lesiontypes {lesiontypes}'
     if use_centroid:
-        d.update(use_centroid=())
+        cmd += ' --use_centroid'
     if nanbg:
-        d.update(nanbg=())
-    return cmdline(DWILIB/'grid.py', **d)
+        cmd += ' --nanbg'
+    return cmd.format(**locals())
 
 
 def check_mask_overlap_cmd(container, other, fig):
