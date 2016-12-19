@@ -45,9 +45,9 @@ class ImageMode(object):
     def __hash__(self):
         return hash(tuple(self))
 
-    def __add__(self, other):
-        """Append a component."""
-        return self.__class__(self.value + (other,))
+    # def __add__(self, other):
+    #     """Append a component."""
+    #     return self.__class__(self.value + (other,))
 
     # def __sub__(self, other):
     #     """Remove a tailing component."""

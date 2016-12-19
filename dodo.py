@@ -162,7 +162,8 @@ def task_standardize_transform():
     for case, scan in cases_scans(mode, sl):
         inpath = pmap_path(mode, case, scan)
         mask = mask_path(mode, 'prostate', case, scan)
-        outpath = pmap_path(mode + 'std', case, scan)
+        outmode = dwi.util.ImageMode(tuple(mode) + ('std',))
+        outpath = pmap_path(outmode, case, scan)
         cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
                                               mask=mask)
         yield {
