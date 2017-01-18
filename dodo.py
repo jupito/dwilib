@@ -28,11 +28,9 @@ def words(string, sep=','):
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
 MODES = [dwi.util.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]
-MODE = MODES[0]
 
 # Sample lists (train, test, etc).
 SAMPLELISTS = words(get_var('samplelist', 'all'))
-SAMPLELIST = SAMPLELISTS[0]
 
 
 def name(*items):
@@ -78,7 +76,7 @@ def texture_params():
     return product(masktypes, slices, portion)
 
 
-def find_roi_param_combinations(mode):
+def find_roi_param_combinations(mode, samplelist):
     """Generate all find_roi.py parameter combinations."""
     find_roi_params = [
         [1, 2, 3],  # ROI depth min
@@ -88,7 +86,7 @@ def find_roi_param_combinations(mode):
         range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
         ]
     if mode[0] == 'DWI':
-        if SAMPLELIST == 'test':
+        if samplelist == 'test':
             params = [
                 (2, 3, 10, 10, 500),  # Mono: corr, auc
                 (2, 3, 10, 10, 1750),  # Mono: corr
@@ -133,6 +131,7 @@ def task_standardize_train():
 
     Pay attention to the sample list: all samples should be used.
     """
+    MODE = MODES[0]  # XXX: Only first mode used.
     if MODE[0] != 'T2w':
         return
     # mode = MODE - 'std'
@@ -153,6 +152,8 @@ def task_standardize_train():
 
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
+    MODE = MODES[0]  # XXX: Only first mode used.
+    SAMPLELIST = SAMPLELISTS[0]  # XXX: Only first samplelist used.
     if MODE[0] != 'T2w':
         return
     # mode = MODE - 'std'
@@ -291,7 +292,7 @@ def task_select_roi_auto():
     """Select automatic ROIs from the pmap DICOMs."""
     for mode, sl in product(MODES, SAMPLELISTS):
         if mode[0] == 'DWI':
-            for algparams in find_roi_param_combinations(mode):
+            for algparams in find_roi_param_combinations(mode, sl):
                 for c, s in cases_scans(mode, sl):
                     try:
                         yield get_task_select_roi_auto(mode, c, s, algparams)
