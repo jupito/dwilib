@@ -10,6 +10,13 @@ import dwi.util
 
 
 DEFAULT_DSETNAME = 'default'
+DEFAULT_DSETPARAMS = dict(
+    compression='gzip',  # Smaller, compatible.
+    # compression='lzf',  # Faster.
+    shuffle=True,  # Rearrange bytes for better compression.
+    fletcher32=True,  # Flether32 checksum.
+    # track_times=False,  # Dataset creation timestamps.
+    )
 
 
 class Dataset(h5py.Dataset):
@@ -25,8 +32,8 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     file.
     """
     f = h5py.File(filename, 'w')
-    dset = f.create_dataset(dsetname, data=array, compression='gzip',
-                            shuffle=True, fletcher32=True, fillvalue=fillvalue)
+    dset = f.create_dataset(dsetname, data=array, fillvalue=fillvalue,
+                            **DEFAULT_DSETPARAMS)
     for k, v in attrs.iteritems():
         # HDF5 doesn't understand None objects, so replace any with nan values.
         if dwi.util.iterable(v) and not isinstance(v, basestring):
@@ -68,8 +75,6 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     Attributes and the file object can be accessed by dset.attrs and dset.file.
     """
     f = h5py.File(filename, 'w')
-    comp = 'gzip'  # Smaller, compatible.
-    # comp = 'lzf'  # Faster.
-    dset = f.create_dataset(dsetname, shape, dtype=dtype, compression=comp,
-                            shuffle=True, fletcher32=True, fillvalue=fillvalue)
+    dset = f.create_dataset(dsetname, shape, dtype=dtype, fillvalue=fillvalue,
+                            **DEFAULT_DSETPARAMS)
     return Dataset(dset.id)
