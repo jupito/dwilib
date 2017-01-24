@@ -153,7 +153,8 @@ def gabor_featmap(real, imag, winsize, mask):
     assert real.shape == imag.shape, (real.shape, imag.shape)
     rit = iter(dwi.util.sliding_window(real, winsize, mask=mask))
     iit = iter(dwi.util.sliding_window(imag, winsize, mask=mask))
-    output = np.full((len(GABOR_FEAT_NAMES),) + real.shape, np.nan)
+    shape = (len(GABOR_FEAT_NAMES),) + real.shape
+    output = np.full(shape, np.nan, dtype=np.float32)
     for ((y, x), rwin), (_, iwin) in zip(rit, iit):
         output[:, y, x] = gabor_feats(rwin, iwin)
     return output
