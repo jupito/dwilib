@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
 import os.path
+from pathlib2 import Path
 import re
 import shutil
 import tempfile
@@ -56,6 +57,11 @@ def valid_lines(filename):
             line = line.split(COMMENT_PREFIX, 1)[0].strip()
             if line:
                 yield line
+
+
+def ensure_dir(path):
+    """Ensure existence of the file's parent directory."""
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
 
 
 def read_patients_file(filename, include_lines=False):
