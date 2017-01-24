@@ -15,7 +15,7 @@ DEFAULT_DSETPARAMS = dict(
     # compression='lzf',  # Faster.
     shuffle=True,  # Rearrange bytes for better compression.
     fletcher32=True,  # Flether32 checksum.
-    # track_times=False,  # Dataset creation timestamps.
+    track_times=False,  # Dataset creation timestamps.
     )
 
 
