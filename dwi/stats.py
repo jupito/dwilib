@@ -147,6 +147,9 @@ def repeatability_coeff(a1, a2, avgfun=np.mean):
 def icc(baselines):
     """Calculate ICC(3,1) intraclass correlation.
 
+    Parameter baselines is an array of size (k, n) where k is the number of
+    raters (repetitions) and n is the number of targets (samples).
+
     See Shrout, Fleiss 1979: Intraclass Correlations: Uses in Assessing Rater
     Reliability.
     """
