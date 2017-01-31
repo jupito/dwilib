@@ -43,3 +43,28 @@ def lesions(mode, samplelist):
         for scan in p.scans:
             for i, _ in enumerate(p.lesions):
                 yield p.num, scan, i+1
+
+
+def texture_methods():
+    return dwi.rcParams['texture.methods']
+
+
+def texture_winsizes(masktype, mode, method):
+    if method.endswith('_all'):
+        return ['all']
+    elif method.endswith('_mbb'):
+        return ['mbb']
+    elif method == 'sobel':
+        return [3]  # Sobel convolution kernel is always 3x3 voxels.
+    elif masktype in ('CA', 'N'):
+        return [3, 5]  # These ROIs are always 5x5 voxels.
+    elif mode[0] in ('T2', 'T2w'):
+        return range(*dwi.rcParams['texture.winsizes.large'])
+    else:
+        return range(*dwi.rcParams['texture.winsizes.small'])
+
+
+def texture_methods_winsizes(mode, masktype):
+    for method in texture_methods():
+        for winsize in texture_winsizes(masktype, mode, method):
+            yield method, winsize
