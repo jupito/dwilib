@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
+import logging
 import os.path
 from pathlib2 import Path
 import re
@@ -16,6 +17,8 @@ import dwi.dicomfile
 import dwi.hdf5
 from dwi.patient import Patient, Lesion
 
+
+log = logging.getLogger(__name__)
 
 COMMENT_PREFIX = '#'
 
@@ -241,6 +244,7 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
         pmap, attrs = pick_params(pmap, attrs, params)
     if dtype is not None:
         pmap = pmap.astype(dtype)
+    log.debug('Read %s, %s, %s', pathname, pmap.shape, pmap.dtype)
     return pmap, attrs
 
 
