@@ -101,19 +101,10 @@ def main():
             continue
         # Scaling may be required for correct results.
         x = dwi.stats.scale_standard(x)
-        _, _, auc = dwi.stats.calculate_roc_auc(y, x, autoflip=False,
-                                                scale=False)
-        # Must flip here for the bootstrap to work.
-        if args.autoflip and auc < 0.5:
-            x = -x
-            _, _, auc = dwi.stats.calculate_roc_auc(y, x, autoflip=False,
-                                                    scale=False)
-        d['auc'] = auc
+        d.update(dwi.stats.roc_auc(y, x, autoflip=args.autoflip,
+                                   nboot=args.nboot))
         if args.nboot:
-            # Note: x may now be negated (ROC flipped).
-            auc_bs = dwi.stats.bootstrap_aucs(y, x, args.nboot)
-            d['ci1'], d['ci2'] = dwi.stats.conf_int(auc_bs)
-            Auc_bs.append(auc_bs)
+            Auc_bs.append(d.pop('aucs'))
             s += '  {ci1:.3f}  {ci2:.3f}'
         print(s.format(**d))
 
