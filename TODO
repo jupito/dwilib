@@ -29,3 +29,11 @@ class ImageMode(tuple):
     @classmethod
     def parse(cls, s):
         return cls([int(x) for x in s.split('-')])
+
+Subclass np.ndarry for versatile image class.
+https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+
+Could np.ma be used for image masks?
+https://docs.scipy.org/doc/numpy/reference/maskedarray.html
+
+Replace pydicom with nibabel or medpy?
