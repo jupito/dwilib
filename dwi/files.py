@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
 import logging
-import os.path
 from pathlib2 import Path
 import re
 import shutil
@@ -165,7 +164,7 @@ def write_subregion_file(filename, win, comment=''):
 
 def guess_format(path):
     """Guess file format identifier from it's suffix."""
-    return os.path.splitext(path)[1][1:]
+    return Path(path).suffix[1:]
 
 
 def write_pmap(filename, pmap, attrs, fmt=None):
