@@ -32,13 +32,17 @@ Requirements
 - NumPy
 - SciPy
 - [Scikit-Learn](http://scikit-learn.org/)
-- [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if
-  fitting)
-- [Matplotlib](http://matplotlib.org/) (if plotting)
-- [Pydicom](https://code.google.com/p/pydicom/) (if reading DICOM files)
-- [scikit-image](http://scikit-image.org/) (if doing texture analysis)
-- [Mahotas](http://luispedro.org/software/mahotas/) (if doing texture analysis)
-- [DoIt](http://pydoit.org/) (if using the build tool)
+
+
+Optional requirements
+---------------------
+- [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (fitting)
+- [Matplotlib](http://matplotlib.org/) (plotting)
+- [Pydicom](https://code.google.com/p/pydicom/) (reading DICOM files)
+- [h5py](http://www.h5py.org/) (handling HDF5 files)
+- [scikit-image](http://scikit-image.org/) (texture analysis)
+- [Mahotas](http://luispedro.org/software/mahotas/) (texture analysis)
+- [DoIt](http://pydoit.org/) (task management)
 
 
 Todo or In Progress

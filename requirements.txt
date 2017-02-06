@@ -1,10 +1,14 @@
+# Required
+numpy>=1.11.0
+pathlib2>=2.2.1
+scikit-learn>=0.17.0
+scipy>=0.17.0
+
+# Optional
 doit>=0.29.0
 h5py>=2.6.0
 leastsqbound>=1.1
 mahotas>=1.4.0
 matplotlib>=1.5.0
-numpy>=1.11.0
 pydicom>=0.9.9
 scikit-image>=0.12.3
-scikit-learn>=0.17.0
-scipy>=0.17.0
