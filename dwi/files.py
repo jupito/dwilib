@@ -214,27 +214,27 @@ def pick_params(pmap, attrs, params):
     return pmap, attrs
 
 
-def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
+def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
     """Read a parametric map.
 
     With parameter ondisk it will not be read into memory. Parameter params
     tells which parameter indices should be included.
     """
     if fmt is None:
-        fmt = guess_format(pathname)
+        fmt = guess_format(path)
     if fmt == 'h5':
-        pmap, attrs = dwi.hdf5.read_hdf5(pathname, ondisk=ondisk)
+        pmap, attrs = dwi.hdf5.read_hdf5(path, ondisk=ondisk)
     elif fmt == 'txt':
-        attrs, pmap = dwi.asciifile.read_ascii_file(pathname)
+        attrs, pmap = dwi.asciifile.read_ascii_file(path)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
     elif fmt == 'zip':
-        with read_archive(pathname) as tempdir:
+        with read_archive(path) as tempdir:
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)
     else:
         # No extension, assume it's a DICOM directory.
-        d = dwi.dicomfile.read_dir(pathname)
+        d = dwi.dicomfile.read_dir(path)
         pmap = d.pop('image')
         attrs = dict(d)
     if 'parameters' not in attrs:
@@ -244,7 +244,7 @@ def read_pmap(pathname, ondisk=False, fmt=None, params=None, dtype=None):
         pmap, attrs = pick_params(pmap, attrs, params)
     if dtype is not None:
         pmap = pmap.astype(dtype)
-    log.debug('Read %s, %s, %s', pathname, pmap.shape, pmap.dtype)
+    log.debug('Read %s, %s, %s', path, pmap.shape, pmap.dtype)
     return pmap, attrs
 
 
