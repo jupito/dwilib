@@ -112,11 +112,10 @@ def main():
         if args.nboot:
             # Note: x may now be negated (ROC flipped).
             auc_bs = dwi.stats.bootstrap_aucs(y, x, args.nboot)
-            avg = np.mean(auc_bs)
             ci1, ci2 = dwi.stats.conf_int(auc_bs)
-            d.update(avg=avg, ci1=ci1, ci2=ci2)
+            d.update(ci1=ci1, ci2=ci2)
             Auc_bs.append(auc_bs)
-            s += '  {avg:.3f}  {ci1:.3f}  {ci2:.3f}'
+            s += '  {ci1:.3f}  {ci2:.3f}'
         print(s.format(**d))
 
     # Print bootstrapped AUC comparisons.
