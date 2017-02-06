@@ -112,8 +112,7 @@ def main():
         if args.nboot:
             # Note: x may now be negated (ROC flipped).
             auc_bs = dwi.stats.bootstrap_aucs(y, x, args.nboot)
-            ci1, ci2 = dwi.stats.conf_int(auc_bs)
-            d.update(ci1=ci1, ci2=ci2)
+            d['ci1'], d['ci2'] = dwi.stats.conf_int(auc_bs)
             Auc_bs.append(auc_bs)
             s += '  {ci1:.3f}  {ci2:.3f}'
         print(s.format(**d))
