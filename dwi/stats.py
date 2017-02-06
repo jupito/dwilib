@@ -106,6 +106,25 @@ def bootstrap_aucs(y, x, n=2000):
     return aucs
 
 
+def roc_auc(labels, values, autoflip=False, nboot=None):
+    """Calculate ROC AUC with optional bootstrapping. If autoflip is True,
+    results under 0.5 are 'switched' automatically. Returns a dictionary with
+    keys: auc: AUC, flipped: whether flipped, ci1, ci2: confidence interval.
+    """
+    _, _, auc = dwi.stats.calculate_roc_auc(labels, values, autoflip=False,
+                                            scale=False)
+    if autoflip and auc < 0.5:
+        # Must flip here for the bootstrap to work.
+        return dict(roc_auc(labels, -values, autoflip=False, nboot=nboot),
+                    flipped=True)
+    d = dict(auc=auc, flipped=False)
+    if nboot:
+        # Note: values may now be negated (ROC flipped).
+        d['aucs'] = dwi.stats.bootstrap_aucs(labels, values, nboot)
+        d['ci1'], d['ci2'] = dwi.stats.conf_int(d['aucs'])
+    return d
+
+
 def compare_aucs(aucs1, aucs2):
     """Compare two arrays of (bootstrapped) ROC AUC values, with the method
     described in pROC software.
