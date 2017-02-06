@@ -137,7 +137,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('path',
                    help='DICOM directory or HDF5 file')
-    p.add_argument('--params', '-p', type=int, nargs='+',
+    p.add_argument('--params', '-p', nargs='+',
                    help='included parameter indices')
     p.add_argument('--mbb', action='store_true',
                    help='take minimum bounding box')
