@@ -4,13 +4,16 @@ dwilib
 Tools in development to support analysis of Diffusion-Weighted Imaging (DWI)
 data, with focus on prostate cancer.
 
-Input data can be provided in DICOM or custom ASCII or MATLAB format.
-
 This software is being developed as part of a research project at the [Magnetic
 Resonance Imaging Research Center](http://mrc.utu.fi/), Turku, Finland.
 
+Note: This is very much under construction. The program code is written on
+demand basis, for custom needs at in-house projects.
+
+
 Features
 --------
+- Read input data as DICOM, or in custom ASCII or MATLAB formats
 - Perform model fitting (Monoexponential ADC, Kurtosis, Stretched exponential,
   Biexponential)
 - Calculate correlation with Gleason score
@@ -21,20 +24,22 @@ Features
   widget)
 - Build tool for automated pipelining of data processing tasks
 
+
 Requirements
 ------------
 - Python 2.7
-- NumPy 1.10
-- SciPy 0.14
+- pathlib2
+- NumPy
+- SciPy
 - [Scikit-Learn](http://scikit-learn.org/)
 - [leastsqbound-scipy](https://github.com/jjhelmus/leastsqbound-scipy) (if
   fitting)
 - [Matplotlib](http://matplotlib.org/) (if plotting)
-- [Pydicom](https://code.google.com/p/pydicom/) 0.9.8 (if handling DICOM files)
+- [Pydicom](https://code.google.com/p/pydicom/) (if reading DICOM files)
 - [scikit-image](http://scikit-image.org/) (if doing texture analysis)
 - [Mahotas](http://luispedro.org/software/mahotas/) (if doing texture analysis)
 - [DoIt](http://pydoit.org/) (if using the build tool)
-- pathlib2
+
 
 Todo or In Progress
 -------------------
