@@ -42,6 +42,7 @@ def read_archive(archive, max_size=None):
             raise ValueError('Archive content is too big', archive)
         with temp_dir() as tmpdir:
             # Extract one by one because the docs warn against extractall().
+            log.debug('Extracting %s to %s', archive, tmpdir)
             for info in infos:
                 a.extract(info, tmpdir)
             yield tmpdir
