@@ -12,7 +12,7 @@ Python 2 to 3 conversion check list:
 - pathlib2 => pathlib
 - Mayavi no more possible?
 
-Configuration by external file: argparse, json, configparser?
+Configuration by external file: argparse, json, configparser, configargparse?
 
 Documentation by Sphinx. http://www.sphinx-doc.org/
 
