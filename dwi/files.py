@@ -194,9 +194,9 @@ def write_pmap(filename, pmap, attrs, fmt=None):
 
 
 def pick_params(pmap, attrs, params):
-    """Select a subset of parameters by their indices."""
+    """Select a subset of parameters by their indices or names."""
     params = list(params)
-    # Replace any strings with their integer or index counterparts.
+    # Replace any parameter name with corresponding index number.
     for i, value in enumerate(params):
         if isinstance(value, basestring):
             if value.isdigit():
