@@ -95,7 +95,7 @@ def bootstrap_aucs(y, x, n=2000):
     aucs = np.zeros(n)
     for i in range(n):
         yb, xb = resample_bootstrap_stratified(y, x)
-        _, _, auc = calculate_roc_auc(yb, xb)
+        _, _, auc = calculate_roc_auc(yb, xb, autoflip=False, scale=True)
         aucs[i] = auc
     return aucs
 
