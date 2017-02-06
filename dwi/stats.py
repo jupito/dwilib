@@ -74,6 +74,11 @@ def posneg_to_labelsvalues(pos, neg):
     return labels, values
 
 
+def scale_standard(x):
+    """Scale to standard distribution with zero mean, unit variance."""
+    return sklearn.preprocessing.scale(x)
+
+
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
     """Calculate ROC and AUC from data points and their classifications.
 
@@ -83,7 +88,7 @@ def calculate_roc_auc(y, x, autoflip=False, scale=True):
     y = np.asarray(y)
     x = np.asarray(x)
     if scale:
-        x = sklearn.preprocessing.scale(x)
+        x = scale_standard(x)
     fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
     auc = sklearn.metrics.auc(fpr, tpr)
     if autoflip and auc < 0.5:
