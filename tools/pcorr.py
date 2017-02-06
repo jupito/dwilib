@@ -62,6 +62,7 @@ def main():
     lpp = np.mean(y_lesion[y_prostate])  # Lesion per prostate.
 
     # ROC AUC of prostate against image.
+    x = dwi.stats.scale_standard(x)
     _, _, auc_p = dwi.stats.calculate_roc_auc(y_prostate, x, autoflip=True)
     # ROC AUC of lesion against prostate.
     _, _, auc_l = dwi.stats.calculate_roc_auc(y_lesion[y_prostate],
