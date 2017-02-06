@@ -1,0 +1,31 @@
+Dwilib TODO list
+================
+
+Python 2 to 3 conversion check list:
+- use python2 -3, 2to3, py3kwarn, pylint2 --py3k
+- remove future imports
+- basestring, unicode => str
+- xrange() => list(range()), xreadlines()
+- iteritems() => items()
+- others that are now iterators (keys, values, filter, map...)
+- exception handling syntax (already ok?)
+- pathlib2 => pathlib
+- Mayavi no more possible?
+
+Configuration by external file: argparse, json, configparser?
+
+Documentation by Sphinx. http://www.sphinx-doc.org/
+
+Import from Scipy according to the guidelines:
+http://docs.scipy.org/doc/scipy/reference/api.html
+
+Use a namedtuple instead of GleasonScore? Also: Lesion, Patient, etc.
+https://docs.python.org/2/library/collections.html#collections.namedtuple
+
+Replace ImageMode with this?:
+class ImageMode(tuple):
+    def __str__(self):
+        return '-'.join(str(x) for x in self)
+    @classmethod
+    def parse(cls, s):
+        return cls([int(x) for x in s.split('-')])
