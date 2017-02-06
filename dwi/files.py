@@ -193,16 +193,20 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         raise Exception('Unknown format: {}'.format(fmt))
 
 
+def asindices(iterable, lst):
+    """Replace items in iterable with their corresponding indices in list, or
+    convert them to integers. E.g. asindices(['o', '22'], 'foobar') => 1, 22.
+    """
+    for item in iterable:
+        try:
+            yield lst.index(item)  # Yield corresponding index.
+        except ValueError:
+            yield int(item)  # Not found, convert to integer.
+
+
 def pick_params(pmap, attrs, params):
     """Select a subset of parameters by their indices or names."""
-    params = list(params)
-    # Replace any parameter name or string index with corresponding integer.
-    for i, value in enumerate(params):
-        if isinstance(value, basestring):
-            if value.isdigit():
-                params[i] = int(value)
-            else:
-                params[i] = attrs['parameters'].index(value)
+    params = list(asindices(params, attrs['parameters']))
     pmap = pmap[..., params]
     if 'bset' in attrs and len(attrs['bset']) == len(attrs['parameters']):
         attrs['bset'] = [attrs['bset'][x] for x in params]
