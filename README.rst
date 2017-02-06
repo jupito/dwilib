@@ -25,6 +25,14 @@ Features
 - Build tool for automated pipelining of data processing tasks
 
 
+Todo or In Progress
+-------------------
+- Improved documentation
+- Improved build tool
+- Autonomous tumor delineation/ROI placement
+- Regression classification
+
+
 Requirements
 ------------
 - Python 2.7
@@ -43,11 +51,3 @@ Optional requirements
 - `scikit-image <http://scikit-image.org/>`_ (texture analysis)
 - `Mahotas <http://luispedro.org/software/mahotas/>`_ (texture analysis)
 - `DoIt <http://pydoit.org/>`_ (task management)
-
-
-Todo or In Progress
--------------------
-- Improved documentation
-- Improved build tool
-- Autonomous tumor delineation/ROI placement
-- Regression classification
