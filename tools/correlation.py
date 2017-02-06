@@ -8,6 +8,7 @@ import math
 import numpy as np
 import scipy.stats
 
+import dwi.dataset
 import dwi.patient
 import dwi.util
 
@@ -62,7 +63,7 @@ def main():
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.patient.read_pmaps(args.patients, pmapdir, thresholds,
+        data = dwi.dataset.read_pmaps(args.patients, pmapdir, thresholds,
                                       voxel=args.voxel,
                                       multiroi=args.multilesion,
                                       dropok=args.dropok)

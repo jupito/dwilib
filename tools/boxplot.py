@@ -9,6 +9,7 @@ from collections import OrderedDict
 import numpy as np
 import matplotlib.pyplot as plt
 
+import dwi.dataset
 import dwi.files
 import dwi.paths
 import dwi.patient
@@ -49,7 +50,7 @@ def plot(data, title=None, labels=None, path=None):
 
 def main():
     args = parse_args()
-    lesions = list(dwi.patient.iterlesions(args.patients))
+    lesions = list(dwi.dataset.iterlesions(args.patients))
     if args.location:
         lesions = [x for x in lesions if x[2].location == args.location]
     for _, _, l in lesions:

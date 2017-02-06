@@ -73,7 +73,7 @@ def main():
     for p, l in ((p, l) for p in patients for l in p.lesions):
         l.patient = p
 
-    # for p, s, l in dwi.patient.iterlesions(patients):
+    # for p, s, l in dwi.dataset.iterlesions(patients):
     #     print(p.num, l.index, l.score, l.label)
 
     all_lesions = list(itertools.chain(*(p.lesions for p in patients)))

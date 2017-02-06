@@ -7,6 +7,7 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import numpy as np
 
+import dwi.dataset
 import dwi.patient
 import dwi.plot
 import dwi.stats
@@ -55,7 +56,7 @@ def main():
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.patient.read_pmaps(args.patients, pmapdir, thresholds,
+        data = dwi.dataset.read_pmaps(args.patients, pmapdir, thresholds,
                                       voxel=args.voxel,
                                       multiroi=args.multilesion,
                                       dropok=args.dropok)
