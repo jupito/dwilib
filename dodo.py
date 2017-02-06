@@ -9,6 +9,7 @@ from doit import get_var
 
 from dwi.doit import (cases_scans, lesions, words, name, folders,
                       texture_methods_winsizes)
+import dwi.dataset
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
                        roi_path, std_cfg_path, texture_path, histogram_path,
@@ -384,7 +385,7 @@ def task_grid():
     """Grid classifier."""
     for mode, sl in product(MODES, SAMPLELISTS):
         lesioninfo = defaultdict(list)
-        for c, s, l in dwi.patient.iterlesions(samplelist_path(mode, sl)):
+        for c, s, l in dwi.dataset.iterlesions(samplelist_path(mode, sl)):
             c, l, lt = c.num, l.index + 1, l.location
             lesioninfo[(c, s)].append((l, lt))
         for k, v in lesioninfo.iteritems():
