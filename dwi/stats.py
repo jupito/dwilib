@@ -62,6 +62,17 @@ def resample_bootstrap_stratified(Y, X):
     return Y[indices], X[indices]
 
 
+def posneg_to_labelsvalues(pos, neg):
+    """From two data sequences, positives and negatives, create to ndarrays,
+    labels and values, where labels contains True/False labels, and values
+    contains all corresponding values.
+    """
+    values = np.concatenate([pos, neg])
+    labels = np.zeros_like(values, dtype=np.bool)
+    labels[:len(pos)] = True
+    return labels, values
+
+
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
     """Calculate ROC and AUC from data points and their classifications.
 
