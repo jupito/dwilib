@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 import glob
+import logging
 from itertools import ifilter, islice
 import os
 
@@ -55,6 +56,14 @@ class ImageMode(object):
     #     if v[-1] == other:
     #         v = v[:-1]
     #     return self.__class__(v)
+
+
+def get_loglevel(name):
+    """Return the numeric correspondent of a logging level name."""
+    try:
+        return getattr(logging, name.upper())
+    except AttributeError:
+        raise ValueError('Invalid log level: {}'.format(name))
 
 
 def iterable(x):
