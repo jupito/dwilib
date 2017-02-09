@@ -38,6 +38,7 @@ class Pmap(object):
     sum = property(lambda self: np.nansum(self._img))
     mean = property(lambda self: np.nanmean(self._img))
     std = property(lambda self: np.nanstd(self._img))
+    var = property(lambda self: np.nanvar(self._img))
     min = property(lambda self: np.nanmin(self._img))
     median = property(lambda self: np.nanmedian(self._img))
     max = property(lambda self: np.nanmax(self._img))
