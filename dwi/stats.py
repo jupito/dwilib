@@ -79,6 +79,11 @@ def scale_standard(x):
     return sklearn.preprocessing.scale(x)
 
 
+def scale_minmax(x):
+    """Scale to range."""
+    return sklearn.preprocessing.minmax_scale(x)
+
+
 def calculate_roc_auc(y, x, autoflip=False, scale=True):
     """Calculate ROC and AUC from data points and their classifications.
 
