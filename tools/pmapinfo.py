@@ -15,9 +15,9 @@ import dwi.util
 class Pmap(object):
     """Open pmap to request properties from."""
 
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
         self.path = Path(path)
-        self._img, self._attrs = dwi.files.read_pmap(str(path))
+        self._img, self._attrs = dwi.files.read_pmap(str(path), **kwargs)
 
     name = property(lambda self: self.path.name)
     stem = property(lambda self: self.path.stem)
@@ -74,6 +74,8 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__, epilog=epilog)
     p.add_argument('path', nargs='+',
                    help='input pmap files')
+    p.add_argument('-p', '--params', nargs='*',
+                   help='parameters')
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
     p.add_argument('-k', '--keys', default='shape,path',
@@ -85,7 +87,7 @@ def main():
     args = parse_args()
     keys = args.keys.split(',')
     for path in args.path:
-        pmap = Pmap(path)
+        pmap = Pmap(path, params=args.params)
         fmt = '{k}={v}' if args.verbose else '{v}'
         fields = (fmt.format(k=x, v=getattr(pmap, x)) for x in keys)
         print(*fields, sep='\t')
