@@ -19,6 +19,15 @@ import dwi.shell
 import dwi.util
 
 
+DOIT_CONFIG = {
+    'backend': 'sqlite3',
+    'default_tasks': [],
+    'verbosity': 1,
+    # 'num_process': 7,
+    'num_process': dwi.doit.get_num_process(),
+    }
+
+
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
 MODES = [dwi.util.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]

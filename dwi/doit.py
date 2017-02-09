@@ -11,6 +11,16 @@ import dwi.files
 from dwi.paths import samplelist_path
 
 
+def get_num_process():
+    """Take a pick how many processes we want to run simultaneously."""
+    def get_hostname():
+        """Return node hostname."""
+        import platform
+        return platform.uname()[1]
+    d = dict(taanne=1, TY1303004=7, petmrc=24)
+    return d[get_hostname()]
+
+
 def words(string, sep=','):
     """Split string into stripped words."""
     return [x.strip() for x in string.split(sep)]
