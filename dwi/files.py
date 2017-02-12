@@ -94,10 +94,9 @@ def mapped(shape, dtype, filler=None):
     return a
 
 
-def read_patients_file(filename, include_lines=False):
-    """Load a list of patients.
-
-    Row format: num name scan1,scan2,... score [location]
+def parse_patient(line, include_lines=False):
+    """Parse a line in patient list file.
+    Format: num name scan1,scan2,... score [location]
     """
     regexp = r"""
         (?P<num>\d+) \s+
@@ -108,28 +107,31 @@ def read_patients_file(filename, include_lines=False):
         ((?P<score3>\d\+\d(\+\d)?) \s+ (?P<location3>\w+))?
         """
     p = re.compile(regexp, flags=re.VERBOSE)
-    patients = []
-    for line in valid_lines(filename):
-        m = p.match(line)
-        if m is None:
-            raise Exception('Invalid line in patients file: %s', line)
-        num = m.group('num')
-        name = m.group('name')
-        scans = sorted(m.group('scans').lower().split(','))
-        les = [Lesion(0, m.group('score'), 'xx')]
-        if m.group('location'):
-            # New-style, multi-lesion file.
-            les = []
-            les.append(Lesion(0, m.group('score'), m.group('location')))
-            if m.group('score2'):
-                les.append(Lesion(1, m.group('score2'), m.group('location2')))
-            if m.group('score3'):
-                les.append(Lesion(2, m.group('score3'), m.group('location3')))
-        patient = Patient(num, name, scans, les)
-        if include_lines:
-            patient.line = line
-        patients.append(patient)
-    return sorted(patients)
+    m = p.match(line)
+    if m is None:
+        raise Exception('Invalid line in patients file: %s', line)
+    num = m.group('num')
+    name = m.group('name')
+    scans = sorted(m.group('scans').lower().split(','))
+    les = [Lesion(0, m.group('score'), 'xx')]
+    if m.group('location'):
+        # New-style, multi-lesion file.
+        les = []
+        les.append(Lesion(0, m.group('score'), m.group('location')))
+        if m.group('score2'):
+            les.append(Lesion(1, m.group('score2'), m.group('location2')))
+        if m.group('score3'):
+            les.append(Lesion(2, m.group('score3'), m.group('location3')))
+    patient = Patient(num, name, scans, les)
+    if include_lines:
+        patient.line = line
+    return patient
+
+
+def read_patients_file(path, include_lines=False):
+    """Read a list of patients."""
+    return sorted(parse_patient(x, include_lines=include_lines) for x in
+                  valid_lines(path))
 
 
 def read_sample_list(filename):
