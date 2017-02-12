@@ -69,9 +69,11 @@ def toline(iterable):
     return ' '.join(str(x) for x in iterable) + '\n'
 
 
-def valid_lines(filename):
+def valid_lines(path):
     """Read and yield lines that are neither empty nor comments."""
-    with open(filename, 'rU') as f:
+    if isinstance(path, Path):
+        path = str(path)
+    with open(path, 'rU') as f:
         for line in f:
             line = line.split(COMMENT_PREFIX, 1)[0].strip()
             if line:
