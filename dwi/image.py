@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 
+from pathlib2 import Path
 import numpy as np
 
 import dwi.files
@@ -41,7 +42,8 @@ class Image(np.ndarray):
     @classmethod
     def read(cls, path, **kwargs):
         """Read a pmap."""
-        img, attrs = dwi.files.read_pmap(path, **kwargs)
+        path = Path(path)
+        img, attrs = dwi.files.read_pmap(str(path), **kwargs)
         info = dict(path=path, attrs=attrs)
         obj = cls(img, info=info)
         return obj
