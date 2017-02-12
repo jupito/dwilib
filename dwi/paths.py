@@ -34,8 +34,8 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
                 path += '/{c}_*_{s}*.zip*'
             else:
                 path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
-        path = path.format(**d)
-        return dwi.files.sglob(path)
+        path, = dwi.files.iglob(path.format(**d))
+        return path
     else:
         raise ValueError('Unknown format: {}'.format(fmt))
 
@@ -70,7 +70,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
     if do_glob:
-        path = dwi.files.sglob(path)
+        path, = dwi.files.iglob(path)
     return path
 
 

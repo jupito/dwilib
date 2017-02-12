@@ -38,15 +38,6 @@ def iglob(path, typ='any'):
     return it
 
 
-def sglob(path, typ='any'):
-    """Single glob: glob exactly one file."""
-    try:
-        path, = iglob(path, typ)
-        return path
-    except ValueError:
-        raise IOError(None, 'Glob count not exactly one', path)
-
-
 @contextmanager
 def temp_dir():
     """A temporary directory context that deletes it afterwards."""

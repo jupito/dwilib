@@ -65,7 +65,7 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     else:
         d['r'] += 1
         s = '{d}/{c}_*{s}_{r}*.txt'
-    path = dwi.files.sglob(s.format(**d))
+    path, = dwi.files.iglob(s.format(**d))
     af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
