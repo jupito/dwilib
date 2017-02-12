@@ -231,10 +231,7 @@ def task_select_roi_manual():
             masktypes += ('CA', 'N')
         for mt in masktypes:
             for c, s in cases_scans(mode, sl):
-                try:
-                    yield get_task_select_roi_manual(mode, c, s, mt)
-                except IOError as e:
-                    print('select_roi_manual', e)
+                yield get_task_select_roi_manual(mode, c, s, mt)
 
 
 def task_select_roi_auto():
@@ -243,10 +240,7 @@ def task_select_roi_auto():
         if mode[0] == 'DWI':
             for algparams in find_roi_param_combinations(mode, sl):
                 for c, s in cases_scans(mode, sl):
-                    try:
-                        yield get_task_select_roi_auto(mode, c, s, algparams)
-                    except IOError as e:
-                        print('select_roi_auto', e)
+                    yield get_task_select_roi_auto(mode, c, s, algparams)
 
 
 def task_select_roi():
