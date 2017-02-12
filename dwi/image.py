@@ -50,7 +50,7 @@ class Image(np.ndarray):
 
     @property
     def params(self):
-        return self.info['attrs'].get('params', None)
+        return self.info['attrs'].get('parameters', None)
 
     @property
     def spacing(self):
