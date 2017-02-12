@@ -7,7 +7,7 @@ from __future__ import absolute_import, division, print_function
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
     'texture.methods': [
-        # 'stats',
+        'stats',
         # 'haralick',
         # 'moment',
         # 'haralick_mbb',
