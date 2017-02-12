@@ -1,6 +1,7 @@
 """Modifiable runtime configuration parameters."""
 
 from __future__ import absolute_import, division, print_function
+import argparse
 
 # TODO: Read from file.
 
@@ -46,3 +47,16 @@ rcParams = dict(rcParamsDefault)
 def rcdefaults():
     """Restore default rc params."""
     rcParams.update(rcParamsDefault)
+
+
+def get_parser(**kwargs):
+    """Get an argument parser with the usual standard arguments ready. Function
+    'add' is added for convenience.
+    """
+    p = argparse.ArgumentParser(fromfile_prefix_chars='@', **kwargs)
+    p.add = p.add_argument
+    p.add('-v', '--verbose', action='count', default=0,
+          help='increase verbosity')
+    p.add('--logfile', help='log file')
+    p.add('--loglevel', default='WARNING', help='log level name')
+    return p
