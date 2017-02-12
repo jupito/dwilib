@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 import glob
 import logging
-from itertools import ifilter, islice
+from itertools import ifilter
 import os
 
 import numpy as np
@@ -235,25 +235,6 @@ def scale(a):
     return (a-mn) / (mx-mn)
 
 
-def take(n, iterable):
-    """Return first n items of the iterable as a list."""
-    return list(islice(iterable, n))
-
-
-def sole(it, desc=None):
-    """Return the sole item of an iterable. Raise an exception if the number of
-    items is something else than exactly one.
-    """
-    lst = take(2, it)
-    n = len(lst)
-    if n != 1:
-        if desc is None:
-            desc = str(lst)
-        raise IOError('Element count not exactly one, observed {}; {}'.format(
-            n, desc))
-    return lst[0]
-
-
 def iglob(path, typ='any'):
     """Glob iterator that can filter paths by their type."""
     # FIXME: Misses symlinks.
@@ -271,7 +252,12 @@ def iglob(path, typ='any'):
 
 def sglob(path, typ='any'):
     """Single glob: glob exactly one file."""
-    return sole(iglob(path, typ), path)
+    # return sole(iglob(path, typ), path)
+    try:
+        path, = iglob(path, typ)
+        return path
+    except ValueError:
+        raise IOError(0, 'Glob count not exactly one', path)
 
 
 def centroid(img):
