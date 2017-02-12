@@ -2,24 +2,49 @@
 
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
+import glob
+from itertools import ifilter
 import logging
-from pathlib2 import Path
+import os
 import re
 import shutil
 import tempfile
 import zipfile
 
 import numpy as np
+from pathlib2 import Path
 
 import dwi.asciifile
 import dwi.dicomfile
 import dwi.hdf5
 from dwi.patient import Patient, Lesion
 
-
 log = logging.getLogger(__name__)
-
 COMMENT_PREFIX = '#'
+
+
+def iglob(path, typ='any'):
+    """Glob iterator that can filter paths by their type."""
+    # FIXME: Misses symlinks.
+    it = glob.iglob(path)
+    if typ == 'any':
+        pass
+    elif typ == 'file':
+        it = ifilter(os.path.isfile, it)
+    elif typ == 'dir':
+        it = ifilter(os.path.isdir, it)
+    else:
+        raise Exception('Invalid path type: {}'.format(typ))
+    return it
+
+
+def sglob(path, typ='any'):
+    """Single glob: glob exactly one file."""
+    try:
+        path, = iglob(path, typ)
+        return path
+    except ValueError:
+        raise IOError(None, 'Glob count not exactly one', path)
 
 
 @contextmanager
@@ -65,6 +90,17 @@ def valid_lines(filename):
 def ensure_dir(path):
     """Ensure existence of the file's parent directory."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+
+def mapped(shape, dtype, filler=None):
+    """Create an array as a memory-mapped temporary file on disk."""
+    # import tempfile
+    # fileno, path = tempfile.mkstemp(suffix='.texture')
+    # a = np.memmap(path, dtype=dtype, mode='w+', shape=shape)
+    a = np.memmap(os.tmpfile(), dtype=dtype, mode='w+', shape=shape)
+    if filler is not None:
+        a.fill(filler)
+    return a
 
 
 def read_patients_file(filename, include_lines=False):

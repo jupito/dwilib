@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 from pathlib2 import Path
 
-import dwi.util
+import dwi.files
 
 
 def samplelist_path(mode, samplelist):
@@ -35,7 +35,7 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
             else:
                 path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
         path = path.format(**d)
-        return dwi.util.sglob(path)
+        return dwi.files.sglob(path)
     else:
         raise ValueError('Unknown format: {}'.format(fmt))
 
@@ -70,7 +70,7 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
         raise Exception('Unknown mask type: {mt}'.format(**d))
     path = path.format(**d)
     if do_glob:
-        path = dwi.util.sglob(path)
+        path = dwi.files.sglob(path)
     return path
 
 

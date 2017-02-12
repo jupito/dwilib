@@ -7,7 +7,6 @@ import numpy as np
 import dwi.asciifile
 import dwi.files
 import dwi.patient
-import dwi.util
 
 
 def iterlesions(patients):
@@ -66,7 +65,7 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     else:
         d['r'] += 1
         s = '{d}/{c}_*{s}_{r}*.txt'
-    path = dwi.util.sglob(s.format(**d))
+    path = dwi.files.sglob(s.format(**d))
     af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()

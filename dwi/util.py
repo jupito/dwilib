@@ -2,10 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
-import glob
 import logging
-from itertools import ifilter
-import os
 
 import numpy as np
 from scipy import spatial
@@ -235,31 +232,6 @@ def scale(a):
     return (a-mn) / (mx-mn)
 
 
-def iglob(path, typ='any'):
-    """Glob iterator that can filter paths by their type."""
-    # FIXME: Misses symlinks.
-    it = glob.iglob(path)
-    if typ == 'any':
-        pass
-    elif typ == 'file':
-        it = ifilter(os.path.isfile, it)
-    elif typ == 'dir':
-        it = ifilter(os.path.isdir, it)
-    else:
-        raise Exception('Invalid path type: {}'.format(typ))
-    return it
-
-
-def sglob(path, typ='any'):
-    """Single glob: glob exactly one file."""
-    # return sole(iglob(path, typ), path)
-    try:
-        path, = iglob(path, typ)
-        return path
-    except ValueError:
-        raise IOError(0, 'Glob count not exactly one', path)
-
-
 def centroid(img):
     """Calculate image centroid, i.e. center of mass, as a tuple of floats.
 
@@ -275,17 +247,6 @@ def centroid(img):
         c = np.nansum([i*x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
     return tuple(centers)
-
-
-def mapped(shape, dtype, filler=None):
-    """Create an array as a memory-mapped temporary file on disk."""
-    # import tempfile
-    # fileno, path = tempfile.mkstemp(suffix='.texture')
-    # a = np.memmap(path, dtype=dtype, mode='w+', shape=shape)
-    a = np.memmap(os.tmpfile(), dtype=dtype, mode='w+', shape=shape)
-    if filler is not None:
-        a.fill(filler)
-    return a
 
 
 def atleast_nd(n, a):
