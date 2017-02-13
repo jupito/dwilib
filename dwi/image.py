@@ -5,10 +5,10 @@
 
 from __future__ import absolute_import, division, print_function
 
-from pathlib2 import Path
 import numpy as np
 
 import dwi.files
+from dwi.files import Path
 import dwi.util
 
 

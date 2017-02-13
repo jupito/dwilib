@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from pathlib2 import Path
+from dwi.files import Path
 
 DWILIB = Path.home() / 'src/dwilib/tools'
 
