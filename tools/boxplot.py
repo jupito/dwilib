@@ -61,14 +61,14 @@ def main():
         ('high', [(p, s, l) for p, s, l in lesions if l.label == 2]),
     ])
 
-    print(len(lesions), [len(x) for x in groups.itervalues()])
+    print(len(lesions), [len(x) for x in groups.values()])
     assert sum(len(x) for x in groups.values()) == len(lesions)
-    for k, v in groups.iteritems():
+    for k, v in groups.items():
         for c, s, l in v:
             print(k, c.num, s, l)
 
     data = []
-    for i, lesions in enumerate(groups.itervalues()):
+    for i, lesions in enumerate(groups.values()):
         data.append([])
         for c, s, l in lesions:
             path = dwi.paths.roi_path(args.mode, 'lesion', c.num, s, l.index+1)
