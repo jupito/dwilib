@@ -11,6 +11,7 @@ except for the 'parameters' attribute, which will be aggregated.
 
 from __future__ import absolute_import, division, print_function
 import argparse
+from functools import reduce
 from operator import add
 import os.path
 

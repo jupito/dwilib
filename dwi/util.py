@@ -1,7 +1,7 @@
 """Utility functionality."""
 
 from __future__ import absolute_import, division, print_function
-from functools import total_ordering
+from functools import reduce, total_ordering
 import logging
 
 import numpy as np
