@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
-import glob
-from itertools import ifilter
 import logging
 import os
 import re
@@ -25,21 +23,6 @@ from dwi.patient import Patient, Lesion
 
 log = logging.getLogger(__name__)
 COMMENT_PREFIX = '#'
-
-
-def iglob(path, typ='any'):
-    """Glob iterator that can filter paths by their type."""
-    # FIXME: Misses symlinks.
-    it = glob.iglob(path)
-    if typ == 'any':
-        pass
-    elif typ == 'file':
-        it = ifilter(os.path.isfile, it)
-    elif typ == 'dir':
-        it = ifilter(os.path.isdir, it)
-    else:
-        raise Exception('Invalid path type: {}'.format(typ))
-    return it
 
 
 @contextmanager
@@ -75,9 +58,7 @@ def toline(iterable):
 
 def valid_lines(path):
     """Read and yield lines that are neither empty nor comments."""
-    if isinstance(path, Path):
-        path = str(path)
-    with open(path, 'rU') as f:
+    with Path(path).open(mode='rU') as f:
         for line in f:
             line = line.split(COMMENT_PREFIX, 1)[0].strip()
             if line:

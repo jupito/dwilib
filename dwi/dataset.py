@@ -6,6 +6,7 @@ import numpy as np
 
 import dwi.asciifile
 import dwi.files
+from dwi.files import Path
 import dwi.patient
 
 
@@ -59,13 +60,13 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
 
 def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     """Read single pmap."""
-    d = dict(d=dirname, c=case, s=scan, r=roi)
+    d = dict(c=case, s=scan, r=roi)
     if roi is None:
-        s = '{d}/{c}_*{s}*.txt'
+        s = '{c}_*{s}*.txt'
     else:
         d['r'] += 1
-        s = '{d}/{c}_*{s}_{r}*.txt'
-    path, = dwi.files.iglob(s.format(**d))
+        s = '{c}_*{s}_{r}*.txt'
+    path, = Path(dirname).glob(s.format(**d))
     af = dwi.asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
