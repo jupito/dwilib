@@ -12,7 +12,11 @@ import tempfile
 import zipfile
 
 import numpy as np
-from pathlib2 import Path
+
+try:
+    from pathlib import Path, PurePath
+except ImportError:
+    from pathlib2 import Path, PurePath
 
 import dwi.asciifile
 import dwi.dicomfile
