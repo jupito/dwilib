@@ -391,7 +391,7 @@ def task_grid():
         for c, s, l in dwi.dataset.iterlesions(samplelist_path(mode, sl)):
             c, l, lt = c.num, l.index + 1, l.location
             lesioninfo[(c, s)].append((l, lt))
-        for k, v in lesioninfo.iteritems():
+        for k, v in lesioninfo.items():
             c, s = k
             ls, lt = [x[0] for x in v], [x[1] for x in v]
 

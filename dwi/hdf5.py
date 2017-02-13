@@ -34,7 +34,7 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     f = h5py.File(filename, 'w')
     dset = f.create_dataset(dsetname, data=array, fillvalue=fillvalue,
                             **DEFAULT_DSETPARAMS)
-    for k, v in attrs.iteritems():
+    for k, v in attrs.items():
         # HDF5 doesn't understand None objects, so replace any with nan values.
         if dwi.util.iterable(v) and not isinstance(v, basestring):
             if any(x is None for x in v):
