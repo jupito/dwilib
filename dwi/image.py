@@ -1,6 +1,7 @@
 """Image as an np.ndarray subclass."""
 
-# Subclassing: http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+# Subclassing: https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+# Masked array: https://docs.scipy.org/doc/numpy/reference/maskedarray.html
 
 from __future__ import absolute_import, division, print_function
 
