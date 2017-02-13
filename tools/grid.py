@@ -101,7 +101,7 @@ def generate_windows(imageshape, winshape, center):
     center = [int(round(x)) for x in center]
     starts = [i % w for i, w in zip(center, winshape)]
     stops = [i-w+1 for i, w in zip(imageshape, winshape)]
-    its = (xrange(*x) for x in zip(starts, stops, winshape))
+    its = (range(*x) for x in zip(starts, stops, winshape))
     for coords in product(*its):
         slices = tuple(slice(i, i+w) for i, w in zip(coords, winshape))
         relative = tuple(int((i-c)/w) for i, c, w in zip(coords, center,
