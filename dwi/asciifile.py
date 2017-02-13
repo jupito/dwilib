@@ -17,6 +17,7 @@ import dwi.util
 
 class AsciiFile(object):
     def __init__(self, filename):
+        filename = str(filename)
         self.filename = filename
         self.basename = os.path.basename(filename)
         self.d, self.a = read_ascii_file(self.filename)
@@ -72,7 +73,7 @@ def write_ascii_file(filename, pmap, params, attrs=None):
     """Write parametric map in ASCII format."""
     if params is not None and attrs is None:
         attrs = dict(parameters=params)
-    with open(filename, 'w') as f:
+    with open(str(filename), 'w') as f:
         for k, v in attrs.iteritems():
             if type(v) in (list, np.ndarray):
                 v = ' '.join(str(x) for x in v)
