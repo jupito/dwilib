@@ -8,6 +8,7 @@ import numpy as np
 
 import dwi.conf
 import dwi.files
+from dwi.files import Path
 import dwi.image
 import dwi.util
 
@@ -62,7 +63,7 @@ def shorten(o):
 def parse_args():
     epilog = 'Available keys: {}'.format(','.join(sorted(lambdas.keys())))
     p = dwi.conf.get_parser(description=__doc__, epilog=epilog)
-    p.add('path', nargs='+',
+    p.add('path', nargs='+', type=Path,
           help='input pmap files')
     p.add('-p', '--params', nargs='*',
           help='parameters')
