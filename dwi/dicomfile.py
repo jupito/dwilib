@@ -106,7 +106,7 @@ def construct_image(slices, positions, bvalues, echotimes):
     shape = (len(positions), w, h, len(bvalues), len(echotimes))
     image = np.empty(shape, dtype=dtype)
     image.fill(np.nan)
-    for key, value in slices.iteritems():
+    for key, value in slices.items():
         pos = positions.index(key[0])
         bv = bvalues.index(key[1])
         et = echotimes.index(key[2])
