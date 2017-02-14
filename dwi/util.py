@@ -151,10 +151,10 @@ def sliding_window(a, winshape, mask=None):
     image border. If a mask array is provided, windows are skipped unless
     origin is selected in mask.
     """
+    a = np.asanyarray(a)
     winshape = normalize_sequence(winshape, a.ndim)
     if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
         raise Exception('Invalid window shape: {}'.format(winshape))
-    a = np.asarray(a)
     shape = tuple(i-w+1 for i, w in zip(a.shape, winshape))
     for indices in np.ndindex(shape):
         origin = tuple(i+w//2 for i, w in zip(indices, winshape))
