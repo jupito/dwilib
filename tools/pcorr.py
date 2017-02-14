@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Calculate AUC for predicting prostate in image, lesion in prostate.
 

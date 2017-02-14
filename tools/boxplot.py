@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Plot boxplots of images. Possible nans and infinities are ignored."""
 

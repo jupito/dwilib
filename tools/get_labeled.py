@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 
 """Get pmaps as (z,y,x,label,ADCm,ADCk,K)
 where label = {-1: background, 0: prostate, 1...n: lesion #1...n}.

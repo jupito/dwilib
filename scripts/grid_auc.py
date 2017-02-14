@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Ad-hoc script to call pcorr.py. The grid data should be restructured."""
 

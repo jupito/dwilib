@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Zero out all voxels in multi-file DICOM image according to a mask.
 

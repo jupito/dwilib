@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """View a multi-slice, multi-parameter DICOM image or pmap via the matplotlib
 GUI."""

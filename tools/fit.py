@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Produce parametric maps by fitting one or more models to imaging data."""
 

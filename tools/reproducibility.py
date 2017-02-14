@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """Calculate reproducibility coefficients for parametric maps. Input consists
 of pmap scan pairs grouped together.
