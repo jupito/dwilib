@@ -5,8 +5,11 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import scipy.optimize
 
-
 EPSILON = np.sqrt(np.finfo(np.float64).eps)
+try:
+    irange = xrange
+except NameError:
+    irange = range
 
 
 def gradient(f, x, args=[]):
@@ -24,7 +27,7 @@ def gradient_descent(f, init=[0.0], step=0.5, args=[], maxiter=100):
     init = np.atleast_1d(np.asarray(init, dtype=np.float64))
     x = init
     i = -1
-    for i in xrange(maxiter):
+    for i in irange(maxiter):
         dfx = gradient(f, x, args)
         # x_prev = x
         x = x - dfx*step
@@ -90,7 +93,7 @@ def cg_old(f, x0, args=[], maxiter=1000):
     alpha = line_search(f, x, args)
     x = x + alpha*dx
     i = -1
-    for i in xrange(maxiter):
+    for i in irange(maxiter):
         dfx = gradient(f, x, args)
         dx_prev = dx
         dx = -dfx

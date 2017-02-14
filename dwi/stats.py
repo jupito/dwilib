@@ -217,7 +217,7 @@ def bootstrap_icc(baselines, nboot=2000):
     """
     data = np.array(baselines)
     values = np.zeros((nboot,))
-    for i in xrange(nboot):
+    for i in range(nboot):
         sample = resample_bootstrap_single(data.T).T
         values[i] = icc(sample)
     mean = np.mean(values)
