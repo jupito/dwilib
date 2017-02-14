@@ -101,8 +101,9 @@ def read_slice(filename, d):
 
 def construct_image(slices, positions, bvalues, echotimes):
     """Construct uniform image array from slice dictionary."""
-    w, h = slices.values()[0].shape
-    dtype = slices.values()[0].dtype
+    slc = list(slices.values())[0]
+    w, h = slc.shape
+    dtype = slc.dtype
     shape = (len(positions), w, h, len(bvalues), len(echotimes))
     image = np.empty(shape, dtype=dtype)
     image.fill(np.nan)

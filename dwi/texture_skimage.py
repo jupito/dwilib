@@ -77,7 +77,7 @@ def glcm_mbb(img, mask):
     mask = mask[slices]
     img[-mask] = 0
     feats = glcm_props(img, ignore_zeros=True)
-    output = feats.values()
+    output = list(feats.values())
     names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
     return output, names
 

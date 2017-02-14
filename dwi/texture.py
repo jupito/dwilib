@@ -65,7 +65,7 @@ def stats_mbb(img, mask):
     # TODO: Add area size?
     voxels = img[mask]
     feats = stats(voxels)
-    output = feats.values()
+    output = list(feats.values())
     names = ['stats({})'.format(x) for x in feats.keys()]
     return output, names
 
