@@ -130,6 +130,20 @@ def select_subwindow(image, subwindow, onebased=False):
     return copy
 
 
+def normalize_sequence(value, rank):
+    """For scalar input, duplicate it into a sequence of rank length. For
+    sequence input, check for correct length.
+    """
+    # Like e.g. scipy.ndimage.zoom() -> _ni_support._normalize_sequence().
+    try:
+        lst = list(value)
+    except TypeError:
+        lst = [value] * rank
+    if len(lst) != rank:
+        raise ValueError('Invalid sequence length.')
+    return lst
+
+
 def sliding_window(a, winshape, mask=None):
     """Multidimensional sliding window iterator with arbitrary window shape.
 
@@ -137,10 +151,7 @@ def sliding_window(a, winshape, mask=None):
     image border. If a mask array is provided, windows are skipped unless
     origin is selected in mask.
     """
-    if isinstance(winshape, int):
-        winshape = (winshape,) * a.ndim  # Expand single value to window side.
-    if len(winshape) != a.ndim:
-        raise Exception('Invalid window dimensionality: {}'.format(winshape))
+    winshape = normalize_sequence(winshape, a.ndim)
     if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
         raise Exception('Invalid window shape: {}'.format(winshape))
     a = np.asarray(a)
@@ -167,8 +178,7 @@ def bounding_box(array, pad=0):
         img = img[slices]
     """
     array = np.asanyarray(array)
-    if np.isscalar(pad):
-        pad = (pad,) * array.ndim
+    pad = normalize_sequence(pad, array.ndim)
     nans = np.isnan(array)
     if np.any(nans):
         array = ~nans
