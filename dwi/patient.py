@@ -21,7 +21,7 @@ class GleasonScore(object):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional).
         """
-        if isinstance(score, basestring):
+        if dwi.util.isstring(score):
             s = score.split('+')
         elif isinstance(score, GleasonScore):
             s = score.score

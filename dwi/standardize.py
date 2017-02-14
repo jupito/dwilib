@@ -159,7 +159,7 @@ def standardize(img, cfg, mask=None):
     img : ndarray of integers
         Transformed image.
     """
-    if isinstance(cfg, basestring):
+    if dwi.util.isstring(cfg):
         cfg = read_std_cfg(cfg)
     d = cfg
     p, scores = landmark_scores(img, d['pc'], d['landmarks'],

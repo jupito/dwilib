@@ -14,7 +14,7 @@ class ImageMode(object):
     """Image mode identifier."""
     def __init__(self, value, sep='-'):
         """Initialize with a string or a sequence."""
-        if isinstance(value, basestring):
+        if isstring(value):
             value = value.split(sep)
         self.value = tuple(value)
         self.sep = sep
@@ -71,6 +71,14 @@ def iterable(x):
         return False
     else:
         return True
+
+
+def isstring(x):
+    """Check for string-ness."""
+    try:
+        return isinstance(x, basestring)
+    except NameError:
+        return isinstance(x, str)
 
 
 def all_equal(a):
