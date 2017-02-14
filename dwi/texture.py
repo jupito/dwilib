@@ -50,7 +50,7 @@ def stats_map(img, winsize, mask=None, output=None):
     """Statistical texture feature map."""
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         d = stats(win)
-        names = d.keys()
+        names = list(d.keys())
         if output is None:
             dtype = dwi.rcParams['texture.dtype']
             output = np.zeros((len(names),) + img.shape, dtype=dtype)

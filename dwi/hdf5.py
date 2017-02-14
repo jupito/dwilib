@@ -54,9 +54,11 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
             e.filename = filename
         raise
     if dsetname not in f:
-        if len(f.keys()) != 1:
+        # No dataset of given name, try the one there is.
+        try:
+            dsetname, = f.keys()
+        except ValueError:
             raise ValueError('Ambiguous content: {}'.format(filename))
-        dsetname = f.keys()[0]
     dset = f[dsetname]
     if ondisk:
         array = Dataset(dset.id)

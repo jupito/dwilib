@@ -82,7 +82,7 @@ def parse_args():
 
 def delete_confidential(dataset, elem):
     """Delete confidential elements from dataset."""
-    if elem.tag in CONFIDENTIAL_TAGS.keys():
+    if elem.tag in CONFIDENTIAL_TAGS:
         deleted.append((elem.tag, elem.name))
         del dataset[elem.tag]
 

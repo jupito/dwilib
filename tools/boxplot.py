@@ -78,7 +78,7 @@ def main():
             img = img[..., args.param]
             img = img[np.isfinite(img)]
             data[i].append(np.mean(img))
-    plot(data, title=args.mode, labels=groups.keys(), path=args.fig)
+    plot(data, title=args.mode, labels=list(groups.keys()), path=args.fig)
 
 
 if __name__ == '__main__':

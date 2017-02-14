@@ -278,7 +278,7 @@ def main():
     if args.param is None:
         params = attrs['parameters']  # Use average of each parameter.
     else:
-        params = dwi.texture.stats([0]).keys()  # Use statistical features.
+        params = list(dwi.texture.stats([0]).keys())  # Use statistical feats.
     d = dict(voxelsize=args.voxelsize, use_centroid=args.use_centroid)
     grid = None
     for i, param in enumerate(params):
