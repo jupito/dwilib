@@ -60,6 +60,9 @@ class Lesion(object):
         self.score = GleasonScore(score)  # Gleason score.
         self.location = str(location).lower()  # PZ or CZ.
 
+    def __hash__(self):
+        return hash((self.index, self.score, self.location))
+
     def __repr__(self):
         return repr((self.index, self.score, self.location))
 
