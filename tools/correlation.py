@@ -6,7 +6,7 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import math
 import numpy as np
-import scipy.stats
+from scipy import stats
 
 import dwi.dataset
 import dwi.patient
@@ -37,9 +37,9 @@ def correlation(x, y, method='spearman'):
     """Calculate correlation with p-value and confidence interval."""
     assert len(x) == len(y)
     methods = dict(
-        pearson=scipy.stats.pearsonr,
-        spearman=scipy.stats.spearmanr,
-        kendall=scipy.stats.kendalltau,
+        pearson=stats.pearsonr,
+        spearman=stats.spearmanr,
+        kendall=stats.kendalltau,
     )
     if dwi.util.all_equal(x):
         r = p = lower = upper = np.nan
