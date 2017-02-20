@@ -120,7 +120,7 @@ def plot(img, mask, path):
     for i, plt in enumerate(it):
         plt.imshow(img[i], vmin=vmin, vmax=vmax)
         if mask is not None:
-            view = np.zeros(img.shape[1:3] + (4,), dtype=np.float16)
+            view = np.zeros(img.shape[1:3] + (4,), dtype=np.float32)
             view[dwi.mask.border(mask[i])] = (1, 0, 0, 1)
             plt.imshow(view)
 
