@@ -13,7 +13,7 @@ rcParamsDefault = {
         # 'moment',
         # 'haralick_mbb',
         'glcm',
-        'glcm_mbb',
+        # 'glcm_mbb',
         'lbp',
         'hog',
         'gabor',
@@ -21,7 +21,7 @@ rcParamsDefault = {
         'hu',
         'zernike',
         'sobel',
-        'stats_all',
+        # 'stats_all',
         ],
     'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
     'texture.winsizes.small': (3, 16, 2),  # DWI.
