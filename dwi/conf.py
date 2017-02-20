@@ -4,6 +4,8 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import logging
 
+import dwi.util
+
 # TODO: Read from file.
 
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
