@@ -80,3 +80,13 @@ class Image(np.ndarray):
     def apply_mask(self, mask, background=np.nan):
         """Apply mask by setting all the rest to nan."""
         self[~mask] = background
+
+    def each_param(self):
+        """Iterate over parameters."""
+        assert len(self.params) == self.ndim == 4, (self.shape, self.params)
+        return ((p, self[:, :, :, i]) for i, p in enumerate(self.params))
+
+    def each_slice(self):
+        """Iterate over slices."""
+        assert self.ndim in (3, 4), self.shape
+        return iter(self)
