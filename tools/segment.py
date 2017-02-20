@@ -12,6 +12,7 @@ import sklearn.preprocessing
 
 import dwi.conf
 import dwi.files
+import dwi.image
 import dwi.mask
 import dwi.plot
 import dwi.util
@@ -28,6 +29,8 @@ def parse_args():
                    help='mask file')
     p.add_argument('-f', '--fig', type=Path,
                    help='output figure file')
+    p.add_argument('--histogram', type=Path,
+                   help='output histogram file')
     return dwi.conf.parse_args(p)
 
 
@@ -110,6 +113,16 @@ def segment(img, markers, spacing):
     return labels
 
 
+def histogram(img, mask, rng=None, path=None):
+    it = dwi.plot.generate_plots(nrows=3, ncols=4, titles=img.params,
+                                 path=path)
+    for (param, a), plt in zip(img.each_param(), it):
+        d = dict(bins='auto', range=rng, histtype='step', label=param)
+        plt.hist(a.ravel(), **d)
+        plt.hist(a[mask], **d)
+    next(it)
+
+
 def plot(img, mask, path):
     assert img.ndim == 3
     vmin, vmax = np.min(img), np.max(img)
@@ -125,19 +138,36 @@ def plot(img, mask, path):
 
 def main():
     args = parse_args()
+    print(args)
 
     img, attrs = dwi.files.read_pmap(str(args.image), params=args.params)
     spacing = attrs['voxel_spacing']
+    img = dwi.image.Image.read(args.image, params=args.params)
+    mask = dwi.files.read_mask(str(args.mask)) if args.mask else None
 
     logging.info(img.shape)
-    logging.info(attrs['parameters'])
-    logging.info(spacing)
-    mask = dwi.files.read_mask(str(args.mask)) if args.mask else None
+    mbb = img[..., 0].mbb()
+    img = img[mbb]
+    mask = mask[mbb]
+    logging.info(img.shape)
+    logging.info(img.params)
+    logging.info(img.spacing)
+    logging.info(np.count_nonzero(mask) / mask.size)
+
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
     # mask = mask[5:-5]
 
     # img = preprocess(img)
+
+    # pc = [50, 99.5]
+    pc = [90, 99.9]
+    rng = np.percentile(img, pc)
+    print(rng)
+    if args.histogram:
+        histogram(img, mask, rng=rng, path=str(args.histogram))
+
+    return
 
     # Downsample.
     factor = (1, 0.5, 0.5)
