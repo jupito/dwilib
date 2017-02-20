@@ -43,6 +43,20 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     f.close()
 
 
+def convert_value(value):
+    """Convert attribute value from bytes to string."""
+    if isinstance(value, bytes):
+        return value.decode()
+    elif not np.isscalar(value) and np.issubsctype(value, np.bytes_):
+        return value.astype(np.str_)
+    return value
+
+
+def convert_attrs(attrs):
+    """Convert attribute values from bytes to strings."""
+    return ((k, convert_value(v)) for k, v in attrs.items())
+
+
 def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
     """Read an array with attributes from an HDF5 file.
 
@@ -65,6 +79,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
     else:
         array = np.array(dset)
     attrs = OrderedDict(dset.attrs)
+    attrs.update(convert_attrs(attrs))
     if not ondisk:
         f.close()
     return array, attrs
