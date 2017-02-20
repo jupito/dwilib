@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
+import logging
 
 # TODO: Read from file.
 
@@ -60,3 +61,9 @@ def get_parser(**kwargs):
     p.add('--logfile', help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
     return p
+
+
+def init_logging(args):
+    """Initialize logging."""
+    logging.basicConfig(filename=args.logfile,
+                        level=dwi.util.get_loglevel(args.loglevel))
