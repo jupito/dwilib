@@ -26,6 +26,14 @@ class Dataset(h5py.Dataset):
         return len(self.shape)
 
 
+def convert_value_write(v):
+    """HDF5 doesn't understand None objects, so replace any with nan values."""
+    if dwi.util.iterable(v) and not dwi.util.isstring(v):
+        if any(x is None for x in v):
+            v = type(v)([(np.nan if x is None else x) for x in v])
+    return v
+
+
 def write_hdf5(filename, array, attrs, fillvalue=None,
                dsetname=DEFAULT_DSETNAME):
     """Write an array with attributes into a newly created, compressed HDF5
@@ -35,15 +43,11 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     dset = f.create_dataset(dsetname, data=array, fillvalue=fillvalue,
                             **DEFAULT_DSETPARAMS)
     for k, v in attrs.items():
-        # HDF5 doesn't understand None objects, so replace any with nan values.
-        if dwi.util.iterable(v) and not dwi.util.isstring(v):
-            if any(x is None for x in v):
-                v = type(v)([(np.nan if x is None else x) for x in v])
-        dset.attrs[k] = v
+        dset.attrs[k] = convert_value_write(v)
     f.close()
 
 
-def convert_value(value):
+def convert_value_read(value):
     """Convert attribute value from bytes to string."""
     if isinstance(value, bytes):
         return value.decode()
@@ -52,9 +56,9 @@ def convert_value(value):
     return value
 
 
-def convert_attrs(attrs):
+def convert_attrs_read(attrs):
     """Convert attribute values from bytes to strings."""
-    return ((k, convert_value(v)) for k, v in attrs.items())
+    return ((k, convert_value_read(v)) for k, v in attrs.items())
 
 
 def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
@@ -79,7 +83,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
     else:
         array = np.array(dset)
     attrs = OrderedDict(dset.attrs)
-    attrs.update(convert_attrs(attrs))
+    attrs.update(convert_attrs_read(attrs))
     if not ondisk:
         f.close()
     return array, attrs
