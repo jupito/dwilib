@@ -10,14 +10,12 @@ import pylab as pl
 import dwi.stats
 import dwi.util
 
-
 log = logging.getLogger(__name__)
 
-
 # plt.rcParams['image.aspect'] = 'equal'
-plt.rcParams['image.cmap'] = 'viridis'
-plt.rcParams['image.interpolation'] = 'none'
-plt.rcParams['savefig.dpi'] = '100'
+# plt.rcParams['image.cmap'] = 'viridis'
+# plt.rcParams['image.interpolation'] = 'none'
+# plt.rcParams['savefig.dpi'] = '100'
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
