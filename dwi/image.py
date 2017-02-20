@@ -24,9 +24,6 @@ class Image(np.ndarray):
         """Finalize creation. Note: a shallow copy of metadata is shared."""
         if obj is not None:
             self.info = getattr(obj, 'info', None)
-            # if self.info is not None:
-            #     self.attrs = self.info.get('attrs', {})
-            #     self.spacing = self.attrs.get('voxel_spacing', None)
 
     # def __array_prepare__(self, out, context=None):
     #     """On the way into ufunc."""
@@ -45,17 +42,27 @@ class Image(np.ndarray):
         """Read a pmap."""
         path = Path(path)
         img, attrs = dwi.files.read_pmap(str(path), **kwargs)
-        info = dict(path=path, attrs=attrs)
+        info = dict(path=path, attrs=attrs,
+                    params=attrs.pop('parameters', None),
+                    spacing=attrs.pop('voxel_spacing', None))
         obj = cls(img, info=info)
         return obj
 
     @property
     def params(self):
-        return self.info['attrs'].get('parameters', None)
+        return self.info['params']
+
+    @params.setter
+    def params(self, value):
+        self.info['params'] = value
 
     @property
     def spacing(self):
-        return self.info['attrs'].get('voxel_spacing', None)
+        return self.info['spacing']
+
+    @spacing.setter
+    def spacing(self, value):
+        self.info['spacing'] = value
 
     def check(self):
         """Check consistency."""
@@ -83,7 +90,8 @@ class Image(np.ndarray):
 
     def each_param(self):
         """Iterate over parameters."""
-        assert len(self.params) == self.ndim == 4, (self.shape, self.params)
+        assert self.ndim == 4, self.shape
+        assert self.shape[-1] == len(self.params), (self.shape, self.params)
         return ((p, self[:, :, :, i]) for i, p in enumerate(self.params))
 
     def each_slice(self):
