@@ -3,7 +3,6 @@
 """Prostate segementation."""
 
 from __future__ import absolute_import, division, print_function
-import argparse
 import logging
 
 import numpy as np
@@ -11,27 +10,23 @@ from scipy import ndimage
 import skimage.segmentation
 import sklearn.preprocessing
 
+import dwi.conf
 import dwi.files
 import dwi.mask
 import dwi.plot
 import dwi.util
 
 
-log = logging.getLogger('segment')
-
-
 def parse_args():
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--verbose', '-v', action='count',
-                   help='increase verbosity')
+    p = dwi.conf.get_parser(description=__doc__)
     p.add_argument('image',
                    help='input image file')
-    p.add_argument('--params', '-p', nargs='+', type=int,
+    p.add_argument('-p', '--params', nargs='+', type=int,
                    help='input image parameters')
-    p.add_argument('--mask', '-m',
+    p.add_argument('-m', '--mask',
                    help='mask file')
-    p.add_argument('--fig', '-f',
+    p.add_argument('-f', '--fig',
                    help='output figure file')
     return p.parse_args()
 
@@ -45,7 +40,7 @@ def scale_mask(mask, factor):
 
 def preprocess(img):
     assert img.ndim == 4
-    log.info(dwi.util.fivenums(img))
+    logging.info(dwi.util.fivenums(img))
     original_shape = img.shape
     # img.shape = (-1, img.shape[-1])
     img = img.reshape((-1, img.shape[-1]))
@@ -56,7 +51,7 @@ def preprocess(img):
 
     # img.shape = original_shape
     img = img.reshape(original_shape)
-    log.info(dwi.util.fivenums(img))
+    logging.info(dwi.util.fivenums(img))
     return img
 
 
@@ -82,7 +77,7 @@ def get_markers(img):
 
     # # Based on percentile thresholds.
     # thresholds = np.percentile(img, [50, 97, 98, 99.5])
-    # log.info('Seed thresholds: %s', thresholds)
+    # logging.info('Seed thresholds: %s', thresholds)
     # markers[img[..., 0] < thresholds[0]] = 1
     # markers[9:11][img[9:11][..., 0] > thresholds[1]] = 2
     # markers[:2][img[:2][..., 0] > thresholds[1]] = 3
@@ -94,26 +89,26 @@ def get_markers(img):
     # slices = [slice(int(round(p-0.03*s)), int(round(p+0.03*s))) for p, s in
     #           zip(pos, markers.shape)]
     # # slices = [slice(int(0.47*x), int(-0.47*x)) for x in markers.shape]
-    # log.info('Seed position: %s', slices)
+    # logging.info('Seed position: %s', slices)
     # # # markers[9:-9, 100:-100, 100:-100] = 2
     # markers[slices] = 2
 
     # pos = dwi.util.centroid(img[..., 0])
     # slices = [slice(int(round(p-0.03*s)), int(round(p+0.03*s))) for p, s in
     #           zip(pos, markers.shape)]
-    # log.info('Seed position: %s', slices)
+    # logging.info('Seed position: %s', slices)
     # markers[slices] = 4
 
     return markers
 
 
 def segment(img, markers, spacing):
-    kwargs = dict(
+    d = dict(
         # beta=10,  # Default is 130.
         multichannel=True,
         spacing=spacing,
         )
-    labels = skimage.segmentation.random_walker(img, markers, **kwargs)
+    labels = skimage.segmentation.random_walker(img, markers, **d)
     return labels
 
 
@@ -143,9 +138,9 @@ def main():
     img, attrs = dwi.files.read_pmap(args.image, params=args.params)
     spacing = attrs['voxel_spacing']
 
-    log.info(img.shape)
-    log.info(attrs['parameters'])
-    log.info(spacing)
+    logging.info(img.shape)
+    logging.info(attrs['parameters'])
+    logging.info(spacing)
     mask = dwi.files.read_mask(args.mask) if args.mask else None
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
