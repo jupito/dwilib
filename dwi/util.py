@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from functools import reduce, total_ordering
+import json
 import logging
 
 import numpy as np
@@ -292,6 +293,13 @@ def asbool(a):
     a.clip(0, 1, out=a)
     a = a.astype(np.bool)
     return a
+
+
+def dump_json(obj, separators=(', ', ': '), sort_keys=False):
+    """Dump object into a JSON string."""
+    if sort_keys is None:
+        sort_keys = not isinstance(obj, OrderedDict)  # Let it sort itself.
+    return json.dumps(obj, separators=separators, sort_keys=sort_keys)
 
 
 def normalize(pmap, mode):
