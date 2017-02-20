@@ -3,6 +3,7 @@
 """Prostate segementation."""
 
 import logging
+from pathlib import Path
 
 import numpy as np
 from scipy import ndimage
@@ -19,13 +20,13 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
-    p.add_argument('image',
+    p.add_argument('image', type=Path,
                    help='input image file')
     p.add_argument('-p', '--params', nargs='+', type=int,
                    help='input image parameters')
-    p.add_argument('-m', '--mask',
+    p.add_argument('-m', '--mask', type=Path,
                    help='mask file')
-    p.add_argument('-f', '--fig',
+    p.add_argument('-f', '--fig', type=Path,
                    help='output figure file')
     return p.parse_args()
 
@@ -134,13 +135,13 @@ def main():
         loglevel = logging.DEBUG
     logging.basicConfig(level=loglevel)
 
-    img, attrs = dwi.files.read_pmap(args.image, params=args.params)
+    img, attrs = dwi.files.read_pmap(str(args.image), params=args.params)
     spacing = attrs['voxel_spacing']
 
     logging.info(img.shape)
     logging.info(attrs['parameters'])
     logging.info(spacing)
-    mask = dwi.files.read_mask(args.mask) if args.mask else None
+    mask = dwi.files.read_mask(str(args.mask)) if args.mask else None
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
     # mask = mask[5:-5]
@@ -166,7 +167,7 @@ def main():
 
     markers = get_markers(img)
     labels = segment(img, markers, spacing)
-    plot(labels, mask, args.fig)
+    plot(labels, mask, str(args.fig))
 
 
 if __name__ == '__main__':
