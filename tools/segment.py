@@ -28,7 +28,7 @@ def parse_args():
                    help='mask file')
     p.add_argument('-f', '--fig', type=Path,
                    help='output figure file')
-    return p.parse_args()
+    return dwi.conf.parse_args(p)
 
 
 def scale_mask(mask, factor):
@@ -42,14 +42,12 @@ def preprocess(img):
     assert img.ndim == 4
     logging.info(dwi.util.fivenums(img))
     original_shape = img.shape
-    # img.shape = (-1, img.shape[-1])
     img = img.reshape((-1, img.shape[-1]))
 
     # img = sklearn.preprocessing.minmax_scale(img)
     # img = sklearn.preprocessing.scale(img)
     img = sklearn.preprocessing.robust_scale(img)
 
-    # img.shape = original_shape
     img = img.reshape(original_shape)
     logging.info(dwi.util.fivenums(img))
     return img
@@ -127,7 +125,6 @@ def plot(img, mask, path):
 
 def main():
     args = parse_args()
-    dwi.conf.init_logging(args)
 
     img, attrs = dwi.files.read_pmap(str(args.image), params=args.params)
     spacing = attrs['voxel_spacing']
