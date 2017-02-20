@@ -127,13 +127,7 @@ def plot(img, mask, path):
 
 def main():
     args = parse_args()
-    if args.verbose == 0:
-        loglevel = logging.WARNING
-    elif args.verbose == 1:
-        loglevel = logging.INFO
-    elif args.verbose > 1:
-        loglevel = logging.DEBUG
-    logging.basicConfig(level=loglevel)
+    dwi.conf.init_logging(args)
 
     img, attrs = dwi.files.read_pmap(str(args.image), params=args.params)
     spacing = attrs['voxel_spacing']
