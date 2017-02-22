@@ -11,6 +11,7 @@ import skimage.segmentation
 import sklearn.preprocessing
 
 import dwi.conf
+import dwi.dataset
 import dwi.files
 import dwi.image
 import dwi.mask
@@ -21,38 +22,51 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
-    p.add_argument('image', type=Path,
-                   help='input image file')
-    p.add_argument('-p', '--params', nargs='+', type=int,
-                   help='input image parameters')
-    p.add_argument('-m', '--mask', type=Path,
-                   help='mask file')
-    p.add_argument('-f', '--fig', type=Path,
-                   help='output figure file')
-    p.add_argument('--histogram', type=Path,
-                   help='output histogram file')
+    p.add('-m', '--modes', nargs='*', type=dwi.util.ImageMode, default=['DWI'],
+          help='imaging modes')
+    p.add('-s', '--samplelist', default='all',
+          help='samplelist identifier')
+    p.add('-c', '--cases', nargs='*', type=int,
+          help='cases to include, if not all')
+    p.add('image', type=Path,
+          help='input image file')
+    p.add('-p', '--params', nargs='+', type=int,
+          help='input image parameters')
+    p.add('--mask', type=Path,
+          help='mask file')
+    p.add('--fig', type=Path,
+          help='output figure file')
+    p.add('--hist', type=Path,
+          help='output histogram file')
     return dwi.conf.parse_args(p)
 
 
 def scale_mask(mask, factor):
-    mask = mask.astype(np.float_)
+    mask = mask.astype(np.float32)
     mask = ndimage.interpolation.zoom(mask, factor, order=0)
     mask = dwi.util.asbool(mask)
     return mask
 
 
+def array_info(a):
+    """Array info for debugging."""
+    return [a.__class__.__name__, a.shape, a.dtype, dwi.util.fivenums(a),
+            getattr(a, 'spacing', None)]
+
+
 def preprocess(img):
     assert img.ndim == 4
-    logging.info(dwi.util.fivenums(img))
+    logging.info('Preprocessing: %s', array_info(img))
+    info = img.info
     original_shape = img.shape
     img = img.reshape((-1, img.shape[-1]))
 
-    # img = sklearn.preprocessing.minmax_scale(img)
+    img = sklearn.preprocessing.minmax_scale(img)
     # img = sklearn.preprocessing.scale(img)
-    img = sklearn.preprocessing.robust_scale(img)
+    # img = sklearn.preprocessing.robust_scale(img)
 
     img = img.reshape(original_shape)
-    logging.info(dwi.util.fivenums(img))
+    img = dwi.image.Image(img, info=info)
     return img
 
 
@@ -104,8 +118,12 @@ def get_markers(img):
 
 
 def segment(img, markers, spacing):
+    logging.info('Segmenting: %s, %s', array_info(img), spacing)
+    logging.info('...with markers: %s', array_info(markers))
     d = dict(
         # beta=10,  # Default is 130.
+        # mode='cg_mg',
+        mode=None,
         multichannel=True,
         spacing=spacing,
         )
@@ -114,13 +132,15 @@ def segment(img, markers, spacing):
 
 
 def histogram(img, mask, rng=None, path=None):
-    it = dwi.plot.generate_plots(nrows=3, ncols=4, titles=img.params,
-                                 path=path)
-    for (param, a), plt in zip(img.each_param(), it):
+    d = dict(titles=img.params, path=path)
+    # d.update(nrows=3, ncols=4)
+    it = dwi.plot.generate_plots(**d)
+    lst = list(img.each_param())
+    for i, plt in enumerate(it):
+        param, a = lst[i]
         d = dict(bins='auto', range=rng, histtype='step', label=param)
         plt.hist(a.ravel(), **d)
         plt.hist(a[mask], **d)
-    next(it)
 
 
 def plot(img, mask, path):
@@ -136,44 +156,39 @@ def plot(img, mask, path):
             plt.imshow(view)
 
 
-def main():
-    args = parse_args()
-    print(args)
+def process_image(imagepath, params, maskpath, histpath, figpath):
+    img = dwi.image.Image.read(imagepath, params=params, dtype=np.float32)
+    mask = dwi.files.read_mask(str(maskpath)) if maskpath else None
 
-    img, attrs = dwi.files.read_pmap(str(args.image), params=args.params)
-    spacing = attrs['voxel_spacing']
-    img = dwi.image.Image.read(args.image, params=args.params)
-    mask = dwi.files.read_mask(str(args.mask)) if args.mask else None
-
-    logging.info(img.shape)
+    logging.info('Image: %s, %s', array_info(img),
+                 np.count_nonzero(mask) / mask.size)
     mbb = img[..., 0].mbb()
     img = img[mbb]
     mask = mask[mbb]
-    logging.info(img.shape)
-    logging.info(img.params)
-    logging.info(img.spacing)
-    logging.info(np.count_nonzero(mask) / mask.size)
+    logging.info('Image: %s', array_info(img))
+    logging.info('...masked: %s, %s', array_info(img[mask]))
+    for p, a in img.each_param():
+        logging.info('Param: %s, %s, %s', p, array_info(a))
+
+    # pc = [50, 99.5]
+    pc = [90, 99.9]
+    rng = np.percentile(img, pc)
+    if histpath:
+        histogram(img, mask, rng=rng, path=str(histpath))
 
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
     # mask = mask[5:-5]
 
-    # img = preprocess(img)
-
-    # pc = [50, 99.5]
-    pc = [90, 99.9]
-    rng = np.percentile(img, pc)
-    print(rng)
-    if args.histogram:
-        histogram(img, mask, rng=rng, path=str(args.histogram))
-
-    return
-
     # Downsample.
+    logging.info('Scaling: %s', array_info(img))
+    info = img.info
     factor = (1, 0.5, 0.5)
     img = ndimage.interpolation.zoom(img, factor + (1,), order=0)
-    spacing = [s/f for s, f in zip(spacing, factor)]
+    info['spacing'] = [s/f for s, f in zip(info['spacing'], factor)]
     mask = scale_mask(mask, factor)
+    assert img[..., 0].shape == mask.shape, (img.shape, mask.shape)
+    img = dwi.image.Image(img, info=info)
 
     # labels = label_groups(img[..., 0], np.percentile(img, [50, 99.5]))
     # labels = label_groups(img[0], [img[mask].min(), img[mask].max()])
@@ -187,8 +202,15 @@ def main():
     # labels = label_groups(img[..., 0], [50, 100, 150, 200, 250, 300, 350])
 
     markers = get_markers(img)
-    labels = segment(img, markers, spacing)
-    plot(labels, mask, str(args.fig))
+    img = preprocess(img)
+    plot(img[..., 0], mask, str(figpath))
+    labels = segment(img, markers, img.spacing)
+    plot(labels, mask, str(figpath))
+
+
+def main():
+    args = parse_args()
+    process_image(args.image, args.params, args.mask, args.hist, args.fig)
 
 
 if __name__ == '__main__':
