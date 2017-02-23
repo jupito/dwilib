@@ -35,7 +35,7 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
     pl.tight_layout()
     if outfile is not None:
         log.info('Plotting to %s', outfile)
-        pl.savefig(outfile, bbox_inches='tight')
+        pl.savefig(str(outfile), bbox_inches='tight')
     else:
         pl.show()
     pl.close()
@@ -63,7 +63,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
     pl.tight_layout()
     if outfile is not None:
         log.info('Plotting to %s', outfile)
-        pl.savefig(outfile, bbox_inches='tight')
+        pl.savefig(str(outfile), bbox_inches='tight')
     else:
         pl.show()
     pl.close()
@@ -94,7 +94,7 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     plt.tight_layout()
     if path is not None:
         log.info('Plotting to %s', path)
-        plt.savefig(path, bbox_inches='tight')
+        plt.savefig(str(path), bbox_inches='tight')
     else:
         plt.show()
     plt.close()
