@@ -42,13 +42,6 @@ def parse_args():
     return dwi.conf.parse_args(p)
 
 
-def scale_mask(mask, factor):
-    mask = mask.astype(np.float32)
-    mask = ndimage.interpolation.zoom(mask, factor, order=0)
-    mask = dwi.util.asbool(mask)
-    return mask
-
-
 def array_info(a):
     """Array info for debugging."""
     return ', '.join(str(x) for x in [a.__class__.__name__, a.shape,
@@ -56,7 +49,8 @@ def array_info(a):
                                       getattr(a, 'spacing', None)])
 
 
-def preprocess(img):
+def normalize(img):
+    """Normalize image intensity."""
     assert img.ndim == 4
     logging.info('Preprocessing: %s', array_info(img))
     info = img.info
@@ -72,7 +66,34 @@ def preprocess(img):
     return img
 
 
+def rescale_mask(mask, factor):
+    """Rescale mask."""
+    mask = mask.astype(np.float32)  # Float16 seems to jam zoom().
+    mask = ndimage.interpolation.zoom(mask, factor, order=0)
+    mask = dwi.util.asbool(mask)
+    return mask
+
+
+def rescale(img, mask, factor):
+    """Rescale image and mask."""
+    logging.info('Scaling: %s', array_info(img))
+    info = img.info
+    img = ndimage.interpolation.zoom(img, factor + (1,), order=0)
+    info['spacing'] = [s/f for s, f in zip(info['spacing'], factor)]
+    mask = rescale_mask(mask, factor)
+    assert img[..., 0].shape == mask.shape, (img.shape, mask.shape)
+    img = dwi.image.Image(img, info=info)
+    return img, mask
+
+
+def smoothen(img):
+    """Smoothen image."""
+    img = skimage.filters.gaussian(img, 1, multichannel=False)
+    return img
+
+
 def label_groups(a, thresholds):
+    """Get initial labels for segmentation, based on intensity groups."""
     labels = np.zeros_like(a, dtype=np.uint8)
     for i, t in enumerate(sorted(thresholds)):
         labels[a > t] = i + 1
@@ -80,6 +101,7 @@ def label_groups(a, thresholds):
 
 
 def get_markers(img):
+    """Get initial labels for segmentation."""
     assert img.ndim == 4
     markers = np.zeros(img.shape[0:3], dtype=np.int8)
 
@@ -120,6 +142,7 @@ def get_markers(img):
 
 
 def segment(img, markers):
+    """Segment image."""
     logging.info('Segmenting: %s', array_info(img))
     logging.info('...with markers: %s', array_info(markers))
     d = dict(
@@ -133,7 +156,8 @@ def segment(img, markers):
     return labels
 
 
-def histogram(img, mask, rng=None, path=None):
+def plot_histogram(img, mask, rng=None, path=None):
+    """Plot histogram."""
     d = dict(titles=img.params, path=path)
     # d.update(nrows=3, ncols=4)
     it = dwi.plot.generate_plots(**d)
@@ -146,7 +170,8 @@ def histogram(img, mask, rng=None, path=None):
         plt.hist(a[~mask], **d)
 
 
-def plot(img, mask, path):
+def plot_image(img, mask, path):
+    """Plot image slice by slice."""
     assert img.ndim == 3
     vmin, vmax = np.min(img), np.max(img)
     titles = [str(x) for x in range(len(img))]
@@ -160,11 +185,13 @@ def plot(img, mask, path):
 
 
 def fig_path(path, *specs, suffix='.png'):
+    """Get output path for figure."""
     stem = '-'.join((path.stem,) + specs)
     return (path.parent / stem).with_suffix(suffix)
 
 
 def process_image(imagepath, params, maskpath, histpath, figpath):
+    """Process an image."""
     img = dwi.image.Image.read(imagepath, params=params, dtype=np.float32)
     mask = dwi.files.read_mask(str(maskpath)) if maskpath else None
 
@@ -182,23 +209,15 @@ def process_image(imagepath, params, maskpath, histpath, figpath):
     pc = [90, 99.9]
     rng = np.percentile(img, pc)
     if histpath:
-        histogram(img, mask, rng=rng, path=fig_path(histpath, 'image'))
+        plot_histogram(img, mask, rng=rng, path=fig_path(histpath, 'image'))
 
     # img_scale = img.min(), img.max()
     # img = img[5:-5]
     # mask = mask[5:-5]
 
-    # # Downsample.
-    # logging.info('Scaling: %s', array_info(img))
-    # info = img.info
-    # factor = (1, 0.5, 0.5)
-    # img = ndimage.interpolation.zoom(img, factor + (1,), order=0)
-    # info['spacing'] = [s/f for s, f in zip(info['spacing'], factor)]
-    # mask = scale_mask(mask, factor)
-    # assert img[..., 0].shape == mask.shape, (img.shape, mask.shape)
-    # img = dwi.image.Image(img, info=info)
-    # if histpath:
-    #     histogram(img, mask, rng=rng, path=fig_path(histpath, 'scaled'))
+    img, mask = rescale(img, mask, (1, 0.5, 0.5))
+    if histpath:
+        plot_histogram(img, mask, rng=rng, path=fig_path(histpath, 'scaled'))
 
     # labels = label_groups(img[..., 0], np.percentile(img, [50, 99.5]))
     # labels = label_groups(img[0], [img[mask].min(), img[mask].max()])
@@ -212,22 +231,23 @@ def process_image(imagepath, params, maskpath, histpath, figpath):
     # labels = label_groups(img[..., 0], [50, 100, 150, 200, 250, 300, 350])
 
     markers = get_markers(img)
-    plot(markers, mask, fig_path(figpath, 'markers'))
+    plot_image(markers, mask, fig_path(figpath, 'markers'))
 
-    img = preprocess(img)
-    plot(img[..., 0], mask, fig_path(figpath, 'image'))
+    img = normalize(img)
+    plot_image(img[..., 0], mask, fig_path(figpath, 'image'))
 
-    img[..., 0] = skimage.filters.gaussian(img[..., 0], 1, output=img[..., 0], multichannel=False)
-    plot(img[..., 0], mask, fig_path(figpath, 'image-gaussian'))
+    img[..., 0] = smoothen(img[..., 0])
+    plot_image(img[..., 0], mask, fig_path(figpath, 'image-gaussian'))
 
     labels = segment(img, markers)
-    plot(labels, mask, fig_path(figpath, 'labels'))
+    plot_image(labels, mask, fig_path(figpath, 'labels'))
 
-    # labels = skimage.filters.gaussian(labels, 1, output=labels, multichannel=False)
-    # plot(labels, mask, fig_path(figpath, 'labels-gaussian'))
+    # labels = smoothen(labels)
+    # plot_image(labels, mask, fig_path(figpath, 'labels-gaussian'))
 
 
 def main():
+    """Main."""
     args = parse_args()
     process_image(args.image, args.params, args.mask, args.hist, args.fig)
 
