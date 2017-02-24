@@ -5,7 +5,7 @@
 from __future__ import absolute_import, division, print_function
 from os.path import dirname
 
-# from doit.tools import create_folder
+from doit.tools import create_folder
 
 import dwi.files
 from dwi.paths import samplelist_path
