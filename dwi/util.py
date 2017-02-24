@@ -305,7 +305,9 @@ def dump_json(obj, separators=(', ', ': '), sort_keys=False):
 
 def normalize(pmap, mode):
     """Normalize images within mode-specific range."""
-    if mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
+    if mode == 'DWI':
+        in_range = (100, 2500)
+    elif mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
         in_range = (0, 0.004)
