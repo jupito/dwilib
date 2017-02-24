@@ -22,7 +22,7 @@ def parse_args():
                    help='increase verbosity')
     p.add_argument('--input', nargs='+',
                    help='input files')
-    p.add_argument('--param', type=int, default=0,
+    p.add_argument('--param', type=int, nargs='*',
                    help='image parameter index to use')
     p.add_argument('--fig', required=True,
                    help='output figure file')
@@ -58,14 +58,17 @@ def smoothen(x, y):
     return x_smooth, y_smooth
 
 
-def plot_histograms(Histograms, outfile, title=None, smooth=False):
+def plot_histograms(Histograms, outfile, smooth=False):
     """Plot subfigures, each having several histograms bundled together."""
-    ncols, nrows = len(Histograms), 1
+    nrows = len({x[0] for x in Histograms})
+    ncols = len({x[1] for x in Histograms})
+    # logging.warning('## %s ', [nrows, ncols])
     fig = pl.figure(figsize=(ncols*6, nrows*6))
     # pl.yscale('log')
-    for i, (rng, histograms) in enumerate(Histograms.items(), 1):
+    for i, ((param, rng), histograms) in enumerate(Histograms.items(), 1):
+        # logging.warning('#### %s ', [i, param, rng, len(histograms)])
         if histograms:
-            fig.add_subplot(1, len(Histograms), i)
+            fig.add_subplot(nrows, ncols, i)
             minmin, maxmax = None, None
             for hist, bins, mn, mx in histograms:
                 x, y = bins, hist
@@ -81,19 +84,16 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
                 maxmax = max(maxmax, mx)
             s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
                                                   minmin, maxmax)
-            if title is not None:
-                s = title + '; ' + s
+            s = param + '; ' + s
             pl.title(s)
-    pl.tight_layout()
+    # pl.tight_layout()
     logging.info('Plotting to %s...', outfile)
     pl.savefig(outfile, bbox_inches='tight')
     pl.close()
 
 
-def add_histograms(hists, ranges, path, param_index, verbose):
+def add_histograms(hists, path, img, param, ranges, verbose):
     """Add histograms for a file."""
-    img, attrs = dwi.files.read_pmap(path, params=[param_index])
-    param = attrs['parameters'][0]
     original_shape, original_size = img.shape, img.size
     img = img[dwi.util.bbox(img)]
     img = img[np.isfinite(img)]
@@ -111,7 +111,8 @@ def add_histograms(hists, ranges, path, param_index, verbose):
         if isinstance(rng, tuple):
             incl = False
         m1, m2 = np.percentile(img, rng)
-        hists.setdefault(str(rng), []).append(histogram(img, m1, m2, incl))
+        key = (param, str(rng))
+        hists.setdefault(key, []).append(histogram(img, m1, m2, incl))
     # hists[0].append(histogram(img, None, None))
     # hists[1].append(histogram(img, 0, 100))
     # hists[2].append(histogram(img, 0.1, 99.9))
@@ -127,8 +128,12 @@ def main():
     ranges = [[0, 100], (0, 100), [0, 99], (1, 95)]
     hists = OrderedDict()
     for path in args.input:
-        add_histograms(hists, ranges, path, args.param, args.verbose)
-    plot_histograms(hists, args.fig, title=args.param, smooth=args.smooth)
+        img, attrs = dwi.files.read_pmap(path, params=args.param,
+                                         dtype=np.float32)
+        for i, param in enumerate(attrs['parameters']):
+            add_histograms(hists, path, img[..., i], param, ranges,
+                           args.verbose)
+    plot_histograms(hists, args.fig, smooth=args.smooth)
 
 
 if __name__ == '__main__':
