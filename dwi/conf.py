@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 import logging
+import os.path
 
 from dwi.files import Path
 import dwi.util
@@ -56,8 +57,11 @@ def rcdefaults():
 def get_config_paths():
     """Return existing default configuration files."""
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
+    # Py3.4 pathlib has no expanduser().
+    dirnames = [os.path.expanduser(x) for x in dirnames]
     filename = 'dwilib.cfg'
-    paths = [Path(x).expanduser() / filename for x in dirnames]
+    # paths = [Path(x).expanduser() / filename for x in dirnames]
+    paths = [Path(x) / filename for x in dirnames]
     paths = [x for x in paths if x.exists()]
     return paths
 
