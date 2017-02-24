@@ -28,9 +28,17 @@ class Dataset(h5py.Dataset):
 
 def convert_value_write(v):
     """HDF5 doesn't understand None objects, so replace any with nan values."""
+    def convert_item(x):
+        """Convert sequence item."""
+        if x is None:
+            return np.nan
+        if dwi.util.isstring(x):
+            return x.encode()
+        return x
     if dwi.util.iterable(v) and not dwi.util.isstring(v):
-        if any(x is None for x in v):
-            v = type(v)([(np.nan if x is None else x) for x in v])
+        # if any(x is None for x in v):
+        #     v = type(v)([(np.nan if x is None else x) for x in v])
+        v = type(v)([convert_item(x) for x in v])
     return v
 
 
