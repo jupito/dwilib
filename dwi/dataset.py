@@ -10,6 +10,28 @@ from dwi.files import Path
 import dwi.patient
 
 
+class Dataset(object):
+    def __init__(self, mode, samplelist, cases=None):
+        self.mode = mode
+        self.samplelist = samplelist
+        self.cases = cases
+
+    @property
+    def samplelist_path(self):
+        return dwi.paths.samplelist_path(self.mode, self.samplelist)
+
+    def each_patient(self):
+        patients = dwi.files.read_patients_file(self.samplelist_path)
+        for p in patients:
+            if self.cases is None or p.num in self.cases:
+                yield p
+
+    def each_image_id(self):
+        for p in self.each_patient():
+            for s in p.scans:
+                yield p.num, s, p.lesions
+
+
 def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
     if dwi.util.isstring(patients):
