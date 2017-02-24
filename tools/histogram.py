@@ -90,6 +90,35 @@ def plot_histograms(Histograms, outfile, title=None, smooth=False):
     pl.close()
 
 
+def add_histograms(hists, ranges, path, param_index, verbose):
+    """Add histograms for a file."""
+    img, attrs = dwi.files.read_pmap(path, params=[param_index])
+    param = attrs['parameters'][0]
+    original_shape, original_size = img.shape, img.size
+    img = img[dwi.util.bbox(img)]
+    img = img[np.isfinite(img)]
+    if np.any(img < 0):
+        # negatives = img[img < 0]
+        logging.warning('Image contains negatives: %s', path)
+    if verbose:
+        s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
+        print(s.format(s=original_shape, t=img.dtype,
+                       fp=img.size/original_size, m=np.mean(img),
+                       fn=dwi.util.fivenums(img), param=param, p=path))
+    for rng in ranges:
+        if isinstance(rng, list):
+            incl = True
+        if isinstance(rng, tuple):
+            incl = False
+        m1, m2 = np.percentile(img, rng)
+        hists.setdefault(str(rng), []).append(histogram(img, m1, m2, incl))
+    # hists[0].append(histogram(img, None, None))
+    # hists[1].append(histogram(img, 0, 100))
+    # hists[2].append(histogram(img, 0.1, 99.9))
+    # hists[3].append(histogram(img, 1, 99))
+    # hists[4].append(histogram(img, 2, 98))
+
+
 def main():
     """Main."""
     args = parse_args()
@@ -98,32 +127,8 @@ def main():
     ranges = [[0, 100], (0, 100), [0, 99], (1, 95)]
     hists = OrderedDict()
     for path in args.input:
-        img, attrs = dwi.files.read_pmap(path, params=[args.param])
-        param = attrs['parameters'][0]
-        original_shape, original_size = img.shape, img.size
-        img = img[dwi.util.bbox(img)]
-        img = img[np.isfinite(img)]
-        if np.any(img < 0):
-            # negatives = img[img < 0]
-            logging.warning('Image contains negatives: %s', path)
-        if args.verbose:
-            s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
-            print(s.format(s=original_shape, t=img.dtype,
-                           fp=img.size/original_size, m=np.mean(img),
-                           fn=dwi.util.fivenums(img), param=param, p=path))
-        for rng in ranges:
-            if isinstance(rng, list):
-                incl = True
-            if isinstance(rng, tuple):
-                incl = False
-            m1, m2 = np.percentile(img, rng)
-            hists.setdefault(str(rng), []).append(histogram(img, m1, m2, incl))
-        # hists[0].append(histogram(img, None, None))
-        # hists[1].append(histogram(img, 0, 100))
-        # hists[2].append(histogram(img, 0.1, 99.9))
-        # hists[3].append(histogram(img, 1, 99))
-        # hists[4].append(histogram(img, 2, 98))
-    plot_histograms(hists, args.fig, title=param, smooth=args.smooth)
+        add_histograms(hists, ranges, path, args.param, args.verbose)
+    plot_histograms(hists, args.fig, title=args.param, smooth=args.smooth)
 
 
 if __name__ == '__main__':
