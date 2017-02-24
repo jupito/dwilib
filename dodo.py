@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import, division, print_function
 from collections import defaultdict
-from itertools import product
+from itertools import chain, product
 
 from doit import get_var
 # from doit.tools import check_timestamp_unchanged
@@ -50,7 +50,7 @@ def find_roi_param_combinations(mode, samplelist):
         [1, 2, 3],  # ROI depth max
         range(2, 13),  # ROI side min (3 was not good)
         range(3, 13),  # ROI side max
-        range(250, 2000, 250) + [50, 100, 150, 200],  # Number of ROIs
+        chain(range(250, 2000, 250), [50, 100, 150, 200]),  # Number of ROIs
         ]
     if mode[0] == 'DWI':
         if samplelist == 'test':
