@@ -40,7 +40,6 @@ class Image(np.ndarray):
     @classmethod
     def read(cls, path, **kwargs):
         """Read a pmap."""
-        path = Path(path)
         img, attrs = dwi.files.read_pmap(str(path), **kwargs)
         info = dict(path=path, attrs=attrs,
                     params=attrs.pop('parameters', None),
