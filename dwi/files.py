@@ -56,13 +56,16 @@ def toline(iterable):
     return ' '.join(str(x) for x in iterable) + '\n'
 
 
+def sanitize_line(line):
+    """Clean up an input line."""
+    return line.split(COMMENT_PREFIX, 1)[0].strip()
+
+
 def valid_lines(path):
     """Read and yield lines that are neither empty nor comments."""
-    with Path(path).open(mode='rU') as f:
-        for line in f:
-            line = line.split(COMMENT_PREFIX, 1)[0].strip()
-            if line:
-                yield line
+    with Path(path).open(mode='rU') as fp:
+        for line in filter(None, (sanitize_line(x) for x in fp)):
+            yield line
 
 
 def ensure_dir(path):
