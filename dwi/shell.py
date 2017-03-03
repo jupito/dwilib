@@ -10,14 +10,9 @@ from dwi.files import Path
 DWILIB = Path.home() / 'src/dwilib/tools'  # Executable residency.
 
 
-def q(x):
-    """Quoted argument."""
-    return shlex.quote(str(x))
-
-
-def _arglist(args):
-    """List of quoted arguments."""
-    return ' '.join(q(x) for x in args)
+def q(*args):
+    """Return argument(s) as a quoted string."""
+    return ' '.join(shlex.quote(str(x)) for x in args)
 
 
 def prg(x):
@@ -27,7 +22,7 @@ def prg(x):
 
 def standardize_train(infiles, cfgpath, thresholding):
     """Standardize MRI images: training phase."""
-    d = dict(prg=prg('standardize.py'), o=q(cfgpath), i=_arglist(infiles),
+    d = dict(prg=prg('standardize.py'), o=q(cfgpath), i=q(*infiles),
              t=q(thresholding))
     cmd = '{prg} -v --train {o} {i} --thresholding {t}'
     return cmd.format(**d)
@@ -115,9 +110,9 @@ def grid(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
          winsize=5, voxelspacing=None, lesiontypes=None, use_centroid=False,
          nanbg=False):
     prg = DWILIB / 'grid.py'
-    lesions = _arglist(lesions)
-    voxelspacing = _arglist(voxelspacing)
-    lesiontypes = _arglist(lesiontypes)
+    lesions = q(*lesions)
+    voxelspacing = q(*voxelspacing)
+    lesiontypes = q(*lesiontypes)
     cmd = ('{prg} -v --image {image} --prostate {prostate} --lesions {lesions}'
            ' --output {outpath}')
     if param is not None:
