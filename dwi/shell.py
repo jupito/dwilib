@@ -1,29 +1,42 @@
 """Shell commands for calculation tasks."""
 
+# TODO: Use shlex.quote().
+
 from __future__ import absolute_import, division, print_function
+import shlex
 
 from dwi.files import Path
 
-DWILIB = Path.home() / 'src/dwilib/tools'
+DWILIB = Path.home() / 'src/dwilib/tools'  # Executable residency.
 
 
-def _pathlist(paths):
-    """Lay pathnames on command line."""
-    return ' '.join('"{}"'.format(x) for x in paths)
+def q(x):
+    """Quoted argument."""
+    return shlex.quote(str(x))
+
+
+def _arglist(args):
+    """List of quoted arguments."""
+    return ' '.join(q(x) for x in args)
+
+
+def prg(x):
+    """Quoted program path."""
+    return q(DWILIB / x)
 
 
 def standardize_train(infiles, cfgpath, thresholding):
     """Standardize MRI images: training phase."""
-    infiles = _pathlist(infiles)
-    d = dict(prg=DWILIB/'standardize.py', o=cfgpath, i=infiles, t=thresholding)
+    d = dict(prg=prg('standardize.py'), o=q(cfgpath), i=_arglist(infiles),
+             t=q(thresholding))
     cmd = '{prg} -v --train {o} {i} --thresholding {t}'
     return cmd.format(**d)
 
 
 def standardize_transform(cfgpath, inpath, outpath, mask=None):
     """Standardize MRI images: transform phase."""
-    d = dict(prg=DWILIB/'standardize.py', c=cfgpath, i=inpath, o=outpath,
-             m=mask)
+    d = dict(prg=prg('standardize.py'), c=q(cfgpath), i=q(inpath),
+             o=q(outpath), m=q(mask))
     cmd = '{prg} -v --transform {c} {i} {o}'
     if mask:
         cmd += ' --mask {m}'
@@ -96,10 +109,6 @@ def fit(infile, outfile, model, mask=None, mbb=None, params=None):
     if params is not None:
         cmd += ' --params {params}'
     return cmd.format(**d)
-
-
-def _arglist(args):
-    return ' '.join(str(x) for x in args)
 
 
 def grid(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
