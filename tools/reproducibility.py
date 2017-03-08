@@ -164,6 +164,20 @@ def select_voxel(pmaps, voxel):
         return pmaps[:, i, :]  # Use single voxel only.
 
 
+def get_results(baselines, nboot):
+    d = dwi.stats.repeatability_coeff(*baselines, avgfun=np.median)
+    d['msdr'] = d['msd'] / d['avg']
+    d['cir'] = d['ci'] / d['avg']
+    d['corr'] = d['cor'] / d['avg']
+    d['icc'] = dwi.stats.icc(baselines)
+    if nboot:
+        t = dwi.stats.bootstrap_icc(baselines, nboot=nboot)
+    else:
+        t = (np.nan,) * 3
+    d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = t
+    return d
+
+
 def main():
     args = parse_args()
     if args.patients:
@@ -207,17 +221,7 @@ def main():
         if args.figdir:
             plot(values, param, args.figdir)
         baselines = as_pairs(values)
-        d = dict(param=param)
-        d.update(dwi.stats.repeatability_coeff(*baselines, avgfun=np.median))
-        d['msdr'] = d['msd'] / d['avg']
-        d['cir'] = d['ci'] / d['avg']
-        d['corr'] = d['cor'] / d['avg']
-        d['icc'] = dwi.stats.icc(baselines)
-        if args.nboot:
-            t = dwi.stats.bootstrap_icc(baselines, nboot=args.nboot)
-        else:
-            t = (np.nan,) * 3
-        d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = t
+        d = dict(get_results(baselines, args.nboot), param=param)
         print(output.format(**d))
 
 
