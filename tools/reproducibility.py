@@ -110,7 +110,7 @@ def parse_filename(filename):
     # m = re.match(r'(\d+)_([\w_]+)_[^_]*_(\d\w)_', filename)
     m = re.search(r'(\d+)_(\w*)_?(\d\w)_', filename)
     if m is None:
-        raise Exception('Cannot parse filename: {}'.format(filename))
+        raise ValueError('Cannot parse filename: {}'.format(filename))
     num, name, scan = m.groups()
     return int(num), name.lower(), scan.lower()
 
@@ -138,11 +138,11 @@ def scan_in_patients(patients, num, scan):
 
 def load_files(patients, filenames, pairs=False):
     """Load pmap files. If pairs=True, require scan pairs together."""
-    pmapfiles = []
-    for f in filenames:
-        num, _, scan = parse_filename(os.path.basename(f))
-        if patients is None or scan_in_patients(patients, num, scan):
-            pmapfiles.append(f)
+    def filt(filename):
+        num, _, scan = parse_filename(os.path.basename(filename))
+        return patients is None or scan_in_patients(patients, num, scan)
+
+    pmapfiles = filter(filt, filenames)
     afs = [dwi.asciifile.AsciiFile(x) for x in pmapfiles]
     if pairs:
         scan_pairs(afs)
