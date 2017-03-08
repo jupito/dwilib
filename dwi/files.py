@@ -97,7 +97,7 @@ def parse_patient(line, include_lines=False):
     p = re.compile(regexp, flags=re.VERBOSE)
     m = p.match(line)
     if m is None:
-        raise Exception('Invalid line in patients file: %s', line)
+        raise ValueError('Invalid line in patients file: %s', line)
     num = m.group('num')
     name = m.group('name')
     scans = sorted(m.group('scans').lower().split(','))
