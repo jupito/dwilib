@@ -122,20 +122,24 @@ def read_patients_file(path, include_lines=False):
                   valid_lines(path))
 
 
+def parse_sample(line):
+    """Parse a line in sample list file.
+    Format: num name scan1,scan2,...
+    """
+    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
+    m = p.match(line)
+    if m is None:
+        raise ValueError('Invalid line in samplelist file: %s', line)
+    case, name, scans = m.groups()
+    case = int(case)
+    name = name.lower()
+    scans = tuple(sorted(scans.lower().split(',')))
+    return dict(case=case, name=name, scans=scans)
+
+
 def read_sample_list(filename):
     """Read a list of samples from file."""
-    entries = []
-    p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
-    for line in valid_lines(filename):
-        m = p.match(line)
-        if m:
-            case, name, scans = m.groups()
-            case = int(case)
-            name = name.lower()
-            scans = tuple(sorted(scans.lower().split(',')))
-            d = dict(case=case, name=name, scans=scans)
-            entries.append(d)
-    return entries
+    return [parse_sample(x) for x in valid_lines(path)]
 
 
 def read_subregion_file(filename):
