@@ -91,13 +91,6 @@ def all_equal(a):
     return np.nanmin(a) == np.nanmax(a)
 
 
-def pairs(seq):
-    """Return sequence split in two, each containing every second item."""
-    if len(seq) % 2:
-        raise Exception('Sequence length not even.')
-    return seq[0::2], seq[1::2]
-
-
 def get_indices(seq, val):
     """Return indices of elements containing given value in a sequence."""
     r = []

@@ -36,12 +36,19 @@ def parse_args():
     return p.parse_args()
 
 
+def as_pairs(seq):
+    """Return sequence split in two, each containing every second item."""
+    if len(seq) % 2:
+        raise ValueError('Sequence length not even: {}'.format(len(seq)))
+    return seq[0::2], seq[1::2]
+
+
 def plot(values, param, figdir):
     """Plot a parameter; its two baselines and their differences.
 
     This function was originally made in order to find outliers.
     """
-    baselines = np.asarray(dwi.util.pairs(values))
+    baselines = np.asarray(as_pairs(values))
     n = len(baselines[0])
     it = dwi.plot.generate_plots(ncols=3, titles=(param,)*3,
                                  xlabels=('index',)*3,
@@ -114,7 +121,7 @@ def scan_pairs(afs):
     """Check that the ascii files are correctly paired as scan baselines.
     Return list of (patient number, scan 1, scan 2) tuples.
     """
-    baselines = dwi.util.pairs(afs)
+    baselines = as_pairs(afs)
     r = []
     for af1, af2 in zip(*baselines):
         num1, _, scan1 = parse_filename(af1.basename)
@@ -197,7 +204,7 @@ def main():
             continue
         if args.figdir:
             plot(values, param, args.figdir)
-        baselines = dwi.util.pairs(values)
+        baselines = as_pairs(values)
         d = dict(param=param)
         d.update(dwi.stats.repeatability_coeff(*baselines, avgfun=np.median))
         d['msdr'] = d['msd']/d['avg']
