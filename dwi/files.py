@@ -10,10 +10,11 @@ import zipfile
 
 import numpy as np
 
+# With older Python version, pathlib2 might be preferred.
 try:
-    from pathlib import Path, PurePath
-except ImportError:
     from pathlib2 import Path, PurePath
+except ImportError:
+    from pathlib import Path, PurePath
 
 import dwi.asciifile
 import dwi.dicomfile
