@@ -50,11 +50,6 @@ def read_archive(archive, max_size=None):
             yield tmpdir
 
 
-def toline(iterable):
-    """Convert an iterable into a line."""
-    return ' '.join(str(x) for x in iterable) + '\n'
-
-
 def sanitize_line(line):
     """Clean up an input line."""
     return line.split(COMMENT_PREFIX, 1)[0].strip()

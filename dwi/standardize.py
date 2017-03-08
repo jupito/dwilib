@@ -168,6 +168,11 @@ def standardize(img, cfg, mask=None):
     return img
 
 
+def toline(iterable):
+    """Convert an iterable into a line."""
+    return ' '.join(str(x) for x in iterable) + '\n'
+
+
 def write_std_cfg(filename, pc, landmarks, scale, mapped_scores, thresholding):
     """Write image standardization configuration file.
 
@@ -187,10 +192,10 @@ def write_std_cfg(filename, pc, landmarks, scale, mapped_scores, thresholding):
         Thresholding strategy.
     """
     with open(filename, 'w') as f:
-        f.write(dwi.files.toline(pc))
-        f.write(dwi.files.toline(landmarks))
-        f.write(dwi.files.toline(scale))
-        f.write(dwi.files.toline(mapped_scores))
+        f.write(toline(pc))
+        f.write(toline(landmarks))
+        f.write(toline(scale))
+        f.write(toline(mapped_scores))
         f.write(thresholding)
 
 
