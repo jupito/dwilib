@@ -119,16 +119,16 @@ def scan_pairs(afs):
     """Check that the ascii files are correctly paired as scan baselines.
     Return list of (patient number, scan 1, scan 2) tuples.
     """
-    baselines = as_pairs(afs)
-    r = []
-    for af1, af2 in zip(*baselines):
+    def get_tuple(af1, af2):
         num1, _, scan1 = parse_filename(af1.basename)
         num2, _, scan2 = parse_filename(af2.basename)
         if num1 != num2 or scan1[0] != scan2[0]:
             raise ValueError('Not a pair: {}, {}'.format(af1.basename,
                                                          af2.basename))
-        r.append((num1, scan1, scan2))
-    return r
+        return num1, scan1, scan2
+
+    baselines = as_pairs(afs)
+    return [get_tuple(af1, af2) for af1, af2 in zip(*baselines)]
 
 
 def scan_in_patients(patients, num, scan):
