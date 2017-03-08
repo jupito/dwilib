@@ -89,9 +89,7 @@ def plot(values, param, figdir):
 def glob_if_needed(filenames):
     """Workaround for platforms without shell-level globbing."""
     if len(filenames) == 1:
-        lst = glob.glob(filenames[0])
-        if len(lst) > 0:
-            filenames = lst
+        return glob.glob(filenames[0]) or filenames
     return filenames
 
 
@@ -127,8 +125,8 @@ def scan_pairs(afs):
         num1, _, scan1 = parse_filename(af1.basename)
         num2, _, scan2 = parse_filename(af2.basename)
         if num1 != num2 or scan1[0] != scan2[0]:
-            raise Exception('Not a pair: {}, {}'.format(af1.basename,
-                                                        af2.basename))
+            raise ValueError('Not a pair: {}, {}'.format(af1.basename,
+                                                         af2.basename))
         r.append((num1, scan1, scan2))
     return r
 
@@ -207,9 +205,9 @@ def main():
         baselines = as_pairs(values)
         d = dict(param=param)
         d.update(dwi.stats.repeatability_coeff(*baselines, avgfun=np.median))
-        d['msdr'] = d['msd']/d['avg']
-        d['cir'] = d['ci']/d['avg']
-        d['corr'] = d['cor']/d['avg']
+        d['msdr'] = d['msd'] / d['avg']
+        d['cir'] = d['ci'] / d['avg']
+        d['corr'] = d['cor'] / d['avg']
         d['icc'] = dwi.stats.icc(baselines)
         (d['icc_bs'], d['icc_ci1'],
          d['icc_ci2']) = dwi.stats.bootstrap_icc(baselines, nboot=args.nboot)
