@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 from contextlib import contextmanager
 import logging
-import os
 import re
 import shutil
 import tempfile
@@ -73,15 +72,14 @@ def ensure_dir(path):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
 
 
-def mapped(shape, dtype, filler=None):
+@contextmanager
+def mapped(shape, dtype, fill_value=None):
     """Create an array as a memory-mapped temporary file on disk."""
-    # import tempfile
-    # fileno, path = tempfile.mkstemp(suffix='.texture')
-    # a = np.memmap(path, dtype=dtype, mode='w+', shape=shape)
-    a = np.memmap(os.tmpfile(), dtype=dtype, mode='w+', shape=shape)
-    if filler is not None:
-        a.fill(filler)
-    return a
+    with tempfile.TemporaryFile() as fp:
+        a = np.memmap(fp, dtype=dtype, mode='w+', shape=shape)
+        if fill_value is not None:
+            a.fill(fill_value)
+        yield a
 
 
 def parse_patient(line, include_lines=False):
