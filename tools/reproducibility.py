@@ -209,8 +209,11 @@ def main():
         d['cir'] = d['ci'] / d['avg']
         d['corr'] = d['cor'] / d['avg']
         d['icc'] = dwi.stats.icc(baselines)
-        (d['icc_bs'], d['icc_ci1'],
-         d['icc_ci2']) = dwi.stats.bootstrap_icc(baselines, nboot=args.nboot)
+        if args.nboot:
+            t = dwi.stats.bootstrap_icc(baselines, nboot=args.nboot)
+        else:
+            t = (np.nan,) * 3
+        d['icc_bs'], d['icc_ci1'], d['icc_ci2'] = t
         print(output.format(**d))
 
 
