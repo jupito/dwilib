@@ -153,6 +153,17 @@ def load_files(patients, filenames, pairs=False):
     return pmaps, params
 
 
+def select_voxel(pmaps, voxel):
+    """Select voxel to use."""
+    if voxel == 'mean':
+        return np.mean(pmaps, axis=1)  # Use mean voxel.
+    elif voxel == 'median':
+        return np.median(pmaps, axis=1)  # Use median voxel.
+    else:
+        i = int(voxel)
+        return pmaps[:, i, :]  # Use single voxel only.
+
+
 def main():
     args = parse_args()
     if args.patients:
@@ -164,14 +175,7 @@ def main():
     paths = sort_pmapfiles(paths)  # XXX: Temporary kludge.
     pmaps, params = load_files(patients, paths, pairs=True)
 
-    # Select voxel to use.
-    if args.voxel == 'mean':
-        X = np.mean(pmaps, axis=1)  # Use mean voxel.
-    elif args.voxel == 'median':
-        X = np.median(pmaps, axis=1)  # Use median voxel.
-    else:
-        i = int(args.voxel)
-        X = pmaps[:, i, :]  # Use single voxel only.
+    X = select_voxel(pmaps, args.voxel)
 
     if args.verbose > 1:
         s = 'Samples: {}, features: {}, voxel: {}, bootstraps: {}'
