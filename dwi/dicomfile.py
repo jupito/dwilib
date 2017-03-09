@@ -63,10 +63,9 @@ def read_files(paths):
     if len(positions) > 1:
         slice_spacing = round(get_slice_spacing(positions[0], positions[1]), 5)
         d['voxel_spacing'] = (slice_spacing,) + d['voxel_spacing'][1:]
-    r = dict(image=image, bset=bvalues, echotimes=echotimes,
-             parameters=parameters, voxel_spacing=d['voxel_spacing'],
-             errors=d['errors'])
-    return r
+    return dict(image=image, bset=bvalues, echotimes=echotimes,
+                parameters=parameters, voxel_spacing=d['voxel_spacing'],
+                dicom_dtype=d['dtype'], errors=d['errors'])
 
 
 def read_slice(path, d):
@@ -166,10 +165,10 @@ def get_echotime(df):
     return r
 
 
-def get_pixels(df):
+def get_pixels(df, dtype=np.float64):
     """Return rescaled pixel array from DICOM object."""
     pixels = df.pixel_array
-    pixels = pixels.astype(np.float64)
+    pixels = pixels.astype(dtype)
     pixels = pixels * df.get('RescaleSlope', 1) + df.get('RescaleIntercept', 0)
     # # Clipping should not be done.
     # lowest = df.WindowCenter - df.WindowWidth/2
