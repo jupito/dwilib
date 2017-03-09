@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 import logging
-import os.path
 import shlex
 
 from dwi.files import Path
@@ -12,6 +11,7 @@ import dwi.util
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
     'texture.methods': [
+        'raw',
         'stats',
         # 'haralick',
         # 'moment',
@@ -56,46 +56,74 @@ def rcdefaults():
 def get_config_paths():
     """Return existing default configuration files."""
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
-    # Py3.4 pathlib has no expanduser().
-    dirnames = [os.path.expanduser(x) for x in dirnames]
+    # # Py3.4 pathlib has no expanduser().
+    # dirnames = [os.path.expanduser(x) for x in dirnames]
     filename = 'dwilib.cfg'
-    # paths = [Path(x).expanduser() / filename for x in dirnames]
-    paths = [Path(x) / filename for x in dirnames]
+    paths = [Path(x).expanduser() / filename for x in dirnames]
     paths = [x for x in paths if x.exists()]
     return paths
 
 
 def parse_config(parser):
     """Parse configuration files."""
-    prefix = parser.fromfile_prefix_chars[0]
-    args = ['{}{}'.format(prefix, x) for x in get_config_paths()]
-    namespace, _ = parser.parse_known_args(args)
+    # prefix = parser.fromfile_prefix_chars[0]
+    # args = ['{}{}'.format(prefix, x) for x in get_config_paths()]
+    # namespace, _ = parser.parse_known_args(args)
+    namespace, _ = parser.parse_from_files(get_config_paths())
     return namespace
 
 
-def convert_arg_line_to_args(line):
-    """A better replacement for ArgumentParser."""
-    return shlex.split(line, comments=True)
+def expanded_path(*args, **kwargs):
+    """Automatically expanded Path. Useful as an argparse type from file."""
+    return Path(*args, **kwargs).expanduser()
+
+
+class MyArgumentParser(argparse.ArgumentParser):
+    """Custom ArgumentParser. Added `add` as a shortcut to `add_argument`; set
+    `fromfile_prefix_chars` by default; better `convert_arg_line_to_args()`;
+    added `parse_from_files()`.
+    """
+    add = argparse.ArgumentParser.add_argument
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('fromfile_prefix_chars', '@')
+        super(self.__class__, self).__init__(**kwargs)
+
+    def convert_arg_line_to_args(self, line):
+        """Fancier file reading."""
+        return shlex.split(line, comments=True)
+
+    def parse_from_files(self, paths):
+        """Parse known arguments from files."""
+        prefix = self.fromfile_prefix_chars[0]
+        args = ['{}{}'.format(prefix, x) for x in paths]
+        return self.parse_known_args(args)
+
+    # raise_on_error = True
+    # def error(self, message):
+    #     if self.raise_on_error:
+    #         raise ValueError(message)
+    #     super(self.__class__, self).error(message)
 
 
 def get_parser(**kwargs):
-    """Get an argument parser with the usual standard arguments ready. Function
-    'add' is added for convenience.
-    """
-    p = argparse.ArgumentParser(fromfile_prefix_chars='@', **kwargs)
-    p.convert_arg_line_to_args = convert_arg_line_to_args
-    p.add = p.add_argument
+    """Get an argument parser with the usual standard arguments ready."""
+    p = MyArgumentParser(**kwargs)
     p.add('-v', '--verbose', action='count', default=0,
           help='increase verbosity')
-    p.add('--logfile', help='log file')
+    p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
     return p
 
 
 def init_logging(args):
     """Initialize logging."""
-    logging.basicConfig(filename=args.logfile,
-                        level=dwi.util.get_loglevel(args.loglevel))
+    d = {}
+    if args.logfile is not None:
+        d['filename'] = str(args.logfile)
+    if args.loglevel is not None:
+        d['level'] = dwi.util.get_loglevel(args.loglevel)
+    logging.basicConfig(**d)
 
 
 def parse_args(parser):
