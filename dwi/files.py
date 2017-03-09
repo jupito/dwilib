@@ -269,6 +269,23 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
     return pmap, attrs
 
 
+def check_spacing(attrs, expected_voxel_spacing, n_dec):
+    """Check if voxel spacing is as expected."""
+    vs = [round(x, n_dec) for x in attrs['voxel_spacing']]
+    evs = [round(x, n_dec) for x in expected_voxel_spacing]
+    if vs != evs:
+        raise ValueError('Expected voxel spacing {}, got {}'.format(evs, vs))
+
+
+def check_container(mask, container, allowed_outside):
+    """Check if mask stays nicely within another."""
+    portion_outside_container = (np.count_nonzero(mask[~container]) /
+                                 np.count_nonzero(mask))
+    if portion_outside_container > allowed_outside:
+        s = 'Portion of selected voxels outside container is {:%}'
+        raise ValueError(s.format(portion_outside_container))
+
+
 def read_mask(path, expected_voxel_spacing=None, n_dec=3, container=None,
               allowed_outside=0.2):
     """Read pmap as a mask.
@@ -281,15 +298,7 @@ def read_mask(path, expected_voxel_spacing=None, n_dec=3, container=None,
     mask, attrs = read_pmap(path)
     mask = mask[..., 0].astype(np.bool)
     if expected_voxel_spacing is not None:
-        vs = [round(x, n_dec) for x in attrs['voxel_spacing']]
-        evs = [round(x, n_dec) for x in expected_voxel_spacing]
-        if vs != evs:
-            s = '{}: Expected voxel spacing {}, got {}'
-            raise ValueError(s.format(path, evs, vs))
+        check_spacing(attrs, expected_voxel_spacing, n_dec)
     if container is not None:
-        portion_outside_container = (np.count_nonzero(mask[~container]) /
-                                     np.count_nonzero(mask))
-        if portion_outside_container > allowed_outside:
-            s = '{}: Portion of selected voxels outside container is {:%}'
-            raise ValueError(s.format(path, portion_outside_container))
+        check_container(mask, container, allowed_outside)
     return mask
