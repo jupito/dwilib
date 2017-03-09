@@ -2,37 +2,38 @@
 
 from __future__ import absolute_import, division, print_function
 import logging
-import os.path
 import re
 
 import numpy as np
 import dicom
 
+from dwi.files import Path
 import dwi.util
 
 
-def read_dir(directory):
+def read_dir(path):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
-    directory = str(directory)
-    if os.path.isfile(directory):
-        return read_files([directory])
+    path = Path(path)
+    if path.is_file():
+        return read_files([path])
 
     # If there's a single subdir, descend.
-    filenames = os.listdir(directory)
-    if len(filenames) == 1:
-        entry = os.path.join(directory, filenames[0])
-        if os.path.isdir(entry):
+    entries = list(path.iterdir())
+    if len(entries) == 1:
+        entry, = entries
+        if entry.is_dir():
             return read_dir(entry)
 
     # Sometimes the files reside in an additional 'DICOM' subdirectory.
-    entry = os.path.join(directory, 'DICOM')
-    if os.path.isdir(entry):
-        directory = entry
+    entry = path / 'DICOM'
+    if entry.is_dir():
+        path = entry
 
-    filenames = os.listdir(directory)
-    pathnames = [os.path.join(directory, f) for f in filenames]
-    return read_files(pathnames)
+    entries = list(path.iterdir())
+    if not entries:
+        raise ValueError('DICOM files not found: {}'.format(path))
+    return read_files(entries)
 
 
 def read_files(paths):
