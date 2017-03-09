@@ -11,27 +11,31 @@ import dicom
 import dwi.util
 
 
-def read_dir(dirname):
+def read_dir(directory):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
-    if os.path.isfile(dirname):
-        return read_files([dirname])
+    directory = str(directory)
+    if os.path.isfile(directory):
+        return read_files([directory])
+
     # If there's a single subdir, descend.
-    filenames = os.listdir(dirname)
+    filenames = os.listdir(directory)
     if len(filenames) == 1:
-        path = os.path.join(dirname, filenames[0])
-        if os.path.isdir(path):
-            return read_dir(path)
+        entry = os.path.join(directory, filenames[0])
+        if os.path.isdir(entry):
+            return read_dir(entry)
+
     # Sometimes the files reside in an additional 'DICOM' subdirectory.
-    path = os.path.join(dirname, 'DICOM')
-    if os.path.isdir(path):
-        dirname = path
-    filenames = os.listdir(dirname)
-    pathnames = [os.path.join(dirname, f) for f in filenames]
+    entry = os.path.join(directory, 'DICOM')
+    if os.path.isdir(entry):
+        directory = entry
+
+    filenames = os.listdir(directory)
+    pathnames = [os.path.join(directory, f) for f in filenames]
     return read_files(pathnames)
 
 
-def read_files(filenames):
+def read_files(paths):
     """Read a bunch of files, each containing a single slice with one b-value,
     and construct a 4d image array.
 
@@ -42,8 +46,8 @@ def read_files(filenames):
     DICOM files without pixel data are silently skipped.
     """
     d = dict(errors=[])
-    for f in filenames:
-        read_slice(f, d)
+    for p in paths:
+        read_slice(p, d)
     positions = sorted(d['positions'])
     bvalues = sorted(d['bvalues'])
     echotimes = sorted(d['echotimes'])
@@ -64,12 +68,12 @@ def read_files(filenames):
     return r
 
 
-def read_slice(filename, d):
+def read_slice(path, d):
     """Read a single slice."""
     try:
-        df = dicom.read_file(filename)
+        df = dicom.read_file(str(path))
     except dicom.filereader.InvalidDicomError as e:
-        logging.error('Error reading %s: %s', filename, e)
+        logging.error('Error reading %s: %s', path, e)
         return
     if 'PixelData' not in df:
         return
@@ -78,7 +82,7 @@ def read_slice(filename, d):
         raise Exception('Orientation mismatch.')
     d.setdefault('shape', df.pixel_array.shape)
     if d['shape'] != df.pixel_array.shape:
-        raise Exception('Shape mismatch: {}'.format(filename))
+        raise Exception('Shape mismatch: {}'.format(path))
     d.setdefault('dtype', df.pixel_array.dtype)
     if d['dtype'] != df.pixel_array.dtype:
         raise Exception('Type mismatch.')
@@ -93,8 +97,8 @@ def read_slice(filename, d):
     key = (position, bvalue, echotime)
     slices = d.setdefault('slices', {})
     if key in slices:
-        logging.error('Overlapping slices (%s), discarding %s', key, filename)
-        s = 'Overlapping slices, discarding {}'.format(filename)
+        logging.error('Overlapping slices (%s), discarding %s', key, path)
+        s = 'Overlapping slices, discarding {}'.format(path)
         d['errors'].append(s)
     slices[key] = pixels
 
