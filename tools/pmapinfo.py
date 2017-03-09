@@ -80,7 +80,11 @@ def main():
     if args.masks:
         mask = dwi.util.unify_masks(dwi.files.read_mask(x) for x in args.masks)
     for path in args.path:
-        pmap = dwi.image.Image.read(path, params=args.params)
+        try:
+            pmap = dwi.image.Image.read(path, params=args.params)
+        except Exception as e:
+            print('Could not read image: {}: {}'.format(path, e))
+            continue
         if args.masks:
             pmap.apply_mask(mask)
         fmt = '{k}={v}' if args.verbose else '{v}'
