@@ -8,6 +8,8 @@ import shlex
 from dwi.files import Path
 import dwi.util
 
+log = logging.getLogger(__name__)
+
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
     'texture.methods': [
@@ -106,13 +108,19 @@ class MyArgumentParser(argparse.ArgumentParser):
     #     super(self.__class__, self).error(message)
 
 
-def get_parser(**kwargs):
-    """Get an argument parser with the usual standard arguments ready."""
-    p = MyArgumentParser(**kwargs)
+def get_config_parser():
+    p = MyArgumentParser(add_help=False)
     p.add('-v', '--verbose', action='count', default=0,
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
+    return p
+
+
+def get_parser(**kwargs):
+    """Get an argument parser with the usual standard arguments ready."""
+    parents = [get_config_parser()]
+    p = MyArgumentParser(parents=parents, **kwargs)
     return p
 
 
@@ -126,9 +134,15 @@ def init_logging(args):
     logging.basicConfig(**d)
 
 
-def parse_args(parser):
+def parse_args(parser=None):
     """Parse args and configuration as well."""
-    namespace = parse_config(parser)
-    args = parser.parse_args(namespace=namespace)
-    dwi.conf.init_logging(args)
-    return args
+    config_parser = get_config_parser()
+    namespace = parse_config(config_parser)
+    if parser is not None:
+        parser.parse_args(namespace=namespace)
+    dwi.conf.init_logging(namespace)
+    # log.debug('Parsed args: %s', namespace)
+    it = ('\n{i}{k}: {v}'.format(i=' '*4, k=k, v=v) for k, v in
+          sorted(vars(namespace).items()))
+    log.debug('Parsed config: %s', ''.join(it))
+    return namespace
