@@ -71,7 +71,9 @@ def parse_args():
           help='mask files')
     p.add('-k', '--keys', default='shape,path',
           help='comma-separated keys for specifiying requested info')
-    return p.parse_args()
+    p.add('--ofs', default='\t',
+          help='output field separator')
+    return dwi.conf.parse_args(p)
 
 
 def main():
@@ -89,7 +91,7 @@ def main():
             pmap.apply_mask(mask)
         fmt = '{k}={v}' if args.verbose else '{v}'
         fields = (fmt.format(k=x, v=lambdas[x](pmap)) for x in keys)
-        print(*fields, sep='\t')
+        print(*fields, sep=args.ofs)
 
 
 if __name__ == '__main__':
