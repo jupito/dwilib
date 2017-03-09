@@ -1,18 +1,24 @@
 """Dataset handling."""
 
 from __future__ import absolute_import, division, print_function
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 
 import numpy as np
 
 import dwi.asciifile
 import dwi.files
 from dwi.files import Path
+import dwi.paths
 import dwi.patient
+import dwi.util
 
 
 class Dataset(object):
     def __init__(self, mode, samplelist, cases=None):
-        self.mode = mode
+        self.mode = dwi.util.ImageMode(mode)
         self.samplelist = samplelist
         self.cases = cases
 
@@ -30,6 +36,29 @@ class Dataset(object):
         for p in self.each_patient():
             for s in p.scans:
                 yield p.num, s, p.lesions
+
+    def each_lesion(self):
+        for case, scan, lesions in self.each_image_id():
+            for lesion in lesions:
+                yield case, scan, lesion
+
+
+@lru_cache(maxsize=10)
+def read_prostate_mask(mode, case, scan):
+    path = dwi.paths.mask_path(mode, 'prostate', case, scan)
+    return dwi.files.read_mask(path)
+
+
+def read_lesion_mask(mode, case, scan, lesion):
+    path = dwi.paths.mask_path(mode, 'lesion', case, scan,
+                               lesion=lesion.index+1)
+    return dwi.files.read_mask(path)
+
+
+@lru_cache(maxsize=10)
+def read_lesion_masks(mode, case, scan, lesions):
+    masks = (read_lesion_mask(mode, case, scan, x) for x in lesions)
+    return dwi.util.unify_masks(masks)
 
 
 def iterlesions(patients):
