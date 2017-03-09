@@ -133,7 +133,7 @@ def parse_sample(line):
     return dict(case=case, name=name, scans=scans)
 
 
-def read_sample_list(filename):
+def read_sample_list(path):
     """Read a list of samples from file."""
     return [parse_sample(x) for x in valid_lines(path)]
 
