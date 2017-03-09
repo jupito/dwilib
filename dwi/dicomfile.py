@@ -10,6 +10,8 @@ import dicom
 from dwi.files import Path
 import dwi.util
 
+log = logging.getLogger(__name__)
+
 
 def read_dir(path):
     """Read a directory containing DICOM files. See dicomfile.read_files().
@@ -73,7 +75,7 @@ def read_slice(path, d):
     try:
         df = dicom.read_file(str(path))
     except dicom.filereader.InvalidDicomError as e:
-        logging.error('Error reading %s: %s', path, e)
+        log.error('Error reading %s: %s', path, e)
         return
     if 'PixelData' not in df:
         return
@@ -97,7 +99,7 @@ def read_slice(path, d):
     key = (position, bvalue, echotime)
     slices = d.setdefault('slices', {})
     if key in slices:
-        logging.error('Overlapping slices (%s), discarding %s', key, path)
+        log.error('Overlapping slices (%s), discarding %s', key, path)
         s = 'Overlapping slices, discarding {}'.format(path)
         d['errors'].append(s)
     slices[key] = pixels
@@ -148,7 +150,7 @@ def get_bvalue(df):
         if m:
             r = int(m.group(1))
     if r is None:
-        # logging.warning('DICOM without b-value, defaulting to zero')
+        # log.warning('DICOM without b-value, defaulting to zero')
         r = 0
     if isinstance(r, float):
         # I'm not sure if they can be non-integer.
@@ -194,5 +196,5 @@ def get_slice_spacing(pos1, pos2):
     diffs = [abs(x-y) for x, y in zip(pos1, pos2)]
     if len([x for x in diffs if x > 0.05]) != 1:
         # More than one axis differs: use multi-axis distance.
-        logging.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
+        log.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
     return dwi.util.distance(pos1, pos2)
