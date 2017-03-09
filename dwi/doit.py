@@ -12,6 +12,12 @@ from dwi.files import Path
 from dwi.paths import samplelist_path
 
 
+class TextureSpec(tuple):
+    """Texture feature indentifier."""
+    def __str__(self):
+        return '-'.join(map(str, reversed(self)))
+
+
 def get_hostname():
     """Return node hostname."""
     return platform.uname()[1]
@@ -82,4 +88,4 @@ def texture_winsizes(masktype, mode, method):
 def texture_methods_winsizes(mode, masktype):
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
-            yield method, winsize
+            yield TextureSpec((method, winsize))
