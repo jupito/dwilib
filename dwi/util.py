@@ -91,15 +91,6 @@ def all_equal(a):
     return np.nanmin(a) == np.nanmax(a)
 
 
-def get_indices(seq, val):
-    """Return indices of elements containing given value in a sequence."""
-    r = []
-    for i, v in enumerate(seq):
-        if v == val:
-            r.append(i)
-    return r
-
-
 def crop_image(image, subwindow, onebased=False):
     """Get a view of image subwindow defined as Python-like start:stop
     indices.

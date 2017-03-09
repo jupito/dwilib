@@ -47,16 +47,26 @@ def resample_bootstrap(Y, X):
     return Y[indices], X[indices]
 
 
+def get_indices(seq, val):
+    """Return indices of elements containing given value in a sequence."""
+    r = []
+    for i, v in enumerate(seq):
+        if v == val:
+            r.append(i)
+    return r
+
+
 def resample_bootstrap_stratified(Y, X):
     """Get a bootstrap resampled group with stratification.
 
     Note that as a side-effect the resulting Y array will be sorted, but that
     doesn't matter because X will be randomized accordingly.
     """
+    # TODO: Should be rewritten to make it faster.
     uniques = np.unique(Y)
     indices = []
     for u in uniques:
-        l = dwi.util.get_indices(Y, u)
+        l = get_indices(Y, u)
         l_rnd = [l[random.randint(0, len(l)-1)] for _ in l]
         for v in l_rnd:
             indices.append(v)
