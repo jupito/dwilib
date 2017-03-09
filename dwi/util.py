@@ -140,7 +140,7 @@ def sliding_window(a, winshape, mask=None):
     a = np.asanyarray(a)
     winshape = normalize_sequence(winshape, a.ndim)
     if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
-        raise Exception('Invalid window shape: {}'.format(winshape))
+        raise ValueError('Invalid window shape: {}'.format(winshape))
     shape = tuple(i-w+1 for i, w in zip(a.shape, winshape))
     for indices in np.ndindex(shape):
         origin = tuple(i+w//2 for i, w in zip(indices, winshape))
