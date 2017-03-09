@@ -167,7 +167,7 @@ def get_echotime(df):
     return r
 
 
-def get_pixels(df, dtype=np.float64):
+def get_pixels(df, dtype=np.float32):
     """Return rescaled pixel array from DICOM object."""
     pixels = df.pixel_array
     pixels = pixels.astype(dtype)
