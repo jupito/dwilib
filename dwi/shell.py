@@ -38,8 +38,9 @@ def standardize_transform(cfgpath, inpath, outpath, mask=None):
     return cmd.format(**d)
 
 
-def get_texture(mode, inpath, method, winsize, slices, portion, outpath, voxel,
+def get_texture(mode, inpath, tspec, slices, portion, outpath, voxel,
                 mask=None):
+    method, winsize = tspec
     d = dict(prg=DWILIB/'get_texture.py', m=mode, i=inpath, mask=mask,
              slices=slices, portion=portion, mth=method, ws=winsize,
              o=outpath, vx=voxel)

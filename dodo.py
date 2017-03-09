@@ -263,8 +263,8 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
         deps.append(mask)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
                            method, winsize, voxel=voxel)
-    cmd = dwi.shell.get_texture(mode, inpath, method, winsize, slices, portion,
-                                outfile, voxel, mask=mask)
+    cmd = dwi.shell.get_texture(mode, inpath, tspec, slices, portion, outfile,
+                                voxel, mask=mask)
     return {
         'name': name(mode, masktype, slices, portion, case, scan, lesion,
                      method, winsize, voxel),
