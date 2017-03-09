@@ -253,8 +253,9 @@ def task_select_roi():
 
 
 def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
-                     method, winsize, voxel):
+                     tspec, voxel):
     """Generate texture features."""
+    method, winsize = tspec
     inpath = pmap_path(mode, case, scan)
     deps = [inpath]
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
@@ -279,22 +280,22 @@ def task_texture():
     for mode, sl in product(MODES, SAMPLELISTS):
         for mt, slices, portion in texture_params():
             for c, s, l in lesions(mode, sl):
-                for mth, ws in texture_methods_winsizes(mode, mt):
+                for tspec in texture_methods_winsizes(mode, mt):
                     yield get_task_texture(mode, mt, c, s, l, slices, portion,
-                                           mth, ws, 'mean')
+                                           tspec, 'mean')
                     yield get_task_texture(mode, mt, c, s, l, slices, portion,
-                                           mth, ws, 'all')
+                                           tspec, 'all')
         mt = 'prostate'
         for c, s in cases_scans(mode, sl):
-            for mth, ws in texture_methods_winsizes(mode, mt):
+            for tspec in texture_methods_winsizes(mode, mt):
                 # yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
-                #                        mth, ws, 'all')
-                yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
+                #                        tspec, 'all')
+                yield get_task_texture(mode, mt, c, s, None, 'all', 0, tspec,
                                        'all')
         mt = 'all'
         for c, s in cases_scans(mode, sl):
-            for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_texture(mode, mt, c, s, None, 'all', 0, mth, ws,
+            for tspec in texture_methods_winsizes(mode, mt):
+                yield get_task_texture(mode, mt, c, s, None, 'all', 0, tspec,
                                        'all')
 
 
@@ -303,8 +304,8 @@ def task_merge_textures():
     for mode, sl in product(MODES, SAMPLELISTS):
         for mt, slices, portion in texture_params():
             for c, s, l in lesions(mode, sl):
-                infiles = [texture_path(mode, c, s, l, mt, slices,
-                                        portion, mth, ws) for mth, ws in
+                infiles = [texture_path(mode, c, s, l, mt, slices, portion,
+                                        tspec) for tspec in
                            texture_methods_winsizes(mode, mt)]
                 outfile = texture_path(mode, c, s, l, mt+'_merged',
                                        slices, portion, None, None)
@@ -362,9 +363,10 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
         }
 
 
-def get_task_grid_texture(mode, c, s, ls, mt, mth, ws, lt=None, mbb=None,
+def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
                           nanbg=False, fmt='txt'):
     """Grid classifier."""
+    mth, ws = tspec
     pmap = texture_path(mode, c, s, None, mt, 'all', 0, mth, ws, voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
@@ -400,11 +402,11 @@ def task_grid():
             mt = 'prostate'
             d['nanbg'] = True
             yield get_task_grid(mode, c, s, ls, mt, **d)
-            for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
+            for tspec in texture_methods_winsizes(mode, mt):
+                yield get_task_grid_texture(mode, c, s, ls, mt, tspec, **d)
 
             mt = 'all'
             d['nanbg'] = False
             yield get_task_grid(mode, c, s, ls, mt, **d)
-            for mth, ws in texture_methods_winsizes(mode, mt):
-                yield get_task_grid_texture(mode, c, s, ls, mt, mth, ws, **d)
+            for tspec in texture_methods_winsizes(mode, mt):
+                yield get_task_grid_texture(mode, c, s, ls, mt, tspec, **d)
