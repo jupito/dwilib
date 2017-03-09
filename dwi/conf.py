@@ -4,11 +4,10 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import logging
 import os.path
+import shlex
 
 from dwi.files import Path
 import dwi.util
-
-# TODO: Read from file.
 
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
@@ -76,9 +75,7 @@ def parse_config(parser):
 
 def convert_arg_line_to_args(line):
     """A better replacement for ArgumentParser."""
-    COMMENT_PREFIX = '#'
-    line = line.split(COMMENT_PREFIX, 1)[0].strip()
-    return line.split()
+    return shlex.split(line, comments=True)
 
 
 def get_parser(**kwargs):
