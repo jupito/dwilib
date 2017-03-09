@@ -3,22 +3,24 @@
 # TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
 
 from __future__ import absolute_import, division, print_function
-from os.path import dirname
+import platform
 
 from doit.tools import create_folder
 
 import dwi.files
+from dwi.files import Path
 from dwi.paths import samplelist_path
 
 
-def get_num_process():
+def get_hostname():
+    """Return node hostname."""
+    return platform.uname()[1]
+
+
+def get_num_process(default=1):
     """Take a pick how many processes we want to run simultaneously."""
-    def get_hostname():
-        """Return node hostname."""
-        import platform
-        return platform.uname()[1]
-    d = dict(taanne=1, TY1303004=7, petmrc=24)
-    return d[get_hostname()]
+    d = dict(taanne=3, TY1303004=7, petmrc=24)
+    return d.get(get_hostname(), default)
 
 
 def words(string, sep=','):
@@ -34,7 +36,8 @@ def name(*items):
 
 def folders(*paths):
     """A PyDoIt action that creates the folders for given file names """
-    return [(create_folder, [dirname(x)]) for x in paths]
+    # return [(create_folder, [os.path.dirname(x)]) for x in paths]
+    return [(create_folder, [Path(x).parent]) for x in paths]
 
 
 def cases_scans(mode, samplelist):
@@ -60,7 +63,9 @@ def texture_methods():
 
 
 def texture_winsizes(masktype, mode, method):
-    if method.endswith('_all'):
+    if method == 'raw':
+        return [1]
+    elif method.endswith('_all'):
         return ['all']
     elif method.endswith('_mbb'):
         return ['mbb']
