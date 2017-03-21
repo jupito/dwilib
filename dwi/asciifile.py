@@ -74,7 +74,7 @@ def write_ascii_file(filename, pmap, params, attrs=None):
     if params is not None and attrs is None:
         attrs = dict(parameters=params)
     with open(str(filename), 'w') as f:
-        for k, v in attrs.items():
+        for k, v in sorted(attrs.items()):
             if isinstance(v, (list, np.ndarray)):
                 v = ' '.join(str(x) for x in v)
             f.write('{k}: {v}\n'.format(k=k, v=v))
