@@ -112,8 +112,6 @@ def grid(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
          nanbg=False):
     prg = DWILIB / 'grid.py'
     lesions = q(*lesions)
-    voxelspacing = q(*voxelspacing)
-    lesiontypes = q(*lesiontypes)
     cmd = ('{prg} -v --image {image} --prostate {prostate} --lesions {lesions}'
            ' --output {outpath}')
     if param is not None:
@@ -125,8 +123,10 @@ def grid(image, param, prostate, lesions, outpath, mbb=15, voxelsize=0.25,
     if mbb is not None:
         cmd += ' --mbb {mbb}'
     if voxelspacing is not None:
+        voxelspacing = q(*voxelspacing)
         cmd += ' --voxelspacing {voxelspacing}'
     if lesiontypes is not None:
+        lesiontypes = q(*lesiontypes)
         cmd += ' --lesiontypes {lesiontypes}'
     if use_centroid:
         cmd += ' --use_centroid'
