@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import dwi.dicomfile
 import dwi.files
 import dwi.mask
+import dwi.plot
 import dwi.standardize
 import dwi.util
 
@@ -50,7 +51,7 @@ class Gui(object):
         self.max_param_length = max(len(_) for _ in params)
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
-        self.reverse_cmap = False
+        self.is_reverse_cmap = False
         if label is None:
             label = str(image.shape)
         self.label = label
@@ -121,15 +122,15 @@ class Gui(object):
 
     def toggle_reverse_cmap(self):
         name = plt.get_cmap().name
-        name = reverse_cmap(name)
+        name = dwi.plot.reverse_cmap(name)
         plt.set_cmap(name)
-        self.reverse_cmap = not self.reverse_cmap
+        self.is_reverse_cmap = not self.is_reverse_cmap
 
     def set_cmap(self, i):
         if 0 <= i < len(self.cmaps):
             name = self.cmaps[i]
-            if self.reverse_cmap:
-                name = reverse_cmap(name)
+            if self.is_reverse_cmap:
+                name = dwi.plot.reverse_cmap(name)
             plt.set_cmap(name)
 
 
@@ -174,14 +175,6 @@ def read_to_mem(img):
         with img.astype(newtype):
             img = img[:]
     return img
-
-
-def reverse_cmap(name):
-    """Return the name of the reverse version of given colormap."""
-    if name.endswith('_r'):
-        return name[:-2]
-    else:
-        return name + '_r'
 
 
 def replace_nans(img):

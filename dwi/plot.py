@@ -18,6 +18,14 @@ log = logging.getLogger(__name__)
 # plt.rcParams['savefig.dpi'] = '100'
 
 
+def reverse_cmap(name):
+    """Return the name of the reverse version of given Matplotlib colormap."""
+    if name.endswith('_r'):
+        return name[:-2]
+    else:
+        return name + '_r'
+
+
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
                 outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
