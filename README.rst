@@ -35,8 +35,8 @@ Todo or In Progress
 
 Requirements
 ------------
-- Python 2.7
-- pathlib2
+- Python 3.4
+- pathlib2 (or newer Python)
 - NumPy
 - SciPy
 - `Scikit-Learn <http://scikit-learn.org/>`_
