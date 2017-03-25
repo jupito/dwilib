@@ -13,21 +13,21 @@ log = logging.getLogger(__name__)
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
     'texture.methods': [
-        'raw',
+        # 'raw',
         'stats',
         # 'haralick',
         # 'moment',
         # 'haralick_mbb',
         'glcm',
-        # 'glcm_mbb',
+        'glcm_mbb',
         'lbp',
-        'hog',
+        # 'hog',
         'gabor',
-        'haar',
+        # 'haar',
         'hu',
         'zernike',
-        'sobel',
-        # 'stats_all',
+        # 'sobel',
+        'stats_all',
         ],
     'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
     'texture.winsizes.small': (3, 16, 2),  # DWI.
@@ -114,6 +114,8 @@ def get_config_parser():
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
+    p.add('-s', '--samplelist', default='all', help='samplelist identifier')
+    p.add('--texture_methods', nargs='+', help='texture methods')
     return p
 
 
@@ -138,6 +140,10 @@ def parse_args(parser=None):
     """Parse args and configuration as well."""
     config_parser = get_config_parser()
     namespace = parse_config(config_parser)
+
+    if namespace.texture_methods is not None:
+        rcParams['texture.methods'] = namespace.texture_methods
+
     if parser is not None:
         parser.parse_args(namespace=namespace)
     dwi.conf.init_logging(namespace)
