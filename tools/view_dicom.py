@@ -161,6 +161,21 @@ def parse_args():
     return args
 
 
+def read_to_mem(img):
+    """Read image to memory, converting its type if too big."""
+    # Image must be read in memory, because it will probably be modified. We
+    # are using ondisk=True only to save memory.
+    try:
+        img = img[:]
+    except MemoryError:
+        newtype = np.float16
+        logging.warning('Cannot fit image to memory as %s, converting to %s',
+                        img.dtype, newtype)
+        with img.astype(newtype):
+            img = img[:]
+    return img
+
+
 def reverse_cmap(name):
     """Return the name of the reverse version of given colormap."""
     if name.endswith('_r'):
@@ -200,16 +215,7 @@ def main():
     args = parse_args()
     img, attrs = dwi.files.read_pmap(args.path, ondisk=True,
                                      params=args.params)
-    # Image must be read in memory, because it will probably be modified. We
-    # are using ondisk=True only to save memory.
-    try:
-        img = img[:]
-    except MemoryError:
-        newtype = np.float16
-        logging.warning('Cannot fit image to memory as %s, converting to %s',
-                        img.dtype, newtype)
-        with img.astype(newtype):
-            img = img[:]
+    img = read_to_mem(img)
 
     if args.mbb:
         print('Taking minimum bounding_box from {}'.format(img.shape))
