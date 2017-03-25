@@ -42,8 +42,7 @@ def name(*items):
 
 def folders(*paths):
     """A PyDoIt action that creates the folders for given file names """
-    # return [(create_folder, [os.path.dirname(x)]) for x in paths]
-    return [(create_folder, [Path(x).parent]) for x in paths]
+    return [(create_folder, [str(Path(x).parent)]) for x in paths]
 
 
 def cases_scans(mode, samplelist):
