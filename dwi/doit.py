@@ -20,8 +20,11 @@ class TextureSpec(tuple):
 
 
 def get_hostname():
-    """Return node hostname."""
-    return platform.uname()[1]
+    """Try to return system hostname in a portable fashion."""
+    name = platform.uname().node
+    if not name:
+        raise OSError(None, 'Could not determine hostname')
+    return name
 
 
 def get_num_process(default=1):
