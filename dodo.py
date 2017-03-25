@@ -305,7 +305,7 @@ def task_merge_textures():
         for mt, slices, portion in texture_params():
             for c, s, l in lesions(mode, sl):
                 infiles = [texture_path(mode, c, s, l, mt, slices, portion,
-                                        tspec) for tspec in
+                                        tspec[0], tspec[1]) for tspec in
                            texture_methods_winsizes(mode, mt)]
                 outfile = texture_path(mode, c, s, l, mt+'_merged',
                                        slices, portion, None, None)
