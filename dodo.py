@@ -18,7 +18,6 @@ import dwi.patient
 import dwi.shell
 import dwi.util
 
-
 DOIT_CONFIG = {
     'backend': 'sqlite3',
     'default_tasks': [],
@@ -26,7 +25,6 @@ DOIT_CONFIG = {
     # 'num_process': 7,
     'num_process': dwi.doit.get_num_process(),
     }
-
 
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
