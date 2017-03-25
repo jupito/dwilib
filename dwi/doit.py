@@ -3,6 +3,7 @@
 # TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
 
 from __future__ import absolute_import, division, print_function
+import logging
 import platform
 
 from doit.tools import create_folder
@@ -25,8 +26,12 @@ def get_hostname():
 
 def get_num_process(default=1):
     """Take a pick how many processes we want to run simultaneously."""
-    d = dict(taanne=3, TY1303004=7, petmrc=24)
-    return d.get(get_hostname(), default)
+    # d = dict(taanne=3, TY1303004=7, petmrc=24)
+    d = dict(taanne=4, TY1303004=8, petmrc=32)
+    n = d.get(get_hostname(), default)
+    r = int(n / 8 * 7)
+    logging.warning('Using %d processes', r)
+    return r
 
 
 def words(string, sep=','):
