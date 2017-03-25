@@ -30,7 +30,7 @@ DOIT_CONFIG = {
 
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
-MODES = [dwi.util.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]
+MODES = [dwi.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]
 
 # Sample lists (train, test, etc).
 SAMPLELISTS = words(get_var('samplelist', 'all'))
@@ -112,7 +112,7 @@ def task_standardize_transform():
     for case, scan in cases_scans(mode, sl):
         inpath = pmap_path(mode, case, scan)
         mask = mask_path(mode, 'prostate', case, scan)
-        outmode = dwi.util.ImageMode(tuple(mode) + ('std',))
+        outmode = dwi.ImageMode(tuple(mode) + ('std',))
         outpath = pmap_path(outmode, case, scan)
         cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
                                               mask=mask)
