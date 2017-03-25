@@ -142,6 +142,8 @@ def get_texture(img, method, winspec, mask):
     """General texture map layer."""
     avg = dwi.rcParams['texture.avg']
     dtype = dwi.rcParams['texture.dtype']
+    averager = np.nanmean
+    # averager = np.nanmedian
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
@@ -154,7 +156,7 @@ def get_texture(img, method, winspec, mask):
         if avg:
             # It's all the same value.
             # Feeding np.nanmean whole image hogs too much memory, circumvent.
-            tmap = np.array([np.nanmean(x) for x in np.rollaxis(tmap, -1)],
+            tmap = np.array([averager(x) for x in np.rollaxis(tmap, -1)],
                             dtype=dtype)
             tmap.shape = 1, 1, 1, len(names)
     elif winspec == 'mbb':
@@ -166,9 +168,9 @@ def get_texture(img, method, winspec, mask):
             # Feeding np.nanmean whole image hogs too much memory, circumvent.
             a = np.empty((len(tmap), len(names)), dtype=dtype)
             for s, p in np.ndindex(a.shape):
-                a[s, p] = np.nanmean(tmap[s, :, :, p])
+                a[s, p] = averager(tmap[s, :, :, p])
             tmap = a
-            tmap = np.nanmean(tmap, axis=0)
+            tmap = averager(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
     else:
         tmap, names = get_texture_map(img, call, int(winspec), mask)
@@ -177,7 +179,7 @@ def get_texture(img, method, winspec, mask):
             # Take average of all selected voxels.
             tmap = tmap[mask, :]
             assert tmap.ndim == 2
-            tmap = np.mean(tmap, axis=0)
+            tmap = averager(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
     names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
     return tmap, names
