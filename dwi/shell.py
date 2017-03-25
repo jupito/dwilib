@@ -1,6 +1,7 @@
 """Shell commands for calculation tasks."""
 
 # TODO: Use shlex.quote().
+# TODO: Move all functions to a class.
 
 from __future__ import absolute_import, division, print_function
 import shlex
