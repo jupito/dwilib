@@ -8,7 +8,6 @@ import h5py
 
 import dwi.util
 
-
 DEFAULT_DSETNAME = 'default'
 DEFAULT_DSETPARAMS = dict(
     compression='gzip',  # Smaller, compatible.
@@ -21,6 +20,7 @@ DEFAULT_DSETPARAMS = dict(
 
 class Dataset(h5py.Dataset):
     """Add some missing ndarray API to dataset."""
+    # TODO: Not needed anymore?
     @property
     def ndim(self):
         return len(self.shape)
