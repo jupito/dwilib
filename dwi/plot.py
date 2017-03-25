@@ -1,6 +1,7 @@
 """Plotting."""
 
 from __future__ import absolute_import, division, print_function
+from contextlib import contextmanager
 import logging
 
 import matplotlib as mpl
@@ -24,6 +25,19 @@ def reverse_cmap(name):
         return name[:-2]
     else:
         return name + '_r'
+
+
+@contextmanager
+def figure(*args, **kwargs):
+    """Get a figure and close it afterwards."""
+    # TODO: Use plt instead of pl.
+    # TODO: Check if this already exists in mpl.
+    # TODO: Add tight_layout, save/show (as separate function?).
+    fig = pl.figure(*args, **kwargs)
+    try:
+        yield fig
+    finally:
+        pl.close()
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
