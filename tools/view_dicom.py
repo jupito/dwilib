@@ -7,6 +7,7 @@ GUI."""
 
 from __future__ import absolute_import, division, print_function
 import argparse
+import logging
 import sys
 
 import numpy as np
@@ -203,9 +204,11 @@ def main():
     # are using ondisk=True only to save memory.
     try:
         img = img[:]
-    except MemoryError as e:
-        print(e)
-        with img.astype('float16'):
+    except MemoryError:
+        newtype = np.float16
+        logging.warning('Cannot fit image to memory as %s, converting to %s',
+                        img.dtype, newtype)
+        with img.astype(newtype):
             img = img[:]
 
     if args.mbb:
