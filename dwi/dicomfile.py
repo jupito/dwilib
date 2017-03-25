@@ -67,7 +67,7 @@ def read_files(paths):
         d['voxel_spacing'] = (slice_spacing,) + d['voxel_spacing'][1:]
     return dict(image=image, bset=bvalues, echotimes=echotimes,
                 parameters=parameters, voxel_spacing=d['voxel_spacing'],
-                dicom_dtype=d['dtype'], errors=d['errors'])
+                dicom_dtype=str(d['dtype']), errors=d['errors'])
 
 
 def read_slice(path, d):
