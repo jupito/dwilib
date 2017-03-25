@@ -6,6 +6,7 @@ import logging
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits import axes_grid1
 import pylab as pl
 
 import dwi.stats
@@ -30,14 +31,13 @@ def reverse_cmap(name):
 @contextmanager
 def figure(*args, **kwargs):
     """Get a figure and close it afterwards."""
-    # TODO: Use plt instead of pl.
-    # TODO: Check if this already exists in mpl.
+    # TODO: Check if this already exists in matplotlib.
     # TODO: Add tight_layout, save/show (as separate function?).
-    fig = pl.figure(*args, **kwargs)
+    fig = plt.figure(*args, **kwargs)
     try:
         yield fig
     finally:
-        pl.close()
+        plt.close()
 
 
 def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
@@ -122,11 +122,11 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     plt.close()
 
 
-def noticks(plt):
+def noticks(plot):
     """Show no ticks."""
-    # plt.xticks([])
-    # plt.yticks([])
-    plt.tick_params(
+    # plot.xticks([])
+    # plot.yticks([])
+    plot.tick_params(
         axis='both', which='both',
         bottom='off', top='off', left='off', right='off',
         labelbottom='off', labeltop='off', labelleft='off', labelright='off',
@@ -149,7 +149,6 @@ def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
     # Size matched to graph.
     # Copied from http://stackoverflow.com/questions/18195758/
     #     set-matplotlib-colorbar-size-to-match-graph
-    from mpl_toolkits import axes_grid1
     divider = axes_grid1.make_axes_locatable(im.axes)
     width = axes_grid1.axes_size.AxesY(im.axes, aspect=1/aspect)
     pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
