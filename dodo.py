@@ -30,7 +30,7 @@ DOIT_CONFIG = {
 
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
-MODES = [dwi.ImageMode(_) for _ in words(get_var('mode', DEFAULT_MODE))]
+MODES = [dwi.ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
 
 # Sample lists (train, test, etc).
 SAMPLELISTS = words(get_var('samplelist', 'all'))
