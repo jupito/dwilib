@@ -95,6 +95,9 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
                  winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
+    if method == 'raw':
+        # 'Raw' texture is actually just the source image.
+        return pmap_path(mode, case, scan)
     d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
              portion=portion, mth=method, ws=winsize, ap_='_'.join(algparams),
              vx=voxel, ext=('txt' if voxel == 'mean' else 'h5'))
