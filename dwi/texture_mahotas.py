@@ -11,13 +11,6 @@ import dwi.texture
 import dwi.util
 
 
-def abbrev(name):
-    """Abbreviate multiword feature name."""
-    if ' ' in name:
-        name = ''.join(word[0] for word in name.split())
-    return name
-
-
 # Zernike moments.
 
 
@@ -144,7 +137,7 @@ def haralick_map(img, winsize, mask=None, output=None, ignore_zeros=False):
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
-    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n))
+    names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.util.abbrev(n))
              for i, n in enumerate(names)]
     return output, names
 
@@ -157,6 +150,6 @@ def haralick_mbb(img, mask):
     mask = mask[slices]
     img[-mask] = 0
     feats, names = haralick(img, ignore_zeros=True)
-    names = ['haralick({i}-{n})'.format(i=i+1, n=abbrev(n))
+    names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.util.abbrev(n))
              for i, n in enumerate(names)]
     return feats, names

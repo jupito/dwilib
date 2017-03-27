@@ -83,6 +83,13 @@ def isstring(x):
         return isinstance(x, str)
 
 
+def abbrev(name):
+    """Abbreviate multiword feature name."""
+    if ' ' in name:
+        name = ''.join(word[0] for word in name.split())
+    return name
+
+
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal, while
     ignoring nan values.
