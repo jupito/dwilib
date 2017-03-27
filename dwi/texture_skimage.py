@@ -25,8 +25,12 @@ def get_angles(n):
 def glcm_props(img, ignore_zeros=False):
     """Grey-level co-occurrence matrix (GLCM) texture features.
 
-    Six features provided by scikit-image. Averaged over 4 directions for
-    orientation invariance.
+    Include the six features provided by scikit-image. Calculate mean and range
+    over 4 directions for orientation invariance (features 'mean', 'range').
+
+    Add an alternative approach for orientation invariance (feature 'alt', see
+    Vignati et al. 2015: Texture features on T2-weighted magnetic resonance
+    imaging: new potential biomarkers for prostate cancer aggressiveness).
     """
     names = dwi.rcParams['texture.glcm.names']
     distances = dwi.rcParams['texture.glcm.distances']
@@ -44,15 +48,19 @@ def glcm_props(img, ignore_zeros=False):
     if ignore_zeros and np.min(img) == 0:
         # Drop information on the first grey-level if it's zero (background).
         glcm = glcm[1:, 1:, ...]
+    glcm_mean = np.mean(glcm, axis=3, keepdims=True)
     d = OrderedDict()
     for name in names:
         # Returns array of features indexed by (distance, angle).
         feats = skimage.feature.greycoprops(glcm, name)
+        feats_alt = skimage.feature.greycoprops(glcm_mean, name)
         angular_means = np.mean(feats, axis=1)
         angular_ranges = np.ptp(feats, axis=1)
-        for dist, am, ar in zip(distances, angular_means, angular_ranges):
+        for dist, am, ar, alt in zip(distances, angular_means, angular_ranges,
+                                     feats_alt):
             d[(name, dist, 'mean')] = am
             d[(name, dist, 'range')] = ar
+            d[(name, dist, 'alt')] = alt
     return d
 
 
@@ -65,7 +73,8 @@ def glcm_map(img, winsize, mask=None, output=None, ignore_zeros=False):
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, value in enumerate(feats.values()):
             output[(i,) + pos] = value
-    names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
+    names = ['glcm{}'.format(t).translate(str.maketrans('', '', " '")) for t in
+             feats.keys()]
     return output, names
 
 
@@ -78,7 +87,8 @@ def glcm_mbb(img, mask):
     img[-mask] = 0
     feats = glcm_props(img, ignore_zeros=True)
     output = list(feats.values())
-    names = ['glcm{}'.format(t).translate(None, " '") for t in feats.keys()]
+    names = ['glcm{}'.format(t).translate(str.maketrans('', '', " '")) for t in
+             feats.keys()]
     return output, names
 
 
@@ -217,7 +227,8 @@ def gabor_map(img, winsize, mask=None, output=None):
         featmaps = gabor_featmap(real, imag, winsize, mask)
         for featmap, name in zip(featmaps, featnames):
             tmaps.append(featmap)
-            s = 'gabor{}'.format((sigma, freq, name)).translate(None, " '")
+            s = ('gabor{}'.format((sigma, freq, name))
+                 .translate(str.maketrans('', '', " '")))
             outnames.append(s)
     output = np.array(tmaps)
     return output, outnames
