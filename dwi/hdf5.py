@@ -36,8 +36,6 @@ def convert_value_write(v):
             return x.encode()
         return x
     if dwi.util.iterable(v) and not dwi.util.isstring(v):
-        # if any(x is None for x in v):
-        #     v = type(v)([(np.nan if x is None else x) for x in v])
         v = [convert_item(x) for x in v]
     return v
 
