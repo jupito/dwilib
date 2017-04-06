@@ -26,20 +26,6 @@ class Dataset(h5py.Dataset):
         return len(self.shape)
 
 
-def convert_value_write(v):
-    """HDF5 doesn't understand None objects, so replace any with nan values."""
-    def convert_item(x):
-        """Convert sequence item."""
-        if x is None:
-            return np.nan
-        if dwi.util.isstring(x):
-            return x.encode()
-        return x
-    if dwi.util.iterable(v) and not dwi.util.isstring(v):
-        v = [convert_item(x) for x in v]
-    return v
-
-
 def write_hdf5(filename, array, attrs, fillvalue=None,
                dsetname=DEFAULT_DSETNAME):
     """Write an array with attributes into a newly created, compressed HDF5
@@ -48,23 +34,8 @@ def write_hdf5(filename, array, attrs, fillvalue=None,
     f = h5py.File(filename, 'w')
     dset = f.create_dataset(dsetname, data=array, fillvalue=fillvalue,
                             **DEFAULT_DSETPARAMS)
-    for k, v in attrs.items():
-        dset.attrs[k] = convert_value_write(v)
+    write_attrs(dset, attrs)
     f.close()
-
-
-def convert_value_read(value):
-    """Convert attribute value from bytes to string."""
-    if isinstance(value, bytes):
-        return value.decode()
-    elif not np.isscalar(value) and np.issubsctype(value, np.bytes_):
-        return value.astype(np.str_)
-    return value
-
-
-def convert_attrs_read(attrs):
-    """Convert attribute values from bytes to strings."""
-    return ((k, convert_value_read(v)) for k, v in attrs.items())
 
 
 def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
@@ -88,8 +59,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
         array = Dataset(dset.id)
     else:
         array = np.array(dset)
-    attrs = OrderedDict(dset.attrs)
-    attrs.update(convert_attrs_read(attrs))
+    attrs = read_attrs(dset)
     if not ondisk:
         f.close()
     return array, attrs
@@ -105,3 +75,40 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     dset = f.create_dataset(dsetname, shape, dtype=dtype, fillvalue=fillvalue,
                             **DEFAULT_DSETPARAMS)
     return Dataset(dset.id)
+
+
+def write_attrs(dset, attrs):
+    """Update dataset attributes from dictionary. This is a wrapper for
+    conversion needs, like string encoding and None to nan.
+    """
+    for k, v in attrs.items():
+        dset.attrs[k] = convert_value_write(v)
+
+
+def read_attrs(dset):
+    """Read attributes from dataset. This is a wrapper for conversion needs."""
+    return OrderedDict((k, convert_value_read(v)) for k, v in
+                       dset.attrs.items())
+
+
+def convert_value_write(v):
+    """HDF5 doesn't understand None objects, so replace any with nan values."""
+    def convert_item(x):
+        """Convert sequence item."""
+        if x is None:
+            return np.nan
+        if dwi.util.isstring(x):
+            return x.encode()
+        return x
+    if dwi.util.iterable(v) and not dwi.util.isstring(v):
+        v = [convert_item(x) for x in v]
+    return v
+
+
+def convert_value_read(value):
+    """Convert attribute value from bytes to string."""
+    if isinstance(value, bytes):
+        return value.decode()
+    elif not np.isscalar(value) and np.issubsctype(value, np.bytes_):
+        return value.astype(np.str_)
+    return value
