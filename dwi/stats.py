@@ -233,3 +233,13 @@ def bootstrap_icc(baselines, nboot=2000):
     mean = np.mean(values)
     ci1, ci2 = conf_int(values)
     return mean, ci1, ci2
+
+
+def walsh_averages(seq):
+    """Calculate Walsh averages."""
+    w = np.asmatrix(seq)
+    assert len(w) == 1, w.shape
+    w = (w + w.T) / 2
+    w = w[np.tri(len(w), dtype=np.bool)]  # Take lower half.
+    w = np.sort(w.flat)
+    return w
