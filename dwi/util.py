@@ -5,6 +5,8 @@ from collections import OrderedDict
 from functools import reduce, total_ordering
 import json
 import logging
+import os
+import platform
 
 import numpy as np
 from scipy import spatial
@@ -336,3 +338,19 @@ def quantize(img, levels=32, dtype=np.uint8):
     # img = skimage.img_as_ubyte(img)
     # img //= int(round(256 / levels))
     return (img * levels).clip(0, levels-1).astype(dtype)
+
+
+def cpu_count():
+    """Return CPU count, if possible."""
+    n = os.cpu_count()
+    if n is None:
+        raise OSError(None, 'Could not determine CPU count')
+    return n
+
+
+def hostname():
+    """Try to return system hostname in a portable fashion."""
+    name = platform.uname().node
+    if not name:
+        raise OSError(None, 'Could not determine hostname')
+    return name

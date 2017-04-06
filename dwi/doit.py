@@ -4,14 +4,13 @@
 
 from __future__ import absolute_import, division, print_function
 import logging
-import os
-import platform
 
 from doit.tools import create_folder
 
 import dwi.files
 from dwi.files import Path
 from dwi.paths import samplelist_path
+import dwi.util
 
 
 class TextureSpec(tuple):
@@ -20,26 +19,10 @@ class TextureSpec(tuple):
         return '-'.join(map(str, reversed(self)))
 
 
-def cpu_count():
-    """Return CPU count, if possible."""
-    n = os.cpu_count()
-    if n is None:
-        raise OSError(None, 'Could not determine CPU count')
-    return n
-
-
-def hostname():
-    """Try to return system hostname in a portable fashion."""
-    name = platform.uname().node
-    if not name:
-        raise OSError(None, 'Could not determine hostname')
-    return name
-
-
 def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
     try:
-        n = int(cpu_count() * factor)
+        n = int(dwi.util.cpu_count() * factor)
     except OSError:
         n = default
     n = max(1, n)
