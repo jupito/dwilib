@@ -243,3 +243,20 @@ def walsh_averages(seq):
     w = w[np.tri(len(w), dtype=np.bool)]  # Take lower half.
     w = np.sort(w.flat)
     return w
+
+
+def wilcoxon_signed_rank_test(x, conflevel=0.95):
+    """Wilcoxon signed rank test, with confidence interval. Requires rpy2."""
+    from rpy2.robjects import numpy2ri
+    from rpy2.robjects.packages import importr
+    numpy2ri.activate()
+    stats = importr('stats')
+    d = {'conf.int': True, 'conf.level': conflevel}
+    r = stats.wilcox_test(np.array(x), **d)
+    r = dict(
+        statistic=np.asscalar(np.asarray(r.rx('statistic'))),
+        pvalue=np.asscalar(np.asarray(r.rx('p.value'))),
+        confint=[np.asscalar(x) for x in np.asarray(r.rx('conf.int')).flat],
+        estimate=np.asscalar(np.asarray(r.rx('estimate'))),
+        )
+    return r
