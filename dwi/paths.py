@@ -1,6 +1,7 @@
 """Common path names."""
 
 # TODO: Get rid of messy globbing by by explicit data file naming.
+# TODO: Move all functions to a class.
 
 from __future__ import absolute_import, division, print_function
 
@@ -95,6 +96,7 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
                  winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
+    # method, winsize = tspec or (None, None)
     if method == 'raw':
         # 'Raw' texture is actually just the source image.
         return pmap_path(mode, case, scan)
