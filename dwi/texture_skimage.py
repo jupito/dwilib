@@ -3,7 +3,6 @@
 from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 from itertools import product
-import logging
 
 import numpy as np
 import skimage.feature
@@ -12,6 +11,11 @@ import skimage.measure
 
 import dwi.texture
 import dwi.util
+
+
+def translate_name(name):
+    """Translate feature name."""
+    return name.translate(str.maketrans('', '', " '"))
 
 
 def get_angles(n):
@@ -73,8 +77,7 @@ def glcm_map(img, winsize, mask=None, output=None, ignore_zeros=False):
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, value in enumerate(feats.values()):
             output[(i,) + pos] = value
-    names = ['glcm{}'.format(t).translate(str.maketrans('', '', " '")) for t in
-             feats.keys()]
+    names = [translate_name('glcm{}'.format(t)) for t in feats.keys()]
     return output, names
 
 
@@ -87,8 +90,7 @@ def glcm_mbb(img, mask):
     img[-mask] = 0
     feats = glcm_props(img, ignore_zeros=True)
     output = list(feats.values())
-    names = ['glcm{}'.format(t).translate(str.maketrans('', '', " '")) for t in
-             feats.keys()]
+    names = [translate_name('glcm{}'.format(t)) for t in feats.keys()]
     return output, names
 
 
@@ -227,8 +229,7 @@ def gabor_map(img, winsize, mask=None, output=None):
         featmaps = gabor_featmap(real, imag, winsize, mask)
         for featmap, name in zip(featmaps, featnames):
             tmaps.append(featmap)
-            s = ('gabor{}'.format((sigma, freq, name))
-                 .translate(str.maketrans('', '', " '")))
+            s = translate_name('gabor{}'.format((sigma, freq, name)))
             outnames.append(s)
     output = np.array(tmaps)
     return output, outnames
