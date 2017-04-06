@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function
 import logging
+import os
 import platform
 
 from doit.tools import create_folder
@@ -19,7 +20,15 @@ class TextureSpec(tuple):
         return '-'.join(map(str, reversed(self)))
 
 
-def get_hostname():
+def cpu_count():
+    """Return CPU count, if possible."""
+    n = os.cpu_count()
+    if n is None:
+        raise OSError(None, 'Could not determine CPU count')
+    return n
+
+
+def hostname():
     """Try to return system hostname in a portable fashion."""
     name = platform.uname().node
     if not name:
@@ -27,14 +36,15 @@ def get_hostname():
     return name
 
 
-def get_num_process(default=1):
+def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
-    # d = dict(taanne=3, TY1303004=7, petmrc=24)
-    d = dict(taanne=4, TY1303004=8, petmrc=32)
-    n = d.get(get_hostname(), default)
-    r = int(n / 8 * 7)
-    logging.warning('Using %d processes', r)
-    return r
+    try:
+        n = int(cpu_count() * factor)
+    except OSError:
+        n = default
+    n = max(1, n)
+    logging.warning('Using %d processes', n)
+    return n
 
 
 def words(string, sep=','):
