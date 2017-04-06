@@ -7,8 +7,8 @@ from itertools import chain, product
 from doit import get_var
 # from doit.tools import check_timestamp_unchanged
 
-from dwi.doit import (cases_scans, lesions, words, name, folders,
-                      texture_methods_winsizes)
+from dwi.doit import (cases_scans, folders, lesions, taskname,
+                      texture_methods_winsizes, words)
 import dwi.dataset
 import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
@@ -89,7 +89,7 @@ def task_standardize_train():
                                                                         'all')]
     cmd = dwi.shell.standardize_train(inpaths, std_cfg, 'none')
     yield {
-        'name': name(mode),
+        'name': taskname(mode),
         'actions': [cmd],
         'file_dep': inpaths,
         'targets': [std_cfg],
@@ -115,7 +115,7 @@ def task_standardize_transform():
         cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
                                               mask=mask)
         yield {
-            'name': name(mode, case, scan),
+            'name': taskname(mode, case, scan),
             'actions': folders(outpath) + [cmd],
             'file_dep': [cfgpath, inpath, mask],
             'targets': [outpath],
@@ -132,7 +132,7 @@ def task_make_subregion():
                 subregion = subregion_path(mode, case, scan)
                 cmd = dwi.shell.make_subregion(mask, subregion)
                 yield {
-                    'name': name(mode, case, scan),
+                    'name': taskname(mode, case, scan),
                     'actions': folders(subregion) + [cmd],
                     'file_dep': [mask],
                     'targets': [subregion],
@@ -153,7 +153,7 @@ def task_make_subregion():
 #                 cmd = dwi.shell.fit(inpath, outpath, model, mask=mask,
 #                                     mbb=mbb)
 #                 yield {
-#                     'name': name(mode, c, s, model),
+#                     'name': taskname(mode, c, s, model),
 #                     'actions': folders(outpath) + [cmd],
 #                     'file_dep': [inpath, mask],
 #                     'targets': [outpath],
@@ -172,7 +172,7 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
         d['astype'] = 'float32'  # Integers cannot have nans.
     cmd = dwi.shell.select_voxels(pmap, roi, **d)
     return {
-        'name': name(mode, masktype, case, scan, lesion),
+        'name': taskname(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
         'file_dep': [mask, pmap],
         'targets': [roi],
@@ -190,7 +190,7 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
         d['astype'] = 'float32'  # Integers cannot have nans.
     cmd = dwi.shell.select_voxels(pmap, roi, **d)
     return {
-        'name': name(mode, masktype, case, scan),
+        'name': taskname(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
         'file_dep': [mask, pmap],
         'targets': [roi],
@@ -206,7 +206,7 @@ def get_task_select_roi_auto(mode, case, scan, algparams):
     pmap = pmap_path(mode, case, scan)
     cmd = dwi.shell.select_voxels(pmap, roi, mask=mask, keepmasked=False)
     return {
-        'name': name(mode, ap_, case, scan),
+        'name': taskname(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
         'file_dep': [mask, pmap],
         'targets': [roi],
@@ -264,8 +264,8 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
     cmd = dwi.shell.get_texture(mode, inpath, tspec, slices, portion, outfile,
                                 voxel, mask=mask)
     return {
-        'name': name(mode, masktype, slices, portion, case, scan, lesion,
-                     method, winsize, voxel),
+        'name': taskname(mode, masktype, slices, portion, case, scan, lesion,
+                         method, winsize, voxel),
         'actions': folders(outfile) + [cmd],
         'file_dep': deps,
         'targets': [outfile],
@@ -309,7 +309,7 @@ def task_merge_textures():
                                        slices, portion, None, None)
                 cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
                 yield {
-                    'name': name(mode, c, s, l, mt, slices, portion),
+                    'name': taskname(mode, c, s, l, mt, slices, portion),
                     'actions': folders(outfile) + [cmd],
                     'file_dep': infiles,
                     'targets': [outfile],
@@ -325,7 +325,7 @@ def get_task_histogram(mode, masktype, samplelist):
     figpath = histogram_path(mode, masktype, samplelist)
     cmd = dwi.shell.histogram(inpaths, figpath, params=None)
     return {
-        'name': name(mode, masktype, samplelist),
+        'name': taskname(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
         'file_dep': inpaths,
         'targets': [figpath],
@@ -354,7 +354,7 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
              lesiontypes=lt, use_centroid=False, nanbg=nanbg)
     cmd = dwi.shell.grid(pmap, 0, prostate, lesion, out, **d)
     return {
-        'name': name(mode, c, s, mt),
+        'name': taskname(mode, c, s, mt),
         'actions': folders(out) + [cmd],
         'file_dep': [pmap, prostate] + lesion,
         'targets': [target],
@@ -377,7 +377,7 @@ def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
              lesiontypes=lt, use_centroid=False, nanbg=nanbg)
     cmd = dwi.shell.grid(pmap, None, prostate, lesion, out, **d)
     return {
-        'name': name(mode, c, s, mt, mth, ws),
+        'name': taskname(mode, c, s, mt, mth, ws),
         'actions': folders(out) + [cmd],
         'file_dep': [pmap, prostate] + lesion,
         'targets': [target],

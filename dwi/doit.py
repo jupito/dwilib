@@ -35,7 +35,7 @@ def words(string, sep=','):
     return [x.strip() for x in string.split(sep)]
 
 
-def name(*items):
+def taskname(*items):
     """A task name consisting of items."""
     s = '_'.join('{}' for _ in items)
     return s.format(*items)
