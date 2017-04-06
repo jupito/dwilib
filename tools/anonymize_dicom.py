@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Anonymize DICOM files. Write in-place or into another directory."""
 
