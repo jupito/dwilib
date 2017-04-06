@@ -19,7 +19,6 @@ except ImportError:
 import dwi.asciifile
 import dwi.dicomfile
 import dwi.hdf5
-from dwi.patient import Patient, Lesion
 
 log = logging.getLogger(__name__)
 COMMENT_PREFIX = '#'
@@ -97,16 +96,16 @@ def parse_patient(line, include_lines=False):
     num = m.group('num')
     name = m.group('name')
     scans = sorted(m.group('scans').lower().split(','))
-    les = [Lesion(0, m.group('score'), 'xx')]
+    les = [dwi.Lesion(0, m.group('score'), 'xx')]
     if m.group('location'):
         # New-style, multi-lesion file.
         les = []
-        les.append(Lesion(0, m.group('score'), m.group('location')))
+        les.append(dwi.Lesion(0, m.group('score'), m.group('location')))
         if m.group('score2'):
-            les.append(Lesion(1, m.group('score2'), m.group('location2')))
+            les.append(dwi.Lesion(1, m.group('score2'), m.group('location2')))
         if m.group('score3'):
-            les.append(Lesion(2, m.group('score3'), m.group('location3')))
-    patient = Patient(num, name, scans, les)
+            les.append(dwi.Lesion(2, m.group('score3'), m.group('location3')))
+    patient = dwi.Patient(num, name, scans, les)
     if include_lines:
         patient.line = line
     return patient
