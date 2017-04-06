@@ -160,7 +160,7 @@ def main():
     if dwi.rcParams['texture.path']:
         attrs['shape'] = tmap.shape
         attrs['dtype'] = str(tmap.dtype)
-        tmap.attrs.update(attrs)
+        dwi.hdf5.write_attrs(tmap, attrs)  # Attributes may need conversion.
     else:
         dwi.files.write_pmap(args.output, tmap, attrs)
 
