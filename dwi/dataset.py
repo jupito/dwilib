@@ -9,6 +9,7 @@ except ImportError:
 import numpy as np
 
 import dwi.asciifile
+import dwi.image
 import dwi.files
 from dwi.files import Path
 import dwi.paths
@@ -138,3 +139,11 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     else:
         pmap = pmap[[int(voxel)]]  # Use single voxel only.
     return pmap, params, af.filename
+
+
+def read_tmap(mode, case, scan, tspec, masktype='prostate'):
+    """Read a texture map."""
+    method, winsize = tspec
+    path = dwi.paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
+                                  method, winsize, voxel='all')
+    return dwi.image.Image.read(path)
