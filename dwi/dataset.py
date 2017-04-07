@@ -43,7 +43,7 @@ class Dataset(object):
                 yield case, scan, lesion
 
 
-@lru_cache(maxsize=10)
+@lru_cache(maxsize=16)
 def read_prostate_mask(mode, case, scan):
     path = dwi.paths.mask_path(mode, 'prostate', case, scan)
     return dwi.files.read_mask(path)
@@ -55,7 +55,7 @@ def read_lesion_mask(mode, case, scan, lesion):
     return dwi.files.read_mask(path)
 
 
-@lru_cache(maxsize=10)
+@lru_cache(maxsize=16)
 def read_lesion_masks(mode, case, scan, lesions):
     masks = (read_lesion_mask(mode, case, scan, x) for x in lesions)
     return dwi.util.unify_masks(masks)
