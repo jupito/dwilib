@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function
 try:
     from functools import lru_cache
 except ImportError:
-    from backports.functools_lru_cache import lru_cache
+    from backports.functools_lru_cache import lru_cache  # For Python2.
 
 import numpy as np
 
