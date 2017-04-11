@@ -197,10 +197,9 @@ def fivenum(a):
     return tuple(np.nanpercentile(a, (0, 25, 50, 75, 100)))
 
 
-def fivenums(a):
+def fivenums(a, fmt='.4g'):
     """Return the Tukey five-number summary as a formatted string."""
-    return '({:{f}}, {:{f}}, {:{f}}, {:{f}}, {:{f}})'.format(*fivenum(a),
-                                                             f='.4g')
+    return '({:{f}} {:{f}} {:{f}} {:{f}} {:{f}})'.format(*fivenum(a), f=fmt)
 
 
 def distance(a, b):
