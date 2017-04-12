@@ -199,7 +199,8 @@ def fivenum(a):
 
 def fivenums(a, fmt='.4g'):
     """Return the Tukey five-number summary as a formatted string."""
-    return '({:{f}} {:{f}} {:{f}} {:{f}} {:{f}})'.format(*fivenum(a), f=fmt)
+    s = '({})'.format(', '.join(['{:{f}}'] * 5))
+    return s.format(*fivenum(a), f=fmt)
 
 
 def distance(a, b):
