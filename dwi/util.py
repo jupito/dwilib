@@ -194,7 +194,7 @@ def fivenum(a):
     """Return the Tukey five-number summary (minimum, quartile 1, median,
     quartile 3, maximum), while ignoring nan values.
     """
-    return tuple(np.nanpercentile(a, (0, 25, 50, 75, 100)))
+    return tuple(np.nanpercentile(a, range(0, 101, 25)))
 
 
 def fivenums(a, fmt='.4g'):
