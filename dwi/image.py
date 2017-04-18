@@ -47,6 +47,11 @@ class Image(np.ndarray):
         obj = cls(img, info=info)
         return obj
 
+    @classmethod
+    def read_mask(cls, path, **kwargs):
+        """Read a mask."""
+        return cls.read(path, params=[0], dtype=np.bool)[:, :, :, 0]
+
     @property
     def params(self):
         return self.info['params']
