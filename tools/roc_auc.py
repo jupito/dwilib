@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally compare
 AUCs and draw the ROC curves into a file."""
