@@ -97,3 +97,10 @@ class Image(np.ndarray):
         """Iterate over slices."""
         assert self.ndim in (3, 4), self.shape
         return iter(self)
+
+    # def get_params(self, params):
+    #     """Return a subset of parameters."""
+    #     indices = [self.params.index(x) for x in params]
+    #     r = self[:, :, :, indices].copy()
+    #     r.params = list(params)
+    #     return r
