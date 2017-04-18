@@ -21,6 +21,7 @@ lambdas = dict(
     size=lambda x: x.size,
     mbb=lambda x: shorten(x[x.mbb()].shape),
     spacing=lambda x: shorten(x.spacing),
+    centroid=lambda x: ','.join(str(int(round(y))) for y in x.centroid()),
 
     finite=lambda x: np.count_nonzero(np.isfinite(x)),
     nonzero=lambda x: np.count_nonzero(x),
