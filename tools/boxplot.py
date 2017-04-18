@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Plot boxplots of images. Possible nans and infinities are ignored."""
 

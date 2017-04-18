@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Select voxels from image and write them into another file. Output may
 include all voxels, or a selection made by subwindow specification or mask
