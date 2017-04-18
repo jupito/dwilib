@@ -47,7 +47,7 @@ def get_overlap(container, other):
 
 
 def write_figure(overlap, path):
-    overlap = overlap.astype(np.float16) / 3
+    overlap = overlap.astype(np.float32) / 3
     plt.rcParams['image.aspect'] = 'equal'
     plt.rcParams['image.cmap'] = 'jet'
     plt.rcParams['image.interpolation'] = 'none'
@@ -60,6 +60,7 @@ def write_figure(overlap, path):
         plt.imshow(a, vmin=0, vmax=1)
     plt.tight_layout()
     print('Writing figure:', path)
+    dwi.files.ensure_dir(path)
     plt.savefig(path, bbox_inches='tight')
     plt.close()
 
