@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Calculate AUC for predicting prostate in image, lesion in prostate.
 
@@ -7,10 +7,8 @@ Written for the grid data.
 
 from __future__ import absolute_import, division, print_function
 import argparse
-from itertools import product
 
 import numpy as np
-import scipy.stats
 
 import dwi.files
 import dwi.stats
