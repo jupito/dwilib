@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Calculate correlation for parametric maps vs. Gleason scores."""
 
