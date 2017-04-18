@@ -203,9 +203,14 @@ def fivenums(a, fmt='.4g'):
     return s.format(*fivenum(a), f=fmt)
 
 
-def distance(a, b):
+def distance(a, b, spacing=None):
     """Return the Euclidean distance of two vectors."""
-    return spatial.distance.euclidean(a, b)
+    a = np.asarray(a)
+    b = np.asarray(b)
+    if spacing is None:
+        return spatial.distance.euclidean(a, b)
+    spacing = np.asarray(spacing)
+    return distance(a * spacing, b * spacing)
 
 
 def normalize_si_curve(si):
