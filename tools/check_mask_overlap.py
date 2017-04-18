@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Check if there are voxels in the 'other' mask (e.g. lesion) that don't
 overlap the 'container' mask (e.g. prostate).
