@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Produce parametric maps by fitting one or more models to imaging data."""
 
