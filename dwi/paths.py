@@ -57,9 +57,9 @@ def mask_path(mode, masktype, case, scan, lesion=None, algparams=(),
         return 'masks_{mt}/{m}/{c}_{s}_{l}.h5'.format(**d)
     do_glob = True
     if masktype == 'prostate':
-        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*.zip'
+        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*.*'
     elif masktype == 'lesion':
-        path = 'masks_{mt}/{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*.zip'
+        path = 'masks_{mt}/{m[0]}/PCa_masks_{m[0]}_{l}*/{c}_*{s}_*.*'
     elif masktype in ('CA', 'N'):
         path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}.zip'
     elif masktype == 'auto':
