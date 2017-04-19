@@ -27,13 +27,17 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('--input', '-i', metavar='INFILE', nargs='+', required=True,
+    p.add_argument('-i', '--input', metavar='INFILE', nargs='+', required=True,
                    help='input parametric map files')
-    p.add_argument('--subwindow', '-s', metavar='I', nargs=6, default=[],
-                   required=False, type=int,
-                   help='use subwindow (specified by 6 one-based indices)')
-    p.add_argument('--mask', '-m', metavar='MASKFILE', required=False,
+    p.add_argument('-o', '--output', metavar='OUTFILE',
+                   help='output parametric map file')
+    p.add_argument('-m', '--mask', metavar='MASKFILE', required=False,
                    help='mask file (applied within subwindow size)')
+    p.add_argument('-s', '--subwindow', metavar='I', nargs=6, type=int,
+                   default=[], required=False,
+                   help='use subwindow (specified by 6 one-based indices)')
+    p.add_argument('-p', '--param', type=int,
+                   help='parameter index')
     p.add_argument('--keepmasked', action='store_true',
                    help='keep masked voxels (as NaN values)')
     p.add_argument('--subwindow-mask', action='store_true',
@@ -42,12 +46,8 @@ def parse_args():
                    help='parameter rename list')
     p.add_argument('--source_attrs', action='store_true',
                    help='output attributes include source files')
-    p.add_argument('--param', type=int,
-                   help='parameter index')
     p.add_argument('--astype',
-                   help='convert type (see NumPy)')
-    p.add_argument('--output', '-o', metavar='OUTFILE',
-                   help='output parametric map file')
+                   help='converted type (e.g. bool, float16, ...)')
     return p.parse_args()
 
 
@@ -62,6 +62,7 @@ def merge(tuples):
 
 
 def main():
+    """Main."""
     args = parse_args()
     image, attrs = merge([dwi.files.read_pmap(x) for x in args.input])
 
