@@ -44,8 +44,10 @@ class Gui(object):
     q: quit'''.format(len(cmaps), ' '.join(cmaps))
 
     def __init__(self, image, params, label=None, masks=None):
-        assert image.ndim == 4
-        assert image.shape[-1] == len(params)
+        assert image.ndim == 4, image.shape
+        assert image.shape[-1] == len(params), (image.shape, params)
+        assert image.dtype in (np.float32, np.float64,
+                               np.float128), image.dtype
         self.image = image
         self.params = params
         self.max_param_length = max(len(_) for _ in params)
