@@ -10,6 +10,7 @@ import platform
 
 import numpy as np
 from scipy import spatial
+from scipy.ndimage import interpolation
 import skimage.exposure
 
 
@@ -290,8 +291,28 @@ def asbool(a):
     a = np.asanyarray(a)
     a = a.round()
     a.clip(0, 1, out=a)
-    a = a.astype(np.bool)
+    a = a.astype(np.bool, copy=False)
     return a
+
+
+def zoom(image, factor, order=1, **kwargs):
+    """Zoom by a factor (float or sequence).
+
+    Note: Scipy's zoom() used here seems to sometimes jam on float16.
+    """
+    return interpolation.zoom(image, factor, order=order, **kwargs)
+
+
+def zoom_as_float(image, factor, **kwargs):
+    """Convert to float, zoom, convert back. Special boolean handling."""
+    typ = image.dtype
+    image = image.astype(np.float, copy=False)
+    image = zoom(image, factor, **kwargs)
+    if typ == np.bool:
+        image = asbool(image)
+    else:
+        image = image.astype(typ, copy=False)
+    return image
 
 
 def dump_json(obj, separators=(', ', ': '), sort_keys=False):
