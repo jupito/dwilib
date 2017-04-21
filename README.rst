@@ -1,7 +1,7 @@
 dwilib
 ======
 
-NEW: Switched to Python version 3, it is now required and assumed everywhere!
+*NEW: Switched to Python version 3, it is now required and assumed everywhere!*
 
 Tools in development to support analysis of Diffusion-Weighted Imaging (DWI)
 data, with focus on prostate cancer.
