@@ -1,4 +1,12 @@
-"""Support for reading DWI data from DICOM files."""
+"""Support for reading multi-slice DICOM images.
+
+Use read_dir() to read a directory, read_files() to read a group of files. Each
+DICOM file may contain one slice, otherwise it will be ignored. Reading fails
+unless all slices have equal orientation, shape, and pixel datatype. In case
+any slices overlap, only one of them is kept. Between-slice spacing is
+calculated from the first two slices' positional difference, as the
+corresponding data field cannot be trusted.
+"""
 
 from __future__ import absolute_import, division, print_function
 import logging
