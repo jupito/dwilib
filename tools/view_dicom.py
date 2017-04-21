@@ -245,7 +245,7 @@ def main():
             for si in img.reshape((-1, img.shape[-1])):
                 dwi.util.normalize_si_curve_fix(si)
         else:
-            img = dwi.util.normalize(img, args.normalize).astype(np.float16)
+            img = dwi.util.normalize(img, args.normalize).astype(np.float32)
 
     if args.scale:
         img = scale(img)
