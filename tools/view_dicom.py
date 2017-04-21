@@ -56,7 +56,7 @@ class Gui(object):
             label = str(image.shape)
         self.label = label
         if masks:
-            colors = np.linspace(1, 0.3, len(masks))
+            colors = np.linspace(1, 0.5, len(masks))
             for mask, color in zip(masks, colors):
                 for image_slit, mask_slit in zip(self.image, mask):
                     image_slit[dwi.mask.border(mask_slit), :] = color
