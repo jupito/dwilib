@@ -138,27 +138,27 @@ class Gui(object):
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('path',
-                   help='DICOM directory or HDF5 file')
-    p.add_argument('--params', '-p', nargs='+',
+    p.add_argument('-v', '--verbose', action='count',
+                   help='be more verbose')
+    p.add_argument('-p', '--params', nargs='+',
                    help='included parameter indices')
     p.add_argument('--mbb', action='store_true',
                    help='take minimum bounding box')
-    p.add_argument('--subwindow', '-w', metavar='i',
+    p.add_argument('-w', '--subwindow', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, zero-based)')
-    p.add_argument('--mask', '-m', nargs='+',
+    p.add_argument('-m', '--mask', nargs='+',
                    help='mask files')
-    p.add_argument('--verbose', '-v', action='count',
-                   help='be more verbose')
     p.add_argument('--std',
                    help='standardization file to use')
-    p.add_argument('--normalize', '-n', metavar='MODE',
+    p.add_argument('-n', '--normalize', metavar='MODE',
                    help='normalize signal intensity curves')
-    p.add_argument('--scale', '-s', action='store_true',
+    p.add_argument('-s', '--scale', action='store_true',
                    help='scale each parameter independently')
-    p.add_argument('--info', '-i', action='store_true',
+    p.add_argument('-i', '--info', action='store_true',
                    help='show information only')
+    p.add_argument('path',
+                   help='image (DICOM directory, zip file, HDF5 file)')
     args = p.parse_args()
     return args
 
