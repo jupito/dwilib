@@ -43,7 +43,7 @@ class Gui(object):
     r: toggle reverse colormap
     q: quit'''.format(len(cmaps), ' '.join(cmaps))
 
-    def __init__(self, image, params, label=None, mask=None):
+    def __init__(self, image, params, label=None, masks=None):
         assert image.ndim == 4
         assert image.shape[-1] == len(params)
         self.image = image
@@ -55,10 +55,11 @@ class Gui(object):
         if label is None:
             label = str(image.shape)
         self.label = label
-        self.mask = mask  # This is here so that can be toggled in future.
-        if self.mask is not None:
-            for img, msk in zip(self.image, self.mask):
-                img[dwi.mask.border(msk), :] = 1
+        if masks:
+            colors = np.linspace(1, 0.3, len(masks))
+            for mask, color in zip(masks, colors):
+                for image_slit, mask_slit in zip(self.image, mask):
+                    image_slit[dwi.mask.border(mask_slit), :] = color
 
     def show(self):
         """Activate the GUI."""
@@ -146,8 +147,8 @@ def parse_args():
     p.add_argument('--subwindow', '-w', metavar='i',
                    nargs=6, default=[], type=int,
                    help='ROI (6 integers, zero-based)')
-    p.add_argument('--mask', '-m',
-                   help='mask file')
+    p.add_argument('--mask', '-m', nargs='+',
+                   help='mask files')
     p.add_argument('--verbose', '-v', action='count',
                    help='be more verbose')
     p.add_argument('--std',
@@ -250,14 +251,14 @@ def main():
         img = scale(img)
 
     if args.mask:
-        mask = dwi.files.read_mask(args.mask)
+        masks = [dwi.files.read_mask(x) for x in args.mask]
         if bb:
-            mask = mask[bb]
+            masks = [x[bb] for x in masks]
     else:
-        mask = None
+        masks = None
 
     if not args.info:
-        gui = Gui(img, attrs['parameters'], label=args.path, mask=mask)
+        gui = Gui(img, attrs['parameters'], label=args.path, masks=masks)
         gui.show()
 
 
