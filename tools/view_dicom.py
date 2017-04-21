@@ -212,7 +212,10 @@ def main():
 
     if args.mbb:
         print('Taking minimum bounding_box from {}'.format(img.shape))
-        img = img[dwi.util.bbox(img)]
+        bb = dwi.util.bbox(img[:, :, :, 0])
+        img = img[bb]
+    else:
+        bb = None
 
     print('Attributes:')
     for k, v in attrs.items():
@@ -248,6 +251,8 @@ def main():
 
     if args.mask:
         mask = dwi.files.read_mask(args.mask)
+        if bb:
+            mask = mask[bb]
     else:
         mask = None
 
