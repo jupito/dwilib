@@ -46,7 +46,7 @@ def get_overlap(container, other):
     return overlap
 
 
-def write_figure(overlap, path):
+def write_figure(overlap, d, path):
     overlap = overlap.astype(np.float32) / 3
     plt.rcParams['image.aspect'] = 'equal'
     plt.rcParams['image.cmap'] = 'jet'
@@ -54,9 +54,13 @@ def write_figure(overlap, path):
     n_cols = 4
     n_rows = np.ceil(len(overlap) / n_cols)
     fig = plt.figure(figsize=(n_cols*6, n_rows*6))
+    s = ('{container}\n'
+         '{other}\n'
+         '{ncontainer},  {nother},  {noutside},  {noutsider:.2%}')
+    fig.suptitle(s.format(**d), y=1.05, fontsize=30, color='darkgreen')
     for i, a in enumerate(overlap):
         ax = fig.add_subplot(n_rows, n_cols, i+1)
-        ax.set_title('Slice {}'.format(i))
+        ax.set_title('Slice {}/{}'.format(i, len(overlap)))
         plt.imshow(a, vmin=0, vmax=1)
     plt.tight_layout()
     print('Writing figure:', path)
@@ -71,12 +75,19 @@ def main():
     other = read_mask(args.other)
     assert container.shape == other.shape, (container.shape, other.shape)
     overlap = get_overlap(container, other)
-    n = np.count_nonzero(overlap == 2)
-    if n:
-        s = '{c}, {o}: {n} voxels outside container'
-        print(s.format(c=args.container, o=args.other, n=n))
+    d = dict(
+        container=args.container,
+        other=args.other,
+        ncontainer=np.count_nonzero(overlap == 1),
+        nother=np.count_nonzero(overlap == 3),
+        noutside=np.count_nonzero(overlap == 2),
+        )
+    d['noutsider'] = d['noutside'] / d['nother']
+    s = ('{container}, {other}: '
+         '{ncontainer}, {nother}, {noutside}, {noutsider:.2%}')
+    print(s.format(**d))
     if args.fig:
-        write_figure(overlap, args.fig)
+        write_figure(overlap, d, args.fig)
 
 
 if __name__ == '__main__':
