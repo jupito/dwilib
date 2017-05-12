@@ -46,8 +46,7 @@ class Gui(object):
     def __init__(self, image, params, label=None, masks=None):
         assert image.ndim == 4, image.shape
         assert image.shape[-1] == len(params), (image.shape, params)
-        assert image.dtype in (np.float32, np.float64,
-                               np.float128), image.dtype
+        assert image.dtype in (np.bool, np.float32, np.float64), image.dtype
         self.image = image
         self.params = params
         self.max_param_length = max(len(_) for _ in params)
@@ -62,6 +61,7 @@ class Gui(object):
             for mask, color in zip(masks, colors):
                 for image_slit, mask_slit in zip(self.image, mask):
                     image_slit[dwi.mask.border(mask_slit), :] = color
+                    # image_slit[mask_slit, :] = color
 
     def show(self):
         """Activate the GUI."""
@@ -207,6 +207,23 @@ def scale(img):
     return img
 
 
+def zoom(img, masks):
+    """Zoom."""
+    # factor = (5, 1, 1)
+    factor = (10, 2, 2)
+    order = 1
+    print('Zooming', img.shape, img.dtype, img.mean())
+    img = dwi.util.zoom(img, factor + (1,), order=order)
+    print('Zoomed', img.shape, img.dtype, img.mean())
+
+    _means = [x.mean() for x in masks]
+    print('Zooming masks', _means)
+    masks = [dwi.util.zoom_as_float(x, factor, order=order) for x in masks]
+    _means = [x.mean() for x in masks]
+    print('Zoomed masks', _means)
+    return img, masks
+
+
 def main():
     args = parse_args()
     img, attrs = dwi.files.read_pmap(args.path, ondisk=True,
@@ -258,6 +275,8 @@ def main():
             masks = [x[bb] for x in masks]
     else:
         masks = None
+
+    # img, masks = zoom(img, masks)
 
     if not args.info:
         gui = Gui(img, attrs['parameters'], label=args.path, masks=masks)
