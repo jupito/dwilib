@@ -30,7 +30,7 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
             if len(mode) == 1 and mode[0] == 'DWI':
                 path += '/{c}_*_hB_{s}.zip'
             elif len(mode) == 1:
-                path += '/{c}_*_{s}*.zip*'
+                path += '/{c}_{s}*'
             else:
                 path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
         path, = Path().glob(path.format(**d))
