@@ -9,7 +9,6 @@ case, the output file will receive its attributes from the first input file,
 except for the 'parameters' attribute, which will be aggregated.
 """
 
-from __future__ import absolute_import, division, print_function
 import argparse
 from functools import reduce
 from operator import add
