@@ -25,6 +25,11 @@ import dwi.texture_mahotas
 import dwi.texture_skimage
 
 
+def raw_map(img, winsize, mask=None, output=None):
+    assert winsize == 1, winsize
+    return img, ['raw']
+
+
 # Basic statistical features
 
 
@@ -75,6 +80,7 @@ def stats_mbb(img, mask):
 
 METHODS = OrderedDict([
     # Methods that consider an n*n window.
+    ('raw', raw_map),
     ('stats', stats_map),
     ('glcm', dwi.texture_skimage.glcm_map),
     # ('haralick', dwi.texture_mahotas.haralick_map),
