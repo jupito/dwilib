@@ -35,8 +35,8 @@ def parse_args():
                    help='window specification (side length, all, mbb)')
     p.add_argument('--portion', type=float, default=0,
                    help='portion of selected voxels required for each window')
-    p.add_argument('--voxel', choices=('all', 'mean'), default='all',
-                   help='voxel to output (all, mean)')
+    p.add_argument('--voxel', choices=('all', 'mean', 'median'), default='all',
+                   help='voxel to output (all, mean, median)')
     p.add_argument('--output', metavar='FILENAME', required=True,
                    help='output texture map file')
     return p.parse_args()
@@ -117,7 +117,7 @@ def main():
             mask.array[i, :, :] = 0
 
     # Use only selected slices to save memory.
-    if args.voxel == 'mean':
+    if not args.voxel == 'all':
         img = img[slice_indices].copy()
         mask.array = mask.array[slice_indices].copy()
 
@@ -138,10 +138,10 @@ def main():
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
 
-    if args.voxel == 'mean':
-        dwi.rcParams['texture.avg'] = True
-    else:
+    if args.voxel == 'all':
         dwi.rcParams['texture.avg'] = False
+    else:
+        dwi.rcParams['texture.avg'] = args.voxel
         if args.mode.startswith('T2w') and args.method.startswith('gabor'):
             # These result arrays can get quite huge (if float64).
             dwi.rcParams['texture.path'] = args.output
