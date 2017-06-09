@@ -144,12 +144,13 @@ def get_texture_map(img, call, winsize, mask):
     return tmap, names
 
 
-def get_texture(img, method, winspec, mask, averager='mean'):
+def get_texture(img, method, winspec, mask):
     """General texture map layer."""
     avg = dwi.rcParams['texture.avg']
     dtype = dwi.rcParams['texture.dtype']
-    averagers = dict(mean=np.nanmean, median=np.nanmedian)
-    averager = averagers[averager]
+    averagers = dict(True=np.nanmean, mean=np.nanmean, median=np.nanmedian)
+    if avg:
+        averager = averagers[avg]
     assert img.ndim == 3, img.ndim
     if mask is not None:
         assert mask.dtype == bool
