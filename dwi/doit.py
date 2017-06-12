@@ -21,11 +21,20 @@ class TextureSpec(tuple):
 
 def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
+    maxjobs = dwi.rcParams['maxjobs']
     try:
-        n = int(dwi.util.cpu_count() * factor)
+        if maxjobs < 0:
+            # Joblib-type negative count: -1 => all, -2 => all but one, etc.
+            n = dwi.util.cpu_count() + maxjobs + 1
+        elif maxjobs < 1:
+            # Portion of CPU count.
+            n = dwi.util.cpu_count() * maxjobs
+        else:
+            # Absolute number.
+            n = maxjobs
     except OSError:
         n = default
-    n = max(1, n)
+    n = int(max(1, n))
     logging.warning('Using %d processes', n)
     return n
 
