@@ -23,7 +23,7 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
-    p.add('-m', '--modes', nargs='*', type=dwi.util.ImageMode, default=['DWI'],
+    p.add('-m', '--modes', nargs='*', type=dwi.ImageMode, default=['DWI'],
           help='imaging modes')
     p.add('-s', '--samplelist', default='all',
           help='samplelist identifier')
@@ -110,7 +110,7 @@ def label_groups(a, thresholds):
 def get_markers(img, mode):
     """Get initial labels for segmentation."""
     assert img.ndim == 4
-    markers = np.zeros(img.shape[0:3], dtype=np.int8)
+    markers = np.zeros(img.shape[0:3], dtype=np.int16)
 
     if mode == 'DWI':
         # Based on absolute value thresholds (non-scaled image).
@@ -123,13 +123,34 @@ def get_markers(img, mode):
         markers[img[..., 0] > fg2] = 0
     else:
         # Based on percentile thresholds.
-        thresholds = np.percentile(img, [50, 97, 98, 99.5])
+        pc = [50, 97, 98, 99.5]
+        # pc = list(range(0, 100, 5))
+        thresholds = np.percentile(img, pc)
         logging.info('Seed thresholds: %s', thresholds)
-        markers[img[..., 0] < thresholds[0]] = 1
-        markers[9:11][img[9:11][..., 0] > thresholds[1]] = 2
-        markers[:2][img[:2][..., 0] > thresholds[1]] = 3
-        markers[-2:][img[-2:][..., 0] > thresholds[1]] = 4
-        # markers[img[..., 0] > thresholds[2]] = 3
+
+        # markers[img[..., 0] < thresholds[0]] = 1
+        # markers[9:11][img[9:11][..., 0] > thresholds[1]] = 2
+        # markers[:2][img[:2][..., 0] > thresholds[1]] = 3
+        # markers[-2:][img[-2:][..., 0] > thresholds[1]] = 4
+        # # markers[img[..., 0] > thresholds[2]] = 3
+
+        def do(m, a):
+            for t in list(thresholds):
+                m = m[:, ::5, ::5]
+                a = a[:, ::5, ::5]
+                m[a > t] = next(it)
+        a = img[..., 0]
+        x, y, z = [_//3 for _ in a.shape]
+        it = iter(range(1, 10000))
+        for i in range(3):
+            for j in range(3):
+                for k in range(3):
+                    slices = (
+                        slice(i*x, (i+1)*x),
+                        slice(j*y, (j+1)*y),
+                        slice(k*z, (k+1)*z)
+                        )
+                    do(markers[slices], a[slices])
 
         # # Based on position.
         # pos = [x/2 for x in markers.shape]
@@ -155,8 +176,8 @@ def segment(img, markers):
     logging.info('...with markers: %s', array_info(markers))
     d = dict(
         # beta=10,  # Default is 130.
-        # mode='cg_mg',
-        mode=None,
+        mode='cg_mg',
+        # mode=None,
         multichannel=True,
         spacing=img.spacing,
         )
