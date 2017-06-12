@@ -235,6 +235,16 @@ def border(mask, out=None):
     return out
 
 
+def overlay_masks(masks, out):
+    """Overlay mask borders on image (for visualization)."""
+    colors = np.linspace(1, 0.5, len(masks))
+    for mask, color in zip(masks, colors):
+        for image_slit, mask_slit in zip(out, mask):
+            image_slit[border(mask_slit), ...] = color
+            # image_slit[mask_slit, ...] = color
+    return out
+
+
 def nregions(mask):
     """Return number of connected regions in mask."""
     _, n = measure.label(mask, return_num=True, connectivity=None)
