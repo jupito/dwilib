@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import dwi.files
+import dwi.mask
 import dwi.util
 
 
@@ -82,8 +83,11 @@ def main():
         noutside=np.count_nonzero(overlap == 2),
         )
     d['noutsider'] = d['noutside'] / d['nother']
+    d['nregc'] = dwi.mask.nregions(container)
+    d['nrego'] = dwi.mask.nregions(other)
     s = ('{container}, {other}: '
-         '{ncontainer}, {nother}, {noutside}, {noutsider:.2%}')
+         '{ncontainer}, {nother}, {noutside}, {noutsider:.2%}, '
+         '{nregc}/{nrego}')
     print(s.format(**d))
     if args.fig:
         write_figure(overlap, d, args.fig)
