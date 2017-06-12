@@ -5,6 +5,7 @@ try:
     from functools import lru_cache
 except ImportError:
     from backports.functools_lru_cache import lru_cache  # For Python2.
+import logging
 
 import numpy as np
 
@@ -19,7 +20,7 @@ import dwi.util
 
 class Dataset(object):
     def __init__(self, mode, samplelist, cases=None):
-        self.mode = dwi.util.ImageMode(mode)
+        self.mode = dwi.ImageMode(mode)
         self.samplelist = samplelist
         self.cases = cases
 
@@ -44,21 +45,27 @@ class Dataset(object):
                 yield case, scan, lesion
 
 
-@lru_cache(maxsize=16)
+# @lru_cache(maxsize=16)
 def read_prostate_mask(mode, case, scan):
     path = dwi.paths.mask_path(mode, 'prostate', case, scan)
-    return dwi.files.read_mask(path)
+    return dwi.image.Image.read_mask(path)
 
 
 def read_lesion_mask(mode, case, scan, lesion):
     path = dwi.paths.mask_path(mode, 'lesion', case, scan,
                                lesion=lesion.index+1)
-    return dwi.files.read_mask(path)
+    return dwi.image.Image.read_mask(path)
 
 
-@lru_cache(maxsize=16)
-def read_lesion_masks(mode, case, scan, lesions):
+# @lru_cache(maxsize=16)
+def read_lesion_masks(mode, case, scan, lesions, only_largest=False):
     masks = (read_lesion_mask(mode, case, scan, x) for x in lesions)
+    if only_largest:
+        # Use only the biggest lesion.
+        d = {np.count_nonzero(x): x for x in masks}
+        masks = [d[max(d.keys())]]
+        logging.warning([mode, case, scan, lesions, d.keys(),
+                         np.count_nonzero(masks[0])])
     return dwi.util.unify_masks(masks)
 
 
@@ -141,9 +148,9 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     return pmap, params, af.filename
 
 
-def read_tmap(mode, case, scan, tspec, masktype='prostate'):
+def read_tmap(mode, case, scan, tspec=None, masktype='prostate', **kwargs):
     """Read a texture map."""
-    method, winsize = tspec
+    method, winsize = tspec or ('raw', 1)
     path = dwi.paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
                                   method, winsize, voxel='all')
-    return dwi.image.Image.read(path)
+    return dwi.image.Image.read(path, **kwargs)
