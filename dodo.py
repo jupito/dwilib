@@ -34,11 +34,12 @@ MODES = [dwi.ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
 SAMPLELISTS = words(get_var('samplelist', 'all'))
 
 
-def texture_params():
+def texture_params(voxels=None):
     masktypes = ['lesion']
     slices = ['maxfirst', 'all']
     portion = [1, 0]
-    return product(masktypes, slices, portion)
+    voxels = iter(voxels or ['mean', 'median', 'all'])
+    return product(masktypes, slices, portion, voxels)
 
 
 def find_roi_param_combinations(mode, samplelist):
@@ -276,18 +277,16 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
 def task_texture():
     """Generate texture features."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for mt, slices, portion in texture_params():
+        for mt, slices, portion, voxel in texture_params():
             for c, s, l in lesions(mode, sl):
                 for tspec in texture_methods_winsizes(mode, mt):
                     yield get_task_texture(mode, mt, c, s, l, slices, portion,
-                                           tspec, 'mean')
-                    yield get_task_texture(mode, mt, c, s, l, slices, portion,
-                                           tspec, 'all')
+                                           tspec, voxel)
         mt = 'prostate'
         for c, s in cases_scans(mode, sl):
             for tspec in texture_methods_winsizes(mode, mt):
-                # yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
-                #                        tspec, 'all')
+                yield get_task_texture(mode, mt, c, s, None, 'maxfirst', 0,
+                                       tspec, 'all')
                 yield get_task_texture(mode, mt, c, s, None, 'all', 0, tspec,
                                        'all')
         mt = 'all'
@@ -300,16 +299,18 @@ def task_texture():
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
     for mode, sl in product(MODES, SAMPLELISTS):
-        for mt, slices, portion in texture_params():
+        for mt, slices, portion, voxel in texture_params(voxels=['mean',
+                                                                 'median']):
             for c, s, l in lesions(mode, sl):
                 infiles = [texture_path(mode, c, s, l, mt, slices, portion,
-                                        tspec[0], tspec[1]) for tspec in
-                           texture_methods_winsizes(mode, mt)]
-                outfile = texture_path(mode, c, s, l, mt+'_merged',
-                                       slices, portion, None, None)
+                                        tspec[0], tspec[1], voxel=voxel) for
+                           tspec in texture_methods_winsizes(mode, mt)]
+                outfile = texture_path(mode, c, s, l, mt+'_merged', slices,
+                                       portion, None, None, voxel=voxel)
                 cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
                 yield {
-                    'name': taskname(mode, c, s, l, mt, slices, portion),
+                    'name': taskname(mode, c, s, l, mt, slices, portion,
+                                     voxel),
                     'actions': folders(outfile) + [cmd],
                     'file_dep': infiles,
                     'targets': [outfile],
@@ -408,3 +409,20 @@ def task_grid():
             yield get_task_grid(mode, c, s, ls, mt, **d)
             for tspec in texture_methods_winsizes(mode, mt):
                 yield get_task_grid_texture(mode, c, s, ls, mt, tspec, **d)
+
+
+# def task_check_mask_overlap():
+#     """Check mask overlap."""
+#     for mode, sl in product(MODES, SAMPLELISTS):
+#         for c, s, l in lesions(mode, sl):
+#             container = mask_path(mode, 'prostate', c, s)
+#             other = mask_path(mode, 'lesion', c, s, l)
+#             d = dict(m=mode, c=c, s=s, l=l)
+#             fig = 'maskoverlap/{m[0]}/{c}-{s}-{l}.png'.format(**d)
+#             cmd = dwi.shell.check_mask_overlap(container, other, fig)
+#             yield {
+#                 'name': taskname(mode, c, s, l),
+#                 'actions': folders(fig) + [cmd],
+#                 'file_dep': [container, other],
+#                 'targets': [fig],
+#                 }
