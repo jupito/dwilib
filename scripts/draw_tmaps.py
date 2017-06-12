@@ -138,23 +138,27 @@ def read_histology(case):
     return image
 
 
-def rescale(image, factor, order=0):
-    """Rescale."""
-    from scipy.ndimage import interpolation
-    return interpolation.zoom(image, factor, order=order)
+# def rescale(image, factor, order=0):
+#     """Rescale."""
+#     from scipy.ndimage import interpolation
+#     return interpolation.zoom(image, factor, order=order)
 
 
-def rescale_as_float(image, factor):
-    """Convert to float, rescale, convert back. Special boolean handling."""
-    from scipy.ndimage import interpolation
-    typ = image.dtype
-    image = image.astype(np.float)
-    image = interpolation.zoom(image, factor)
-    if typ == np.bool:
-        image = dwi.util.asbool(image)
-    else:
-        image = image.astype(typ)
-    return image
+# def rescale_as_float(image, factor):
+#     """Convert to float, rescale, convert back. Special boolean handling."""
+#     from scipy.ndimage import interpolation
+#     typ = image.dtype
+#     image = image.astype(np.float)
+#     image = interpolation.zoom(image, factor)
+#     if typ == np.bool:
+#         image = dwi.util.asbool(image)
+#     else:
+#         image = image.astype(typ)
+#     return image
+
+
+rescale = dwi.util.zoom
+rescale_as_float = dwi.util.zoom_as_float
 
 
 def read(mode, case, scan, texture_spec):
