@@ -144,35 +144,26 @@ def get_texture_map(img, call, winsize, mask):
     return tmap, names
 
 
-def get_texture(img, method, winspec, mask):
-    """General texture map layer."""
-    avg = dwi.rcParams['texture.avg']
+def average_tmap(tmap, names, mask, mode):
+    """Average texture feature map if requested."""
+    assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
+    averagers = dict(all=None, mean=np.nanmean, median=np.nanmedian)
+    averager = averagers[dwi.rcParams['texture.avg']]
     dtype = dwi.rcParams['texture.dtype']
-    averagers = dict(mean=np.nanmean, median=np.nanmedian)
-    if avg:
-        if avg is True:
-            avg = 'mean'
-        averager = averagers[avg]
-    assert img.ndim == 3, img.ndim
-    if mask is not None:
-        assert mask.dtype == bool
-        assert img.shape == mask.shape, (img.shape, mask.shape)
-    call = METHODS[method]
-    if winspec == 'all':
-        assert method.endswith('_all')
-        tmap, names = get_texture_all(img, call, mask)
-        assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
-        if avg:
+    if averager:
+        if mode == 'normal':
+            # Take average of all selected voxels.
+            tmap = tmap[mask, :]
+            assert tmap.ndim == 2
+            tmap = averager(tmap, axis=0)
+            tmap.shape = 1, 1, 1, len(names)
+        elif mode == 'allsame':
             # It's all the same value.
             # Feeding np.nanmean whole image hogs too much memory, circumvent.
             tmap = np.array([averager(x) for x in np.rollaxis(tmap, -1)],
                             dtype=dtype)
             tmap.shape = 1, 1, 1, len(names)
-    elif winspec == 'mbb':
-        assert method.endswith('_mbb')
-        tmap, names = get_texture_mbb(img, call, mask)
-        assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
-        if avg:
+        elif mode == 'slicewise':
             # Take average of each slice; slice-wise they are the same value.
             # Feeding np.nanmean whole image hogs too much memory, circumvent.
             a = np.empty((len(tmap), len(names)), dtype=dtype)
@@ -181,14 +172,28 @@ def get_texture(img, method, winspec, mask):
             tmap = a
             tmap = averager(tmap, axis=0)
             tmap.shape = 1, 1, 1, len(names)
+        else:
+            raise ValueError('Invalid averaging mode: {}'.format(mode))
+    return tmap
+
+
+def get_texture(img, method, winspec, mask):
+    """General texture map layer."""
+    assert img.ndim == 3, img.ndim
+    if mask is not None:
+        assert mask.dtype == np.bool
+        assert img.shape == mask.shape, (img.shape, mask.shape)
+    call = METHODS[method]
+    if winspec == 'all':
+        assert method.endswith('_all')
+        tmap, names = get_texture_all(img, call, mask)
+        tmap = average_tmap(tmap, names, mask, 'allsame')
+    elif winspec == 'mbb':
+        assert method.endswith('_mbb')
+        tmap, names = get_texture_mbb(img, call, mask)
+        tmap = average_tmap(tmap, names, mask, 'slicewise')
     else:
         tmap, names = get_texture_map(img, call, int(winspec), mask)
-        assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
-        if avg:
-            # Take average of all selected voxels.
-            tmap = tmap[mask, :]
-            assert tmap.ndim == 2
-            tmap = averager(tmap, axis=0)
-            tmap.shape = 1, 1, 1, len(names)
+        tmap = average_tmap(tmap, names, mask, 'normal')
     names = ['{w}-{n}'.format(w=winspec, n=n) for n in names]
     return tmap, names
