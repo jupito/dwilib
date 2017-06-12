@@ -138,10 +138,8 @@ def main():
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
 
-    if args.voxel == 'all':
-        dwi.rcParams['texture.avg'] = False
-    else:
-        dwi.rcParams['texture.avg'] = args.voxel
+    dwi.rcParams['texture.avg'] = args.voxel
+    if dwi.rcParams['texture.avg'] != 'all':
         if args.mode.startswith('T2w') and args.method.startswith('gabor'):
             # These result arrays can get quite huge (if float64).
             dwi.rcParams['texture.path'] = args.output
