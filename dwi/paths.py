@@ -102,7 +102,9 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
         return pmap_path(mode, case, scan)
     d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
              portion=portion, mth=method, ws=winsize, ap_='_'.join(algparams),
-             vx=voxel, ext=('txt' if voxel == 'mean' else 'h5'))
+             vx=voxel, ext='txt')
+    if voxel == 'all':
+        d['ext'] = 'h5'
     path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if masktype == 'auto':
         path += '/{ap_}'
