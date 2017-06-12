@@ -10,6 +10,7 @@ import dwi.conf
 import dwi.files
 from dwi.files import Path
 import dwi.image
+import dwi.mask
 import dwi.util
 
 lambdas = dict(
@@ -39,6 +40,8 @@ lambdas = dict(
     median=lambda x: np.nanmedian(x),
     max=lambda x: np.nanmax(x),
     five=lambda x: shorten(dwi.util.fivenums(x)),
+
+    regs=lambda x: dwi.mask.nregions(x.squeeze()),
 
     errors=lambda x: len(x.info['attrs'].get('errors', ())),
     ce16=lambda x: cast_errors(x, np.float16),
