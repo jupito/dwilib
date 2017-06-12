@@ -25,6 +25,7 @@ import os.path
 import re
 
 import numpy as np
+from skimage import measure
 
 import dwi.dicomfile
 import dwi.files
@@ -232,3 +233,9 @@ def border(mask, out=None):
         if 0.3 < selected < 0.7:
             out[i] = True
     return out
+
+
+def nregions(mask):
+    """Return number of connected regions in mask."""
+    _, n = measure.label(mask, return_num=True, connectivity=None)
+    return n
