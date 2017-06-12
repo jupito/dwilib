@@ -1,5 +1,7 @@
 """Modifiable runtime configuration parameters."""
 
+# TODO: Always read configuration to a argparse.Namespace object.
+
 from __future__ import absolute_import, division, print_function
 import argparse
 import logging
@@ -12,26 +14,32 @@ log = logging.getLogger(__name__)
 
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
+    # 'cachedir': 'cache',
+    'cachedir': str(Path('~/.cache/dwilib').expanduser()),
+    'maxjobs': 0.9,
     'texture.methods': [
-        # 'raw',
+        'raw',
         'stats',
         # 'haralick',
         # 'moment',
         # 'haralick_mbb',
         'glcm',
         'glcm_mbb',
-        'lbp',
+        # 'lbp',
         # 'hog',
         'gabor',
         # 'haar',
         'hu',
         'zernike',
         # 'sobel',
+        'stats_mbb',
         'stats_all',
         ],
-    'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
     'texture.winsizes.small': (3, 16, 2),  # DWI.
-    'texture.avg': False,  # Boolean: average result texture map?
+    # 'texture.winsizes.small': (11, 12, 2),  # DWI.
+    'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
+    # 'texture.winsizes.large': (15, 36, 4),  # T2, T2w.
+    'texture.avg': 'mean',  # Average result texture map (all, mean, median)?
     'texture.path': None,  # Write result directly to disk, if string.
     'texture.dtype': 'float32',  # Output texture map type.
     'texture.glcm.names': ('contrast', 'dissimilarity', 'homogeneity',
@@ -109,6 +117,7 @@ class MyArgumentParser(argparse.ArgumentParser):
 
 
 def get_config_parser():
+    """Get configuration parser."""
     p = MyArgumentParser(add_help=False)
     p.add('-v', '--verbose', action='count', default=0,
           help='increase verbosity')
