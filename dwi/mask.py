@@ -230,7 +230,7 @@ def border(mask, out=None):
     winshape = [max(x//70, 3) for x in mask.shape]
     for i, win in dwi.util.sliding_window(mask, winshape):
         selected = np.count_nonzero(win) / win.size
-        if 0.3 < selected < 0.7:
+        if 0.3 < selected < 0.6:
             out[i] = True
     return out
 
