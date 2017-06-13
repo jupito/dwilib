@@ -203,13 +203,12 @@ def load_ascii(filename):
         if m:
             if m.group(1) == 'slice':
                 slc = int(m.group(2))
-        elif line[0] == '0' or line[0] == '1':
-            a = np.array(list(line), dtype=np.int)
+        elif line[0] in '01':
+            a = np.array(list(line), dtype=np.int8)
             arrays.append(a)
     if arrays:
         return Mask(slc, np.array(arrays))
-    else:
-        raise Exception('No mask found in %s' % filename)
+    raise Exception('No mask found in %s' % filename)
 
 
 def read_mask(path):
