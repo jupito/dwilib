@@ -37,15 +37,15 @@ class Mask(object):
 
     Variables
     ---------
-    slice : integer
+    slc : integer
         Slice index, one-based.
     array : ndarray, shape = [height, width], dtype = bool
         Two-dimensional array with selected voxels set to True.
     """
-    def __init__(self, slice, array):
-        if slice < 1:
-            raise ValueError('Invalid slice: {}'.format(slice))
-        self.slice = slice  # Slice number, one-based indexing
+    def __init__(self, slc, array):
+        if slc < 1:
+            raise ValueError('Invalid slice: {}'.format(slc))
+        self.slice = slc  # Slice number, one-based indexing
         self.array = array.astype(np.bool)  # 2D mask of one slice.
 
     def __repr__(self):
@@ -60,9 +60,9 @@ class Mask(object):
             coordinates = [i-1 for i in coordinates]  # One-based indexing.
         z0, z1, y0, y1, x0, x1 = coordinates
         assert z0 == z1-1, 'Multi-slice subwindow of single-slice mask.'
-        slice = self.slice - z0
+        slc = self.slice - z0
         array = self.array[y0:y1, x0:x1]
-        return Mask(slice, array)
+        return Mask(slc, array)
 
     def n_selected(self):
         """Return the number of selected voxels."""
@@ -72,8 +72,7 @@ class Mask(object):
         """Return selected voxels of an array as a flat array."""
         if array.ndim == self.array.ndim:
             return array[self.array]
-        else:
-            return array[self.slice-1, self.array]
+        return array[self.slice-1, self.array]
 
     def selected_slice(self, a):
         """Return the selected slice of an array."""
