@@ -197,18 +197,18 @@ class Mask3D(object):
 def load_ascii(filename):
     """Read a mask as an ASCII file."""
     p = re.compile(r'(\w+)\s*:\s*(.*)')
-    slice = 1
+    slc = 1
     arrays = []
     for line in dwi.files.valid_lines(filename):
         m = p.match(line)
         if m:
             if m.group(1) == 'slice':
-                slice = int(m.group(2))
+                slc = int(m.group(2))
         elif line[0] == '0' or line[0] == '1':
             a = np.array(list(line), dtype=np.int)
             arrays.append(a)
     if arrays:
-        return Mask(slice, np.array(arrays))
+        return Mask(slc, np.array(arrays))
     else:
         raise Exception('No mask found in %s' % filename)
 
