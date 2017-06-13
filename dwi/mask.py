@@ -217,8 +217,7 @@ def read_mask(path):
     """Read a mask."""
     if path.lower().endswith('.mask') and not os.path.isdir(path):
         return load_ascii(path)  # Old 2D ASCII mask.
-    else:
-        return Mask3D(dwi.files.read_mask(path))
+    return Mask3D(dwi.files.read_mask(path))
 
 
 def border(mask, out=None):
