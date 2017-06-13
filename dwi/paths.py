@@ -27,7 +27,7 @@ def pmap_path(mode, case=None, scan=None, fmt='dicom'):
         else:
             path = 'dicoms/{m[1]}_*'
         if case is not None and scan is not None:
-            if len(mode) == 1 and mode[0] == 'DWI':
+            if mode == 'DWI':
                 path += '/{c}_hB_{s}.zip'
             elif len(mode) == 1:
                 path += '/{c}_{s}*'
