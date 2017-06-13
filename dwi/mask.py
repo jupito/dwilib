@@ -233,14 +233,17 @@ def border(mask, out=None):
 
 
 def overlay_masks(masks, out=None):
-    """Overlay mask borders on image (for visualization)."""
+    """Overlay mask borders on image.
+
+    For visualization, draw like this on top of image:
+        plt.imshow(overlay[slice_ix], vmin=0, vmax=1, cmap='hot', alpha=0.7)
+    """
     colors = np.linspace(1, 0.5, len(masks))
     for mask, color in zip(masks, colors):
         if out is None:
             out = np.full_like(mask, np.nan, dtype=np.float32)
         for image_slit, mask_slit in zip(out, mask):
             image_slit[border(mask_slit), ...] = color
-            # image_slit[mask_slit, ...] = color
     return out
 
 
