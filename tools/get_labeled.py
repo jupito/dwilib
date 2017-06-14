@@ -12,7 +12,7 @@ import numpy as np
 import dwi.files
 import dwi.paths
 import dwi.patient
-import dwi.util
+from dwi.types import ImageMode
 
 LOGLEVEL = logging.INFO
 # LOGLEVEL = logging.DEBUG
@@ -20,7 +20,7 @@ LOGLEVEL = logging.INFO
 
 def main():
     modes = ['DWI-Mono-ADCm', 'DWI-Kurt-ADCk', 'DWI-Kurt-K']
-    modes = [dwi.util.ImageMode(x) for x in modes]
+    modes = [ImageMode(x) for x in modes]
     samplelist = 'bothscansonly'
     logging.basicConfig(level=LOGLEVEL)
     process_all(modes, samplelist)
