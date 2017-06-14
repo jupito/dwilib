@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from dwi.files import Path
+from dwi.types import Path, TextureSpec
 
 
 def samplelist_path(mode, samplelist):
@@ -96,21 +96,21 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
 def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
                  winsize, algparams=(), voxel='mean'):
     """Return path to texture file."""
-    # method, winsize = tspec or (None, None)
-    if method == 'raw':
+    tspec = TextureSpec(winsize, method, None)
+    if tspec.method == 'raw':
         # 'Raw' texture is actually just the source image.
         return pmap_path(mode, case, scan)
     d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
-             portion=portion, mth=method, ws=winsize, ap_='_'.join(algparams),
-             vx=voxel, ext='txt')
+             portion=portion, tspec=tspec, ap_='_'.join(algparams), vx=voxel,
+             ext='txt')
     if voxel == 'all':
         d['ext'] = 'h5'
     path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
     if masktype == 'auto':
         path += '/{ap_}'
     path += '/{c}_{s}_{l}'
-    if method is not None and winsize is not None:
-        path += '_{mth}-{ws}'
+    if tspec.method is not None and tspec.winsize is not None:
+        path += '_{tspec.method}-{tspec.winsize}'
     path += '.{ext}'
     return path.format(**d)
 
