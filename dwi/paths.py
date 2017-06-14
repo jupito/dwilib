@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from dwi.types import Path, TextureSpec
+from .types import Path, TextureSpec
 
 
 def samplelist_path(mode, samplelist):
