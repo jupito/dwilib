@@ -2,9 +2,9 @@
 
 from collections import namedtuple
 
-from dwi.files import Path, PurePath
-from dwi.patient import GleasonScore, Lesion, Patient
-from dwi.util import ImageMode
+from .files import Path, PurePath
+from .patient import GleasonScore, Lesion, Patient
+from .util import ImageMode
 
 
 TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
