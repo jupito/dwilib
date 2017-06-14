@@ -13,7 +13,7 @@ import dwi.files
 import dwi.mask
 import dwi.paths
 import dwi.plot
-from dwi.types import Path, TextureSpec
+from dwi.types import ImageMode, Path, TextureSpec
 import dwi.util
 
 
@@ -78,7 +78,7 @@ def get_lesion_mask(masks, slice_index=None):
 
 
 def read_lmask(mode, case, scan):
-    mode = dwi.ImageMode(mode)
+    mode = ImageMode(mode)
     paths = []
     try:
         for i in range(1, 4):
@@ -99,7 +99,7 @@ def read_lmask(mode, case, scan):
 
 
 def read_pmap(mode, case, scan, img_slice):
-    mode = dwi.ImageMode(mode)
+    mode = ImageMode(mode)
     path = dwi.paths.pmap_path(mode, case, scan)
     pmap, _ = dwi.files.read_pmap(path, ondisk=True, params=[0])
     pmap = pmap[img_slice, :, :, 0]
@@ -108,7 +108,7 @@ def read_pmap(mode, case, scan, img_slice):
 
 
 def read_tmap(mode, case, scan, img_slice, texture_spec):
-    mode = dwi.ImageMode(mode)
+    mode = ImageMode(mode)
     tmap = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
                                   texture_spec.method, texture_spec.winsize,
                                   voxel='all')
@@ -233,7 +233,7 @@ def plot(images, title, path):
 
 def cases_scans_lesions(mode, samplelist, thresholds=None):
     """Iterate (case_id, scan_id, lesions)."""
-    mode = dwi.ImageMode(mode)
+    mode = ImageMode(mode)
     path = dwi.paths.samplelist_path(mode, samplelist)
     patients = dwi.files.read_patients_file(path)
     dwi.patient.label_lesions(patients, thresholds=thresholds)
