@@ -15,7 +15,7 @@ import re
 import numpy as np
 import dicom
 
-from dwi.files import Path
+from .types import Path
 import dwi.util
 
 log = logging.getLogger(__name__)

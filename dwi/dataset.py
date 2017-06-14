@@ -12,7 +12,7 @@ import numpy as np
 import dwi.asciifile
 import dwi.image
 import dwi.files
-from dwi.files import Path
+from .types import Path
 import dwi.paths
 import dwi.patient
 import dwi.util
