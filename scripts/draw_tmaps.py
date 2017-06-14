@@ -6,7 +6,6 @@
 
 import argparse
 import logging
-import os.path
 
 import numpy as np
 
@@ -14,7 +13,7 @@ import dwi.files
 import dwi.mask
 import dwi.paths
 import dwi.plot
-from dwi.types import TextureSpec
+from dwi.types import Path, TextureSpec
 import dwi.util
 
 
@@ -280,7 +279,7 @@ def main():
                      tm=texture_spec.method, tf=texture_spec.feature)
             title = '{c}-{s} ({l})\n{m} {tm}({tf})-{tw:02}'.format(**d)
             filename = '{c:03}-{s}_{m}_{tm}({tf})-{tw:02}.png'.format(**d)
-            plot(images, title, os.path.join(args.outdir, filename))
+            plot(images, title, Path(args.outdir, filename))
 
 
 if __name__ == '__main__':
