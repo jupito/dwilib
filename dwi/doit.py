@@ -8,9 +8,9 @@ import logging
 from doit.tools import create_folder
 
 import dwi.files
-from .types import Path
-from dwi.paths import samplelist_path
 import dwi.util
+from .paths import samplelist_path
+from .types import Path
 
 
 # TODO: Obsolete. Use .types.TextureSpec instead.
