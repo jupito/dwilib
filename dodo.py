@@ -10,13 +10,11 @@ from doit import get_var
 from dwi.doit import (cases_scans, folders, lesions, taskname,
                       texture_methods_winsizes, words)
 import dwi.dataset
-import dwi.files
 from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
                        roi_path, std_cfg_path, texture_path, histogram_path,
                        grid_path)
-import dwi.patient
 import dwi.shell
-import dwi.util
+from dwi.types import ImageMode
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -28,7 +26,7 @@ DOIT_CONFIG = {
 
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
-MODES = [dwi.ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
+MODES = [ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
 
 # Sample lists (train, test, etc).
 SAMPLELISTS = words(get_var('samplelist', 'all'))
@@ -111,7 +109,7 @@ def task_standardize_transform():
     for case, scan in cases_scans(mode, sl):
         inpath = pmap_path(mode, case, scan)
         mask = mask_path(mode, 'prostate', case, scan)
-        outmode = dwi.ImageMode(tuple(mode) + ('std',))
+        outmode = ImageMode(tuple(mode) + ('std',))
         outpath = pmap_path(outmode, case, scan)
         cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
                                               mask=mask)
