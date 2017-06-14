@@ -98,4 +98,5 @@ def texture_winsizes(masktype, mode, method):
 def texture_methods_winsizes(mode, masktype):
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
+            # TODO: Use .type.TextureSpec instead (check arg order).
             yield TextureSpec((method, winsize))
