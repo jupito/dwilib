@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Plot histograms of images. Possible nans and infinities are ignored."""
 
@@ -82,10 +82,12 @@ def plot_histograms(Histograms, outfile, smooth=False):
                     maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
-            s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
-                                                  minmin, maxmax)
-            s = param + '; ' + s
-            pl.title(s)
+            # s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
+            #                                       minmin, maxmax)
+            # s = param + '; ' + s
+            s = '{p}; {l}; {r}; [{min:.5g}, {max:.5g}]'
+            d = dict(p=param, l=len(histograms), r=rng, min=minmin, max=maxmax)
+            pl.title(s.format(**d))
     # pl.tight_layout()
     logging.info('Plotting to %s...', outfile)
     pl.savefig(outfile, bbox_inches='tight')
@@ -102,9 +104,10 @@ def add_histograms(hists, path, img, param, ranges, verbose):
         logging.warning('Image contains negatives: %s', path)
     if verbose:
         s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
-        print(s.format(s=original_shape, t=img.dtype,
-                       fp=img.size/original_size, m=np.mean(img),
-                       fn=dwi.util.fivenums(img), param=param, p=path))
+        d = dict(s=original_shape, t=img.dtype, fp=img.size/original_size,
+                 m=np.mean(img), fn=dwi.util.fivenums(img), param=param,
+                 p=path))
+        print(s.format(**d))
     for rng in ranges:
         if isinstance(rng, list):
             incl = True
