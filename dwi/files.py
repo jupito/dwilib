@@ -19,6 +19,7 @@ except ImportError:
 import dwi.asciifile
 import dwi.dicomfile
 import dwi.hdf5
+# from .types import Path, PurePath
 
 log = logging.getLogger(__name__)
 COMMENT_PREFIX = '#'
@@ -181,7 +182,7 @@ def write_subregion_file(filename, win, comment=''):
 
 def guess_format(path):
     """Guess file format identifier from it's suffix."""
-    return Path(path).suffix[1:]
+    return PurePath(path).suffix[1:]
 
 
 def write_pmap(filename, pmap, attrs, fmt=None):
