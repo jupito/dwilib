@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 import shlex
 
-from dwi.files import Path
+from .types import Path
 
 DWILIB = Path.home() / 'src/dwilib/tools'  # Executable residency.
 

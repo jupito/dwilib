@@ -8,7 +8,7 @@ import logging
 from doit.tools import create_folder
 
 import dwi.files
-from dwi.files import Path
+from .types import Path
 from dwi.paths import samplelist_path
 import dwi.util
 
