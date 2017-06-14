@@ -283,6 +283,11 @@ def normalize(pmap, mode):
     mode = shortcuts.get(str(mode), mode)
     if mode == 'DWI':
         in_range = (100, 2500)
+    elif mode == 'DWI-b2000':
+        in_range = (0, 400)
+        # TODO: 5-1a has different scale, could handle in DICOM loader?
+        if pmap.max() < 100:
+            in_range = tuple(x/100 for x in in_range)
     elif mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
@@ -306,7 +311,7 @@ def normalize(pmap, mode):
         in_range = (0, 2000)
     else:
         raise ValueError('Invalid mode: {}'.format(mode))
-    # logging.info('Normalizing: %s, %s', mode, in_range)
+    logging.debug('Normalizing: %s, %s', mode, in_range)
     pmap = pmap.astype(np.float32, copy=False)
     pmap = np.nan_to_num(pmap)
     pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
