@@ -6,7 +6,6 @@
 
 from __future__ import absolute_import, division, print_function
 import argparse
-from collections import namedtuple
 import logging
 import os.path
 
@@ -16,6 +15,7 @@ import dwi.files
 import dwi.mask
 import dwi.paths
 import dwi.plot
+from dwi.types import TextureSpec
 import dwi.util
 
 
@@ -248,7 +248,6 @@ def main():
     logging.basicConfig()
     # logging.basicConfig(level=logging.INFO)
 
-    TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
     # thresholds = None
     # thresholds = ('3+3', '3+4')
     thresholds = ('3+3',)
