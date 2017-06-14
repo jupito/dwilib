@@ -13,6 +13,7 @@ from dwi.paths import samplelist_path
 import dwi.util
 
 
+# TODO: Obsolete. Use .types.TextureSpec instead.
 class TextureSpec(tuple):
     """Texture feature indentifier."""
     def __str__(self):
