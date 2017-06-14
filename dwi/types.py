@@ -3,7 +3,12 @@
 from collections import namedtuple
 from functools import total_ordering
 
-from .files import Path, PurePath
+# With older Python version, pathlib2 might be preferred.
+try:
+    from pathlib2 import Path, PurePath
+except ImportError:
+    from pathlib import Path, PurePath
+
 from .patient import GleasonScore, Lesion, Patient
 import dwi.util
 
