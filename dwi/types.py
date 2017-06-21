@@ -10,7 +10,7 @@ except ImportError:
     from pathlib import Path, PurePath
 
 from .patient import GleasonScore, Lesion, Patient
-import dwi.util
+from . import util
 
 
 @total_ordering
@@ -18,7 +18,7 @@ class ImageMode(object):
     """Image mode identifier."""
     def __init__(self, value, sep='-'):
         """Initialize with a string or a sequence."""
-        if dwi.util.isstring(value):
+        if util.isstring(value):
             value = value.split(sep)
         self.value = tuple(value)
         self.sep = sep
