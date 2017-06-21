@@ -48,7 +48,7 @@ class Image(np.ndarray):
     @classmethod
     def read_mask(cls, path, **kwargs):
         """Read a mask."""
-        return cls.read(path, params=[0], dtype=np.bool)[:, :, :, 0]
+        return cls.read(path, params=[0], dtype=np.bool, **kwargs)[:, :, :, 0]
 
     @property
     def params(self):
