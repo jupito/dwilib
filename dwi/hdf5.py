@@ -18,14 +18,6 @@ DEFAULT_DSETPARAMS = dict(
     )
 
 
-class Dataset(h5py.Dataset):
-    """Add some missing ndarray API to dataset."""
-    # TODO: Not needed anymore?
-    @property
-    def ndim(self):
-        return len(self.shape)
-
-
 def iterable(x):
     """Tell whether an object is iterable or not."""
     try:
@@ -66,7 +58,7 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
             raise ValueError('Ambiguous content: {}'.format(filename))
     dset = f[dsetname]
     if ondisk:
-        array = Dataset(dset.id)
+        array = dset
     else:
         array = np.array(dset)
     attrs = read_attrs(dset)
@@ -84,7 +76,7 @@ def create_hdf5(filename, shape, dtype, fillvalue=None,
     f = h5py.File(filename, 'w')
     dset = f.create_dataset(dsetname, shape, dtype=dtype, fillvalue=fillvalue,
                             **DEFAULT_DSETPARAMS)
-    return Dataset(dset.id)
+    return dset
 
 
 def write_attrs(dset, attrs):
