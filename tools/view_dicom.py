@@ -58,6 +58,7 @@ class Gui(object):
         self.label = label
         if masks:
             dwi.mask.overlay_masks(masks, self.image)
+        self.im = None
 
     def show(self):
         """Activate the GUI."""
