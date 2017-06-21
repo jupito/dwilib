@@ -98,16 +98,17 @@ class DefaultValueHelpFormatter(argparse.HelpFormatter):
         return '{} (default: {})'.format(s, repr(default))
 
 
-class MyArgumentParser(argparse.ArgumentParser):
-    """Custom ArgumentParser. Added `add` as a shortcut to `add_argument`; set
-    `fromfile_prefix_chars` by default; better `convert_arg_line_to_args()`;
-    added `parse_from_files()`.
+class FileArgumentParser(argparse.ArgumentParser):
+    """Custom ArgumentParser that is better for reading arguments from files.
+
+    Set `fromfile_prefix_chars` to `@` by default; better
+    `convert_arg_line_to_args()`; added `parse_from_files()`; added `add` as a
+    shortcut to `add_argument`.
     """
     add = argparse.ArgumentParser.add_argument
 
-    def __init__(self, **kwargs):
-        kwargs.setdefault('fromfile_prefix_chars', '@')
-        super().__init__(**kwargs)
+    def __init__(self, fromfile_prefix_chars='@', **kwargs):
+        super().__init__(fromfile_prefix_chars=fromfile_prefix_chars, **kwargs)
 
     def convert_arg_line_to_args(self, arg_line):
         """Fancier file reading."""
@@ -128,7 +129,7 @@ class MyArgumentParser(argparse.ArgumentParser):
 
 def get_config_parser():
     """Get configuration parser."""
-    p = MyArgumentParser(add_help=False)
+    p = FileArgumentParser(add_help=False)
     p.add('-v', '--verbose', action='count', default=0,
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
@@ -144,9 +145,8 @@ def get_config_parser():
 def get_parser(formatter_class=DefaultValueHelpFormatter, **kwargs):
     """Get an argument parser with the usual standard arguments ready."""
     parents = [get_config_parser()]
-    p = MyArgumentParser(parents=parents, formatter_class=formatter_class,
-                         **kwargs)
-    return p
+    return FileArgumentParser(parents=parents, formatter_class=formatter_class,
+                              **kwargs)
 
 
 def init_logging(args):
