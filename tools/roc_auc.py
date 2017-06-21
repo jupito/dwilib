@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 """Calculate ROC AUC for parametric maps vs. Gleason scores. Optionally compare
-AUCs and draw the ROC curves into a file."""
+AUCs and draw the ROC curves into a file.
+"""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import numpy as np
 
@@ -17,7 +17,7 @@ import dwi.util
 def parse_args():
     """Parse command-line arguments."""
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--verbose', '-v', action='count',
+    p.add_argument('-v', '--verbose', action='count',
                    help='be more verbose')
     p.add_argument('--patients', default='patients.txt',
                    help='patients file')
@@ -46,17 +46,18 @@ def parse_args():
 
 
 def main():
+    """Main."""
     args = parse_args()
     if args.normalvoxel is not None and args.voxel != 'all':
         raise ValueError('Argument --normalvoxel implies --voxel=all')
-    thresholds = [args.threshold]
 
     # Collect all parameters.
     X, Y = [], []
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.dataset.read_pmaps(args.patients, pmapdir, thresholds,
+        data = dwi.dataset.read_pmaps(args.patients, pmapdir,
+                                      thresholds=[args.threshold],
                                       voxel=args.voxel,
                                       multiroi=args.multilesion,
                                       dropok=args.dropok)
