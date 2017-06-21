@@ -10,17 +10,9 @@ import zipfile
 
 import numpy as np
 
-# TODO: Remove this in favor of .types.
-# With older Python version, pathlib2 might be preferred.
-try:
-    from pathlib2 import Path, PurePath
-except ImportError:
-    from pathlib import Path, PurePath
-
-import dwi.asciifile
-import dwi.dicomfile
-import dwi.hdf5
-# from .types import Path, PurePath
+from . import asciifile, dicomfile, hdf5, util
+from .types import Lesion, Patient
+from .types import Path, PurePath
 
 log = logging.getLogger(__name__)
 COMMENT_PREFIX = '#'
@@ -98,16 +90,16 @@ def parse_patient(line, include_lines=False):
     num = m.group('num')
     name = m.group('name')
     scans = sorted(m.group('scans').lower().split(','))
-    les = [dwi.Lesion(0, m.group('score'), 'xx')]
+    les = [Lesion(0, m.group('score'), 'xx')]
     if m.group('location'):
         # New-style, multi-lesion file.
         les = []
-        les.append(dwi.Lesion(0, m.group('score'), m.group('location')))
+        les.append(Lesion(0, m.group('score'), m.group('location')))
         if m.group('score2'):
-            les.append(dwi.Lesion(1, m.group('score2'), m.group('location2')))
+            les.append(Lesion(1, m.group('score2'), m.group('location2')))
         if m.group('score3'):
-            les.append(dwi.Lesion(2, m.group('score3'), m.group('location3')))
-    patient = dwi.Patient(num, name, scans, les)
+            les.append(Lesion(2, m.group('score3'), m.group('location3')))
+    patient = Patient(num, name, scans, les)
     if include_lines:
         patient.line = line
     return patient
@@ -199,15 +191,15 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         attrs['dtype'] = str(pmap.dtype)
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
-    assert all(dwi.util.isstring(x) for x in
+    assert all(util.isstring(x) for x in
                attrs['parameters']), attrs['parameters']
     if fmt is None:
         fmt = guess_format(filename)
     if fmt == 'h5':
-        dwi.hdf5.write_hdf5(filename, pmap, attrs)
+        hdf5.write_hdf5(filename, pmap, attrs)
     elif fmt == 'txt':
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
-        dwi.asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
+        asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
         raise Exception('Unknown format: {}'.format(fmt))
 
@@ -245,9 +237,9 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
     if fmt is None:
         fmt = guess_format(path)
     if fmt == 'h5':
-        pmap, attrs = dwi.hdf5.read_hdf5(path, ondisk=ondisk)
+        pmap, attrs = hdf5.read_hdf5(path, ondisk=ondisk)
     elif fmt == 'txt':
-        attrs, pmap = dwi.asciifile.read_ascii_file(path)
+        attrs, pmap = asciifile.read_ascii_file(path)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
     elif fmt == 'zip':
@@ -256,7 +248,7 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
                              dtype=dtype)
     else:
         # No extension, assume it's a DICOM directory.
-        d = dwi.dicomfile.read_dir(path)
+        d = dicomfile.read_dir(path)
         pmap = d.pop('image')
         attrs = dict(d)
     if 'parameters' not in attrs:
