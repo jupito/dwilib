@@ -7,9 +7,7 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 
-import dwi.files
-from .types import Path
-import dwi.util
+from . import files, util
 
 
 class Image(np.ndarray):
@@ -29,18 +27,18 @@ class Image(np.ndarray):
     #     """On the way into ufunc."""
     #     print('__array_prepare__', type(out), id(context))
     #     return np.ndarray.__array_prepare__(self, out, context)
-    #     # return super(Image, self).__array_prepare__(out, context)
+    #     # return super().__array_prepare__(out, context)
 
     # def __array_wrap__(self, out, context=None):
     #     """On the way out of ufunc."""
     #     print('__array_wrap__', type(out), id(context))
     #     return np.ndarray.__array_wrap__(self, out, context)
-    #     # return super(Image, self).__array_wrap__(out, context)
+    #     # return super().__array_wrap__(out, context)
 
     @classmethod
     def read(cls, path, **kwargs):
         """Read a pmap."""
-        img, attrs = dwi.files.read_pmap(str(path), **kwargs)
+        img, attrs = files.read_pmap(str(path), **kwargs)
         info = dict(path=path, attrs=attrs,
                     params=attrs.pop('parameters', None),
                     spacing=attrs.pop('voxel_spacing', None))
@@ -79,14 +77,14 @@ class Image(np.ndarray):
         Parameter pad can be a tuple of each dimension or a single number. It
         can contain infinity for maximum padding. Hint: try self[self.mbb()].
         """
-        return dwi.util.bbox(self, pad=pad)
+        return util.bbox(self, pad=pad)
 
     def centroid(self):
         """Calculate image centroid, i.e. center of mass, as a tuple of floats.
 
         NaN values are considered massless.
         """
-        return dwi.util.centroid(self)
+        return util.centroid(self)
 
     def apply_mask(self, mask, background=np.nan):
         """Apply mask by setting all the rest to nan."""
