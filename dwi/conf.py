@@ -7,8 +7,8 @@ import argparse
 import logging
 import shlex
 
-from dwi.files import Path
-import dwi.util
+from .types import Path
+from . import util
 
 log = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ def init_logging(args):
     if args.logfile is not None:
         d['filename'] = str(args.logfile)
     if args.loglevel is not None:
-        d['level'] = dwi.util.get_loglevel(args.loglevel)
+        d['level'] = util.get_loglevel(args.loglevel)
     logging.basicConfig(**d)
 
 
@@ -155,7 +155,7 @@ def parse_args(parser=None):
 
     if parser is not None:
         parser.parse_args(namespace=namespace)
-    dwi.conf.init_logging(namespace)
+    init_logging(namespace)
     # log.debug('Parsed args: %s', namespace)
     it = ('\n{i}{k}: {v}'.format(i=' '*4, k=k, v=v) for k, v in
           sorted(vars(namespace).items()))
