@@ -5,7 +5,6 @@ GUI."""
 
 # TODO Rename to general image viewer, not just dicom.
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import logging
 import sys
@@ -49,7 +48,7 @@ class Gui(object):
         assert image.dtype in (np.bool, np.float32, np.float64), image.dtype
         self.image = image
         self.params = params
-        self.max_param_length = max(len(_) for _ in params)
+        self.max_param_length = max(len(x) for x in params)
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.is_reverse_cmap = False
@@ -90,7 +89,7 @@ class Gui(object):
     def on_click(self, event):
         """Handle mouse click."""
         if event.button == 1:
-            self.update = [not _ for _ in self.update]
+            self.update = [not x for x in self.update]
 
     def on_motion(self, event):
         """Handle mouse move."""
