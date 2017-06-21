@@ -99,9 +99,9 @@ class MyArgumentParser(argparse.ArgumentParser):
         kwargs.setdefault('fromfile_prefix_chars', '@')
         super().__init__(**kwargs)
 
-    def convert_arg_line_to_args(self, line):
+    def convert_arg_line_to_args(self, arg_line):
         """Fancier file reading."""
-        return shlex.split(line, comments=True)
+        return shlex.split(arg_line, comments=True)
 
     def parse_from_files(self, paths):
         """Parse known arguments from files."""
