@@ -84,7 +84,11 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     """Read pmaps labeled by their Gleason score.
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
-    of score if no thresholds provided."""
+    of score if no thresholds provided.
+
+    XXX: Obsolete code, used still by tools/roc_auc.py and
+    tools/correlation.py.
+    """
     # TODO: Support for selecting measurements over scan pairs
     patients = dwi.files.read_patients_file(patients_file)
     dwi.patient.label_lesions(patients, thresholds=thresholds)
@@ -118,7 +122,7 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
 
 
 def read_pmap(dirname, case, scan, roi=None, voxel='all'):
-    """Read single pmap."""
+    """Read single pmap. XXX: Obsolete code."""
     d = dict(c=case, s=scan, r=roi)
     if roi is None:
         s = '{c}_*{s}*.txt'
