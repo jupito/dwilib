@@ -156,8 +156,15 @@ def parse_args(parser=None):
     if parser is not None:
         parser.parse_args(namespace=namespace)
     init_logging(namespace)
-    # log.debug('Parsed args: %s', namespace)
-    it = ('\n{i}{k}: {v}'.format(i=' '*4, k=k, v=v) for k, v in
+
+    # TODO: Under construction.
+    for k, v in vars(namespace).items():
+        k = k.translate(str.maketrans('_', '.'))  # Change '_' to '.'
+        rcParams[k] = v
+
+    log.debug('Parsed args: %s', namespace)
+    it = ('\n\t{k}: {v}'.format(k=k, v=v) for k, v in
           sorted(vars(namespace).items()))
-    log.debug('Parsed config: %s', ''.join(it))
+    log.debug('Parsed config: ...%s', ''.join(it))
+
     return namespace
