@@ -10,6 +10,7 @@ import zipfile
 
 import numpy as np
 
+# TODO: Remove this in favor of .types.
 # With older Python version, pathlib2 might be preferred.
 try:
     from pathlib2 import Path, PurePath
