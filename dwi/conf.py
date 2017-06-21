@@ -88,6 +88,16 @@ def expanded_path(*args, **kwargs):
     return Path(*args, **kwargs).expanduser()
 
 
+class DefaultValueHelpFormatter(argparse.HelpFormatter):
+    """A formatter that appends possible default value to argument helptext."""
+    def _expand_help(self, action):
+        s = super()._expand_help(action)
+        default = getattr(action, 'default', None)
+        if default is None or default in [False, argparse.SUPPRESS]:
+            return s
+        return '{} (default: {})'.format(s, repr(default))
+
+
 class MyArgumentParser(argparse.ArgumentParser):
     """Custom ArgumentParser. Added `add` as a shortcut to `add_argument`; set
     `fromfile_prefix_chars` by default; better `convert_arg_line_to_args()`;
@@ -131,10 +141,11 @@ def get_config_parser():
     return p
 
 
-def get_parser(**kwargs):
+def get_parser(formatter_class=DefaultValueHelpFormatter, **kwargs):
     """Get an argument parser with the usual standard arguments ready."""
     parents = [get_config_parser()]
-    p = MyArgumentParser(parents=parents, **kwargs)
+    p = MyArgumentParser(parents=parents, formatter_class=formatter_class,
+                         **kwargs)
     return p
 
 
