@@ -23,15 +23,15 @@ import dwi.util
 
 class Gui(object):
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
-    cmaps = sorted([
+    cmaps = [
+        'viridis',
         'Blues_r',
         'YlGnBu_r',
         'bone',
         'coolwarm',
         'gray',
         'jet',
-        'viridis',
-        ])
+        ]
     usage = '''Usage:
     Horizontal mouse move: change slice (if enabled)
     Vertical mouse move: change parameter (if enabled)
