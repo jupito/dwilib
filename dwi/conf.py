@@ -97,7 +97,7 @@ class MyArgumentParser(argparse.ArgumentParser):
 
     def __init__(self, **kwargs):
         kwargs.setdefault('fromfile_prefix_chars', '@')
-        super(self.__class__, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def convert_arg_line_to_args(self, line):
         """Fancier file reading."""
@@ -113,7 +113,7 @@ class MyArgumentParser(argparse.ArgumentParser):
     # def error(self, message):
     #     if self.raise_on_error:
     #         raise ValueError(message)
-    #     super(self.__class__, self).error(message)
+    #     super().error(message)
 
 
 def get_config_parser():
