@@ -74,6 +74,7 @@ class Gui(object):
         plt.show()
 
     def on_key(self, event):
+        """Handle keypress."""
         if event.key == 'q':
             plt.close()
         if event.key == 'h':
@@ -87,10 +88,12 @@ class Gui(object):
         self.redraw(event)
 
     def on_click(self, event):
+        """Handle mouse click."""
         if event.button == 1:
             self.update = [not _ for _ in self.update]
 
     def on_motion(self, event):
+        """Handle mouse move."""
         h, w = self.im.get_size()
         if self.update[0] and event.xdata:
             relx = event.xdata / w
@@ -101,6 +104,7 @@ class Gui(object):
         self.redraw(event)
 
     def redraw(self, event):
+        """Redraw window."""
         slc, param = self.pos
         if event.xdata and event.ydata:
             row = int(event.ydata)
@@ -121,12 +125,14 @@ class Gui(object):
         plt.title(title, fontsize='large')
 
     def toggle_reverse_cmap(self):
+        """Reverse colormap."""
         name = plt.get_cmap().name
         name = dwi.plot.reverse_cmap(name)
         plt.set_cmap(name)
         self.is_reverse_cmap = not self.is_reverse_cmap
 
     def set_cmap(self, i):
+        """Set colormap."""
         if 0 <= i < len(self.cmaps):
             name = self.cmaps[i]
             if self.is_reverse_cmap:
@@ -222,6 +228,7 @@ def zoom(img, masks):
 
 
 def main():
+    """Main."""
     args = parse_args()
     img, attrs = dwi.files.read_pmap(args.path, ondisk=True,
                                      params=args.params)
