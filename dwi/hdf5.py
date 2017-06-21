@@ -26,6 +26,16 @@ class Dataset(h5py.Dataset):
         return len(self.shape)
 
 
+def iterable(x):
+    """Tell whether an object is iterable or not."""
+    try:
+        iter(x)
+    except TypeError:
+        return False
+    else:
+        return True
+
+
 def write_hdf5(filename, array, attrs, fillvalue=None,
                dsetname=DEFAULT_DSETNAME):
     """Write an array with attributes into a newly created, compressed HDF5
@@ -100,7 +110,7 @@ def convert_value_write(v):
         if dwi.util.isstring(x):
             return x.encode()
         return x
-    if dwi.util.iterable(v) and not dwi.util.isstring(v):
+    if iterable(v) and not dwi.util.isstring(v):
         v = [convert_item(x) for x in v]
     return v
 

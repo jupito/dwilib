@@ -22,16 +22,6 @@ def get_loglevel(name):
         raise ValueError('Invalid log level: {}'.format(name))
 
 
-def iterable(x):
-    """Tell whether an object is iterable or not."""
-    try:
-        iter(x)
-    except TypeError:
-        return False
-    else:
-        return True
-
-
 def isstring(x):
     """Check for string-ness."""
     try:
