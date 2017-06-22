@@ -13,10 +13,16 @@ from . import util
 
 log = logging.getLogger(__name__)
 
+
+def expanded_path(*args, **kwargs):
+    """Automatically expanded Path. Useful as an argparse type from file."""
+    return Path(*args, **kwargs).expanduser()
+
+
 # Default runtime configuration parameters. Somewhat similar to matplotlib.
 rcParamsDefault = {
     # 'cachedir': 'cache',
-    'cachedir': str(Path('~/.cache/dwilib').expanduser()),
+    'cachedir': str(expanded_path('~/.cache/dwilib')),
     'maxjobs': 0.9,
     'texture.methods': [
         'raw',
@@ -67,10 +73,8 @@ def rcdefaults():
 def get_config_paths():
     """Return existing default configuration files."""
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
-    # # Py3.4 pathlib has no expanduser().
-    # dirnames = [os.path.expanduser(x) for x in dirnames]
     filename = 'dwilib.cfg'
-    paths = [Path(x).expanduser() / filename for x in dirnames]
+    paths = [expanded_path(x) / filename for x in dirnames]
     paths = [x for x in paths if x.exists()]
     return paths
 
@@ -82,11 +86,6 @@ def parse_config(parser):
     # namespace, _ = parser.parse_known_args(args)
     namespace, _ = parser.parse_from_files(get_config_paths())
     return namespace
-
-
-def expanded_path(*args, **kwargs):
-    """Automatically expanded Path. Useful as an argparse type from file."""
-    return Path(*args, **kwargs).expanduser()
 
 
 class DefaultValueHelpFormatter(argparse.HelpFormatter):
