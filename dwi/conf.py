@@ -171,9 +171,6 @@ def parse_args(parser=None):
     config_parser = get_config_parser()
     namespace = parse_config(config_parser)
 
-    if namespace.texture_methods is not None:
-        rcParams['texture.methods'] = namespace.texture_methods
-
     if parser is not None:
         parser.parse_args(namespace=namespace)
     init_logging(namespace)
