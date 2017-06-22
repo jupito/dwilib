@@ -7,10 +7,10 @@ import logging
 
 from doit.tools import create_folder
 
-import dwi.files
-import dwi.util
 from .paths import samplelist_path
 from .types import Path
+from . import files, util
+from . import rcParams
 
 
 # TODO: Obsolete. Use .types.TextureSpec instead.
@@ -22,14 +22,14 @@ class TextureSpec(tuple):
 
 def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
-    maxjobs = dwi.rcParams['maxjobs']
+    maxjobs = rcParams['maxjobs']
     try:
         if maxjobs < 0:
             # Joblib-type negative count: -1 => all, -2 => all but one, etc.
-            n = dwi.util.cpu_count() + maxjobs + 1
+            n = util.cpu_count() + maxjobs + 1
         elif maxjobs < 1:
             # Portion of CPU count.
-            n = dwi.util.cpu_count() * maxjobs
+            n = util.cpu_count() * maxjobs
         else:
             # Absolute number.
             n = maxjobs
@@ -58,7 +58,7 @@ def folders(*paths):
 
 def cases_scans(mode, samplelist):
     """Generate all case, scan pairs."""
-    samples = dwi.files.read_sample_list(samplelist_path(mode, samplelist))
+    samples = files.read_sample_list(samplelist_path(mode, samplelist))
     for sample in samples:
         case = sample['case']
         for scan in sample['scans']:
@@ -67,7 +67,7 @@ def cases_scans(mode, samplelist):
 
 def lesions(mode, samplelist):
     """Generate all case, scan, lesion# (1-based) combinations."""
-    patients = dwi.files.read_patients_file(samplelist_path(mode, samplelist))
+    patients = files.read_patients_file(samplelist_path(mode, samplelist))
     for p in patients:
         for scan in p.scans:
             for i, _ in enumerate(p.lesions):
@@ -75,7 +75,7 @@ def lesions(mode, samplelist):
 
 
 def texture_methods():
-    return dwi.rcParams['texture.methods']
+    return rcParams['texture.methods']
 
 
 def texture_winsizes(masktype, mode, method):
@@ -90,9 +90,9 @@ def texture_winsizes(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode[0] in ('T2', 'T2w'):
-        return range(*dwi.rcParams['texture.winsizes.large'])
+        return range(*rcParams['texture.winsizes.large'])
     else:
-        return range(*dwi.rcParams['texture.winsizes.small'])
+        return range(*rcParams['texture.winsizes.small'])
 
 
 def texture_methods_winsizes(mode, masktype):
