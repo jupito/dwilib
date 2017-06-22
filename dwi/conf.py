@@ -159,6 +159,12 @@ def init_logging(args):
     logging.basicConfig(**d)
 
 
+def args_as_rc(namespace):
+    """Convert argument namespace to rcParams."""
+    table = str.maketrans('_', '.')  # Change '_' to '.'
+    return {k.translate(table): v for k, v in vars(namespace).items()}
+
+
 def parse_args(parser=None):
     """Parse args and configuration as well."""
     config_parser = get_config_parser()
@@ -172,9 +178,7 @@ def parse_args(parser=None):
     init_logging(namespace)
 
     # TODO: Under construction.
-    for k, v in vars(namespace).items():
-        k = k.translate(str.maketrans('_', '.'))  # Change '_' to '.'
-        rcParams[k] = v
+    rcParams.update(args_as_rc(namespace))
 
     log.debug('Parsed args: %s', namespace)
     it = ('\n\t{k}: {v}'.format(k=k, v=v) for k, v in
