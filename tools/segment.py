@@ -3,30 +3,26 @@
 """Prostate segementation."""
 
 import logging
-from pathlib import Path
 
 import numpy as np
 from scipy import ndimage
-import skimage.segmentation
-import skimage.filters
-import sklearn.preprocessing
+from skimage import filters, segmentation
+from sklearn import preprocessing
 
 import dwi.conf
-import dwi.dataset
 import dwi.files
 import dwi.image
 import dwi.mask
 import dwi.plot
 import dwi.util
+from dwi import ImageMode, Path
 
 
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
-    p.add('-m', '--modes', nargs='*', type=dwi.ImageMode, default=['DWI'],
+    p.add('-m', '--modes', nargs='*', type=ImageMode, default=['DWI'],
           help='imaging modes')
-    p.add('-s', '--samplelist', default='all',
-          help='samplelist identifier')
     p.add('-c', '--cases', nargs='*', type=int,
           help='cases to include, if not all')
     p.add('-i', '--image', type=Path,  # required=True,
@@ -64,9 +60,9 @@ def normalize(img):
     original_shape = img.shape
     img = img.reshape((-1, img.shape[-1]))
 
-    img = sklearn.preprocessing.minmax_scale(img)
-    # img = sklearn.preprocessing.scale(img)
-    # img = sklearn.preprocessing.robust_scale(img)
+    img = preprocessing.minmax_scale(img)
+    # img = preprocessing.scale(img)
+    # img = preprocessing.robust_scale(img)
 
     img = img.reshape(original_shape)
     img = dwi.image.Image(img, info=info)
@@ -95,8 +91,7 @@ def rescale(img, mask, factor):
 
 def smoothen(img):
     """Smoothen image."""
-    img = skimage.filters.gaussian(img, 1, multichannel=False)
-    return img
+    return filters.gaussian(img, 1, multichannel=False)
 
 
 def label_groups(a, thresholds):
@@ -181,7 +176,7 @@ def segment(img, markers):
         multichannel=True,
         spacing=img.spacing,
         )
-    labels = skimage.segmentation.random_walker(img, markers, **d)
+    labels = segmentation.random_walker(img, markers, **d)
     return labels
 
 
