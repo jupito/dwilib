@@ -1,35 +1,32 @@
 """Dataset handling."""
 
 from __future__ import absolute_import, division, print_function
-try:
-    from functools import lru_cache
-except ImportError:
-    from backports.functools_lru_cache import lru_cache  # For Python2.
+# try:
+#     from functools import lru_cache
+# except ImportError:
+#     from backports.functools_lru_cache import lru_cache  # For Python2.
 import logging
 
 import numpy as np
 
-import dwi.asciifile
-import dwi.image
-import dwi.files
-from .types import Path
-import dwi.paths
-import dwi.patient
-import dwi.util
+from .types import ImageMode, Path
+from . import asciifile, image, files, paths, patient, util
 
 
 class Dataset(object):
+    """Dataset class for easier access to patients with images."""
     def __init__(self, mode, samplelist, cases=None):
-        self.mode = dwi.ImageMode(mode)
+        self.mode = ImageMode(mode)
         self.samplelist = samplelist
         self.cases = cases
 
     @property
     def samplelist_path(self):
-        return dwi.paths.samplelist_path(self.mode, self.samplelist)
+        return paths.samplelist_path(self.mode, self.samplelist)
 
     def each_patient(self):
-        patients = dwi.files.read_patients_file(self.samplelist_path)
+        """Generate patients."""
+        patients = files.read_patients_file(self.samplelist_path)
         for p in patients:
             if self.cases is None or p.num in self.cases:
                 yield p
@@ -40,6 +37,7 @@ class Dataset(object):
                 yield p.num, s, p.lesions
 
     def each_lesion(self):
+        """Generate lesions."""
         for case, scan, lesions in self.each_image_id():
             for lesion in lesions:
                 yield case, scan, lesion
@@ -47,18 +45,20 @@ class Dataset(object):
 
 # @lru_cache(maxsize=16)
 def read_prostate_mask(mode, case, scan):
-    path = dwi.paths.mask_path(mode, 'prostate', case, scan)
-    return dwi.image.Image.read_mask(path)
+    """Read prostate mask."""
+    path = paths.mask_path(mode, 'prostate', case, scan)
+    return image.Image.read_mask(path)
 
 
 def read_lesion_mask(mode, case, scan, lesion):
-    path = dwi.paths.mask_path(mode, 'lesion', case, scan,
-                               lesion=lesion.index+1)
-    return dwi.image.Image.read_mask(path)
+    """Read lesion mask."""
+    path = paths.mask_path(mode, 'lesion', case, scan, lesion=lesion.index+1)
+    return image.Image.read_mask(path)
 
 
 # @lru_cache(maxsize=16)
 def read_lesion_masks(mode, case, scan, lesions, only_largest=False):
+    """Read and combine multiple lesion masks (for same scan)."""
     masks = (read_lesion_mask(mode, case, scan, x) for x in lesions)
     if only_largest:
         # Use only the biggest lesion.
@@ -66,13 +66,13 @@ def read_lesion_masks(mode, case, scan, lesions, only_largest=False):
         masks = [d[max(d.keys())]]
         logging.warning([mode, case, scan, lesions, d.keys(),
                          np.count_nonzero(masks[0])])
-    return dwi.util.unify_masks(masks)
+    return util.unify_masks(masks)
 
 
 def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
-    if dwi.util.isstring(patients):
-        patients = dwi.files.read_patients_file(patients)
+    if util.isstring(patients):
+        patients = files.read_patients_file(patients)
     for p in patients:
         for s in p.scans:
             for l in p.lesions:
@@ -90,23 +90,23 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     tools/correlation.py.
     """
     # TODO: Support for selecting measurements over scan pairs
-    patients = dwi.files.read_patients_file(patients_file)
-    dwi.patient.label_lesions(patients, thresholds=thresholds)
+    patients = files.read_patients_file(patients_file)
+    patient.label_lesions(patients, thresholds=thresholds)
     data = []
-    for patient, scan, lesion in iterlesions(patients):
+    for pat, scan, lesion in iterlesions(patients):
         if not multiroi and lesion.index != 0:
             continue
         if location is not None and lesion.location != location:
             continue
-        case = patient.num
+        case = pat.num
         roi = lesion.index if multiroi else None
         try:
             pmap, params, pathname = read_pmap(pmapdir, case, scan, roi=roi,
                                                voxel=voxel)
         except IOError:
             if dropok:
-                print('Cannot read pmap for {}, dropping...'.format(
-                    (case, scan, roi)))
+                logging.warning('Cannot read pmap for %s, dropping...',
+                                (case, scan, roi))
                 continue
             else:
                 raise
@@ -130,7 +130,7 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
         d['r'] += 1
         s = '{c}_*{s}_{r}*.txt'
     path, = Path(dirname).glob(s.format(**d))
-    af = dwi.asciifile.AsciiFile(path)
+    af = asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
     if pmap.shape[-1] != len(params):
@@ -155,6 +155,6 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
 def read_tmap(mode, case, scan, tspec=None, masktype='prostate', **kwargs):
     """Read a texture map."""
     method, winsize = tspec or ('raw', 1)
-    path = dwi.paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
-                                  method, winsize, voxel='all')
-    return dwi.image.Image.read(path, **kwargs)
+    path = paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
+                              method, winsize, voxel='all')
+    return image.Image.read(path, **kwargs)
