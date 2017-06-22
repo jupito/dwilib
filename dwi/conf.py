@@ -5,6 +5,7 @@
 from __future__ import absolute_import, division, print_function
 import argparse
 import logging
+from pprint import pformat
 import shlex
 
 from .types import Path
@@ -180,9 +181,7 @@ def parse_args(parser=None):
     # TODO: Under construction.
     rcParams.update(args_as_rc(namespace))
 
-    log.debug('Parsed args: %s', namespace)
-    it = ('\n\t{k}: {v}'.format(k=k, v=v) for k, v in
-          sorted(vars(namespace).items()))
-    log.debug('Parsed config: ...%s', ''.join(it))
+    log.debug('Parsed args: %s', pformat(vars(namespace)))
+    log.debug('Parsed config: %s', pformat(rcParams))
 
     return namespace
