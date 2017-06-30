@@ -6,7 +6,6 @@ First index all filenames by slice position, then one-by-one open them again
 and and set the non-selected voxel to zero according to the mask slice.
 """
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import collections
 import os
@@ -26,8 +25,7 @@ def parse_args():
                    help='input DICOM image directory')
     p.add_argument('--mask', '-m', metavar='MASK', required=True,
                    help='mask path')
-    args = p.parse_args()
-    return args
+    return p.parse_args()
 
 
 def get_slices(dirname):
@@ -70,6 +68,7 @@ def mask_out_slice(mask_slice, pathname):
 
 
 def main():
+    """Main."""
     args = parse_args()
     mask = dwi.mask.read_mask(args.mask)
     slices = get_slices(args.image)
