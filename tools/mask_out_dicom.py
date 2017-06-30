@@ -21,9 +21,9 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('--image', '-i', metavar='IMAGE', required=True,
-                   help='input DICOM image directory')
-    p.add_argument('--mask', '-m', metavar='MASK', required=True,
+    p.add_argument('-i', '--image', required=True,
+                   help='input DICOM image directory (will be overwritten!)')
+    p.add_argument('-m', '--mask', required=True,
                    help='mask path')
     return p.parse_args()
 
@@ -31,7 +31,8 @@ def parse_args():
 def get_slices(dirname):
     """Return filename lists indexed by slice position.
 
-    E.g. slices[4] in result contains a list of filenames for the 5th slice."""
+    E.g. slices[4] in result contains a list of filenames for the 5th slice.
+    """
     filenames = os.listdir(dirname)
     pathnames = [os.path.join(dirname, f) for f in filenames]
     orientation = None
