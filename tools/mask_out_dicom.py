@@ -36,6 +36,8 @@ def get_slices(dirname):
     E.g. slices[4] in result contains a list of filenames for the 5th slice.
     """
     filenames = os.listdir(dirname)
+    # if 'DICOM' in filenames:
+    #     return get_slices(os.path.join(dirname, 'DICOM'))
     pathnames = [os.path.join(dirname, f) for f in filenames]
     orientation = None
     shape = None
@@ -73,6 +75,7 @@ def mask_out_slice(mask_slice, pathname):
 def main():
     """Main."""
     args = parse_args()
+    print(args.image, args.mask)
     mask = dwi.mask.read_mask(args.mask)
     slices = get_slices(args.image)
 
