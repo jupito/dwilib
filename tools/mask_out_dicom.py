@@ -6,6 +6,8 @@ First index all filenames by slice position, then one-by-one open them again
 and and set the non-selected voxel to zero according to the mask slice.
 """
 
+# NOTE: This tool uses pydicom directly, not through dwi.dicomfile.
+
 import argparse
 import collections
 import os
