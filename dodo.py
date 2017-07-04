@@ -293,6 +293,11 @@ def task_texture():
             for tspec in texture_methods_winsizes(mode, mt):
                 yield get_task_texture(mode, mt, c, s, None, 'all', 0, tspec,
                                        'all')
+        for mt in ['CA', 'N']:
+            for c, s in cases_scans(mode, sl):
+                for tspec in texture_methods_winsizes(mode, mt):
+                    yield get_task_texture(mode, mt, c, s, None, 'all', 0,
+                                           tspec, 'median')
 
 
 def task_merge_textures():
