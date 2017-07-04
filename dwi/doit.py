@@ -75,10 +75,12 @@ def lesions(mode, samplelist):
 
 
 def texture_methods():
+    """Return texture methods."""
     return rcParams['texture.methods']
 
 
 def texture_winsizes(masktype, mode, method):
+    """Iterate texture window sizes."""
     if method == 'raw':
         return [1]
     elif method.endswith('_all'):
@@ -96,6 +98,7 @@ def texture_winsizes(masktype, mode, method):
 
 
 def texture_methods_winsizes(mode, masktype):
+    """Generate texture method, window size combinations."""
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
             # TODO: Use .type.TextureSpec instead (check arg order).
