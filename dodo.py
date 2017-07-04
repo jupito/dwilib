@@ -33,6 +33,7 @@ SAMPLELISTS = words(get_var('samplelist', 'all'))
 
 
 def texture_params(voxels=None):
+    """Iterate texture parameter combinations."""
     masktypes = ['lesion']
     slices = ['maxfirst', 'all']
     portion = [1, 0]
@@ -316,6 +317,7 @@ def task_merge_textures():
 
 
 def get_task_histogram(mode, masktype, samplelist):
+    """Plot image histograms."""
     if masktype == 'lesion':
         it = lesions(mode, samplelist)
     else:
