@@ -300,25 +300,36 @@ def task_texture():
                                            tspec, 'median')
 
 
+def get_task_merge_textures(mode, mt, c, s, l, slices, portion, voxel):
+    """Merge texture methods into singe file per case/scan/lesion."""
+    infiles = [texture_path(mode, c, s, l, mt, slices, portion, tspec[0],
+                            tspec[1], voxel=voxel) for tspec in
+               texture_methods_winsizes(mode, mt)]
+    outfile = texture_path(mode, c, s, l, mt+'_merged', slices, portion, None,
+                           None, voxel=voxel)
+    cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
+    return {
+        'name': taskname(mode, c, s, l, mt, slices, portion,
+                         voxel),
+        'actions': folders(outfile) + [cmd],
+        'file_dep': infiles,
+        'targets': [outfile],
+        }
+
+
 def task_merge_textures():
     """Merge texture methods into singe file per case/scan/lesion."""
     for mode, sl in product(MODES, SAMPLELISTS):
         for mt, slices, portion, voxel in texture_params(voxels=['mean',
                                                                  'median']):
             for c, s, l in lesions(mode, sl):
-                infiles = [texture_path(mode, c, s, l, mt, slices, portion,
-                                        tspec[0], tspec[1], voxel=voxel) for
-                           tspec in texture_methods_winsizes(mode, mt)]
-                outfile = texture_path(mode, c, s, l, mt+'_merged', slices,
-                                       portion, None, None, voxel=voxel)
-                cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
-                yield {
-                    'name': taskname(mode, c, s, l, mt, slices, portion,
-                                     voxel),
-                    'actions': folders(outfile) + [cmd],
-                    'file_dep': infiles,
-                    'targets': [outfile],
-                    }
+                yield get_task_merge_textures(mode, mt, c, s, l, slices,
+                                              portion, voxel)
+        for mt in ['CA', 'N']:
+            slices, portion, voxel, l = 'all', 0, 'median', None
+            for c, s in cases_scans(mode, sl):
+                yield get_task_merge_textures(mode, mt, c, s, l, slices,
+                                              portion, voxel)
 
 
 def get_task_histogram(mode, masktype, samplelist):
