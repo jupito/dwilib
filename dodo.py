@@ -14,7 +14,7 @@ from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
                        roi_path, std_cfg_path, texture_path, histogram_path,
                        grid_path)
 import dwi.shell
-from dwi.types import ImageMode
+from dwi.types import ImageMode, TextureSpec
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -254,6 +254,7 @@ def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
                      tspec, voxel):
     """Generate texture features."""
     method, winsize = tspec
+    tspec = TextureSpec(winsize, method, None)
     inpath = pmap_path(mode, case, scan)
     deps = [inpath]
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)

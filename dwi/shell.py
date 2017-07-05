@@ -6,7 +6,7 @@
 from __future__ import absolute_import, division, print_function
 import shlex
 
-from .types import Path, TextureSpec
+from .types import Path
 
 DWILIB = Path.home() / 'src/dwilib/tools'  # Executable residency.
 
@@ -41,8 +41,6 @@ def standardize_transform(cfgpath, inpath, outpath, mask=None):
 
 def get_texture(mode, inpath, tspec, slices, portion, outpath, voxel,
                 mask=None):
-    method, winsize = tspec
-    tspec = TextureSpec(winsize, method, None)
     d = dict(prg=DWILIB/'get_texture.py', m=mode, i=inpath, mask=mask,
              slices=slices, portion=portion, tspec=tspec, o=outpath, vx=voxel)
     cmd = ('{prg} -v'
