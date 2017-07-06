@@ -53,11 +53,8 @@ def correlation(x, y, method='spearman'):
     return dict(r=r, p=p, lower=lower, upper=upper)
 
 
-def main():
-    """Main."""
-    args = parse_args()
-
-    # Collect all parameters.
+def collect_data(args):
+    """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
@@ -75,7 +72,15 @@ def main():
                     y.append(d['label'])
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
-            params.append('%i:%s' % (i, param))
+            params.append('{}:{}'.format(i, param))
+    return X, Y, params, scores, groups, group_sizes
+
+
+def main():
+    """Main."""
+    args = parse_args()
+
+    X, Y, params, scores, groups, group_sizes = collect_data(args)
 
     # Print info.
     if args.verbose > 1:
