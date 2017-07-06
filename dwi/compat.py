@@ -43,13 +43,8 @@ def _select_voxel(pmap, voxel):
 def _read_pmap(directory, case, scan, roi=None, voxel='all'):
     """Read single pmap. XXX: Obsolete code."""
     af = asciifile.AsciiFile(_pmap_path(directory, case, scan, roi=roi))
-    pmap = af.a
-    params = af.params()
-    if pmap.shape[-1] != len(params):
-        # TODO: Move to Asciifile initializer?
-        raise ValueError('Number of parameters mismatch: %s' % af.filename)
-    pmap = _select_voxel(pmap, voxel)
-    return pmap, params, af.filename
+    pmap = _select_voxel(af.a, voxel)
+    return pmap, af.params(), af.filename
 
 
 def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
