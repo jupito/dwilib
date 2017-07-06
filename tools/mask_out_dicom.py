@@ -9,8 +9,8 @@ and and set the non-selected voxel to zero according to the mask slice.
 # NOTE: This tool uses pydicom directly, not through dwi.dicomfile.
 
 import argparse
-import collections
 import os
+from collections import defaultdict
 
 import numpy as np
 import dicom
@@ -41,7 +41,7 @@ def get_slices(dirname):
     pathnames = [os.path.join(dirname, f) for f in filenames]
     orientation = None
     shape = None
-    positions = collections.defaultdict(list)
+    positions = defaultdict(list)
     for pathname in pathnames:
         ds = dicom.read_file(pathname)
         if 'PixelData' not in ds:
