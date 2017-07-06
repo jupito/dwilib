@@ -98,7 +98,8 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     return data
 
 
-def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
+def collect_data(patients, pmapdirs, normalvoxel=None, verbose=False,
+                 **kwargs):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
@@ -117,7 +118,19 @@ def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
             params.append('{}:{}'.format(i, param))
-    return X, Y, params, scores, groups, group_sizes
+
+    # Print info.
+    if verbose > 1:
+        d = dict(n=len(X[0]),
+                 ns=len(scores), s=scores,
+                 ng=len(groups), g=' '.join(str(x) for x in groups),
+                 gs=', '.join(str(x) for x in group_sizes))
+        print('Samples: {n}'.format(**d))
+        print('Scores: {ns}: {s}'.format(**d))
+        print('Groups: {ng}: {g}'.format(**d))
+        print('Group sizes: {gs}'.format(**d))
+
+    return X, Y, params
 
 
 def param_to_tspec(param):

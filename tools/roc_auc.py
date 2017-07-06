@@ -50,22 +50,11 @@ def main():
     args = parse_args()
     if args.normalvoxel is not None and args.voxel != 'all':
         raise ValueError('Argument --normalvoxel implies --voxel=all')
+
     d = dict(thresholds=[args.threshold], voxel=args.voxel,
              multiroi=args.multilesion, dropok=args.dropok,
-             normalvoxel=args.normalvoxel)
-    X, Y, params, scores, groups, group_sizes = collect_data(args.patients,
-                                                             args.pmapdir, **d)
-
-    # Print info.
-    if args.verbose > 1:
-        d = dict(n=len(X[0]),
-                 ns=len(scores), s=scores,
-                 ng=len(groups), g=' '.join(str(x) for x in groups),
-                 gs=', '.join(str(x) for x in group_sizes))
-        print('Samples: {n}'.format(**d))
-        print('Scores: {ns}: {s}'.format(**d))
-        print('Groups: {ng}: {g}'.format(**d))
-        print('Group sizes: {gs}'.format(**d))
+             normalvoxel=args.normalvoxel, verbose=args.verbose)
+    X, Y, params = collect_data(args.patients, args.pmapdir, **d)
 
     # Print AUCs and bootstrapped AUCs.
     if args.verbose > 1:

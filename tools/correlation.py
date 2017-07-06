@@ -56,21 +56,11 @@ def correlation(x, y, method='spearman'):
 def main():
     """Main."""
     args = parse_args()
-    d = dict(thresholds=args.thresholds, voxel=args.voxel,
-             multiroi=args.multilesion, dropok=args.dropok)
-    X, Y, params, scores, groups, group_sizes = collect_data(args.patients,
-                                                             args.pmapdir, **d)
 
-    # Print info.
-    if args.verbose > 1:
-        d = dict(n=len(X[0]),
-                 ns=len(scores), s=scores,
-                 ng=len(groups), g=' '.join(str(x) for x in groups),
-                 gs=', '.join(str(x) for x in group_sizes))
-        print('Samples: {n}'.format(**d))
-        print('Scores: {ns}: {s}'.format(**d))
-        print('Groups: {ng}: {g}'.format(**d))
-        print('Group sizes: {gs}'.format(**d))
+    d = dict(thresholds=args.thresholds, voxel=args.voxel,
+             multiroi=args.multilesion, dropok=args.dropok,
+             verbose=args.verbose)
+    X, Y, params = collect_data(args.patients, args.pmapdir, **d)
 
     # Print correlations.
     if args.verbose > 1:
