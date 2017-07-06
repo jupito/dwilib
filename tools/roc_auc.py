@@ -7,11 +7,11 @@ AUCs and draw the ROC curves into a file.
 import argparse
 import numpy as np
 
-import dwi.dataset
 import dwi.patient
 import dwi.plot
 import dwi.stats
 import dwi.util
+from dwi.compat import read_pmaps
 
 
 def parse_args():
@@ -56,11 +56,9 @@ def main():
     Params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
-        data = dwi.dataset.read_pmaps(args.patients, pmapdir,
-                                      thresholds=[args.threshold],
-                                      voxel=args.voxel,
-                                      multiroi=args.multilesion,
-                                      dropok=args.dropok)
+        data = read_pmaps(args.patients, pmapdir, thresholds=[args.threshold],
+                          voxel=args.voxel, multiroi=args.multilesion,
+                          dropok=args.dropok)
         if scores is None:
             scores, groups, group_sizes = dwi.patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
