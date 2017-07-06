@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from .types import Path, TextureSpec
+from .types import Path
 
 
 def samplelist_path(mode, samplelist):
@@ -91,12 +91,11 @@ def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
     return path.format(**d)
 
 
-def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
-                 winsize, algparams=(), voxel='mean'):
+def texture_path(mode, case, scan, lesion, masktype, slices, portion, tspec,
+                 algparams=(), voxel='mean'):
     """Return path to texture file."""
-    tspec = TextureSpec(winsize, method, None)
-    if tspec.method == 'raw':
-        # 'Raw' texture is actually just the source image.
+    if tspec is not None and tspec.method == 'raw':
+        # 'Raw' texture method is actually just the source image.
         return pmap_path(mode, case, scan)
     d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
              portion=portion, tspec=tspec, ap_='_'.join(algparams), vx=voxel,
@@ -107,7 +106,7 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, method,
     if masktype == 'auto':
         path += '/{ap_}'
     path += '/{c}_{s}_{l}'
-    if tspec.method is not None and tspec.winsize is not None:
+    if tspec is not None:
         path += '_{tspec.method}-{tspec.winsize}'
     path += '.{ext}'
     return path.format(**d)
