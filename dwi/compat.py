@@ -30,7 +30,7 @@ def _select_voxel(pmap, voxel):
     elif voxel == 'sole':
         # Use sole voxel (raise exception if more found).
         if len(pmap) != 1:
-            raise Exception('Too many voxels: {}'.format(len(pmap)))
+            raise ValueError('Too many voxels: {}'.format(len(pmap)))
         return pmap
     elif voxel == 'mean':
         return np.mean(pmap, axis=0, keepdims=True)  # Use mean voxel.
@@ -47,7 +47,7 @@ def _read_pmap(directory, case, scan, roi=None, voxel='all'):
     params = af.params()
     if pmap.shape[-1] != len(params):
         # TODO: Move to Asciifile initializer?
-        raise Exception('Number of parameters mismatch: %s' % af.filename)
+        raise ValueError('Number of parameters mismatch: %s' % af.filename)
     pmap = _select_voxel(pmap, voxel)
     return pmap, params, af.filename
 
@@ -88,9 +88,9 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
                  pathname=pathname)
         data.append(d)
         if pmap.shape != data[0]['pmap'].shape:
-            raise Exception('Irregular shape: %s' % pathname)
+            raise ValueError('Irregular shape: %s' % pathname)
         if params != data[0]['params']:
-            raise Exception('Irregular params: %s' % pathname)
+            raise ValueError('Irregular params: %s' % pathname)
     return data
 
 
