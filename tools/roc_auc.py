@@ -55,14 +55,12 @@ def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
         if scores is None:
             scores, groups, group_sizes = dwi.patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
-            x, y = [], []
-            for d in data:
-                for k, v in enumerate(d['pmap']):
-                    label = d['label']
-                    if normalvoxel is not None:
-                        label = int(k != normalvoxel)
-                    x.append(v[j])
-                    y.append(label)
+            x = [v[j] for d in data for v in d['pmap']]
+            if normalvoxel is None:
+                y = [d['label'] for d in data for v in d['pmap']]
+            else:
+                y = [int(k != normalvoxel) for d in data for k in
+                     range(len(d['pmap']))]
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
             params.append('{}:{}'.format(i, param))

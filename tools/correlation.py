@@ -53,7 +53,7 @@ def correlation(x, y, method='spearman'):
     return dict(r=r, p=p, lower=lower, upper=upper)
 
 
-def collect_data(patients, pmapdirs, **kwargs):
+def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
@@ -63,11 +63,12 @@ def collect_data(patients, pmapdirs, **kwargs):
         if scores is None:
             scores, groups, group_sizes = dwi.patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
-            x, y = [], []
-            for d in data:
-                for v in d['pmap']:
-                    x.append(v[j])
-                    y.append(d['label'])
+            x = [v[j] for d in data for v in d['pmap']]
+            if normalvoxel is None:
+                y = [d['label'] for d in data for v in d['pmap']]
+            else:
+                y = [int(k != normalvoxel) for d in data for k in
+                     range(len(d['pmap']))]
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
             params.append('{}:{}'.format(i, param))
