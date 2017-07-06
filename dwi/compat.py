@@ -23,6 +23,23 @@ def _pmap_path(directory, case, scan, roi=None):
     return paths[0]
 
 
+def _select_voxel(pmap, voxel):
+    """Select voxel to use."""
+    if voxel == 'all':
+        return pmap  # Use all voxels.
+    elif voxel == 'sole':
+        # Use sole voxel (raise exception if more found).
+        if len(pmap) != 1:
+            raise Exception('Too many voxels: {}'.format(len(pmap)))
+        return pmap
+    elif voxel == 'mean':
+        return np.mean(pmap, axis=0, keepdims=True)  # Use mean voxel.
+    elif voxel == 'median':
+        return np.median(pmap, axis=0, keepdims=True)  # Use median.
+    else:
+        return pmap[[int(voxel)]]  # Use single voxel only.
+
+
 def _read_pmap(directory, case, scan, roi=None, voxel='all'):
     """Read single pmap. XXX: Obsolete code."""
     af = asciifile.AsciiFile(_pmap_path(directory, case, scan, roi=roi))
@@ -31,19 +48,7 @@ def _read_pmap(directory, case, scan, roi=None, voxel='all'):
     if pmap.shape[-1] != len(params):
         # TODO: Move to Asciifile initializer?
         raise Exception('Number of parameters mismatch: %s' % af.filename)
-    # Select voxel to use.
-    if voxel == 'all':
-        pass  # Use all voxels.
-    elif voxel == 'sole':
-        # Use sole voxel (raise exception if more found).
-        if len(pmap) != 1:
-            raise Exception('Too many voxels: {}'.format(len(pmap)))
-    elif voxel == 'mean':
-        pmap = np.mean(pmap, axis=0, keepdims=True)  # Use mean voxel.
-    elif voxel == 'median':
-        pmap = np.median(pmap, axis=0, keepdims=True)  # Use median.
-    else:
-        pmap = pmap[[int(voxel)]]  # Use single voxel only.
+    pmap = _select_voxel(pmap, voxel)
     return pmap, params, af.filename
 
 
