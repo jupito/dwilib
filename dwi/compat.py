@@ -58,7 +58,10 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
     else:
         d['r'] += 1
         s = '{c}_*{s}_{r}*.txt'
-    path, = Path(dirname).glob(s.format(**d))
+    try:
+        path, = Path(dirname).glob(s.format(**d))
+    except ValueError:
+        raise FileNotFoundError(Path(dirname) / s.format(**d))
     af = asciifile.AsciiFile(path)
     pmap = af.a
     params = af.params()
