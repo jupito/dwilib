@@ -98,6 +98,28 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     return data
 
 
+def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
+    """Collect all data (each directory, each pmap, each feature)."""
+    X, Y = [], []
+    params = []
+    scores = None
+    for i, pmapdir in enumerate(pmapdirs):
+        data = read_pmaps(patients, pmapdir, **kwargs)
+        if scores is None:
+            scores, groups, group_sizes = patient.grouping(data)
+        for j, param in enumerate(data[0]['params']):
+            x = [v[j] for d in data for v in d['pmap']]
+            if normalvoxel is None:
+                y = [d['label'] for d in data for v in d['pmap']]
+            else:
+                y = [int(k != normalvoxel) for d in data for k in
+                     range(len(d['pmap']))]
+            X.append(np.asarray(x))
+            Y.append(np.asarray(y))
+            params.append('{}:{}'.format(i, param))
+    return X, Y, params, scores, groups, group_sizes
+
+
 def param_to_tspec(param):
     """Get partial TextureSpec from param string (only winsize and method!)."""
     winsize, name = param.split('-', 1)
