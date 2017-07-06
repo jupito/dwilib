@@ -9,6 +9,7 @@ from .types import Path, TextureSpec
 
 
 def _pmap_path(directory, case, scan, roi=None):
+    """Return pmap path."""
     directory = Path(directory)
     d = dict(c=case, s=scan, r=roi)
     if roi is None:
