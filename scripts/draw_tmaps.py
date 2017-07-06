@@ -111,7 +111,7 @@ def read_tmap(mode, case, scan, img_slice, texture_spec):
     mode = ImageMode(mode)
     tmap = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
                                   texture_spec, voxel='all')
-    param = '{winsize}-{method}({feature})'.format(**texture_spec._asdict())
+    param = '{t.winsize}-{t.method}({t.feature})'.format(t=texture_spec)
     tmap, attrs = dwi.files.read_pmap(tmap, ondisk=True, params=[param])
     tscale = tuple(np.nanpercentile(tmap[:, :, :, 0], (1, 99)))
     tmap = tmap[img_slice, :, :, 0]
