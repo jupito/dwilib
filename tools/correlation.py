@@ -53,15 +53,13 @@ def correlation(x, y, method='spearman'):
     return dict(r=r, p=p, lower=lower, upper=upper)
 
 
-def collect_data(args):
+def collect_data(patients, pmapdirs, **kwargs):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
-    for i, pmapdir in enumerate(args.pmapdir):
-        data = read_pmaps(args.patients, pmapdir, thresholds=args.thresholds,
-                          voxel=args.voxel, multiroi=args.multilesion,
-                          dropok=args.dropok)
+    for i, pmapdir in enumerate(pmapdirs):
+        data = read_pmaps(patients, pmapdir, **kwargs)
         if scores is None:
             scores, groups, group_sizes = dwi.patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
@@ -79,8 +77,10 @@ def collect_data(args):
 def main():
     """Main."""
     args = parse_args()
-
-    X, Y, params, scores, groups, group_sizes = collect_data(args)
+    d = dict(thresholds=args.thresholds, voxel=args.voxel,
+             multiroi=args.multilesion, dropok=args.dropok)
+    X, Y, params, scores, groups, group_sizes = collect_data(args.patients,
+                                                             args.pmapdir, **d)
 
     # Print info.
     if args.verbose > 1:

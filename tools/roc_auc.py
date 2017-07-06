@@ -45,15 +45,13 @@ def parse_args():
     return p.parse_args()
 
 
-def collect_data(args):
+def collect_data(patients, pmapdirs, normalvoxel=None, **kwargs):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
-    for i, pmapdir in enumerate(args.pmapdir):
-        data = read_pmaps(args.patients, pmapdir, thresholds=[args.threshold],
-                          voxel=args.voxel, multiroi=args.multilesion,
-                          dropok=args.dropok)
+    for i, pmapdir in enumerate(pmapdirs):
+        data = read_pmaps(patients, pmapdir, **kwargs)
         if scores is None:
             scores, groups, group_sizes = dwi.patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
@@ -61,8 +59,8 @@ def collect_data(args):
             for d in data:
                 for k, v in enumerate(d['pmap']):
                     label = d['label']
-                    if args.normalvoxel is not None:
-                        label = int(k != args.normalvoxel)
+                    if normalvoxel is not None:
+                        label = int(k != normalvoxel)
                     x.append(v[j])
                     y.append(label)
             X.append(np.asarray(x))
@@ -76,8 +74,11 @@ def main():
     args = parse_args()
     if args.normalvoxel is not None and args.voxel != 'all':
         raise ValueError('Argument --normalvoxel implies --voxel=all')
-
-    X, Y, params, scores, groups, group_sizes = collect_data(args)
+    d = dict(thresholds=[args.threshold], voxel=args.voxel,
+             multiroi=args.multilesion, dropok=args.dropok,
+             normalvoxel=args.normalvoxel)
+    X, Y, params, scores, groups, group_sizes = collect_data(args.patients,
+                                                             args.pmapdir, **d)
 
     # Print info.
     if args.verbose > 1:
