@@ -5,121 +5,7 @@
 
 from __future__ import absolute_import, division, print_function
 
-from .types import Path
-
-
-def samplelist_path(mode, samplelist):
-    return 'patients/patients_{m[0]}_{l}.txt'.format(m=mode, l=samplelist)
-
-
-def pmap_path(mode, case=None, scan=None, fmt='dicom'):
-    if 'std' in mode or mode == 'T2-fitted':
-        fmt = 'h5'  # TODO: Temporary redirection.
-    d = dict(m=mode, m_=mode[:2], c=case, s=scan)
-    if fmt == 'h5':
-        path = 'images/{m_}'
-        if case is not None and scan is not None:
-            path += '/{c}-{s}.h5'
-        return path.format(**d)
-    elif fmt == 'dicom':
-        if len(mode) == 1:
-            path = 'dicoms/{m[0]}_*'
-        else:
-            path = 'dicoms/{m[1]}_*'
-        if case is not None and scan is not None:
-            if mode == 'DWI':
-                path += '/{c}_hB_{s}.zip'
-            elif len(mode) == 1:
-                path += '/{c}_{s}*'
-            else:
-                path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
-        path, = Path().glob(path.format(**d))
-        return str(path)
-    else:
-        raise ValueError('Unknown format: {}'.format(fmt))
-
-
-def subregion_path(mode, case=None, scan=None):
-    path = 'subregions/{m[0]}'
-    if case is not None and scan is not None:
-        path += '/{c}_{s}_subregion10.txt'
-    return path.format(m=mode, c=case, s=scan)
-
-
-def mask_path(mode, masktype, case, scan, lesion=None, algparams=()):
-    """Return path and deps of masks of different types."""
-    if masktype == 'all':
-        return None
-    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-             ap_='_'.join(algparams))
-    do_glob = True
-    if masktype == 'prostate':
-        path = 'masks_{mt}/{m[0]}/{c}_*_{s}*.h5'
-    elif masktype == 'lesion':
-        path = ('masks_{mt}/'
-                '{m[0]}/PCa_masks_{m[0]}_lesion{l}/{c}_*{s}_{m[0]}.h5')
-    elif masktype in ('CA', 'N'):
-        path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
-    elif masktype == 'auto':
-        path = 'masks_{mt}/{m}/{ap_}/{c}_{s}_auto.mask'
-        do_glob = False  # Don't require existence, can be generated.
-    else:
-        raise Exception('Unknown mask type: {mt}'.format(**d))
-    path = path.format(**d)
-    if do_glob:
-        path, = Path().glob(path)
-        path = str(path)
-    return path
-
-
-def roi_path(mode, masktype, case=None, scan=None, lesion=None, algparams=()):
-    """Return whole ROI path or part of it."""
-    if masktype == 'image':
-        return pmap_path(mode, case, scan)  # No ROI, but the whole image.
-    d = dict(m=mode, mt=masktype, c=case, s=scan, l=lesion,
-             ap_='_'.join(algparams))
-    path = 'rois_{mt}/{m}'
-    if algparams:
-        path += '/{ap_}'
-    if case is not None and scan is not None:
-        if masktype == 'prostate':
-            path += '/{c}-{s}.h5'
-        elif masktype == 'lesion':
-            path += '/{c}-{s}-{l}.h5'
-        else:
-            path += '/{c}_x_x_{s}_{m}_{mt}.txt'
-    return path.format(**d)
-
-
-def texture_path(mode, case, scan, lesion, masktype, slices, portion, tspec,
-                 algparams=(), voxel='mean'):
-    """Return path to texture file."""
-    if tspec is not None and tspec.method == 'raw':
-        # 'Raw' texture method is actually just the source image.
-        return pmap_path(mode, case, scan)
-    d = dict(m=mode, c=case, s=scan, l=lesion, mt=masktype, slices=slices,
-             portion=portion, tspec=tspec, ap_='_'.join(algparams), vx=voxel,
-             ext='txt')
-    if voxel == 'all':
-        d['ext'] = 'h5'
-    path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
-    if masktype == 'auto':
-        path += '/{ap_}'
-    path += '/{c}_{s}_{l}'
-    if tspec is not None:
-        path += '_{tspec.method}-{tspec.winsize}'
-    path += '.{ext}'
-    return path.format(**d)
-
-
-def std_cfg_path(mode):
-    """Return path to standardization configuration file."""
-    return 'stdcfg_{m}.txt'.format(m=mode)
-
-
-def histogram_path(mode, roi, samplelist):
-    """Return path to histogram plot."""
-    return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
+from .types import ImageMode, Path
 
 
 def _fmt_tspec(tspec):
@@ -127,15 +13,172 @@ def _fmt_tspec(tspec):
     return '-'.join(str(x) for x in parts)
 
 
-def grid_path(mode, case, scan, mt, tspec, fmt='txt'):
-    """Return path to the first of the grid files.
+class Paths(object):
+    def __init__(self, mode):
+        self.mode = ImageMode(mode)
 
-    FIXME: The first element in the resulting tuple no more exists as file.
-    """
-    path = Path('grid_{mt}/{m}'.format(mt=mt, m=mode))
-    if tspec is not None:
-        path /= _fmt_tspec(tspec)
-    if case is not None and scan is not None:
-        path /= '{c}-{s}.{f}'.format(c=case, s=scan, f=fmt)
-    target = '{r}-0{e}'.format(r=path.stem, e=path.suffix)
-    return str(path), target
+    def samplelist(self, samplelist):
+        """Return path to samplelist."""
+        d = dict(m=self.mode, l=samplelist)
+        return Path('patients') / 'patients_{m[0]}_{l}.txt'.format(**d)
+
+    def pmap(self, case=None, scan=None, fmt='dicom'):
+        """Return path to pmap."""
+        if 'std' in self.mode or self.mode == 'T2-fitted':
+            fmt = 'h5'  # TODO: Temporary redirection.
+        d = dict(m=self.mode, m_=self.mode[:2], c=case, s=scan)
+        if fmt == 'h5':
+            path = 'images/{m_}'
+            if case is not None and scan is not None:
+                path += '/{c}-{s}.h5'
+            return Path(path.format(**d))
+        elif fmt == 'dicom':
+            if len(self.mode) == 1:
+                path = 'dicoms/{m[0]}_*'
+            else:
+                path = 'dicoms/{m[1]}_*'
+            if case is not None and scan is not None:
+                if self.mode == 'DWI':
+                    path += '/{c}_hB_{s}.zip'
+                elif len(self.mode) == 1:
+                    path += '/{c}_{s}*'
+                else:
+                    path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
+            path, = Path().glob(path.format(**d))
+            return path
+        else:
+            raise ValueError('Unknown format: {}'.format(fmt))
+
+    def subregion(self, case=None, scan=None):
+        """Return path to subregion file. XXX: Obsolete."""
+        d = dict(m=self.mode, c=case, s=scan)
+        path = Path('subregions') / '{m[0]}'.format(**d)
+        if case is not None and scan is not None:
+            path /= '{c}_{s}_subregion10.txt'.format(**d)
+        return path
+
+    def mask(self, masktype, case, scan, lesion=None, algparams=()):
+        """Return path and deps of masks of different types."""
+        if masktype == 'all':
+            return None
+        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
+                 ap_='_'.join(algparams))
+        do_glob = True
+        if masktype == 'prostate':
+            path = 'masks_{mt}/{m[0]}/{c}_*_{s}*.h5'
+        elif masktype == 'lesion':
+            path = ('masks_{mt}/'
+                    '{m[0]}/PCa_masks_{m[0]}_lesion{l}/{c}_*{s}_{m[0]}.h5')
+        elif masktype in ('CA', 'N'):
+            path = 'masks_roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
+        elif masktype == 'auto':
+            path = 'masks_{mt}/{m}/{ap_}/{c}_{s}_auto.mask'
+            do_glob = False  # Don't require existence, can be generated.
+        else:
+            raise Exception('Unknown mask type: {mt}'.format(**d))
+        path = path.format(**d)
+        if do_glob:
+            path, = Path().glob(path)
+        return Path(path)
+
+    def roi(self, masktype, case=None, scan=None, lesion=None, algparams=()):
+        """Return whole ROI path or part of it."""
+        if masktype == 'image':
+            return self.pmap(case, scan)  # No ROI, but the whole image.
+        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
+                 ap_='_'.join(algparams))
+        path = 'rois_{mt}/{m}'
+        if algparams:
+            path += '/{ap_}'
+        if case is not None and scan is not None:
+            if masktype == 'prostate':
+                path += '/{c}-{s}.h5'
+            elif masktype == 'lesion':
+                path += '/{c}-{s}-{l}.h5'
+            else:
+                path += '/{c}_x_x_{s}_{m}_{mt}.txt'
+        return Path(path.format(**d))
+
+    def texture(self, case, scan, lesion, masktype, slices, portion, tspec,
+                algparams=(), voxel='mean'):
+        """Return path to texture file."""
+        if tspec is not None and tspec.method == 'raw':
+            # 'Raw' texture method is actually just the source image.
+            return self.pmap(case, scan)
+        d = dict(m=self.mode, c=case, s=scan, l=lesion, mt=masktype,
+                 slices=slices, portion=portion, tspec=tspec,
+                 ap_='_'.join(algparams), vx=voxel, ext='txt')
+        if voxel == 'all':
+            d['ext'] = 'h5'
+        path = 'texture_{mt}/{m}_{slices}_{portion}_{vx}'
+        if masktype == 'auto':
+            path += '/{ap_}'
+        path += '/{c}_{s}_{l}'
+        if tspec is not None:
+            path += '_{tspec.method}-{tspec.winsize}'
+        path += '.{ext}'
+        return Path(path.format(**d))
+
+    def std_cfg(self):
+        """Return path to standardization configuration file."""
+        return Path('stdcfg_{m}.txt'.format(m=self.mode))
+
+    def histogram(self, roi, samplelist):
+        """Return path to histogram plot."""
+        return Path('histograms/{m}_{r}_{s}.png'.format(m=self.mode, r=roi,
+                                                        s=samplelist))
+
+    def grid(self, case, scan, mt, tspec, fmt='txt'):
+        """Return path to the first of the grid files.
+
+        FIXME: The first element in the resulting tuple no more exists as file.
+        """
+        path = Path('grid_{mt}/{m}'.format(mt=mt, m=self.mode))
+        if tspec is not None:
+            path /= _fmt_tspec(tspec)
+        if case is not None and scan is not None:
+            path /= '{c}-{s}.{f}'.format(c=case, s=scan, f=fmt)
+        target = '{r}-0{e}'.format(r=path.stem, e=path.suffix)
+        return path, target
+
+
+# The rest are for compatibility.
+
+
+def samplelist_path(mode, samplelist):
+    return str(Paths(mode).samplelist(samplelist))
+
+
+def pmap_path(mode, **kwargs):
+    return str(Paths(mode).pmap(**kwargs))
+
+
+def subregion_path(mode, **kwargs):
+    return str(Paths(mode).subregion(**kwargs))
+
+
+def mask_path(mode, masktype, case, scan, **kwargs):
+    return str(Paths(mode).mask(masktype, case, scan, **kwargs))
+
+
+def roi_path(mode, masktype, **kwargs):
+    return str(Paths(mode).roi(masktype, **kwargs))
+
+
+def texture_path(mode, case, scan, lesion, masktype, slices, portion, tspec,
+                 **kwargs):
+    return str(Paths(mode).texture(case, scan, lesion, masktype, slices,
+                                   portion, tspec, **kwargs))
+
+
+def std_cfg_path(mode):
+    return str(Paths(mode).std_cfg())
+
+
+def histogram_path(mode, roi, samplelist):
+    return str(Paths(mode).histogram(roi, samplelist))
+
+
+def grid_path(mode, case, scan, mt, tspec, **kwargs):
+    return tuple(str(x) for x in Paths(mode).grid(case, scan, mt, tspec,
+                                                  **kwargs))
