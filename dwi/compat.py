@@ -48,19 +48,9 @@ def _read_pmap(directory, case, scan, roi=None, voxel='all'):
     return pmap, af.params(), af.filename
 
 
-def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
-               multiroi=False, dropok=False, location=None):
-    """Read pmaps labeled by their Gleason score.
-
-    Label thresholds are maximum scores of each label group. Labels are ordinal
-    of score if no thresholds provided.
-
-    XXX: Obsolete code, used still by tools/roc_auc.py and
-    tools/correlation.py.
-    """
-    # TODO: Support for selecting measurements over scan pairs
-    patients = files.read_patients_file(patients_file)
-    patient.label_lesions(patients, thresholds=thresholds)
+def _read_pmaps(patients, pmapdir, voxel='all', multiroi=False, dropok=False,
+                location=None):
+    """Read pmaps."""
     data = []
     for pat, scan, lesion in dataset.iterlesions(patients):
         if not multiroi and lesion.index != 0:
@@ -87,6 +77,24 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
             raise ValueError('Irregular shape: %s' % pathname)
         if params != data[0]['params']:
             raise ValueError('Irregular params: %s' % pathname)
+    return data
+
+
+def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
+               multiroi=False, dropok=False, location=None):
+    """Read pmaps labeled by their Gleason score.
+
+    Label thresholds are maximum scores of each label group. Labels are ordinal
+    of score if no thresholds provided.
+
+    XXX: Obsolete code, used still by tools/roc_auc.py and
+    tools/correlation.py.
+    """
+    # TODO: Support for selecting measurements over scan pairs
+    patients = files.read_patients_file(patients_file)
+    patient.label_lesions(patients, thresholds=thresholds)
+    data = _read_pmaps(patients, pmapdir, voxel=voxel, multiroi=multiroi,
+                       dropok=dropok, location=location)
     return data
 
 
