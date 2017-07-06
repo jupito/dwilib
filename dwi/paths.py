@@ -122,14 +122,19 @@ def histogram_path(mode, roi, samplelist):
     return 'histograms/{m}_{r}_{s}.png'.format(m=mode, r=roi, s=samplelist)
 
 
-def grid_path(mode, case, scan, mt, parts, fmt='txt'):
+def _fmt_tspec(tspec):
+    parts = filter(None, [tspec.method, tspec.winsize, tspec.feature])
+    return '-'.join(str(x) for x in parts)
+
+
+def grid_path(mode, case, scan, mt, tspec, fmt='txt'):
     """Return path to the first of the grid files.
 
     FIXME: The first element in the resulting tuple no more exists as file.
     """
     path = Path('grid_{mt}/{m}'.format(mt=mt, m=mode))
-    if parts:
-        path /= '-'.join(str(x) for x in parts)
+    if tspec is not None:
+        path /= _fmt_tspec(tspec)
     if case is not None and scan is not None:
         path /= '{c}-{s}.{f}'.format(c=case, s=scan, f=fmt)
     target = '{r}-0{e}'.format(r=path.stem, e=path.suffix)

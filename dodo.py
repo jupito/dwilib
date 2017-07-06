@@ -14,7 +14,7 @@ from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
                        roi_path, std_cfg_path, texture_path, histogram_path,
                        grid_path)
 import dwi.shell
-from dwi.types import ImageMode
+from dwi.types import ImageMode, TextureSpec
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -361,7 +361,8 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
     pmap = pmap_path(mode, c, s)
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out, target = grid_path(mode, c, s, mt, ['raw'], fmt=fmt)
+    tspec = TextureSpec(None, 'raw', None)
+    out, target = grid_path(mode, c, s, mt, tspec, fmt=fmt)
     if fmt == 'h5':
         target = out
     z = 5
@@ -383,8 +384,7 @@ def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
     pmap = texture_path(mode, c, s, None, mt, 'all', 0, tspec, voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out, target = grid_path(mode, c, s, mt, [tspec.method, tspec.winsize],
-                            fmt=fmt)
+    out, target = grid_path(mode, c, s, mt, tspec, fmt=fmt)
     if fmt == 'h5':
         target = out
     z = 5
