@@ -45,15 +45,10 @@ def parse_args():
     return p.parse_args()
 
 
-def main():
-    """Main."""
-    args = parse_args()
-    if args.normalvoxel is not None and args.voxel != 'all':
-        raise ValueError('Argument --normalvoxel implies --voxel=all')
-
-    # Collect all parameters.
+def collect_data(args):
+    """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
-    Params = []
+    params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
         data = read_pmaps(args.patients, pmapdir, thresholds=[args.threshold],
@@ -72,7 +67,17 @@ def main():
                     y.append(label)
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
-            Params.append('%i:%s' % (i, param))
+            params.append('{}:{}'.format(i, param))
+    return X, Y, params, scores, groups, group_sizes
+
+
+def main():
+    """Main."""
+    args = parse_args()
+    if args.normalvoxel is not None and args.voxel != 'all':
+        raise ValueError('Argument --normalvoxel implies --voxel=all')
+
+    X, Y, params, scores, groups, group_sizes = collect_data(args)
 
     # Print info.
     if args.verbose > 1:
@@ -89,9 +94,9 @@ def main():
     if args.verbose > 1:
         print('# param  AUC  AUC_BS_mean  lower  upper')
     Auc_bs = []
-    params_maxlen = max(len(p) for p in Params)
+    params_maxlen = max(len(x) for x in params)
     d = dict(l=params_maxlen)
-    for x, y, param in zip(X, Y, Params):
+    for x, y, param in zip(X, Y, params):
         d['param'] = param
         s = '{param:{l}}  {auc:.3f}'
         if np.any(np.isnan(x)):
@@ -112,8 +117,8 @@ def main():
         if args.verbose > 1:
             print('# param1  param2  diff  Z  p')
         done = []
-        for i, param_i in enumerate(Params):
-            for j, param_j in enumerate(Params):
+        for i, param_i in enumerate(params):
+            for j, param_j in enumerate(params):
                 if i == j or (i, j) in done or (j, i) in done:
                     continue
                 done.append((i, j))
@@ -126,7 +131,7 @@ def main():
     if args.figure:
         if args.verbose > 1:
             print('Plotting to {}...'.format(args.figure))
-        dwi.plot.plot_rocs(X, Y, params=Params, autoflip=args.autoflip,
+        dwi.plot.plot_rocs(X, Y, params=params, autoflip=args.autoflip,
                            outfile=args.figure)
 
 
