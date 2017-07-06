@@ -154,8 +154,8 @@ def read_pmap(dirname, case, scan, roi=None, voxel='all'):
 
 def read_tmap(mode, case, scan, tspec=None, masktype='prostate', **kwargs):
     """Read a texture map."""
-    method, winsize = tspec or ('raw', 1)
-    tspec = TextureSpec(winsize, method, None)
+    if tspec is None:
+        tspec = TextureSpec(1, 'raw', None)
     path = paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
                               tspec, voxel='all')
     return image.Image.read(path, **kwargs)
