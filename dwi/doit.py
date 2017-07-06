@@ -8,16 +8,9 @@ import logging
 from doit.tools import create_folder
 
 from .paths import samplelist_path
-from .types import Path
+from .types import Path, TextureSpec
 from . import files, util
 from . import rcParams
-
-
-# TODO: Obsolete. Use .types.TextureSpec instead.
-class TextureSpec(tuple):
-    """Texture feature indentifier."""
-    def __str__(self):
-        return '-'.join(map(str, reversed(self)))
 
 
 def get_num_process(factor=0.9, default=1):
@@ -101,5 +94,4 @@ def texture_methods_winsizes(mode, masktype):
     """Generate texture method, window size combinations."""
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
-            # TODO: Use .type.TextureSpec instead (check arg order).
-            yield TextureSpec((method, winsize))
+            yield TextureSpec(winsize, method, None)

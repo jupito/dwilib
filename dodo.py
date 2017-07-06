@@ -14,7 +14,7 @@ from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
                        roi_path, std_cfg_path, texture_path, histogram_path,
                        grid_path)
 import dwi.shell
-from dwi.types import ImageMode, TextureSpec
+from dwi.types import ImageMode
 
 DOIT_CONFIG = {
     'backend': 'sqlite3',
@@ -253,20 +253,18 @@ def task_select_roi():
 def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
                      tspec, voxel):
     """Generate texture features."""
-    method, winsize = tspec
-    tspec = TextureSpec(winsize, method, None)
     inpath = pmap_path(mode, case, scan)
     deps = [inpath]
     mask = mask_path(mode, masktype, case, scan, lesion=lesion)
     if mask is not None:
         deps.append(mask)
     outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
-                           method, winsize, voxel=voxel)
+                           tspec.method, tspec.winsize, voxel=voxel)
     cmd = dwi.shell.get_texture(mode, inpath, tspec, slices, portion, outfile,
                                 voxel, mask=mask)
     return {
         'name': taskname(mode, masktype, slices, portion, case, scan, lesion,
-                         method, winsize, voxel),
+                         tspec.method, tspec.winsize, voxel),
         'actions': folders(outfile) + [cmd],
         'file_dep': deps,
         'targets': [outfile],
@@ -303,8 +301,8 @@ def task_texture():
 
 def get_task_merge_textures(mode, mt, c, s, l, slices, portion, voxel):
     """Merge texture methods into singe file per case/scan/lesion."""
-    infiles = [texture_path(mode, c, s, l, mt, slices, portion, tspec[0],
-                            tspec[1], voxel=voxel) for tspec in
+    infiles = [texture_path(mode, c, s, l, mt, slices, portion, tspec.method,
+                            tspec.winsize, voxel=voxel) for tspec in
                texture_methods_winsizes(mode, mt)]
     outfile = texture_path(mode, c, s, l, mt+'_merged', slices, portion, None,
                            None, voxel=voxel)
@@ -382,11 +380,12 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
 def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
                           nanbg=False, fmt='txt'):
     """Grid classifier."""
-    mth, ws = tspec
-    pmap = texture_path(mode, c, s, None, mt, 'all', 0, mth, ws, voxel='all')
+    pmap = texture_path(mode, c, s, None, mt, 'all', 0, tspec.method,
+                        tspec.winsize, voxel='all')
     prostate = mask_path(mode, 'prostate', c, s)
     lesion = [mask_path(mode, 'lesion', c, s, x) for x in ls]
-    out, target = grid_path(mode, c, s, mt, [mth, ws], fmt=fmt)
+    out, target = grid_path(mode, c, s, mt, [tspec.method, tspec.winsize],
+                            fmt=fmt)
     if fmt == 'h5':
         target = out
     z = 5
@@ -395,7 +394,7 @@ def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
              lesiontypes=lt, use_centroid=False, nanbg=nanbg)
     cmd = dwi.shell.grid(pmap, None, prostate, lesion, out, **d)
     return {
-        'name': taskname(mode, c, s, mt, mth, ws),
+        'name': taskname(mode, c, s, mt, tspec.method, tspec.winsize),
         'actions': folders(out) + [cmd],
         'file_dep': [pmap, prostate] + lesion,
         'targets': [target],
