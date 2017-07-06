@@ -59,7 +59,7 @@ def main():
 
     # Collect all parameters.
     X, Y = [], []
-    Params = []
+    params = []
     scores = None
     for i, pmapdir in enumerate(args.pmapdir):
         data = read_pmaps(args.patients, pmapdir, thresholds=args.thresholds,
@@ -75,7 +75,7 @@ def main():
                     y.append(d['label'])
             X.append(np.asarray(x))
             Y.append(np.asarray(y))
-            Params.append('%i:%s' % (i, param))
+            params.append('%i:%s' % (i, param))
 
     # Print info.
     if args.verbose > 1:
@@ -91,8 +91,8 @@ def main():
     # Print correlations.
     if args.verbose > 1:
         print('# param  r  p  lower  upper')
-    params_maxlen = max(len(p) for p in Params)
-    for x, y, param in zip(X, Y, Params):
+    params_maxlen = max(len(x) for x in params)
+    for x, y, param in zip(X, Y, params):
         d = dict(param=param, l=params_maxlen, f='.3f')
         d.update(correlation(x, y))
         if args.verbose:
