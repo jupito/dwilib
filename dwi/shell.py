@@ -85,8 +85,8 @@ def mask_out(src, dst, mask):
 
 
 def histogram(inpaths, figpath, params=None):
-    d = dict(prg=DWILIB/'histogram.py', i=' '.join(inpaths), f=figpath,
-             p=params)
+    d = dict(prg=DWILIB/'histogram.py', i=' '.join(map(str, inpaths)),
+             f=figpath, p=params)
     cmd = '{prg} -v --input {i} --fig {f}'
     if params is not None:
         cmd += ' --param {p}'

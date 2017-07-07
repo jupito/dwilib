@@ -8,11 +8,9 @@ from doit import get_var
 # from doit.tools import check_timestamp_unchanged
 
 from dwi.doit import (cases_scans, folders, lesions, taskname,
-                      texture_methods_winsizes, words)
+                      texture_methods_winsizes, words, _files)
 import dwi.dataset
-from dwi.paths import (samplelist_path, pmap_path, subregion_path, mask_path,
-                       roi_path, std_cfg_path, texture_path, histogram_path,
-                       grid_path)
+import dwi.paths
 import dwi.shell
 from dwi.types import ImageMode, TextureSpec
 
@@ -83,16 +81,16 @@ def task_standardize_train():
         return
     # mode = MODE - 'std'
     mode = MODE[:-1] if MODE[-1] == 'std' else MODE
-    std_cfg = std_cfg_path(mode)
-    # inpaths = [pmap_path(mode, c, s) for c, s in cases_scans(mode, 'all')]
-    inpaths = [roi_path(mode, 'prostate', case=c, scan=s) for c, s in
+    paths = dwi.paths.Paths(mode)
+    std_cfg = paths.std_cfg()
+    inpaths = [paths.roi('prostate', case=c, scan=s) for c, s in
                cases_scans(mode, 'all')]
     cmd = dwi.shell.standardize_train(inpaths, std_cfg, 'none')
     yield {
         'name': taskname(mode),
         'actions': [cmd],
-        'file_dep': inpaths,
-        'targets': [std_cfg],
+        'file_dep': _files(*inpaths),
+        'targets': _files(std_cfg),
         'clean': True,
         }
 
@@ -106,19 +104,20 @@ def task_standardize_transform():
     # mode = MODE - 'std'
     mode = MODE[:-1] if MODE[-1] == 'std' else MODE
     sl = SAMPLELIST
-    cfgpath = std_cfg_path(mode)
+    paths = dwi.paths.Paths(mode)
+    outpaths = dwi.paths.Paths(tuple(mode) + ('std',))
+    cfgpath = paths.std_cfg()
     for case, scan in cases_scans(mode, sl):
-        inpath = pmap_path(mode, case=case, scan=scan)
-        mask = mask_path(mode, 'prostate', case, scan)
-        outmode = ImageMode(tuple(mode) + ('std',))
-        outpath = pmap_path(outmode, case=case, scan=scan)
+        inpath = paths.pmap(case=case, scan=scan)
+        mask = paths.mask('prostate', case, scan)
+        outpath = outpaths.pmap(case=case, scan=scan)
         cmd = dwi.shell.standardize_transform(cfgpath, inpath, outpath,
                                               mask=mask)
         yield {
             'name': taskname(mode, case, scan),
             'actions': folders(outpath) + [cmd],
-            'file_dep': [cfgpath, inpath, mask],
-            'targets': [outpath],
+            'file_dep': _files(cfgpath, inpath, mask),
+            'targets': _files(outpath),
             'clean': True,
             }
 
@@ -126,16 +125,17 @@ def task_standardize_transform():
 def task_make_subregion():
     """Make minimum bounding box + 10 voxel subregions from prostate masks."""
     for mode, sl in product(MODES, SAMPLELISTS):
+        paths = dwi.paths.Paths(mode)
         if str(mode) == 'DWI-Mono-ADCm':
             for case, scan in cases_scans(mode, sl):
-                mask = mask_path(mode, 'prostate', case, scan)
-                subregion = subregion_path(mode, case=case, scan=scan)
+                mask = paths.mask('prostate', case, scan)
+                subregion = paths.subregion(case=case, scan=scan)
                 cmd = dwi.shell.make_subregion(mask, subregion)
                 yield {
                     'name': taskname(mode, case, scan),
                     'actions': folders(subregion) + [cmd],
-                    'file_dep': [mask],
-                    'targets': [subregion],
+                    'file_dep': _files(mask),
+                    'targets': _files(subregion),
                     'clean': True,
                     }
 
@@ -143,30 +143,33 @@ def task_make_subregion():
 # def task_fit():
 #     """Fit models to imaging data."""
 #     for mode, sl in product(MODES, SAMPLELISTS):
+#         paths = dwi.paths.Paths(mode)
+#         outpaths = dwi.paths.Paths(mode + 'fitted')
 #         if mode[0] in ('T2',):
 #             for c, s in cases_scans(mode, sl):
-#                 inpath = pmap_path(mode, case=c, scan=s)
-#                 outpath = pmap_path(mode+'fitted', case=c, scan=s, fmt='h5')
+#                 inpath = paths.pmap(case=c, scan=s)
+#                 outpath = outpaths.pmap(case=c, scan=s, fmt='h5')
 #                 model = 'T2'
-#                 mask = mask_path(mode, 'prostate', c, s)
+#                 mask = paths.mask('prostate', c, s)
 #                 mbb = (0, 20, 20)
 #                 cmd = dwi.shell.fit(inpath, outpath, model, mask=mask,
 #                                     mbb=mbb)
 #                 yield {
 #                     'name': taskname(mode, c, s, model),
 #                     'actions': folders(outpath) + [cmd],
-#                     'file_dep': [inpath, mask],
-#                     'targets': [outpath],
+#                     'file_dep': _files(inpath, mask),
+#                     'targets': _files(outpath),
 #                     'clean': True,
 #                     }
 
 
 def get_task_select_roi_lesion(mode, case, scan, lesion):
     """Select ROIs from the pmap DICOMs based on masks."""
+    paths = dwi.paths.Paths(mode)
     masktype = 'lesion'
-    mask = mask_path(mode, 'lesion', case, scan, lesion=lesion)
-    roi = roi_path(mode, masktype, case=case, scan=scan, lesion=lesion)
-    pmap = pmap_path(mode, case=case, scan=scan)
+    mask = paths.mask('lesion', case, scan, lesion=lesion)
+    roi = paths.roi(masktype, case=case, scan=scan, lesion=lesion)
+    pmap = paths.pmap(case=case, scan=scan)
     d = dict(mask=mask, keepmasked=True)
     if 'std' in mode:
         d['astype'] = 'float32'  # Integers cannot have nans.
@@ -174,17 +177,18 @@ def get_task_select_roi_lesion(mode, case, scan, lesion):
     return {
         'name': taskname(mode, masktype, case, scan, lesion),
         'actions': folders(roi) + [cmd],
-        'file_dep': [mask, pmap],
-        'targets': [roi],
+        'file_dep': _files(mask, pmap),
+        'targets': _files(roi),
         'clean': True,
         }
 
 
 def get_task_select_roi_manual(mode, case, scan, masktype):
     """Select ROIs from the pmap DICOMs based on masks."""
-    mask = mask_path(mode, masktype, case, scan)
-    roi = roi_path(mode, masktype, case=case, scan=scan)
-    pmap = pmap_path(mode, case=case, scan=scan)
+    paths = dwi.paths.Paths(mode)
+    mask = paths.mask(masktype, case, scan)
+    roi = paths.roi(masktype, case=case, scan=scan)
+    pmap = paths.pmap(case=case, scan=scan)
     d = dict(mask=mask, keepmasked=(masktype == 'prostate'))
     if 'std' in mode:
         d['astype'] = 'float32'  # Integers cannot have nans.
@@ -192,24 +196,25 @@ def get_task_select_roi_manual(mode, case, scan, masktype):
     return {
         'name': taskname(mode, masktype, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': [mask, pmap],
-        'targets': [roi],
+        'file_dep': _files(mask, pmap),
+        'targets': _files(roi),
         'clean': True,
         }
 
 
 def get_task_select_roi_auto(mode, case, scan, algparams):
     """Select ROIs from the pmap DICOMs based on masks."""
+    paths = dwi.paths.Paths(mode)
     ap_ = '_'.join(algparams)
-    mask = mask_path(mode, 'auto', case, scan, algparams=algparams)
-    roi = roi_path(mode, 'auto', case=case, scan=scan, algparams=algparams)
-    pmap = pmap_path(mode, case=case, scan=scan)
+    mask = paths.mask('auto', case, scan, algparams=algparams)
+    roi = paths.roi('auto', case=case, scan=scan, algparams=algparams)
+    pmap = paths.pmap(case=case, scan=scan)
     cmd = dwi.shell.select_voxels(pmap, roi, mask=mask, keepmasked=False)
     return {
         'name': taskname(mode, ap_, case, scan),
         'actions': folders(roi) + [cmd],
-        'file_dep': [mask, pmap],
-        'targets': [roi],
+        'file_dep': _files(mask, pmap),
+        'targets': _files(roi),
         'clean': True,
         }
 
@@ -253,21 +258,22 @@ def task_select_roi():
 def get_task_texture(mode, masktype, case, scan, lesion, slices, portion,
                      tspec, voxel):
     """Generate texture features."""
-    inpath = pmap_path(mode, case=case, scan=scan)
+    paths = dwi.paths.Paths(mode)
+    inpath = paths.pmap(case=case, scan=scan)
     deps = [inpath]
-    mask = mask_path(mode, masktype, case, scan, lesion=lesion)
+    mask = paths.mask(masktype, case, scan, lesion=lesion)
     if mask is not None:
         deps.append(mask)
-    outfile = texture_path(mode, case, scan, lesion, masktype, slices, portion,
-                           tspec, voxel=voxel)
+    outfile = paths.texture(case, scan, lesion, masktype, slices, portion,
+                            tspec, voxel=voxel)
     cmd = dwi.shell.get_texture(mode, inpath, tspec, slices, portion, outfile,
                                 voxel, mask=mask)
     return {
         'name': taskname(mode, masktype, slices, portion, case, scan, lesion,
                          tspec.method, tspec.winsize, voxel),
         'actions': folders(outfile) + [cmd],
-        'file_dep': deps,
-        'targets': [outfile],
+        'file_dep': _files(*deps),
+        'targets': _files(outfile),
         'clean': True,
         }
 
@@ -301,18 +307,18 @@ def task_texture():
 
 def get_task_merge_textures(mode, mt, c, s, l, slices, portion, voxel):
     """Merge texture methods into singe file per case/scan/lesion."""
-    infiles = [texture_path(mode, c, s, l, mt, slices, portion, tspec,
-                            voxel=voxel) for tspec in
-               texture_methods_winsizes(mode, mt)]
-    outfile = texture_path(mode, c, s, l, mt+'_merged', slices, portion, None,
-                           voxel=voxel)
-    cmd = dwi.shell.select_voxels(' '.join(infiles), outfile)
+    paths = dwi.paths.Paths(mode)
+    infiles = [paths.texture(c, s, l, mt, slices, portion, tspec, voxel=voxel)
+               for tspec in texture_methods_winsizes(mode, mt)]
+    outfile = paths.texture(c, s, l, mt+'_merged', slices, portion, None,
+                            voxel=voxel)
+    cmd = dwi.shell.select_voxels(' '.join(map(str, infiles)), outfile)
     return {
         'name': taskname(mode, c, s, l, mt, slices, portion,
                          voxel),
         'actions': folders(outfile) + [cmd],
-        'file_dep': infiles,
-        'targets': [outfile],
+        'file_dep': _files(*infiles),
+        'targets': _files(outfile),
         }
 
 
@@ -333,19 +339,20 @@ def task_merge_textures():
 
 def get_task_histogram(mode, masktype, samplelist):
     """Plot image histograms."""
+    paths = dwi.paths.Paths(mode)
     if masktype == 'lesion':
         it = (dict(case=c, scan=s, lesion=l) for c, s, l in
               lesions(mode, samplelist))
     else:
         it = (dict(case=c, scan=s) for c, s in cases_scans(mode, samplelist))
-    inpaths = [roi_path(mode, masktype, **x) for x in it]
-    figpath = histogram_path(mode, masktype, samplelist)
+    inpaths = [paths.roi(masktype, **x) for x in it]
+    figpath = paths.histogram(masktype, samplelist)
     cmd = dwi.shell.histogram(inpaths, figpath, params=None)
     return {
         'name': taskname(mode, masktype, samplelist),
         'actions': folders(figpath) + [cmd],
-        'file_dep': inpaths,
-        'targets': [figpath],
+        'file_dep': _files(inpaths),
+        'targets': _files(figpath),
         }
 
 
@@ -359,11 +366,12 @@ def task_histogram():
 def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
                   fmt='txt'):
     """Grid classifier."""
-    pmap = pmap_path(mode, case=c, scan=s)
-    prostate = mask_path(mode, 'prostate', c, s)
-    lesion = [mask_path(mode, 'lesion', c, s, lesion=x) for x in ls]
+    paths = dwi.paths.Paths(mode)
+    pmap = paths.pmap(case=c, scan=s)
+    prostate = paths.mask('prostate', c, s)
+    lesion = [paths.mask('lesion', c, s, lesion=x) for x in ls]
     tspec = TextureSpec(None, 'raw', None)
-    out, target = grid_path(mode, c, s, mt, tspec, fmt=fmt)
+    out, target = paths.grid(c, s, mt, tspec, fmt=fmt)
     if fmt == 'h5':
         target = out
     z = 5
@@ -374,18 +382,19 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
     return {
         'name': taskname(mode, c, s, mt),
         'actions': folders(out) + [cmd],
-        'file_dep': [pmap, prostate] + lesion,
-        'targets': [target],
+        'file_dep': _files(pmap, prostate, *lesion),
+        'targets': _files(target),
         }
 
 
 def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
                           nanbg=False, fmt='txt'):
     """Grid classifier."""
-    pmap = texture_path(mode, c, s, None, mt, 'all', 0, tspec, voxel='all')
-    prostate = mask_path(mode, 'prostate', c, s)
-    lesion = [mask_path(mode, 'lesion', c, s, lesion=x) for x in ls]
-    out, target = grid_path(mode, c, s, mt, tspec, fmt=fmt)
+    paths = dwi.paths.Paths(mode)
+    pmap = paths.texture(c, s, None, mt, 'all', 0, tspec, voxel='all')
+    prostate = paths.mask('prostate', c, s)
+    lesion = [paths.mask('lesion', c, s, lesion=x) for x in ls]
+    out, target = paths.grid(c, s, mt, tspec, fmt=fmt)
     if fmt == 'h5':
         target = out
     z = 5
@@ -396,16 +405,17 @@ def get_task_grid_texture(mode, c, s, ls, mt, tspec, lt=None, mbb=None,
     return {
         'name': taskname(mode, c, s, mt, tspec.method, tspec.winsize),
         'actions': folders(out) + [cmd],
-        'file_dep': [pmap, prostate] + lesion,
-        'targets': [target],
+        'file_dep': _files(pmap, prostate, *lesion),
+        'targets': _files(target),
         }
 
 
 def task_grid():
     """Grid classifier."""
     for mode, sl in product(MODES, SAMPLELISTS):
+        paths = dwi.paths.Paths(mode)
         lesioninfo = defaultdict(list)
-        for c, s, l in dwi.dataset.iterlesions(samplelist_path(mode, sl)):
+        for c, s, l in dwi.dataset.iterlesions(str(paths.samplelist(sl))):
             c, l, lt = c.num, l.index + 1, l.location
             lesioninfo[(c, s)].append((l, lt))
         for k, v in lesioninfo.items():
@@ -431,14 +441,14 @@ def task_grid():
 #     """Check mask overlap."""
 #     for mode, sl in product(MODES, SAMPLELISTS):
 #         for c, s, l in lesions(mode, sl):
-#             container = mask_path(mode, 'prostate', c, s)
-#             other = mask_path(mode, 'lesion', c, s, lesion=l)
+#             container = paths.mask('prostate', c, s)
+#             other = paths.mask('lesion', c, s, lesion=l)
 #             d = dict(m=mode, c=c, s=s, l=l)
 #             fig = 'maskoverlap/{m[0]}/{c}-{s}-{l}.png'.format(**d)
 #             cmd = dwi.shell.check_mask_overlap(container, other, fig)
 #             yield {
 #                 'name': taskname(mode, c, s, l),
 #                 'actions': folders(fig) + [cmd],
-#                 'file_dep': [container, other],
-#                 'targets': [fig],
+#                 'file_dep': _files(container, other),
+#                 'targets': _files(fig),
 #                 }

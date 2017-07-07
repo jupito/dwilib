@@ -49,6 +49,11 @@ def folders(*paths):
     return [(create_folder, [str(Path(x).parent)]) for x in paths]
 
 
+def _files(*paths):
+    """Files for PyDoIt (It doesn't allow pathlib2, only str or pathlib)."""
+    return [str(x) for x in paths]
+
+
 def cases_scans(mode, samplelist):
     """Generate all case, scan pairs."""
     samples = files.read_sample_list(samplelist_path(mode, samplelist))
