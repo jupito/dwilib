@@ -175,7 +175,11 @@ def write_subregion_file(filename, win, comment=''):
 
 def guess_format(path):
     """Guess file format identifier from it's suffix."""
-    return PurePath(path).suffix[1:]
+    # return PurePath(path).suffix[1:]
+    suffix = ''.join(PurePath(path).suffixes)[1:]
+    if suffix in ['nii', 'nii.gz']:
+        return 'nifti'
+    return suffix
 
 
 def write_pmap(filename, pmap, attrs, fmt=None):
@@ -242,6 +246,9 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
         attrs, pmap = asciifile.read_ascii_file(path)
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
+    elif fmt == 'nifti':
+        from . import nifti
+        attrs, pmap = nifti.read(path)
     elif fmt == 'zip':
         with read_archive(path) as tempdir:
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
