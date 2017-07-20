@@ -10,7 +10,7 @@ import zipfile
 
 import numpy as np
 
-from . import asciifile, dicomfile, hdf5, util
+from . import asciifile, dicomfile, hdf5, nifti, util
 from .types import Lesion, Patient
 from .types import Path, PurePath
 
@@ -174,12 +174,14 @@ def write_subregion_file(filename, win, comment=''):
 
 
 def guess_format(path):
-    """Guess file format identifier from it's suffix."""
+    """Guess file format identifier from it's suffix. Default to DICOM."""
     # return PurePath(path).suffix[1:]
     suffix = ''.join(PurePath(path).suffixes)[1:]
+    if suffix in ['h5', 'txt', 'zip']:
+        return suffix
     if suffix in ['nii', 'nii.gz']:
         return 'nifti'
-    return suffix
+    return 'dicom'
 
 
 def write_pmap(filename, pmap, attrs, fmt=None):
@@ -205,7 +207,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
         asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
-        raise Exception('Unknown format: {}'.format(fmt))
+        raise Exception('Cannot write format: {}'.format(fmt))
 
 
 def asindices(iterable, lst):
@@ -247,14 +249,12 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
         if 'parameters' in attrs:
             attrs['parameters'] = attrs['parameters'].split()
     elif fmt == 'nifti':
-        from . import nifti
         attrs, pmap = nifti.read(path)
     elif fmt == 'zip':
         with read_archive(path) as tempdir:
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)
-    else:
-        # No extension, assume it's a DICOM directory.
+    elif fmt == 'dicom':
         d = dicomfile.read_dir(path)
         pmap = d.pop('image')
         attrs = dict(d)
