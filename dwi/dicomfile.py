@@ -69,9 +69,7 @@ def read_files(paths):
     else:
         raise ValueError('Inconsistent parameters')
     parameters = [str(x) for x in parameters]
-    if len(positions) > 1:
-        slice_spacing = round(get_slice_spacing(positions[0], positions[1]), 5)
-        d['voxel_spacing'] = (slice_spacing,) + d['voxel_spacing'][1:]
+    d['voxel_spacing'] = corrected_voxel_spacing(d['voxel_spacing'], positions)
     return dict(image=image, bset=bvalues, echotimes=echotimes,
                 parameters=parameters, voxel_spacing=d['voxel_spacing'],
                 dicom_dtype=str(d['dtype']), errors=d['errors'])
@@ -205,3 +203,11 @@ def get_slice_spacing(pos1, pos2):
         # More than one axis differs: use multi-axis distance.
         log.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
     return util.distance(pos1, pos2)
+
+
+def corrected_voxel_spacing(voxel_spacing, positions):
+    """Correct voxel spacing from slice positions, if possible."""
+    if len(positions) > 1:
+        slice_spacing = round(get_slice_spacing(positions[0], positions[1]), 5)
+        return (slice_spacing,) + voxel_spacing[1:]
+    return voxel_spacing
