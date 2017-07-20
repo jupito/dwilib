@@ -76,6 +76,7 @@ class Gui(object):
         """Handle keypress."""
         if event.key == 'q':
             plt.close()
+            return
         if event.key == 'h':
             self.update[0] = not self.update[0]
         if event.key == 'v':
