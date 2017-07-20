@@ -255,7 +255,7 @@ def read_pmap(path, ondisk=False, fmt=None, params=None, dtype=None):
             return read_pmap(tempdir, ondisk=ondisk, fmt=None, params=params,
                              dtype=dtype)
     elif fmt == 'dicom':
-        d = dicomfile.read_dir(path)
+        d = dicomfile.read(path)
         pmap = d.pop('image')
         attrs = dict(d)
     if 'parameters' not in attrs:

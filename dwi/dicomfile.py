@@ -1,6 +1,6 @@
 """Support for reading multi-slice DICOM images.
 
-Use read_dir() to read a directory, read_files() to read a group of files. Each
+Use read() to read a directory, read_files() to read a group of files. Each
 DICOM file may contain one slice, otherwise it will be ignored. Reading fails
 unless all slices have equal orientation, shape, and pixel datatype. In case
 any slices overlap, only one of them is kept. Between-slice spacing is
@@ -21,7 +21,7 @@ import dwi.util
 log = logging.getLogger(__name__)
 
 
-def read_dir(path):
+def read(path):
     """Read a directory containing DICOM files. See dicomfile.read_files().
     """
     path = Path(path)
@@ -33,7 +33,7 @@ def read_dir(path):
     if len(entries) == 1:
         entry, = entries
         if entry.is_dir():
-            return read_dir(entry)
+            return read(entry)
 
     # Sometimes the files reside in an additional 'DICOM' subdirectory.
     entry = path / 'DICOM'
