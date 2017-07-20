@@ -187,16 +187,18 @@ def replace_nans(img):
     """Set any NaN voxels to parameter-wise background (minimum minus 10% of
     range). Return the number of replaced voxels.
     """
+    def _replacement(a):
+        mn, mx = np.nanmin(a), np.nanmax(a)
+        return mn - (mx - mn) / 10
     nans = np.isnan(img)
     n = np.count_nonzero(nans)
     if n:
         for i in range(img.shape[-1]):
             v = img[..., i]
             nans = np.isnan(v)
-            mn, mx = np.nanmin(v), np.nanmax(v)
-            replacement = mn - (mx - mn) / 10
-            v[nans] = replacement
-        print('Replaced {} NaN voxels with sub-parameter background'.format(n))
+            if np.any(nans):
+                v[nans] = _replacement(v)
+        print('Replaced {} NaN voxels with sub-param background.'.format(n))
     return n
 
 
