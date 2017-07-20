@@ -16,14 +16,13 @@ import numpy as np
 import dicom
 
 from .types import Path
-import dwi.util
+from . import util
 
 log = logging.getLogger(__name__)
 
 
 def read(path):
-    """Read a directory containing DICOM files. See dicomfile.read_files().
-    """
+    """Read a directory containing DICOM files. See dicomfile.read_files()."""
     path = Path(path)
     if path.is_file():
         return read_files([path])
@@ -205,4 +204,4 @@ def get_slice_spacing(pos1, pos2):
     if len([x for x in diffs if x > 0.05]) != 1:
         # More than one axis differs: use multi-axis distance.
         log.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
-    return dwi.util.distance(pos1, pos2)
+    return util.distance(pos1, pos2)
