@@ -46,7 +46,7 @@ rcParamsDefault = {
     # 'texture.winsizes.small': (11, 12, 2),  # DWI.
     'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
     # 'texture.winsizes.large': (15, 36, 4),  # T2, T2w.
-    'texture.avg': 'mean',  # Average result texture map (all, mean, median)?
+    'texture.avg': 'median',  # Average result texture map (all, mean, median)?
     'texture.path': None,  # Write result directly to disk, if string.
     'texture.dtype': 'float32',  # Output texture map type.
     'texture.glcm.names': ('contrast', 'dissimilarity', 'homogeneity',
