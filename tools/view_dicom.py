@@ -12,7 +12,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-import dwi.dicomfile
 import dwi.files
 import dwi.mask
 import dwi.plot
