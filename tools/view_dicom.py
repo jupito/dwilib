@@ -160,6 +160,8 @@ def parse_args():
                    help='normalize signal intensity curves')
     p.add_argument('-s', '--scale', action='store_true',
                    help='scale each parameter independently')
+    p.add_argument('-z', '--zoom', action='store_true',
+                   help='rescale image dimensions')
     p.add_argument('-i', '--info', action='store_true',
                    help='show information only')
     p.add_argument('path',
@@ -212,20 +214,21 @@ def scale(img):
     return img
 
 
-def zoom(img, masks):
+def zoom(img, masks, spacing=None, order=1):
     """Zoom."""
-    # factor = (5, 1, 1)
-    factor = (10, 2, 2)
-    order = 1
+    if spacing is None:
+        spacing = (5, 1, 1)
+    # factor = [10, 2, 2]
+    factor = [x / min(spacing) * 2 for x in spacing]
     print('Zooming', img.shape, img.dtype, img.mean())
-    img = dwi.util.zoom(img, factor + (1,), order=order)
+    img = dwi.util.zoom(img, factor + [1], order=order)
     print('Zoomed', img.shape, img.dtype, img.mean())
-
-    _means = [x.mean() for x in masks]
-    print('Zooming masks', _means)
-    masks = [dwi.util.zoom_as_float(x, factor, order=order) for x in masks]
-    _means = [x.mean() for x in masks]
-    print('Zoomed masks', _means)
+    if masks:
+        _means = [x.mean() for x in masks]
+        print('Zooming masks', _means)
+        masks = [dwi.util.zoom_as_float(x, factor, order=order) for x in masks]
+        _means = [x.mean() for x in masks]
+        print('Zoomed masks', _means)
     return img, masks
 
 
@@ -282,7 +285,8 @@ def main():
     else:
         masks = None
 
-    # img, masks = zoom(img, masks)
+    if args.zoom:
+        img, masks = zoom(img, masks, spacing=attrs.get('voxel_spacing'))
 
     if not args.info:
         gui = Gui(img, attrs['parameters'], label=args.path, masks=masks)
