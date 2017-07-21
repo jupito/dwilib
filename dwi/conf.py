@@ -142,9 +142,19 @@ def get_config_parser():
     return p
 
 
+def get_basic_parser():
+    """Get basic parser."""
+    p = FileArgumentParser(add_help=False)
+    p.add('-v', '--verbose', action='count', default=0,
+          help='increase verbosity')
+    p.add('--logfile', type=expanded_path, help='log file')
+    p.add('--loglevel', default='WARNING', help='log level name')
+    return p
+
+
 def get_parser(formatter_class=DefaultValueHelpFormatter, **kwargs):
     """Get an argument parser with the usual standard arguments ready."""
-    parents = [get_config_parser()]
+    parents = [get_basic_parser()]
     return FileArgumentParser(parents=parents, formatter_class=formatter_class,
                               **kwargs)
 
