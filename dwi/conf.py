@@ -134,11 +134,11 @@ def get_config_parser():
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
-    p.add('-j', '--maxjobs', type=float, default=0.9,
+    p.add('--maxjobs', type=float, default=0.9,
           help=('maximum number of simultaneous jobs '
                 '(absolute, portion of CPU count, or negative count)'))
-    p.add('-s', '--samplelist', default='all', help='samplelist identifier')
-    p.add('--texture_methods', nargs='+', help='texture methods')
+    p.add('--texture_methods', nargs='+', default=[],
+          help='texture methods')
     return p
 
 
@@ -149,6 +149,7 @@ def get_basic_parser():
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
+    p.add('-s', '--samplelist', default='all', help='samplelist identifier')
     return p
 
 
