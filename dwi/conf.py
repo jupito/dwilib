@@ -134,11 +134,78 @@ def get_config_parser():
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
+
+    p.add('--cachedir', type=expanded_path, default='~/.cache/dwilib')
     p.add('--maxjobs', type=float, default=0.9,
           help=('maximum number of simultaneous jobs '
                 '(absolute, portion of CPU count, or negative count)'))
-    p.add('--texture_methods', nargs='+', default=[],
+    p.add('--texture_methods', nargs='+',
+          default=[
+              'raw',
+              'stats',
+              # 'haralick',
+              # 'moment',
+              # 'haralick_mbb',
+              'glcm',
+              'glcm_mbb',
+              # 'lbp',
+              # 'hog',
+              'gabor',
+              # 'haar',
+              'hu',
+              'zernike',
+              # 'sobel',
+              'stats_mbb',
+              'stats_all',
+              ],
           help='texture methods')
+    p.add('--texture_winsizes_small', nargs=3, type=int,
+          default=(3, 16, 2),
+          # default=(11, 12, 2)
+          help='window sizes for DWI')
+    p.add('--texture_winsizes_large', nargs=3, type=int,
+          default=(3, 36, 4),
+          # default=(15, 36, 4)
+          help='window sizes for T2, T2w')
+    p.add('--texture_avg',
+          default='median',
+          help='average result texture map (all, mean, median)?')
+    p.add('--texture_path', type=expanded_path,
+          default=None,
+          help='write result directly to disk, if string')
+    p.add('--texture_dtype',
+          default='float32',
+          help='output texture map type')
+    p.add('--texture_glcm_names', nargs='+',
+          default=('contrast', 'dissimilarity', 'homogeneity', 'energy',
+                   'correlation', 'ASM'),
+          help='GLCM features to calculate')
+    p.add('--texture_glcm_distances', nargs='+', type=int,
+          default=(1, 2, 3, 4),
+          help='GLCM pixel distances')
+    p.add('--texture_gabor_orientations', type=int,
+          default=4,
+          # default=6
+          help='number of orientations')
+    p.add('--texture_gabor_sigmas', nargs='+', type=float,
+          default=(1, 2, 3),
+          # default=(None,)
+          help='sigmas')
+    p.add('--texture_gabor_freqs', nargs='+', type=float,
+          default=(0.1, 0.2, 0.3, 0.4, 0.5),
+          help='frequencies')
+    p.add('--texture_lbp_neighbours', type=int,
+          default=8,
+          help='number of neighbours')
+    p.add('--texture_zernike_degree', type=int,
+          default=8,
+          help='maximum degree')
+    p.add('--texture_haar_levels', type=int,
+          default=4,
+          help='number of levels')
+    p.add('--texture_hog_orientations', type=int,
+          default=1,
+          help='number of orientations')
     return p
 
 
