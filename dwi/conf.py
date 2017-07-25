@@ -259,3 +259,6 @@ def parse_args(parser=None):
     log.debug('Parsed config: %s', pformat(rcParams))
 
     return namespace
+
+
+rcParams_n = parse_args()
