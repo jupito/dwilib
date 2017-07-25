@@ -67,8 +67,9 @@ def get_config_paths():
 
 def parse_config(parser):
     """Parse configuration files."""
-    namespace, _ = parser.parse_from_files(get_config_paths())
-    return namespace
+    args, extras = parser.parse_from_files(get_config_paths())
+    log.debug('Extra arguments in config files: %s', extras)
+    return args
 
 
 def get_config_parser():
@@ -183,15 +184,15 @@ def init_logging(args):
 def parse_args(parser=None):
     """Parse args and configuration as well."""
     config_parser = get_config_parser()
-    namespace = parse_config(config_parser)
+    args = parse_config(config_parser)
 
     if parser is not None:
-        parser.parse_args(namespace=namespace)
-    init_logging(namespace)
+        parser.parse_args(namespace=args)
+    init_logging(args)
 
-    log.debug('Parsed args: %s', pformat(vars(namespace)))
+    log.debug('Parsed args: %s', pformat(vars(args)))
 
-    return namespace
+    return args
 
 
 rcParams = parse_args()
