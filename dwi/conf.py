@@ -1,7 +1,5 @@
 """Modifiable runtime configuration parameters."""
 
-# TODO: Always read configuration to a argparse.Namespace object.
-
 from __future__ import absolute_import, division, print_function
 import argparse
 import logging
