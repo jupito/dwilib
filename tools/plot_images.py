@@ -25,9 +25,11 @@ def parse_args():
               # 'T2w-std',
               ],
           help='imaging modes')
+    p.add('-s', '--samplelist', default='all',
+          help='samplelist identifier')
     p.add('-c', '--cases', nargs='+', type=int,
           help='cases to include, if not all')
-    return dwi.conf.parse_args(p)
+    return p.parse_args()
 
 
 def read_case(mode, case, scan, lesions):

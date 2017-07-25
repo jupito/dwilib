@@ -33,7 +33,7 @@ def parse_args():
           help='mask file')
     p.add('--fig', type=Path,
           help='output figure path')
-    return dwi.conf.parse_args(p)
+    return p.parse_args()
 
 
 def array_info(a):

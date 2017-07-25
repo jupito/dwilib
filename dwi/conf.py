@@ -216,7 +216,6 @@ def get_basic_parser():
           help='increase verbosity')
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
-    p.add('-s', '--samplelist', default='all', help='samplelist identifier')
     return p
 
 
