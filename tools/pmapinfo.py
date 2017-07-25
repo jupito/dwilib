@@ -75,7 +75,7 @@ def parse_args():
           help='comma-separated keys for specifiying requested info')
     p.add('--ofs', default='\t',
           help='output field separator')
-    return dwi.conf.parse_args(p)
+    return p.parse_args()
 
 
 def main():
