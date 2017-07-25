@@ -13,7 +13,7 @@ import dwi
 
 _memory_defaults = dict(
     # cachedir='cache',
-    cachedir=dwi.rcParams['cachedir'],
+    cachedir=dwi.rcParams.cachedir,
     # mmap_mode=None,
     # compress=False,
     verbose=0,

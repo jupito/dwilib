@@ -57,7 +57,7 @@ def stats_map(img, winsize, mask=None, output=None):
         d = stats(win)
         names = list(d.keys())
         if output is None:
-            dtype = dwi.rcParams['texture.dtype']
+            dtype = dwi.rcParams.texture_dtype
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, value in enumerate(d.values()):
             output[(i,) + pos] = value
@@ -104,7 +104,7 @@ METHODS = OrderedDict([
 
 def get_texture_all(img, call, mask):
     feats, names = call(img, mask=mask)
-    dtype = dwi.rcParams['texture.dtype']
+    dtype = dwi.rcParams.texture_dtype
     tmap = np.full(img.shape + (len(names),), np.nan, dtype=dtype)
     tmap[mask, :] = feats
     return tmap, names
@@ -116,21 +116,21 @@ def get_texture_mbb(img, call, mask):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, mask=mask_slice)
             if tmap is None:
-                dtype = dwi.rcParams['texture.dtype']
+                dtype = dwi.rcParams.texture_dtype
                 tmap = np.full(img.shape + (len(names),), np.nan, dtype=dtype)
             tmap[i, mask_slice, :] = feats
     return tmap, names
 
 
 def get_texture_map(img, call, winsize, mask):
-    path = dwi.rcParams['texture.path']
+    path = dwi.rcParams.texture_path
     tmap = None
     for i, (img_slice, mask_slice) in enumerate(zip(img, mask)):
         if np.count_nonzero(mask_slice):
             feats, names = call(img_slice, winsize, mask=mask_slice)
             if tmap is None:
                 shape = img.shape + (len(names),)
-                dtype = dwi.rcParams['texture.dtype']
+                dtype = dwi.rcParams.texture_dtype
                 if path is None:
                     tmap = np.full(shape, np.nan, dtype=dtype)
                 else:
@@ -148,8 +148,8 @@ def average_tmap(tmap, names, mask, mode):
     """Average texture feature map if requested."""
     assert tmap.shape[-1] == len(names), (tmap.shape[-1], len(names))
     averagers = dict(all=None, mean=np.nanmean, median=np.nanmedian)
-    averager = averagers[dwi.rcParams['texture.avg']]
-    dtype = dwi.rcParams['texture.dtype']
+    averager = averagers[dwi.rcParams.texture_avg]
+    dtype = dwi.rcParams.texture_dtype
     if averager:
         if mode == 'normal':
             # Take average of all selected voxels.

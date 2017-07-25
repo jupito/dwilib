@@ -138,11 +138,11 @@ def main():
     logging.info('Calculating %s texture features for %s...', args.method,
                  args.mode)
 
-    dwi.rcParams['texture.avg'] = args.voxel
-    if dwi.rcParams['texture.avg'] != 'all':
+    dwi.rcParams.texture_avg = args.voxel
+    if dwi.rcParams.texture_avg != 'all':
         if args.mode.startswith('T2w') and args.method.startswith('gabor'):
             # These result arrays can get quite huge (if float64).
-            dwi.rcParams['texture.path'] = args.output
+            dwi.rcParams.texture_path = args.output
 
     if args.method in ('glcm', 'glcm_mbb'):
         img = dwi.util.quantize(dwi.util.normalize(img, args.mode))
@@ -155,7 +155,7 @@ def main():
 
     logging.info('Writing shape %s, type %s to %s', tmap.shape, tmap.dtype,
                  args.output)
-    if dwi.rcParams['texture.path']:
+    if dwi.rcParams.texture_path:
         attrs['shape'] = tmap.shape
         attrs['dtype'] = str(tmap.dtype)
         dwi.hdf5.write_attrs(tmap, attrs)  # Attributes may need conversion.

@@ -29,12 +29,12 @@ def zernike(img, radius, degree=8, cm=None):
 
 def zernike_map(img, winsize, mask=None, output=None):
     """Zernike moment map."""
-    degree = dwi.rcParams['texture.zernike.degree']
+    degree = dwi.rcParams.texture_zernike_degree
     radius = winsize // 2
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats = zernike(win, radius, degree=degree, cm=(radius, radius))
         if output is None:
-            dtype = dwi.rcParams['texture.dtype']
+            dtype = dwi.rcParams.texture_dtype
             output = np.zeros((len(feats),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v
@@ -84,7 +84,7 @@ def haar_features(win):
 
 def haar_map(img, winsize, mask=None, output=None):
     """Haar texture feature map."""
-    nlevels = dwi.rcParams['texture.haar.levels']
+    nlevels = dwi.rcParams.texture_haar_levels
     # Cannot have nans here, they might have global influence.
     nans = np.isnan(img)
     if np.count_nonzero(nans):
@@ -96,7 +96,7 @@ def haar_map(img, winsize, mask=None, output=None):
             for pos, win in dwi.util.sliding_window(coeff, winsize, mask):
                 feats = haar_features(win)
                 if output is None:
-                    dtype = dwi.rcParams['texture.dtype']
+                    dtype = dwi.rcParams.texture_dtype
                     output = np.zeros((len(levels), len(coeffs), len(feats),) +
                                       coeff.shape, dtype=dtype)
                 for k, v in enumerate(feats.values()):
@@ -133,7 +133,7 @@ def haralick_map(img, winsize, mask=None, output=None, ignore_zeros=False):
     for pos, win in dwi.util.sliding_window(img, winsize, mask=mask):
         feats, names = haralick(win, ignore_zeros=ignore_zeros)
         if output is None:
-            dtype = dwi.rcParams['texture.dtype']
+            dtype = dwi.rcParams.texture_dtype
             output = np.zeros((len(names),) + img.shape, dtype=dtype)
         for i, v in enumerate(feats):
             output[(i,) + pos] = v

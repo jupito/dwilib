@@ -19,57 +19,6 @@ def expanded_path(*args, **kwargs):
     return Path(*args, **kwargs).expanduser()
 
 
-# Default runtime configuration parameters. Somewhat similar to matplotlib.
-rcParamsDefault = {
-    # 'cachedir': 'cache',
-    'cachedir': str(expanded_path('~/.cache/dwilib')),
-    'maxjobs': 0.9,
-    'texture.methods': [
-        'raw',
-        'stats',
-        # 'haralick',
-        # 'moment',
-        # 'haralick_mbb',
-        'glcm',
-        'glcm_mbb',
-        # 'lbp',
-        # 'hog',
-        'gabor',
-        # 'haar',
-        'hu',
-        'zernike',
-        # 'sobel',
-        'stats_mbb',
-        'stats_all',
-        ],
-    'texture.winsizes.small': (3, 16, 2),  # DWI.
-    # 'texture.winsizes.small': (11, 12, 2),  # DWI.
-    'texture.winsizes.large': (3, 36, 4),  # T2, T2w.
-    # 'texture.winsizes.large': (15, 36, 4),  # T2, T2w.
-    'texture.avg': 'median',  # Average result texture map (all, mean, median)?
-    'texture.path': None,  # Write result directly to disk, if string.
-    'texture.dtype': 'float32',  # Output texture map type.
-    'texture.glcm.names': ('contrast', 'dissimilarity', 'homogeneity',
-                           'energy', 'correlation', 'ASM'),
-    'texture.glcm.distances': (1, 2, 3, 4),  # GLCM pixel distances.
-    'texture.gabor.orientations': 4,  # Number of orientations.
-    # 'texture.gabor.orientations': 6,  # Number of orientations.
-    'texture.gabor.sigmas': (1, 2, 3),
-    # 'texture.gabor.sigmas': (None,),
-    'texture.gabor.freqs': (0.1, 0.2, 0.3, 0.4, 0.5),
-    'texture.lbp.neighbours': 8,  # Number of neighbours.
-    'texture.zernike.degree': 8,  # Maximum degree.
-    'texture.haar.levels': 4,  # Numer of levels.
-    'texture.hog.orientations': 1,  # Numer of orientations.
-    }
-rcParams = dict(rcParamsDefault)
-
-
-def rcdefaults():
-    """Restore default rc params."""
-    rcParams.update(rcParamsDefault)
-
-
 def get_config_paths():
     """Return existing default configuration files."""
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
@@ -236,12 +185,6 @@ def init_logging(args):
     logging.basicConfig(**d)
 
 
-def args_as_rc(namespace):
-    """Convert argument namespace to rcParams."""
-    table = str.maketrans('_', '.')  # Change '_' to '.'
-    return {k.translate(table): v for k, v in vars(namespace).items()}
-
-
 def parse_args(parser=None):
     """Parse args and configuration as well."""
     config_parser = get_config_parser()
@@ -251,13 +194,10 @@ def parse_args(parser=None):
         parser.parse_args(namespace=namespace)
     init_logging(namespace)
 
-    # TODO: Under construction.
-    rcParams.update(args_as_rc(namespace))
-
     log.debug('Parsed args: %s', pformat(vars(namespace)))
-    log.debug('Parsed config: %s', pformat(rcParams))
 
     return namespace
 
 
-rcParams_n = parse_args()
+rcParams = parse_args()
+log.debug('Parsed config: %s', pformat(rcParams))

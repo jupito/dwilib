@@ -15,7 +15,7 @@ from . import rcParams
 
 def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
-    maxjobs = rcParams['maxjobs']
+    maxjobs = rcParams.maxjobs
     try:
         if maxjobs < 0:
             # Joblib-type negative count: -1 => all, -2 => all but one, etc.
@@ -74,7 +74,7 @@ def lesions(mode, samplelist):
 
 def texture_methods():
     """Return texture methods."""
-    return rcParams['texture.methods']
+    return rcParams.texture_methods
 
 
 def texture_winsizes(masktype, mode, method):
@@ -90,9 +90,9 @@ def texture_winsizes(masktype, mode, method):
     elif masktype in ('CA', 'N'):
         return [3, 5]  # These ROIs are always 5x5 voxels.
     elif mode[0] in ('T2', 'T2w'):
-        return range(*rcParams['texture.winsizes.large'])
+        return range(*rcParams.texture_winsizes_large)
     else:
-        return range(*rcParams['texture.winsizes.small'])
+        return range(*rcParams.texture_winsizes_small)
 
 
 def texture_methods_winsizes(mode, masktype):
