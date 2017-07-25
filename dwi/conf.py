@@ -12,29 +12,6 @@ from . import util
 log = logging.getLogger(__name__)
 
 
-def expanded_path(*args, **kwargs):
-    """Automatically expanded Path. Useful as an argparse type from file."""
-    return Path(*args, **kwargs).expanduser()
-
-
-def get_config_paths():
-    """Return existing default configuration files."""
-    dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
-    filename = 'dwilib.cfg'
-    paths = [expanded_path(x) / filename for x in dirnames]
-    paths = [x for x in paths if x.exists()]
-    return paths
-
-
-def parse_config(parser):
-    """Parse configuration files."""
-    # prefix = parser.fromfile_prefix_chars[0]
-    # args = ['{}{}'.format(prefix, x) for x in get_config_paths()]
-    # namespace, _ = parser.parse_known_args(args)
-    namespace, _ = parser.parse_from_files(get_config_paths())
-    return namespace
-
-
 class DefaultValueHelpFormatter(argparse.HelpFormatter):
     """A formatter that appends possible default value to argument helptext."""
     def _expand_help(self, action):
@@ -72,6 +49,26 @@ class FileArgumentParser(argparse.ArgumentParser):
     #     if self.raise_on_error:
     #         raise ValueError(message)
     #     super().error(message)
+
+
+def expanded_path(*args, **kwargs):
+    """Automatically expanded Path. Useful as an argparse type from file."""
+    return Path(*args, **kwargs).expanduser()
+
+
+def get_config_paths():
+    """Return existing default configuration files."""
+    dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
+    filename = 'dwilib.cfg'
+    paths = [expanded_path(x) / filename for x in dirnames]
+    paths = [x for x in paths if x.exists()]
+    return paths
+
+
+def parse_config(parser):
+    """Parse configuration files."""
+    namespace, _ = parser.parse_from_files(get_config_paths())
+    return namespace
 
 
 def get_config_parser():
