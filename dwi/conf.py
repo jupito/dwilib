@@ -185,13 +185,9 @@ def parse_args(parser=None):
     """Parse args and configuration as well."""
     config_parser = get_config_parser()
     args = parse_config(config_parser)
-
     if parser is not None:
         parser.parse_args(namespace=args)
     init_logging(args)
-
-    log.debug('Parsed args: %s', pformat(vars(args)))
-
     return args
 
 
