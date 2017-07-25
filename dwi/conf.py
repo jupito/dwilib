@@ -105,13 +105,13 @@ def get_config_parser():
               ],
           help='texture methods')
     p.add('--texture_winsizes_small', nargs=3, type=int,
-          default=(3, 16, 2),
-          # default=(11, 12, 2)
-          help='window sizes for DWI')
+          default=[3, 16, 2],
+          # default=[11, 12, 2]
+          help='window sizes for DWI (start, stop, step)')
     p.add('--texture_winsizes_large', nargs=3, type=int,
-          default=(3, 36, 4),
-          # default=(15, 36, 4)
-          help='window sizes for T2, T2w')
+          default=[3, 36, 4],
+          # default=[15, 36, 4]
+          help='window sizes for T2, T2w (start, stop, step)')
     p.add('--texture_avg',
           default='median',
           help='average result texture map (all, mean, median)?')
@@ -122,22 +122,22 @@ def get_config_parser():
           default='float32',
           help='output texture map type')
     p.add('--texture_glcm_names', nargs='+',
-          default=('contrast', 'dissimilarity', 'homogeneity', 'energy',
-                   'correlation', 'ASM'),
+          default=['contrast', 'dissimilarity', 'homogeneity', 'energy',
+                   'correlation', 'ASM'],
           help='GLCM features to calculate')
     p.add('--texture_glcm_distances', nargs='+', type=int,
-          default=(1, 2, 3, 4),
+          default=[1, 2, 3, 4],
           help='GLCM pixel distances')
     p.add('--texture_gabor_orientations', type=int,
           default=4,
           # default=6
           help='number of orientations')
     p.add('--texture_gabor_sigmas', nargs='+', type=float,
-          default=(1, 2, 3),
-          # default=(None,)
+          default=[1, 2, 3],
+          # default=[None,]
           help='sigmas')
     p.add('--texture_gabor_freqs', nargs='+', type=float,
-          default=(0.1, 0.2, 0.3, 0.4, 0.5),
+          default=[0.1, 0.2, 0.3, 0.4, 0.5],
           help='frequencies')
     p.add('--texture_lbp_neighbours', type=int,
           default=8,
