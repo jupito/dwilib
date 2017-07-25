@@ -56,6 +56,12 @@ def expanded_path(*args, **kwargs):
     return Path(*args, **kwargs).expanduser()
 
 
+def indices(s):
+    """Create a list of indices from a slice string, i.e. start:stop:step."""
+    start, stop, step = (int(x) for x in s.split(':'))
+    return list(range(start, stop, step))
+
+
 def get_config_paths():
     """Return existing default configuration files."""
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
@@ -80,7 +86,8 @@ def get_config_parser():
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
 
-    p.add('--cachedir', type=expanded_path, default='~/.cache/dwilib')
+    p.add('--cachedir', type=expanded_path,
+          default=expanded_path('~/.cache/dwilib'))
     p.add('--maxjobs', type=float, default=0.9,
           help=('maximum number of simultaneous jobs '
                 '(absolute, portion of CPU count, or negative count)'))
@@ -104,13 +111,11 @@ def get_config_parser():
               'stats_all',
               ],
           help='texture methods')
-    p.add('--texture_winsizes_small', nargs=3, type=int,
-          default=[3, 16, 2],
-          # default=[11, 12, 2]
+    p.add('--texture_winsizes_small', type=indices,
+          default=indices('3:16:2'),
           help='window sizes for DWI (start, stop, step)')
-    p.add('--texture_winsizes_large', nargs=3, type=int,
-          default=[3, 36, 4],
-          # default=[15, 36, 4]
+    p.add('--texture_winsizes_large', type=indices,
+          default=indices('3:36:4'),
           help='window sizes for T2, T2w (start, stop, step)')
     p.add('--texture_avg',
           default='median',
