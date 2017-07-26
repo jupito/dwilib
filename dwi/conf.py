@@ -1,13 +1,12 @@
 """Modifiable runtime configuration parameters."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import logging
-from pprint import pformat
 import shlex
+from pprint import pformat
 
-from .types import Path
 from . import util
+from .types import Path
 
 log = logging.getLogger(__name__)
 
