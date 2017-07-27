@@ -24,9 +24,11 @@ class DefaultValueHelpFormatter(argparse.HelpFormatter):
 class FileArgumentParser(argparse.ArgumentParser):
     """Custom ArgumentParser that is better for reading arguments from files.
 
-    Set `fromfile_prefix_chars` to `@` by default; better
-    `convert_arg_line_to_args()`; added `parse_from_files()`; added `add` as a
-    shortcut to `add_argument`.
+    Changes from argparse.ArgumentParser:
+    - added `add` as a shortcut to `add_argument`
+    - set `fromfile_prefix_chars` to `@` by default
+    - more flexible `convert_arg_line_to_args()` using shlex.split()
+    - added `parse_from_files()` to parse only from given files
     """
     add = argparse.ArgumentParser.add_argument
 
