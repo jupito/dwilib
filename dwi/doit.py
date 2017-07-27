@@ -2,7 +2,6 @@
 
 # TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
 
-import logging
 from itertools import chain, product
 
 from doit.tools import create_folder
@@ -12,9 +11,15 @@ from . import rcParams
 from .paths import samplelist_path
 from .types import Path, TextureSpec
 
+# # Imaging modes.
+# DEFAULT_MODE = 'DWI-Mono-ADCm'
+# MODES = [ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
+# # Sample lists (train, test, etc).
+# SAMPLELISTS = words(get_var('samplelist', 'all'))
+
 
 def get_config():
-    """Get doit config."""
+    """Get doit config (DOIT_CONFIG)."""
     return {
         'backend': 'sqlite3',
         'default_tasks': [],
@@ -39,9 +44,7 @@ def get_num_process(factor=0.9, default=1):
             n = maxjobs
     except OSError:
         n = default
-    n = int(max(1, n))
-    logging.warning('Using %d processes', n)
-    return n
+    return int(max(1, n))
 
 
 def words(string, sep=','):

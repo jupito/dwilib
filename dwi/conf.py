@@ -6,7 +6,7 @@ import shlex
 from pprint import pformat
 
 from . import util
-from .types import Path
+from .types import ImageMode, Path
 
 log = logging.getLogger(__name__)
 
@@ -92,6 +92,11 @@ def get_config_parser():
     p.add('--maxjobs', type=float, default=0.9,
           help=('maximum number of simultaneous jobs '
                 '(absolute, portion of CPU count, or negative count)'))
+    p.add('--modes', nargs='+', type=ImageMode,
+          default=[ImageMode('DWI-Mono-ADCm')],
+          help='imaging modes')
+    p.add('--samplelists', nargs='+', default=['all'],
+          help='samplelists')
     p.add('--texture_methods', nargs='+',
           default=[
               'raw',

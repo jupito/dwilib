@@ -1,35 +1,31 @@
 """PyDoIt file for automating tasks."""
 
+import logging
 from collections import defaultdict
 from itertools import product
 
-from doit import get_var
+# from doit import get_var
 # from doit.tools import check_timestamp_unchanged
 
 import dwi.dataset
 import dwi.paths
 import dwi.shell
+from dwi import rcParams
 from dwi.doit import (_files, cases_scans, find_roi_param_combinations,
                       folders, lesions, taskname, texture_methods_winsizes,
-                      texture_params, words)
-from dwi.types import ImageMode, TextureSpec
+                      texture_params)
+from dwi.types import TextureSpec
 
 DOIT_CONFIG = dwi.doit.get_config()
-
-# Imaging modes.
-DEFAULT_MODE = 'DWI-Mono-ADCm'
-MODES = [ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
-
-# Sample lists (train, test, etc).
-SAMPLELISTS = words(get_var('samplelist', 'all'))
+MODES = rcParams.modes
+SAMPLELISTS = rcParams.samplelists
 
 MODE = MODES[0]  # XXX: Only first mode used.
 SAMPLELIST = SAMPLELISTS[0]  # XXX: Only first samplelist used.
 
-
-#
-# Tasks.
-#
+logging.info('Imaging modes: %s', rcParams.modes)
+logging.info('samplelists: %s', rcParams.samplelists)
+logging.info('Using %d processes', DOIT_CONFIG['num_process'])
 
 
 def task_standardize_train():
