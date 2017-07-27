@@ -13,6 +13,17 @@ from . import files, util
 from . import rcParams
 
 
+def get_config():
+    """Get doit config."""
+    return {
+        'backend': 'sqlite3',
+        'default_tasks': [],
+        'verbosity': 1,
+        # 'num_process': 7,
+        'num_process': get_num_process(),
+        }
+
+
 def get_num_process(factor=0.9, default=1):
     """Take a pick how many processes we want to run simultaneously."""
     maxjobs = rcParams.maxjobs

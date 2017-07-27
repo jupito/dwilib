@@ -13,13 +13,7 @@ from dwi.doit import (_files, cases_scans, folders, lesions, taskname,
                       texture_methods_winsizes, words)
 from dwi.types import ImageMode, TextureSpec
 
-DOIT_CONFIG = {
-    'backend': 'sqlite3',
-    'default_tasks': [],
-    'verbosity': 1,
-    # 'num_process': 7,
-    'num_process': dwi.doit.get_num_process(),
-    }
+DOIT_CONFIG = dwi.doit.get_config()
 
 # Imaging modes.
 DEFAULT_MODE = 'DWI-Mono-ADCm'
