@@ -3,6 +3,7 @@
 # TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
 
 import logging
+from itertools import chain, product
 
 from doit.tools import create_folder
 
@@ -110,3 +111,39 @@ def texture_methods_winsizes(mode, masktype):
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
             yield TextureSpec(winsize, method, None)
+
+
+def texture_params(voxels=None):
+    """Iterate texture parameter combinations."""
+    masktypes = ['lesion']
+    slices = ['maxfirst', 'all']
+    portion = [1, 0]
+    voxels = iter(voxels or ['mean', 'median', 'all'])
+    return product(masktypes, slices, portion, voxels)
+
+
+def find_roi_param_combinations(mode, samplelist):
+    """Generate all find_roi.py parameter combinations."""
+    find_roi_params = [
+        [1, 2, 3],  # ROI depth min
+        [1, 2, 3],  # ROI depth max
+        range(2, 13),  # ROI side min (3 was not good)
+        range(3, 13),  # ROI side max
+        chain(range(250, 2000, 250), [50, 100, 150, 200]),  # Number of ROIs
+        ]
+    if mode[0] == 'DWI':
+        if samplelist == 'test':
+            params = [
+                (2, 3, 10, 10, 500),  # Mono: corr, auc
+                (2, 3, 10, 10, 1750),  # Mono: corr
+                (2, 3, 11, 11, 750),  # Mono: corr
+                # (2, 3, 2, 2, 250),  # Kurt: auc
+                # (2, 3, 9, 9, 1000),  # Kurt: corr
+                # (2, 3, 12, 12, 1750),  # Kurt: corr
+                # (2, 3, 5, 5, 500),  # Kurt K: corr, auc
+                ]
+        else:
+            params = product(*find_roi_params)
+        for t in params:
+            if t[0] <= t[1] and t[2] == t[3]:
+                yield [str(x) for x in t]
