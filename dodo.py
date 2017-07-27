@@ -1,17 +1,16 @@
 """PyDoIt file for automating tasks."""
 
-from __future__ import absolute_import, division, print_function
 from collections import defaultdict
 from itertools import chain, product
 
 from doit import get_var
 # from doit.tools import check_timestamp_unchanged
 
-from dwi.doit import (cases_scans, folders, lesions, taskname,
-                      texture_methods_winsizes, words, _files)
 import dwi.dataset
 import dwi.paths
 import dwi.shell
+from dwi.doit import (_files, cases_scans, folders, lesions, taskname,
+                      texture_methods_winsizes, words)
 from dwi.types import ImageMode, TextureSpec
 
 DOIT_CONFIG = {
