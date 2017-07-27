@@ -28,6 +28,9 @@ MODES = [ImageMode(x) for x in words(get_var('mode', DEFAULT_MODE))]
 # Sample lists (train, test, etc).
 SAMPLELISTS = words(get_var('samplelist', 'all'))
 
+MODE = MODES[0]  # XXX: Only first mode used.
+SAMPLELIST = SAMPLELISTS[0]  # XXX: Only first samplelist used.
+
 
 def texture_params(voxels=None):
     """Iterate texture parameter combinations."""
@@ -75,7 +78,6 @@ def task_standardize_train():
 
     Pay attention to the sample list: all samples should be used.
     """
-    MODE = MODES[0]  # XXX: Only first mode used.
     if MODE[0] != 'T2w':
         return
     # mode = MODE - 'std'
@@ -96,8 +98,6 @@ def task_standardize_train():
 
 def task_standardize_transform():
     """Standardize MRI images: transform phase."""
-    MODE = MODES[0]  # XXX: Only first mode used.
-    SAMPLELIST = SAMPLELISTS[0]  # XXX: Only first samplelist used.
     if MODE[0] != 'T2w':
         return
     # mode = MODE - 'std'
