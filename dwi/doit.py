@@ -2,15 +2,14 @@
 
 # TODO: Merge cases_scans() and lesions(). Remove read_sample_list().
 
-from __future__ import absolute_import, division, print_function
 import logging
 
 from doit.tools import create_folder
 
-from .paths import samplelist_path
-from .types import Path, TextureSpec
 from . import files, util
 from . import rcParams
+from .paths import samplelist_path
+from .types import Path, TextureSpec
 
 
 def get_config():
