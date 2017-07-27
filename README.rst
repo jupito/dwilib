@@ -52,4 +52,4 @@ Optional requirements
 - `h5py <http://www.h5py.org/>`_ (handling HDF5 files)
 - `scikit-image <http://scikit-image.org/>`_ (texture analysis)
 - `Mahotas <http://luispedro.org/software/mahotas/>`_ (texture analysis)
-- `DoIt <http://pydoit.org/>`_ (task management)
+- `PyDoIt <http://pydoit.org/>`_ (task management)
