@@ -68,8 +68,7 @@ def get_config_paths():
     dirnames = ['/etc/dwilib', '~/.config/dwilib', '.']
     filename = 'dwilib.cfg'
     paths = [expanded_path(x) / filename for x in dirnames]
-    paths = [x for x in paths if x.exists()]
-    return paths
+    return [x for x in paths if x.exists()]
 
 
 def parse_config(parser):
