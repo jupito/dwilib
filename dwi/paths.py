@@ -26,18 +26,13 @@ class Paths(object):
         """Return path to pmap."""
         if 'std' in self.mode or self.mode == 'T2-fitted':
             fmt = 'h5'  # TODO: Temporary redirection.
-        d = dict(m=self.mode, m_=self.mode[:2], c=case, s=scan)
-        path = 'images'
+        d = dict(m=self.mode, c=case, s=scan)
+        path = 'images/{m[:2]}'
         if fmt == 'h5':
-            path += '/{m_}'
             if case is not None and scan is not None:
                 path += '/{c}-{s}.h5'
             return Path(path.format(**d))
         elif fmt == 'dicom':
-            if len(self.mode) == 1:
-                path += '/{m[0]}_*'
-            else:
-                path += '/{m[1]}_*'
             if case is not None and scan is not None:
                 if self.mode == 'DWI':
                     path += '/{c}_hB_{s}.zip'
