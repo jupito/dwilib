@@ -1,16 +1,18 @@
 """Utility functionality."""
 
-from collections import OrderedDict
-from functools import reduce
 import json
 import logging
 import os
 import platform
+from collections import OrderedDict
+from functools import reduce
 
 import numpy as np
+
 from scipy import spatial
 from scipy.ndimage import interpolation
-import skimage.exposure
+
+from skimage import exposure
 
 
 def get_loglevel(name):
@@ -302,7 +304,7 @@ def normalize(pmap, mode):
     logging.debug('Normalizing: %s, %s', mode, in_range)
     pmap = pmap.astype(np.float32, copy=False)
     pmap = np.nan_to_num(pmap)
-    pmap = skimage.exposure.rescale_intensity(pmap, in_range=in_range)
+    pmap = exposure.rescale_intensity(pmap, in_range=in_range)
     return pmap
 
 
