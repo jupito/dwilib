@@ -52,8 +52,7 @@ def crop_image(image, subwindow, onebased=False):
     if onebased:
         subwindow = [i-1 for i in subwindow]
     z1, z2, y1, y2, x1, x2 = subwindow
-    view = image[z1:z2, y1:y2, x1:x2]
-    return view
+    return image[z1:z2, y1:y2, x1:x2]
 
 
 def select_subwindow(image, subwindow, onebased=False):
