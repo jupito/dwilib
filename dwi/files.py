@@ -44,16 +44,15 @@ def read_archive(archive, max_size=None):
             yield tmpdir
 
 
-def sanitize_line(line):
-    """Clean up an input line."""
-    return line.split(COMMENT_PREFIX, 1)[0].strip()
+def sanitize_line(line, commenter=COMMENT_PREFIX):
+    """Clean up input line."""
+    return line.split(commenter, 1)[0].strip()
 
 
 def valid_lines(path):
     """Read and yield lines that are neither empty nor comments."""
     with Path(path).open(mode='rU') as fp:
-        for line in filter(None, (sanitize_line(x) for x in fp)):
-            yield line
+        yield from filter(None, (sanitize_line(x) for x in fp))
 
 
 def ensure_dir(path):
