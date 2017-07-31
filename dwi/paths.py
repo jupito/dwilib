@@ -59,23 +59,19 @@ class Paths(object):
             return None
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
                  ap_='_'.join(algparams))
-        do_glob = True
-        path = 'masks'
+        path = Path('masks')
         if masktype == 'prostate':
-            path += '/{mt}/{m[0]}/{c}_*_{s}*.h5'
+            pattern = '{mt}/{m[0]}/{c}_*_{s}*.h5'
         elif masktype == 'lesion':
-            path += '/{mt}/{m[0]}/lesion{l}/{c}_*{s}_{m[0]}.h5'
-        elif masktype in ('CA', 'N'):
-            path += '/roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
+            pattern = '{mt}/{m[0]}/lesion{l}/{c}_*{s}_{m[0]}.h5'
+        elif masktype in ['CA', 'N']:
+            pattern = 'roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
         elif masktype == 'auto':
-            path += '/{mt}/{m}/{ap_}/{c}_{s}_auto.mask'
-            do_glob = False  # Don't require existence, can be generated.
+            return path / '{mt}/{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
-        path = path.format(**d)
-        if do_glob:
-            path, = Path().glob(path)
-        return Path(path)
+        path, = path.glob(pattern)
+        return path
 
     def roi(self, masktype, case=None, scan=None, lesion=None, algparams=()):
         """Return whole ROI path or part of it."""
