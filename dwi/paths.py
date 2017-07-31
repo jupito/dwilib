@@ -55,8 +55,7 @@ class Paths(object):
         """Return path and deps of masks of different types."""
         if masktype == 'all':
             return None
-        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
-                 ap_='_'.join(algparams))
+        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = Path('masks')
         if masktype == 'prostate':
             pattern = '{mt}/{m[0]}/{c}_*_{s}*.h5'
@@ -65,7 +64,8 @@ class Paths(object):
         elif masktype in ['CA', 'N']:
             pattern = 'roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
         elif masktype == 'auto':
-            return path / '{mt}/{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
+            d['ap'] = '_'.join(algparams)
+            return path / '{mt}/{m}/{ap}/{c}_{s}_auto.mask'.format(**d)
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
         path, = path.glob(pattern.format(**d))
