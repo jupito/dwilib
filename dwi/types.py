@@ -1,7 +1,7 @@
 """Miscellaneous types."""
 
 from collections import namedtuple
-from functools import total_ordering
+from functools import partial, total_ordering
 
 # With older Python version, pathlib2 might be preferred.
 try:
@@ -69,5 +69,8 @@ ImageTarget = namedtuple('ImageTarget', ['case', 'scan', 'lesion'])
 ImageTarget.__str__ = _fmt_seq
 ROISpec = namedtuple('ROISpec', ['type', 'id'])
 ROISpec.__str__ = _fmt_seq
+AlgParams = namedtuple('AlgParams', ['depthmin', 'depthmax',
+                                     'sidemin', 'sidemax', 'nrois'])
+AlgParams.__str__ = _fmt_seq
 
 __all__ = list(n for n in globals() if n[:1] != '_')
