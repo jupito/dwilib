@@ -1,8 +1,5 @@
 """Common path names."""
 
-# TODO: Get rid of messy globbing by by explicit data file naming.
-# TODO: Move all functions to a class.
-
 from .types import AlgParams, ImageMode, ImageTarget, Path
 
 
