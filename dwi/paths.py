@@ -60,7 +60,7 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = Path('masks')
         if masktype == 'prostate':
-            pattern = '{mt}/{m[0]}/{c}_*_{s}*.h5'
+            return path / '{mt}/{m[0]}/{c}_{s}.h5'.format(**d)
         elif masktype == 'lesion':
             pattern = '{mt}/{m[0]}/lesion{l}/{c}_*{s}_{m[0]}.h5'
         elif masktype in ['CA', 'N']:
