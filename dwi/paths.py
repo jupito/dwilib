@@ -3,8 +3,6 @@
 # TODO: Get rid of messy globbing by by explicit data file naming.
 # TODO: Move all functions to a class.
 
-from __future__ import absolute_import, division, print_function
-
 from .types import ImageMode, Path
 
 
