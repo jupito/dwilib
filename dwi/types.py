@@ -64,8 +64,10 @@ def _fmt_seq(seq):
 
 
 TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
+TextureSpec.__str__ = _fmt_seq
 ImageTarget = namedtuple('ImageTarget', ['case', 'scan', 'lesion'])
 ImageTarget.__str__ = _fmt_seq
-MaskSpec = namedtuple('MaskSpec', ['type', 'id'])
+ROISpec = namedtuple('ROISpec', ['type', 'id'])
+ROISpec.__str__ = _fmt_seq
 
 __all__ = list(n for n in globals() if n[:1] != '_')
