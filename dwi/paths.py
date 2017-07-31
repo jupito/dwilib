@@ -15,6 +15,10 @@ def _fmt_algparams(algparams):
     return '_'.join(algparams)
 
 
+def _fmt_target(target):
+    return '-'.join(target)
+
+
 class Paths(object):
     def __init__(self, mode):
         self.mode = ImageMode(mode)
@@ -28,11 +32,11 @@ class Paths(object):
         """Return path to pmap."""
         if 'std' in self.mode or self.mode == 'T2-fitted':
             fmt = 'h5'  # TODO: Temporary redirection.
-        d = dict(m=self.mode, c=case, s=scan)
+        d = dict(m=self.mode, c=case, s=scan, trg=_fmt_target(case, scan))
         path = Path('images/{m[:2]}'.format(**d))
         if case is not None and scan is not None:
             if fmt == 'h5':
-                return path / '{c}-{s}.h5'.format(**d)
+                return path / '{trg}.h5'.format(**d)
             elif fmt == 'dicom':
                 if self.mode == 'DWI':
                     return path / '{c}_hB_{s}.zip'.format(**d)
