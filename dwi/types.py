@@ -63,14 +63,16 @@ def _fmt_seq(seq):
     return '-'.join(str(x) for x in seq if x is not None)
 
 
-TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
-TextureSpec.__str__ = _fmt_seq
-ImageTarget = namedtuple('ImageTarget', ['case', 'scan', 'lesion'])
-ImageTarget.__str__ = _fmt_seq
-ROISpec = namedtuple('ROISpec', ['type', 'id'])
-ROISpec.__str__ = _fmt_seq
-AlgParams = namedtuple('AlgParams', ['depthmin', 'depthmax',
-                                     'sidemin', 'sidemax', 'nrois'])
-AlgParams.__str__ = _fmt_seq
+def namedtuple_fmt(*args, **kwargs):
+    t = namedtuple(*args, **kwargs)
+    t.__str__ = _fmt_seq
+    return t
+
+
+TextureSpec = namedtuple_fmt('TextureSpec', ['winsize', 'method', 'feature'])
+ImageTarget = namedtuple_fmt('ImageTarget', ['case', 'scan', 'lesion'])
+ROISpec = namedtuple_fmt('ROISpec', ['type', 'id'])
+AlgParams = namedtuple_fmt('AlgParams', ['depthmin', 'depthmax',
+                                         'sidemin', 'sidemax', 'nrois'])
 
 __all__ = list(n for n in globals() if n[:1] != '_')
