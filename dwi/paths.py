@@ -81,19 +81,19 @@ class Paths(object):
         """Return whole ROI path or part of it."""
         if masktype == 'image':
             return self.pmap(case, scan)  # No ROI, but the whole image.
-        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
-                 ap_='_'.join(algparams))
-        path = 'rois/{mt}/{m}'
+        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
+        path = Path('rois/{mt}/{m}'.format(**d))
         if algparams:
-            path += '/{ap_}'
+            path /= '_'.join(algparams)
         if case is not None and scan is not None:
             if masktype == 'prostate':
-                path += '/{c}-{s}.h5'
+                s = '{c}-{s}.h5'
             elif masktype == 'lesion':
-                path += '/{c}-{s}-{l}.h5'
+                s = '{c}-{s}-{l}.h5'
             else:
-                path += '/{c}_x_x_{s}_{m}_{mt}.txt'
-        return Path(path.format(**d))
+                s = '{c}_x_x_{s}_{m}_{mt}.txt'
+            path /= s.format(**d)
+        return path
 
     def texture(self, case, scan, lesion, masktype, slices, portion, tspec,
                 algparams=(), voxel='mean'):
