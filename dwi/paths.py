@@ -21,8 +21,8 @@ class Paths(object):
 
     def samplelist(self, samplelist):
         """Return path to samplelist."""
-        d = dict(m=self.mode, l=samplelist)
-        return Path('patients') / 'patients_{m[0]}_{l}.txt'.format(**d)
+        d = dict(m=self.mode, sl=samplelist)
+        return Path('patients') / 'patients_{m[0]}_{sl}.txt'.format(**d)
 
     def pmap(self, case=None, scan=None, fmt='dicom'):
         """Return path to pmap."""
