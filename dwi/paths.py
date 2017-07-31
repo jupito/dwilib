@@ -31,18 +31,16 @@ class Paths(object):
         trg = ImageTarget(case, scan, None)
         d = dict(m=self.mode, t=trg)
         path = Path('images/{m[:2]}'.format(**d))
-        if case is not None and scan is not None:
+        if any(trg):
             if fmt == 'h5':
                 return path / '{t}.h5'.format(**d)
             elif fmt == 'dicom':
-                if self.mode == 'DWI':
-                    return path / '{t.case}_hB_{t.scan}.zip'.format(**d)
-                elif len(self.mode) == 1:
-                    pattern = '{t.case}_{t.scan}*'
+                if self.mode in ['DWI', 'T2', 'T2w']:
+                    return path / '{t}.zip'.format(**d)
                 else:
                     pattern = ('{t.case}_*_{t.scan}/'
                                '{t.case}_*_{t.scan}*_{m[2]}.zip')
-                path, = path.glob(pattern.format(**d))
+                    path, = path.glob(pattern.format(**d))
             else:
                 raise ValueError('Unknown format: {}'.format(fmt))
         return path
