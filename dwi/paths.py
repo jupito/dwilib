@@ -83,7 +83,7 @@ class Paths(object):
             return self.pmap(case, scan)  # No ROI, but the whole image.
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
                  ap_='_'.join(algparams))
-        path = 'rois_{mt}/{m}'
+        path = 'rois/{mt}/{m}'
         if algparams:
             path += '/{ap_}'
         if case is not None and scan is not None:
