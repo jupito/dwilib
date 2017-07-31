@@ -29,16 +29,15 @@ class Paths(object):
         path = Path('images/{m[:2]}'.format(**d))
         if any(trg):
             if fmt == 'h5':
-                return path / '{t}.h5'.format(**d)
+                s = '{t}.h5'
             elif fmt == 'dicom':
                 if self.mode in ['DWI', 'T2', 'T2w']:
-                    return path / '{t}.zip'.format(**d)
+                    s = '{t}.zip'
                 else:
-                    pattern = ('{t.case}_*_{t.scan}/'
-                               '{t.case}_*_{t.scan}*_{m[2]}.zip')
-                    path, = path.glob(pattern.format(**d))
+                    s = '{t}/{t}_{m[2]}.zip'
             else:
                 raise ValueError('Unknown format: {}'.format(fmt))
+            path /= s.format(**d)
         return path
 
     def subregion(self, case=None, scan=None):
