@@ -11,6 +11,10 @@ def _fmt_tspec(tspec):
     return '-'.join(str(x) for x in parts)
 
 
+def _fmt_algparams(algparams):
+    return '_'.join(algparams)
+
+
 class Paths(object):
     def __init__(self, mode):
         self.mode = ImageMode(mode)
@@ -62,7 +66,7 @@ class Paths(object):
         elif masktype in ['CA', 'N']:
             pattern = 'roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
         elif masktype == 'auto':
-            d['ap'] = '_'.join(algparams)
+            d['ap'] = _fmt_algparams(algparams)
             return path / '{mt}/{m}/{ap}/{c}_{s}_auto.mask'.format(**d)
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
@@ -76,7 +80,7 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = Path('rois/{mt}/{m}'.format(**d))
         if algparams:
-            path /= '_'.join(algparams)
+            path /= _fmt_algparams(algparams)
         if case is not None and scan is not None:
             if masktype == 'prostate':
                 s = '{c}-{s}.h5'
@@ -95,16 +99,16 @@ class Paths(object):
             return self.pmap(case, scan)
         d = dict(m=self.mode, c=case, s=scan, l=lesion, mt=masktype,
                  slices=slices, portion=portion, tspec=tspec, vx=voxel,
-                 ext='txt')
+                 fmt='txt')
         if voxel == 'all':
-            d['ext'] = 'h5'
+            d['fmt'] = 'h5'
         path = Path('texture/{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
-            path /= '_'.join(algparams)
+            path /= _fmt_algparams(algparams)
         if tspec is None:
-            s = '{c}_{s}_{l}.{ext}'
+            s = '{c}_{s}_{l}.{fmt}'
         else:
-            s = '{c}_{s}_{l}_{tspec.method}-{tspec.winsize}.{ext}'
+            s = '{c}_{s}_{l}_{tspec.method}-{tspec.winsize}.{fmt}'
         return path / s.format(**d)
 
     def std_cfg(self):
