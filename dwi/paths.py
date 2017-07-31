@@ -60,18 +60,17 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = Path('masks')
         if masktype == 'prostate':
-            return path / '{mt}/{m[0]}/{c}_{s}.h5'.format(**d)
+            s = '{mt}/{m[0]}/{c}_{s}.h5'
         elif masktype == 'lesion':
-            return path / '{mt}/{m[0]}/lesion{l}/{c}_{s}.h5'.format(**d)
+            s = '{mt}/{m[0]}/lesion{l}/{c}_{s}.h5'
         elif masktype in ['CA', 'N']:
-            pattern = 'roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
+            s = 'roi/{m[0]}/{c}_{s}_{mt}.h5'
         elif masktype == 'auto':
             d['ap'] = _fmt_algparams(algparams)
-            return path / '{mt}/{m}/{ap}/{c}_{s}_auto.mask'.format(**d)
+            s = '{mt}/{m}/{ap}/{c}_{s}_auto.mask'
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
-        path, = path.glob(pattern.format(**d))
-        return path
+        return path / s.format(**d)
 
     def roi(self, masktype, case=None, scan=None, lesion=None, algparams=()):
         """Return whole ROI path or part of it."""
