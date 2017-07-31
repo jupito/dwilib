@@ -96,18 +96,18 @@ class Paths(object):
             # 'Raw' texture method is actually just the source image.
             return self.pmap(case, scan)
         d = dict(m=self.mode, c=case, s=scan, l=lesion, mt=masktype,
-                 slices=slices, portion=portion, tspec=tspec, vx=voxel)
+                 slices=slices, portion=portion, tspec=tspec, vx=voxel,
+                 ext='txt')
         if voxel == 'all':
-            suffix = '.h5'
-        else:
-            suffix = 'txt'
+            d['ext'] = 'h5'
         path = Path('texture_{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
             path /= '_'.join(algparams)
-        path /= '{c}_{s}_{l}'.format(**d)
-        if tspec is not None:
-            path /= '_{tspec.method}-{tspec.winsize}'.format(**d)
-        return path.with_suffix(suffix)
+        if tspec is None:
+            s = '{c}_{s}_{l}.{ext}'
+        else:
+            s = '{c}_{s}_{l}_{tspec.method}-{tspec.winsize}.{ext}'
+        return path / s.format(**d)
 
     def std_cfg(self):
         """Return path to standardization configuration file."""
