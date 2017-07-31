@@ -62,7 +62,7 @@ class Paths(object):
         if masktype == 'prostate':
             return path / '{mt}/{m[0]}/{c}_{s}.h5'.format(**d)
         elif masktype == 'lesion':
-            pattern = '{mt}/{m[0]}/lesion{l}/{c}_*{s}_{m[0]}.h5'
+            return path / '{mt}/{m[0]}/lesion{l}/{c}_{s}.h5'.format(**d)
         elif masktype in ['CA', 'N']:
             pattern = 'roi/{m[0]}/{c}_*_{s}_D_{mt}.h5'
         elif masktype == 'auto':
