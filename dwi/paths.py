@@ -98,7 +98,7 @@ class Paths(object):
                  ext='txt')
         if voxel == 'all':
             d['ext'] = 'h5'
-        path = Path('texture_{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
+        path = Path('texture/{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
             path /= '_'.join(algparams)
         if tspec is None:
