@@ -60,5 +60,7 @@ class ImageMode(object):
 
 
 TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
+ImageTarget = namedtuple('ImageTarget', ['case', 'scan', 'lesion'])
+MaskSpec = namedtuple('MaskSpec', ['type', 'id'])
 
 __all__ = list(n for n in globals() if n[:1] != '_')
