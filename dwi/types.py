@@ -1,7 +1,7 @@
 """Miscellaneous types."""
 
 from collections import namedtuple
-from functools import partial, total_ordering
+from functools import total_ordering
 
 # With older Python version, pathlib2 might be preferred.
 try:

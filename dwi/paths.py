@@ -3,16 +3,12 @@
 # TODO: Get rid of messy globbing by by explicit data file naming.
 # TODO: Move all functions to a class.
 
-from .types import ImageMode, ImageTarget, Path
+from .types import AlgParams, ImageMode, ImageTarget, Path
 
 
 def _fmt_tspec(tspec):
     parts = filter(None, [tspec.method, tspec.winsize, tspec.feature])
     return '-'.join(str(x) for x in parts)
-
-
-def _fmt_algparams(algparams):
-    return '_'.join(str(x) for x in algparams)
 
 
 class Paths(object):
@@ -57,7 +53,8 @@ class Paths(object):
         """Return path and deps of masks of different types."""
         if masktype == 'all':
             return None
-        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
+        d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion,
+                 ap=AlgParams(algparams))
         path = Path('masks')
         if masktype == 'prostate':
             s = '{mt}/{m[0]}/{c}_{s}.h5'
@@ -66,7 +63,6 @@ class Paths(object):
         elif masktype in ['CA', 'N']:
             s = 'roi/{m[0]}/{c}_{s}_{mt}.h5'
         elif masktype == 'auto':
-            d['ap'] = _fmt_algparams(algparams)
             s = '{mt}/{m}/{ap}/{c}_{s}_auto.mask'
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
@@ -79,7 +75,7 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = Path('rois/{mt}/{m}'.format(**d))
         if algparams:
-            path /= _fmt_algparams(algparams)
+            path /= str(AlgParams(algparams))
         if case is not None and scan is not None:
             if masktype == 'prostate':
                 s = '{c}-{s}.h5'
@@ -103,7 +99,7 @@ class Paths(object):
             d['fmt'] = 'h5'
         path = Path('texture/{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
-            path /= _fmt_algparams(algparams)
+            path /= str(AlgParams(algparams))
         if tspec is None:
             s = '{c}_{s}_{l}.{fmt}'
         else:
