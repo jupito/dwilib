@@ -121,7 +121,7 @@ class Paths(object):
 
         FIXME: The first element in the resulting tuple no more exists as file.
         """
-        path = Path('grid_{mt}/{m}'.format(mt=mt, m=self.mode))
+        path = Path('grid/{mt}/{m}'.format(mt=mt, m=self.mode))
         if tspec is not None:
             path /= _fmt_tspec(tspec)
         if case is not None and scan is not None:
