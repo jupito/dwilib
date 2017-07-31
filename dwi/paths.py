@@ -27,23 +27,21 @@ class Paths(object):
         if 'std' in self.mode or self.mode == 'T2-fitted':
             fmt = 'h5'  # TODO: Temporary redirection.
         d = dict(m=self.mode, c=case, s=scan)
-        path = 'images/{m[:2]}'
-        if fmt == 'h5':
-            if case is not None and scan is not None:
-                path += '/{c}-{s}.h5'
-            return Path(path.format(**d))
-        elif fmt == 'dicom':
-            if case is not None and scan is not None:
+        path = Path('images/{m[:2]}'.format(**d))
+        if case is not None and scan is not None:
+            if fmt == 'h5':
+                return path / '{c}-{s}.h5'.format(**d)
+            elif fmt == 'dicom':
                 if self.mode == 'DWI':
-                    path += '/{c}_hB_{s}.zip'
+                    return path / '{c}_hB_{s}.zip'.format(**d)
                 elif len(self.mode) == 1:
-                    path += '/{c}_{s}*'
+                    pattern = '{c}_{s}*'
                 else:
-                    path += '/{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
-            path, = Path().glob(path.format(**d))
-            return path
-        else:
-            raise ValueError('Unknown format: {}'.format(fmt))
+                    pattern = '{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
+                path, = path.glob(pattern.format(**d))
+            else:
+                raise ValueError('Unknown format: {}'.format(fmt))
+        return path
 
     def subregion(self, case=None, scan=None):
         """Return path to subregion file. XXX: Obsolete."""
@@ -70,7 +68,7 @@ class Paths(object):
             return path / '{mt}/{m}/{ap_}/{c}_{s}_auto.mask'.format(**d)
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
-        path, = path.glob(pattern)
+        path, = path.glob(pattern.format(**d))
         return path
 
     def roi(self, masktype, case=None, scan=None, lesion=None, algparams=()):
