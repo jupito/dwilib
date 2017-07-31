@@ -149,10 +149,6 @@ def pmap_path(mode, **kwargs):
     return str(Paths(mode).pmap(**kwargs))
 
 
-def subregion_path(mode, **kwargs):
-    return str(Paths(mode).subregion(**kwargs))
-
-
 def mask_path(mode, masktype, case, scan, **kwargs):
     return str(Paths(mode).mask(masktype, case, scan, **kwargs))
 
@@ -165,16 +161,3 @@ def texture_path(mode, case, scan, lesion, masktype, slices, portion, tspec,
                  **kwargs):
     return str(Paths(mode).texture(case, scan, lesion, masktype, slices,
                                    portion, tspec, **kwargs))
-
-
-def std_cfg_path(mode):
-    return str(Paths(mode).std_cfg())
-
-
-def histogram_path(mode, roi, samplelist):
-    return str(Paths(mode).histogram(roi, samplelist))
-
-
-def grid_path(mode, case, scan, mt, tspec, **kwargs):
-    return tuple(str(x) for x in Paths(mode).grid(case, scan, mt, tspec,
-                                                  **kwargs))
