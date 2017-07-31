@@ -3,7 +3,7 @@
 # TODO: Get rid of messy globbing by by explicit data file naming.
 # TODO: Move all functions to a class.
 
-from .types import ImageMode, Path
+from .types import ImageMode, ImageTarget, Path
 
 
 def _fmt_tspec(tspec):
@@ -12,11 +12,7 @@ def _fmt_tspec(tspec):
 
 
 def _fmt_algparams(algparams):
-    return '_'.join(algparams)
-
-
-def _fmt_target(target):
-    return '-'.join(target)
+    return '_'.join(str(x) for x in algparams)
 
 
 class Paths(object):
@@ -32,18 +28,20 @@ class Paths(object):
         """Return path to pmap."""
         if 'std' in self.mode or self.mode == 'T2-fitted':
             fmt = 'h5'  # TODO: Temporary redirection.
-        d = dict(m=self.mode, c=case, s=scan, trg=_fmt_target(case, scan))
+        trg = ImageTarget(case, scan, None)
+        d = dict(m=self.mode, t=trg)
         path = Path('images/{m[:2]}'.format(**d))
         if case is not None and scan is not None:
             if fmt == 'h5':
-                return path / '{trg}.h5'.format(**d)
+                return path / '{t}.h5'.format(**d)
             elif fmt == 'dicom':
                 if self.mode == 'DWI':
-                    return path / '{c}_hB_{s}.zip'.format(**d)
+                    return path / '{t.case}_hB_{t.scan}.zip'.format(**d)
                 elif len(self.mode) == 1:
-                    pattern = '{c}_{s}*'
+                    pattern = '{t.case}_{t.scan}*'
                 else:
-                    pattern = '{c}_*_{s}/{c}_*_{s}*_{m[2]}.zip'
+                    pattern = ('{t.case}_*_{t.scan}/'
+                               '{t.case}_*_{t.scan}*_{m[2]}.zip')
                 path, = path.glob(pattern.format(**d))
             else:
                 raise ValueError('Unknown format: {}'.format(fmt))

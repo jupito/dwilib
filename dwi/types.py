@@ -59,8 +59,13 @@ class ImageMode(object):
     #     return self.__class__(v)
 
 
+def _fmt_seq(seq):
+    return '-'.join(str(x) for x in seq if x is not None)
+
+
 TextureSpec = namedtuple('TextureSpec', ['winsize', 'method', 'feature'])
 ImageTarget = namedtuple('ImageTarget', ['case', 'scan', 'lesion'])
+ImageTarget.__str__ = _fmt_seq
 MaskSpec = namedtuple('MaskSpec', ['type', 'id'])
 
 __all__ = list(n for n in globals() if n[:1] != '_')
