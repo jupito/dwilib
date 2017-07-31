@@ -9,8 +9,8 @@ try:
 except ImportError:
     from pathlib import Path, PurePath
 
-from .patient import GleasonScore, Lesion, Patient
 from . import util
+from .patient import GleasonScore, Lesion, Patient
 
 
 @total_ordering
