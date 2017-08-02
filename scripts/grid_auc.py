@@ -2,10 +2,9 @@
 
 """Ad-hoc script to call pcorr.py. The grid data should be restructured."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
-from itertools import product
 import os
+from itertools import product
 
 
 def parse_args():
