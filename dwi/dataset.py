@@ -79,7 +79,7 @@ def iterlesions(patients):
 def read_tmap(mode, case, scan, tspec=None, masktype='prostate', **kwargs):
     """Read a texture map."""
     if tspec is None:
-        tspec = TextureSpec(1, 'raw', None)
+        tspec = TextureSpec('raw', 1, None)
     path = paths.texture_path(mode, case, scan, None, masktype, 'all', 0,
                               tspec, voxel='all')
     return image.Image.read(path, **kwargs)

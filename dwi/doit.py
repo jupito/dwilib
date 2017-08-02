@@ -113,7 +113,7 @@ def texture_methods_winsizes(mode, masktype):
     """Generate texture method, window size combinations."""
     for method in texture_methods():
         for winsize in texture_winsizes(masktype, mode, method):
-            yield TextureSpec(winsize, method, None)
+            yield TextureSpec(method, winsize, None)
 
 
 def texture_params(voxels=None):
