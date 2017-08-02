@@ -38,3 +38,11 @@ Example commands for task `merge_textures`::
 
 Dataset structure and file locations
 ====================================
+
+dwilib.cfg
+patients/patients_DWI_bothscansonly.txt
+images/DWI-Mono/42-1a/42-1a_ADCm.zip
+masks/prostate/DWI/42_1a.h5
+masks/lesion/DWI/lesion1/42_1a.h5
+masks/roi/DWI/42_1a_CA.h5
+masks/roi/DWI/42_1a_N.h5
