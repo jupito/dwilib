@@ -3,11 +3,6 @@
 from .types import AlgParams, ImageMode, ImageTarget, Path
 
 
-# def _fmt_tspec(tspec):
-#     parts = filter(None, [tspec.method, tspec.winsize, tspec.feature])
-#     return '-'.join(str(x) for x in parts)
-
-
 class Paths(object):
     def __init__(self, mode):
         self.mode = ImageMode(mode)
@@ -118,7 +113,6 @@ class Paths(object):
         """
         path = Path('grid/{mt}/{m}'.format(mt=mt, m=self.mode))
         if tspec is not None:
-            # path /= _fmt_tspec(tspec)
             path /= str(tspec)
         if case is not None and scan is not None:
             path /= '{c}-{s}.{f}'.format(c=case, s=scan, f=fmt)
