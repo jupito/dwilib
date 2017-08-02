@@ -17,15 +17,15 @@ def parse_args():
     return p.parse_args()
 
 
-def do_method(directory, lesion_thresholds, name, winspecs, nfeats):
-    for l, w, f in product(lesion_thresholds, winspecs, range(nfeats)):
+def do_method(directory, lesion_thresholds, name, winsizes, nfeats):
+    for l, w, f in product(lesion_thresholds, winsizes, range(nfeats)):
         do_feat(directory, l, name, w, f)
 
 
-def do_feat(directory, lesion_threshold, name, winspec, feat):
+def do_feat(directory, lesion_threshold, name, winsize, feat):
     prostate_threshold = 0.5
     path = '{d}/{n}-{w}/*-*-{f}.txt'
-    path = path.format(d=directory, n=name, w=winspec, f=feat)
+    path = path.format(d=directory, n=name, w=winsize, f=feat)
     cmd = 'pcorr.py --thresholds {pt} {lt} {path}'
     cmd = cmd.format(pt=prostate_threshold, lt=lesion_threshold, path=path)
     exit_status = os.system(cmd)
