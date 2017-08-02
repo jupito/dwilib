@@ -25,10 +25,7 @@ def do_method(directory, lesion_thresholds, name, winspecs, nfeats):
 
 def do_feat(directory, lesion_threshold, name, winspec, feat):
     prostate_threshold = 0.5
-    if winspec is None:
-        path = '{d}/{n}/*-*-{f}.txt'
-    else:
-        path = '{d}/{n}-{w}/*-*-{f}.txt'
+    path = '{d}/{n}-{w}/*-*-{f}.txt'
     path = path.format(d=directory, n=name, w=winspec, f=feat)
     cmd = 'pcorr.py --thresholds {pt} {lt} {path}'
     cmd = cmd.format(pt=prostate_threshold, lt=lesion_threshold, path=path)
@@ -47,6 +44,7 @@ def main():
     else:
         raise Exception('Unknown input')
     methods = [
+        ('raw', [1], 1),
         ('gabor', rng, 48),
         ('glcm', rng, 30),
         # ('glcm_mbb', ['mbb'], 30),
@@ -54,7 +52,6 @@ def main():
         # ('hog', rng, 1),
         ('hu', rng, 7),
         ('lbp', rng, 10),
-        ('raw', [None], 1),
         # ('sobel', [3], 2),
         # ('stats_all', ['all'], 19),
         # ('zernike', rng, 25),
