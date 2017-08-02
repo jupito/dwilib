@@ -324,7 +324,7 @@ def get_task_grid(mode, c, s, ls, mt, lt=None, mbb=None, nanbg=False,
     pmap = paths.pmap(case=c, scan=s)
     prostate = paths.mask('prostate', c, s)
     lesion = [paths.mask('lesion', c, s, lesion=x) for x in ls]
-    tspec = TextureSpec('raw', None, None)
+    tspec = TextureSpec('raw', 1, None)
     out, target = paths.grid(c, s, mt, tspec, fmt=fmt)
     if fmt == 'h5':
         target = out
