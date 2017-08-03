@@ -9,7 +9,6 @@ try:
 except ImportError:
     from pathlib import Path, PurePath
 
-from . import util
 from .patient import GleasonScore, Lesion, Patient
 
 
