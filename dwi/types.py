@@ -152,7 +152,7 @@ def namedtuple_fmt(*args, sep='-', **kwargs):
 
     @classmethod
     def _parse(cls, s):
-        return cls(*s.split(sep))
+        return cls(*(x or None for x in s.split(sep)))
 
     t = namedtuple(*args, **kwargs)
     t.__str__ = _fmt_seq
