@@ -44,17 +44,6 @@ class ImageMode(object):
     def __hash__(self):
         return hash(tuple(self))
 
-    # def __add__(self, other):
-    #     """Append a component."""
-    #     return self.__class__(self.value + (other,))
-
-    # def __sub__(self, other):
-    #     """Remove a tailing component."""
-    #     v = self.value
-    #     if v[-1] == other:
-    #         v = v[:-1]
-    #     return self.__class__(v)
-
 
 @total_ordering
 class GleasonScore(object):
