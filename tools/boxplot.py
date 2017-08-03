@@ -8,8 +8,8 @@ from collections import OrderedDict
 import dwi.dataset
 import dwi.files
 import dwi.paths
-import dwi.patient
 import dwi.util
+from dwi.types import GleasonScore
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -53,7 +53,7 @@ def main():
     if args.location:
         lesions = [x for x in lesions if x[2].location == args.location]
     for _, _, l in lesions:
-        l.label = sum(l.score > x for x in dwi.patient.THRESHOLDS_STANDARD)
+        l.label = sum(l.score > x for x in GleasonScore.THRESHOLDS_STANDARD)
     groups = OrderedDict([
         ('low', [(p, s, l) for p, s, l in lesions if l.label == 0]),
         ('int', [(p, s, l) for p, s, l in lesions if l.label == 1]),

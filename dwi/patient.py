@@ -5,15 +5,18 @@
 
 from functools import total_ordering
 
-# Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
-THRESHOLDS_STANDARD = ('3+3', '3+4')
-
 
 @total_ordering
 class GleasonScore(object):
     """Gleason score is a two or three-value measure of prostate cancer
     severity.
     """
+    # "Standard" thresholds for GS groups [low, intermediate, high]:
+    # - low: maximum 3 anywhere;
+    # - intermediate: 4 as secondary, or tertiary w/o 5;
+    # - high: the rest.
+    THRESHOLDS_STANDARD = ('3+3', '3+4')
+
     def __init__(self, score):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional).
@@ -103,7 +106,7 @@ def label_lesions(patients, thresholds=None):
     """Label lesions according to score groups."""
     # Alternative: np.searchsorted(thresholds, [x.score for x in l])
     if thresholds is None:
-        thresholds = THRESHOLDS_STANDARD
+        thresholds = GleasonScore.THRESHOLDS_STANDARD
     thresholds = [GleasonScore(x) for x in thresholds]
     lesions = (l for p in patients for l in p.lesions)
     for l in lesions:
