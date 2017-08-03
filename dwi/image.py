@@ -3,8 +3,6 @@
 # Subclassing: https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 # Masked array: https://docs.scipy.org/doc/numpy/reference/maskedarray.html
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from . import files, util
