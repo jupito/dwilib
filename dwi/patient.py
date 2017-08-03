@@ -6,8 +6,6 @@
 from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 
-import dwi.util
-
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
 THRESHOLDS_STANDARD = ('3+3', '3+4')
 
@@ -21,7 +19,7 @@ class GleasonScore(object):
         """Intialize with a sequence or a string like '3+4+5' (third digit is
         optional).
         """
-        if dwi.util.isstring(score):
+        if isinstance(score, str):
             s = score.split('+')
         elif isinstance(score, GleasonScore):
             s = score.score
