@@ -87,18 +87,18 @@ class Patient(object):
         self.score = lesions[0].score  # For backwards compatibility.
 
     def __repr__(self):
-        return repr(self.tuple())
+        return repr(self._astuple())
 
     def __hash__(self):
-        return hash(self.tuple())
+        return hash(self._astuple())
 
     def __eq__(self, other):
-        return self.tuple() == other.tuple()
+        return self._astuple() == other._astuple()
 
     def __lt__(self, other):
-        return self.tuple() < other.tuple()
+        return self._astuple() < other._astuple()
 
-    def tuple(self):
+    def _astuple(self):
         return self.num, self.name, self.scans, self.lesions
 
 
