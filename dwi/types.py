@@ -9,8 +9,6 @@ try:
 except ImportError:
     from pathlib import Path, PurePath
 
-from .patient import GleasonScore, Lesion, Patient
-
 
 @total_ordering
 class ImageMode(object):
@@ -56,6 +54,102 @@ class ImageMode(object):
     #     if v[-1] == other:
     #         v = v[:-1]
     #     return self.__class__(v)
+
+
+@total_ordering
+class GleasonScore(object):
+    """Gleason score is a two or three-value measure of prostate cancer
+    severity.
+    """
+    # "Standard" thresholds for GS groups [low, intermediate, high]:
+    # - low: maximum 3 anywhere;
+    # - intermediate: 4 as secondary, or tertiary w/o 5;
+    # - high: the rest.
+    THRESHOLDS_STANDARD = ('3+3', '3+4')
+
+    def __init__(self, score):
+        """Intialize with a sequence or a string like '3+4+5' (third digit is
+        optional).
+        """
+        if isinstance(score, str):
+            s = score.split('+')
+        elif isinstance(score, GleasonScore):
+            s = score.score
+        else:
+            s = score
+        s = tuple(int(x) for x in s)
+        if len(s) == 2:
+            s += (0,)  # Internal representation always has three digits.
+        if len(s) != 3:
+            raise ValueError('Invalid gleason score: {}'.format(score))
+        self.score = s
+
+    def __iter__(self):
+        score = self.score
+        if not score[-1]:
+            score = score[0:-1]  # Drop trailing zero.
+        return iter(score)
+
+    def __repr__(self):
+        return '+'.join(str(x) for x in iter(self))
+
+    def __lt__(self, other):
+        return self.score < GleasonScore(other).score
+
+    def __eq__(self, other):
+        return self.score == GleasonScore(other).score
+
+    def __hash__(self):
+        return hash(self.score)
+
+
+class Lesion(object):
+    """Lesion is a lump of cancer tissue."""
+    def __init__(self, index, score, location):
+        self.index = int(index)  # No. in patient.
+        self.score = GleasonScore(score)  # Gleason score.
+        self.location = str(location).lower()  # PZ or CZ.
+
+    def __iter__(self):
+        return iter([self.index, self.score, self.location])
+
+    def __hash__(self):
+        return hash(tuple(self))
+
+    def __repr__(self):
+        return repr(tuple(self))
+
+    def __str__(self):
+        return '({})'.format(','.join(str(x) for x in self))
+
+    def __eq__(self, other):
+        return (self.score, self.location) == (other.score, other.location)
+
+
+@total_ordering
+class Patient(object):
+    """Patient case."""
+    def __init__(self, num, name, scans, lesions):
+        self.num = int(num)
+        self.name = str(name).lower()
+        self.scans = scans
+        self.lesions = lesions
+        self.score = lesions[0].score  # For backwards compatibility.
+
+    def __repr__(self):
+        return repr(self._astuple())
+
+    def __hash__(self):
+        return hash(self._astuple())
+
+    def __eq__(self, other):
+        return self._astuple() == other._astuple()
+
+    def __lt__(self, other):
+        return self._astuple() < other._astuple()
+
+    def _astuple(self):
+        return self.num, self.name, self.scans, self.lesions
 
 
 def _fmt_seq(seq):
