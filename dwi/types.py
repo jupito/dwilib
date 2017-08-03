@@ -41,8 +41,8 @@ class ImageMode(object):
     def __eq__(self, other):
         return tuple(self) == tuple(ImageMode(other))
 
-    def __hash__(self):
-        return hash(tuple(self))
+    # def __hash__(self):
+    #     return hash(tuple(self))
 
 
 @total_ordering
@@ -88,8 +88,8 @@ class GleasonScore(object):
     def __eq__(self, other):
         return self.score == GleasonScore(other).score
 
-    def __hash__(self):
-        return hash(self.score)
+    # def __hash__(self):
+    #     return hash(self.score)
 
 
 class Lesion(object):
@@ -102,8 +102,8 @@ class Lesion(object):
     def __iter__(self):
         return iter([self.index, self.score, self.location])
 
-    def __hash__(self):
-        return hash(tuple(self))
+    # def __hash__(self):
+    #     return hash(tuple(self))
 
     def __repr__(self):
         return repr(tuple(self))
@@ -128,8 +128,8 @@ class Patient(object):
     def __repr__(self):
         return repr(self._astuple())
 
-    def __hash__(self):
-        return hash(self._astuple())
+    # def __hash__(self):
+    #     return hash(self._astuple())
 
     def __eq__(self, other):
         return self._astuple() == other._astuple()
