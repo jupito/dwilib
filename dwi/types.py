@@ -69,8 +69,9 @@ def namedtuple_fmt(*args, **kwargs):
     return t
 
 
-TextureSpec = namedtuple_fmt('TextureSpec', ['method', 'winsize', 'feature'])
+ImageMode_NT = namedtuple_fmt('ImageMode_NT', ['modality', 'model', 'param'])
 ImageTarget = namedtuple_fmt('ImageTarget', ['case', 'scan', 'lesion'])
+TextureSpec = namedtuple_fmt('TextureSpec', ['method', 'winsize', 'feature'])
 ROISpec = namedtuple_fmt('ROISpec', ['type', 'id'])
 AlgParams = namedtuple_fmt('AlgParams', ['depthmin', 'depthmax',
                                          'sidemin', 'sidemax', 'nrois'])
