@@ -36,6 +36,15 @@ Example commands for task `merge_textures`::
 
 
 
+ImageMode: modality-
+TextureSpec: method-winsize
+    raw-1
+    gabor-11
+ImageTarget(case, scan, lesion)
+ROISpec(type, id)
+
+
+
 Dataset structure and file locations
 ====================================
 
