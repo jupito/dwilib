@@ -3,7 +3,6 @@
 # TODO: Functions read_pmaps, read_pmap, grouping should be replaced with
 # something better, they're still used by tools/{roc_auc,correlation}.py.
 
-from __future__ import absolute_import, division, print_function
 from functools import total_ordering
 
 # Low group: 3 only; intermediate: 4 secondary or tertiary w/o 5; high: rest.
