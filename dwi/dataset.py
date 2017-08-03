@@ -1,13 +1,13 @@
 """Dataset handling."""
 
-from __future__ import absolute_import, division, print_function
 # from functools import lru_cache
 import logging
 
 import numpy as np
 
+from . import files, image, paths
 from .types import ImageMode, TextureSpec
-from . import image, files, paths, util
+from .util import unify_masks
 
 
 class Dataset(object):
@@ -63,7 +63,7 @@ def read_lesion_masks(mode, case, scan, lesions, only_largest=False):
         masks = [d[max(d.keys())]]
         logging.warning([mode, case, scan, lesions, d.keys(),
                          np.count_nonzero(masks[0])])
-    return util.unify_masks(masks)
+    return unify_masks(masks)
 
 
 def iterlesions(patients):
