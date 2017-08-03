@@ -2,18 +2,17 @@
 
 """Plot boxplots of images. Possible nans and infinities are ignored."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 from collections import OrderedDict
-
-import numpy as np
-import matplotlib.pyplot as plt
 
 import dwi.dataset
 import dwi.files
 import dwi.paths
 import dwi.patient
 import dwi.util
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def parse_args():
