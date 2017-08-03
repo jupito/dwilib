@@ -99,10 +99,10 @@ def convert_value_write(v):
         """Convert sequence item."""
         if x is None:
             return np.nan
-        if dwi.util.isstring(x):
+        if isinstance(x, str):
             return x.encode()
         return x
-    if iterable(v) and not dwi.util.isstring(v):
+    if iterable(v) and not isinstance(v, str):
         v = [convert_item(x) for x in v]
     return v
 

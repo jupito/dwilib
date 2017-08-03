@@ -18,7 +18,7 @@ class ImageMode(object):
     """Image mode identifier."""
     def __init__(self, value, sep='-'):
         """Initialize with a string or a sequence."""
-        if util.isstring(value):
+        if isinstance(value, str):
             value = value.split(sep)
         self.value = tuple(value)
         self.sep = sep

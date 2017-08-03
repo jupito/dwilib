@@ -68,7 +68,7 @@ def read_lesion_masks(mode, case, scan, lesions, only_largest=False):
 
 def iterlesions(patients):
     """Generate all case, scan, lesion combinations."""
-    if util.isstring(patients):
+    if isinstance(patients, str):
         patients = files.read_patients_file(patients)
     for p in patients:
         for s in p.scans:

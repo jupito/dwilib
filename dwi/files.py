@@ -196,7 +196,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         attrs['dtype'] = str(pmap.dtype)
     if pmap.shape[-1] != len(attrs['parameters']):
         raise Exception('Number of values and parameters mismatch')
-    assert all(util.isstring(x) for x in
+    assert all(isinstance(x, str) for x in
                attrs['parameters']), attrs['parameters']
     if fmt is None:
         fmt = guess_format(filename)

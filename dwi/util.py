@@ -23,14 +23,6 @@ def get_loglevel(name):
         raise ValueError('Invalid log level: {}'.format(name))
 
 
-def isstring(x):
-    """Check for string-ness."""
-    try:
-        return isinstance(x, basestring)
-    except NameError:
-        return isinstance(x, str)
-
-
 def abbrev(name):
     """Abbreviate multiword feature name."""
     if ' ' in name:
