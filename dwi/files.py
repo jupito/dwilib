@@ -1,16 +1,15 @@
 """Operations regarding miscellaneous files."""
 
-from __future__ import absolute_import, division, print_function
-from contextlib import contextmanager
 import logging
 import re
 import shutil
 import tempfile
 import zipfile
+from contextlib import contextmanager
 
 import numpy as np
 
-from . import asciifile, dicomfile, hdf5, nifti, util
+from . import asciifile, dicomfile, hdf5, nifti
 from .types import Lesion, Patient
 from .types import Path, PurePath
 
