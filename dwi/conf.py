@@ -86,16 +86,16 @@ def get_config_parser():
     p.add('--logfile', type=expanded_path, help='log file')
     p.add('--loglevel', default='WARNING', help='log level name')
 
-    p.add('--cachedir', type=expanded_path,
-          default=expanded_path('~/.cache/dwilib'))
+    p.add('--cachedir', type=expanded_path, default=expanded_path('cache'),
+          help='cache directory')
     p.add('--maxjobs', type=float, default=0.9,
           help=('maximum number of simultaneous jobs '
                 '(absolute, portion of CPU count, or negative count)'))
     p.add('--modes', nargs='+', type=ImageMode,
           default=[ImageMode('DWI-Mono-ADCm')],
-          help='imaging modes')
+          help='image modes')
     p.add('--samplelists', nargs='+', default=['all'],
-          help='samplelists')
+          help='sample lists')
     p.add('--texture_methods', nargs='+',
           default=[
               'raw',
