@@ -3,6 +3,7 @@ Dataset structure and file locations
 
 Program configuration:
     dwilib.cfg
+    See https://github.com/jupito/dwilib/blob/master/examples/dwilib.cfg
 
 DoIt task definitions:
     dodo.py (must be in current working directory or specified on command line)
