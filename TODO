@@ -1,17 +1,6 @@
 Dwilib TODO list
 ================
 
-Python 2 to 3 conversion check list:
-- use python2 -3, 2to3, py3kwarn, pylint2 --py3k
-- remove future imports
-- basestring, unicode => str
-- xrange() => list(range()), xreadlines()
-- iteritems() => items()
-- others that are now iterators (keys, values, filter, map...)
-- exception handling syntax (already ok?)
-- pathlib2 => pathlib
-- Mayavi no more possible?
-
 Configuration by external file. Not by argparse, json, configparser.
 - configargparse: https://github.com/bw2/ConfigArgParse
 - configglue: https://pythonhosted.org/configglue/
