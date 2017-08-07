@@ -1,6 +1,5 @@
 """Texture code relying on Scikit-image library."""
 
-from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 from itertools import product
 

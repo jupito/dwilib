@@ -1,7 +1,5 @@
 """Parametric model definitions used for signal decay curve fitting."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from dwi.fit import Parameter, Model

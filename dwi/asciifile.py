@@ -5,7 +5,6 @@ Use read_ascii_file() and write_ascii_file() to read and write.
 
 # NOTE: Obsolete, don't use for new code.
 
-from __future__ import absolute_import, division, print_function
 import os
 import re
 

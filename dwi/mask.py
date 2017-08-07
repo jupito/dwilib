@@ -20,7 +20,6 @@ voxels to zero (or other value); and bounding_box() which returns the
 coordinates of the minimum bounding box containing all selected voxels.
 """
 
-from __future__ import absolute_import, division, print_function
 import os.path
 import re
 

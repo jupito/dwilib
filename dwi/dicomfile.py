@@ -8,7 +8,6 @@ calculated from the first two slices' positional difference, as the
 corresponding data field cannot be trusted.
 """
 
-from __future__ import absolute_import, division, print_function
 import logging
 import re
 

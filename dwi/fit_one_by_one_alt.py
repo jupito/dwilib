@@ -14,8 +14,6 @@ with some tweaking.
 NOTE: Bounds are not supported, and are thus ignored.
 """
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 import dwi.minimize

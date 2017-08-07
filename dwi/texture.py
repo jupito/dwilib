@@ -12,7 +12,6 @@ single values or reduces the map into a single average value.
 Scikit-image and Mahotas libraries are used for the calculations.
 """
 
-from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 import logging
 

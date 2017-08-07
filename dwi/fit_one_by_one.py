@@ -1,7 +1,5 @@
 """Fitting implementation that fits curves simply one by one in serial."""
 
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from leastsqbound import leastsqbound
