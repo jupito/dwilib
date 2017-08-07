@@ -1,10 +1,6 @@
 Dwilib TODO list
 ================
 
-Configuration by external file. Not by argparse, json, configparser.
-- configargparse: https://github.com/bw2/ConfigArgParse
-- configglue: https://pythonhosted.org/configglue/
-
 Documentation by Sphinx. http://www.sphinx-doc.org/
 
 Implement testing.
