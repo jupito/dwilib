@@ -1,0 +1,9 @@
+(A) Implement packaging. https://packaging.python.org/
+(B) Documentation by Sphinx. http://www.sphinx-doc.org/
+(B) Implement testing.
+(C) Import from Scipy according to the guidelines: http://docs.scipy.org/doc/scipy/reference/api.html
+(C) Subclass np.ndarry for versatile image class. https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+(C) Use a namedtuple instead of GleasonScore? Also: Lesion, Patient, etc. https://docs.python.org/2/library/collections.html#collections.namedtuple
+(C) Use xarray? http://xarray.pydata.org/en/stable/
+(D) Could np.ma be used for image masks? https://docs.scipy.org/doc/numpy/reference/maskedarray.html
+(D) Replace pydicom with nibabel or medpy?
