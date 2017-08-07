@@ -13,14 +13,6 @@ http://docs.scipy.org/doc/scipy/reference/api.html
 Use a namedtuple instead of GleasonScore? Also: Lesion, Patient, etc.
 https://docs.python.org/2/library/collections.html#collections.namedtuple
 
-Replace ImageMode with this?:
-class ImageMode(tuple):
-    def __str__(self):
-        return '-'.join(str(x) for x in self)
-    @classmethod
-    def parse(cls, s):
-        return cls([int(x) for x in s.split('-')])
-
 Subclass np.ndarry for versatile image class.
 https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 
