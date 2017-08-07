@@ -17,6 +17,10 @@ BASE = Path('/mri')
 LIST = 'misc/list/all.txt'
 
 
+def read_cases():
+    return sorted(int(x) for x in (BASE / LIST).read_text().split())
+
+
 def nums(case):
     def num(pat):
         # print(pat, len(list(BASE.glob(pat.format(**d)))))
@@ -59,8 +63,7 @@ def nums(case):
 
 
 def main():
-    # cases = range(350)
-    cases = sorted(int(x) for x in (BASE / LIST).read_text().split())
+    cases = read_cases()
     # print('{}: {}'.format(len(cases), ' '.join(str(x) for x in cases)))
 
     s = (
