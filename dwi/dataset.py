@@ -6,7 +6,7 @@ import logging
 import numpy as np
 
 from . import files, image, paths
-from .types import ImageMode, TextureSpec
+from .types import ImageMode, Lesion, TextureSpec
 from .util import unify_masks
 
 
@@ -49,7 +49,9 @@ def read_prostate_mask(mode, case, scan):
 
 def read_lesion_mask(mode, case, scan, lesion):
     """Read lesion mask."""
-    path = paths.mask_path(mode, 'lesion', case, scan, lesion=lesion.index+1)
+    if isinstance(lesion, Lesion):
+        lesion = lesion.index + 1
+    path = paths.mask_path(mode, 'lesion', case, scan, lesion=lesion)
     return image.Image.read_mask(path)
 
 
