@@ -2,7 +2,6 @@
 
 """Calculate texture properties for a masked area."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 from collections import defaultdict
 import logging

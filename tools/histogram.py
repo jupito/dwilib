@@ -2,7 +2,6 @@
 
 """Plot histograms of images. Possible nans and infinities are ignored."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 from collections import OrderedDict
 import logging

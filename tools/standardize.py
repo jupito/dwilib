@@ -5,7 +5,6 @@
 See Nyul et al. 2000: New variants of a method of MRI scale standardization.
 """
 
-from __future__ import absolute_import, division, print_function
 import argparse
 
 import numpy as np

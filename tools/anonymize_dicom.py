@@ -2,7 +2,6 @@
 
 """Anonymize DICOM files. Write in-place or into another directory."""
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import os
 

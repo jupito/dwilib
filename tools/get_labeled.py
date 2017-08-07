@@ -4,7 +4,6 @@
 where label = {-1: background, 0: prostate, 1...n: lesion #1...n}.
 """
 
-from __future__ import absolute_import, division, print_function
 import logging
 
 import numpy as np

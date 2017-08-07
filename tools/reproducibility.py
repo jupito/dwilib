@@ -4,7 +4,6 @@
 of pmap scan pairs grouped together.
 """
 
-from __future__ import absolute_import, division, print_function
 import argparse
 import glob
 import os.path
