@@ -18,7 +18,7 @@ class Paths(object):
             fmt = 'h5'  # TODO: Temporary redirection.
         trg = ImageTarget(case, scan, None)
         d = dict(m=self.mode, t=trg)
-        path = Path('images/{m[:2]}'.format(**d))
+        path = Path('images/{}'.format(self.mode[:2]))
         if any(trg):
             if fmt == 'h5':
                 s = '{t}.h5'
