@@ -28,3 +28,5 @@ Could np.ma be used for image masks?
 https://docs.scipy.org/doc/numpy/reference/maskedarray.html
 
 Replace pydicom with nibabel or medpy?
+
+Use xarray? http://xarray.pydata.org/en/stable/
