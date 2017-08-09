@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from .types import AlgParams
+
 # ADCM_MIN = 0.00050680935535585281
 # ADCM_MAX = 0.0017784125828491648
 
@@ -60,14 +62,14 @@ def scale_scores(scores):
     # scores[...] = a
 
 
-def get_scoremap(img, d, params, n_rois):
-    """Return array like original image, with scores of n_rois best ROI's."""
+def get_scoremap(img, d, params, nrois):
+    """Return array like original image, with scores of nrois best ROI's."""
     scores = get_roi_scores(img, d, params)
     for i in range(len(params)):
         scale_scores(scores[..., i])
     scores = np.sum(scores, axis=-1)  # Sum scores parameter-wise.
     indices = scores.ravel().argsort()  # Sort ROI's by score.
-    indices = indices[-n_rois:]  # Select best ones.
+    indices = indices[-nrois:]  # Select best ones.
     indices = [np.unravel_index(i, scores.shape) for i in indices]
     scoremap = np.zeros(img.shape[0:3] + (1,))
     for z, y, x in indices:
@@ -82,18 +84,20 @@ def add_mask(img, mask):
     return np.concatenate((img, m), axis=3)
 
 
-def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
-             sidemin=10, sidemax=10, n_rois=500):
-    assert depthmin <= depthmax
-    assert sidemin <= sidemax
+def find_roi(img, roidim, params, prostate_mask=None, ap=None):
+    if ap is None:
+        ap = AlgParams(depthmin=2, depthmax=3, sidemin=10, sidemax=10,
+                       nrois=500)
+    assert ap.depthmin <= ap.depthmax
+    assert ap.sidemin <= ap.sidemax
 
     # Draw score map.
-    dims = [(j, i, i) for i in range(sidemin, sidemax+1)
-            for j in range(depthmin, depthmax+1)]
+    dims = [(j, i, i) for i in range(ap.sidemin, ap.sidemax+1)
+            for j in range(ap.depthmin, ap.depthmax+1)]
     if prostate_mask:
         img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']
-    scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
+    scoremaps = [get_scoremap(img, d, params, ap.nrois) for d in dims]
     scoremap = sum(scoremaps)
 
     # Find optimal ROI.
@@ -108,5 +112,5 @@ def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
     # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
 
-    return dict(scoremap=scoremap[..., 0], roi_corner=corner,
+    return dict(algparams=ap, scoremap=scoremap[..., 0], roi_corner=corner,
                 roi_coords=coords)
