@@ -2,30 +2,29 @@
 
 import numpy as np
 
-
-ADCM_MIN = 0.00050680935535585281
-ADCM_MAX = 0.0017784125828491648
+# ADCM_MIN = 0.00050680935535585281
+# ADCM_MAX = 0.0017784125828491648
 
 
 def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
-        # r = 1-np.mean(img)
-        # r = 1/(np.mean(img)-0.0008)
+        # r = 1 - np.mean(img)
+        # r = 1 / (np.mean(img) - 0.0008)
         if np.mean(img) > 0:
-            r = 1/np.mean(img)
+            r = 1 / np.mean(img)
         else:
             r = 0
         # NOTE The following min/max limit seems to make things worse.
         # if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
         #     r = 0
     elif param.startswith('K'):
-        r = np.mean(img)/1000
+        r = np.mean(img) / 1000
     elif param.startswith('score'):
         r = np.mean(img)
     elif param == 'prostate_mask':
         # Ban areas more than a certain amount outside of prostate.
-        if float(img.sum())/img.size > 0.20:
+        if img.sum() / img.size > 0.20:
             r = 1
         else:
             r = -1e20
@@ -80,8 +79,7 @@ def add_mask(img, mask):
     """Add mask to image as an extra parameter."""
     m = mask.array.view()
     m.shape += (1,)
-    img = np.concatenate((img, m), axis=3)
-    return img
+    return np.concatenate((img, m), axis=3)
 
 
 def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
@@ -95,7 +93,6 @@ def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
     if prostate_mask:
         img = add_mask(img, prostate_mask)
         params = params + ['prostate_mask']
-    print(img.shape, params)
     scoremaps = [get_scoremap(img, d, params, n_rois) for d in dims]
     scoremap = sum(scoremaps)
 
@@ -111,5 +108,5 @@ def find_roi(img, roidim, params, prostate_mask=None, depthmin=2, depthmax=3,
     # Convert to [(start, stop), ...] notation.
     coords = [(x, x+d) for x, d in zip(corner, roidim)]
 
-    d = dict(scoremap=scoremap[..., 0], roi_corner=corner, roi_coords=coords)
-    return d
+    return dict(scoremap=scoremap[..., 0], roi_corner=corner,
+                roi_coords=coords)
