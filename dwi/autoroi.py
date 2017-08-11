@@ -4,8 +4,8 @@ import numpy as np
 
 from .types import AlgParams
 
-# ADCM_MIN = 0.00050680935535585281
-# ADCM_MAX = 0.0017784125828491648
+ADCM_MIN = 0.00050680935535585281
+ADCM_MAX = 0.0017784125828491648
 
 
 def get_score_param(img, param):
@@ -71,7 +71,7 @@ def get_scoremap(img, d, params, nrois):
     indices = scores.ravel().argsort()  # Sort ROI's by score.
     indices = indices[-nrois:]  # Select best ones.
     indices = [np.unravel_index(i, scores.shape) for i in indices]
-    scoremap = np.zeros(img.shape[0:3] + (1,))
+    scoremap = np.zeros(img.shape[0:3] + (1,), dtype=np.float32)
     for z, y, x in indices:
         scoremap[z:z+d[0], y:y+d[1], x:x+d[2], 0] += scores[z, y, x]
     return scoremap
