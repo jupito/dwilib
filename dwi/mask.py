@@ -77,7 +77,7 @@ class Mask(object):
         """Return the selected slice of an array."""
         indices = self.selected_slices()
         if len(indices) != 1:
-            raise Exception('Exactly one slice not selected.')
+            raise ValueError('Exactly one slice not selected.')
         return a[indices[0]]
 
     def selected_slices(self):
@@ -86,7 +86,7 @@ class Mask(object):
 
     def convert_to_3d(self, n_slices):
         """Convert a 2D mask to a 3D mask with given number of slices."""
-        a = np.zeros((n_slices,) + self.array.shape)
+        a = np.zeros((n_slices,) + self.array.shape, dtype=np.bool)
         a[self.slice-1, :, :] = self.array
         return Mask3D(a)
 
@@ -142,7 +142,7 @@ class Mask3D(object):
         """Return the selected slice of an array."""
         indices = self.selected_slices()
         if len(indices) != 1:
-            raise Exception('Exactly one slice not selected.')
+            raise ValueError('Exactly one slice not selected.')
         return a[indices[0]]
 
     def max_slices(self):
@@ -188,8 +188,7 @@ class Mask3D(object):
         mbb = self.bounding_box()
         mbb_shape = [b - a for a, b in mbb]
         mbb_size = np.prod(mbb_shape)
-        r = (mbb_size == self.n_selected())
-        return r
+        return (mbb_size == self.n_selected())
 
 
 def load_ascii(filename):
@@ -207,7 +206,7 @@ def load_ascii(filename):
             arrays.append(a)
     if arrays:
         return Mask(slc, np.array(arrays))
-    raise Exception('No mask found in %s' % filename)
+    raise ValueError('No mask found in %s' % filename)
 
 
 def read_mask(path):
