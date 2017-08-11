@@ -11,40 +11,35 @@ ADCM_MAX = 0.0017784125828491648
 def get_score_param(img, param):
     """Return parameter score of given ROI."""
     if param.startswith('ADC'):
-        # r = 1 - np.mean(img)
-        # r = 1 / (np.mean(img) - 0.0008)
+        # return 1 - np.mean(img)
+        # return 1 / (np.mean(img) - 0.0008)
         if np.mean(img) > 0:
-            r = 1 / np.mean(img)
-        else:
-            r = 0
+            return 1 / np.mean(img)
+        return 0
         # NOTE The following min/max limit seems to make things worse.
         # if (img < ADCM_MIN).any() or (img > ADCM_MAX).any():
-        #     r = 0
+        #     return 0
     elif param.startswith('K'):
-        r = np.mean(img) / 1000
+        return np.mean(img) / 1000
     elif param.startswith('score'):
-        r = np.mean(img)
+        return np.mean(img)
     elif param == 'prostate_mask':
         # Ban areas more than a certain amount outside of prostate.
         if img.sum() / img.size > 0.20:
-            r = 1
-        else:
-            r = -1e20
+            return 1
+        return -1e20
     elif param == 'prostate_mask_strict':
         # Ban areas even partly outside of prostate.
         if img.all():
-            r = 1
-        else:
-            r = -1e20
-    else:
-        r = 0  # Unknown parameter
-    return r
+            return 1
+        return -1e20
+    return 0  # Unknown parameter
 
 
 def get_roi_scores(img, d, params):
     """Return array of all scores for each possible ROI of given dimension."""
     shape = [img.shape[i]-d[i]+1 for i in range(3)] + [len(params)]
-    scores = np.empty(shape)
+    scores = np.empty(shape, dtype=np.float32)
     for z, y, x, i in np.ndindex(scores.shape):
         roi = img[z:z+d[0], y:y+d[1], x:x+d[2], i]
         scores[z, y, x, i] = get_score_param(roi, params[i])
