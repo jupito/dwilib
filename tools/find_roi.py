@@ -25,15 +25,15 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
-    p.add_argument('--patients',
+    p.add_argument('--patients', type=Path,
                    help='patients file')
-    p.add_argument('--pmapdir',
+    p.add_argument('--pmapdir', type=Path,
                    help='input parametric map directory')
-    p.add_argument('--subregiondir',
+    p.add_argument('--subregiondir', type=Path,
                    help='subregion bounding box directory')
-    p.add_argument('--prostatemaskdir',
+    p.add_argument('--prostatemaskdir', type=Path,
                    help='ROI mask directory')
-    p.add_argument('--roimaskdir',
+    p.add_argument('--roimaskdir', type=Path,
                    help='ROI mask directory')
     p.add_argument('-p', '--param', default='ADCm',
                    help='image parameter to use')
@@ -47,9 +47,9 @@ def parse_args():
                    help='case numbers')
     p.add_argument('--scans', metavar='S', nargs='*', default=[],
                    help='scan identifiers')
-    p.add_argument('--outmask',
+    p.add_argument('--outmask', type=Path,
                    help='output mask file')
-    p.add_argument('--outfig',
+    p.add_argument('--outfig', type=Path,
                    help='output figure file')
     p.add_argument('--clip', action='store_true',
                    help='clip image intensity values on load')
@@ -200,10 +200,12 @@ def main():
         d.update(dwi.autoroi.find_roi(d['image'], args.roidim, params,
                                       prostate_mask=d['prostate_mask'], ap=ap))
         print('{case} {scan}: Optimal ROI at {roi_corner}'.format(**d))
-        draw(d, params[0], args.outfig or DEFAULT_OUT_IMAGE_DIR /
-             '{case}_{scan}.png'.format(**d))
-        write_mask(d, args.outmask or DEFAULT_OUT_MASK_DIR /
-                   '{case}_{scan}_auto.mask'.format(**d))
+        path = args.outfig or (DEFAULT_OUT_IMAGE_DIR /
+                               '{case}_{scan}.png'.format(**d))
+        draw(d, params[0], path)
+        path = args.outmask or (DEFAULT_OUT_MASK_DIR /
+                                '{case}_{scan}_auto.mask'.format(**d))
+        write_mask(d, path)
 
     # if args.verbose:
     #     for i, p in enumerate(params):
