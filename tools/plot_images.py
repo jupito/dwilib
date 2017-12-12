@@ -11,19 +11,18 @@ import dwi.conf
 import dwi.dataset
 import dwi.mask
 import dwi.plot
-from dwi.types import ImageMode
 import dwi.util
+from dwi.types import ImageMode
 
 
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
     p.add('-m', '--modes', nargs='+', type=ImageMode,
-          default=[
-              'DWI-Mono-ADCm',
-              # 'DWI-Kurt-ADCk', 'DWI-Kurt-K',
-              # 'T2w-std',
-              ],
+          default=['DWI-Mono-ADCm',
+                   # 'DWI-Kurt-ADCk', 'DWI-Kurt-K',
+                   # 'T2w-std',
+                   ],
           help='imaging modes')
     p.add('-s', '--samplelist', default='all',
           help='samplelist identifier')
