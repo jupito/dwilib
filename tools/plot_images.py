@@ -91,7 +91,8 @@ def draw_dataset(ds):
     for case, scan, lesions in ds.each_image_id():
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions)
         label = '{}-{} ({})'.format(case, scan, ds.mode)
-        path = 'fig/masks/{}-{}.png'.format(case, scan)
+        outdir = 'fig/masks'
+        path = '{}/{}-{}.png'.format(outdir, case, scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path)
 
