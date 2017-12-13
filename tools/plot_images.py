@@ -28,10 +28,12 @@ def parse_args():
           help='samplelist identifier')
     p.add('-c', '--cases', nargs='+', type=int,
           help='cases to include, if not all')
+    p.add('-o', '--only_prostate_slices', action='store_true',
+          help='include only prostate slices')
     return p.parse_args()
 
 
-def read_case(mode, case, scan, lesions):
+def read_case(mode, case, scan, lesions, only_prostate_slices):
     """Read case. Return raw DWI, pmap, pmask, lmasks, initial prostate slice
     index.
     """
@@ -51,7 +53,11 @@ def read_case(mode, case, scan, lesions):
     pmask = pmask[mbb]
     lmasks = [x[mbb] for x in lmasks]
 
-    prostate_slices = pmask.mbb(pad=(0, np.inf, np.inf))
+    if only_prostate_slices:
+        pad = (0, np.inf, np.inf)
+    else:
+        pad = (np.inf, np.inf, np.inf)
+    prostate_slices = pmask.mbb(pad=pad)
     img = img[prostate_slices]
     raw = raw[prostate_slices]
     pmask = pmask[prostate_slices]
@@ -85,12 +91,13 @@ def plot_case(imgs, masks, label, path):
             plt.imshow(mask[col], **kwargs)
 
 
-def draw_dataset(ds):
+def draw_dataset(ds, only_prostate_slices):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
     for case, scan, lesions in ds.each_image_id():
-        imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions)
+        imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
+                                           only_prostate_slices)
         label = '{}-{} ({})'.format(case, scan, ds.mode)
         outdir = 'fig/masks'
         path = '{}/{}-{}.png'.format(outdir, case, scan)
@@ -104,7 +111,7 @@ def main():
     datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
                 for x in args.modes)
     for ds in datasets:
-        draw_dataset(ds)
+        draw_dataset(ds, args.only_prostate_slices)
 
 
 if __name__ == '__main__':
