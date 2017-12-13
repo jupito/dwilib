@@ -90,7 +90,7 @@ def plot_case(imgs, masks, label, path):
         row, col = i // d['ncols'], i % d['ncols']
         kwargs = dict(vmin=0, vmax=1, cmap='hot')
         if row < len(imgs):
-            plt.imshow(imgs[row][col])
+            plt.imshow(imgs[row][col], cmap='gray')
             plt.imshow(overlay[col], **kwargs, alpha=1.0)
         else:
             mask = masks[row - len(imgs)]
