@@ -56,7 +56,8 @@ def read_case(mode, case, scan, lesions):
     raw = raw[prostate_slices]
     pmask = pmask[prostate_slices]
     lmasks = [x[prostate_slices] for x in lmasks]
-    return [raw, img], pmask, lmasks, prostate_slices[0].start
+    images = [raw, img]
+    return images, pmask, lmasks, prostate_slices[0].start
 
 
 def get_label_plot(mask):
