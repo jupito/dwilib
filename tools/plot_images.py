@@ -32,6 +32,8 @@ def parse_args():
           help='include only prostate slices')
     p.add('-r', '--include_raw', action='store_true',
           help='include "raw" b=2000 mode')
+    p.add('-C', '--connected_regions', action='store_true',
+          help='colorize connected regions')
     return p.parse_args()
 
 
@@ -80,10 +82,11 @@ def get_label_plot(mask):
     return labels
 
 
-def plot_case(imgs, masks, label, path):
+def plot_case(imgs, masks, label, path, connected_regions):
     """Plot case."""
     overlay = dwi.mask.overlay_masks(masks)
-    masks = [get_label_plot(x) for x in masks]
+    if connected_regions:
+        masks = [get_label_plot(x) for x in masks]
     d = dict(nrows=len(imgs) + len(masks), ncols=len(imgs[0]),
              suptitle=label, path=path)
     for i, plt in enumerate(dwi.plot.generate_plots(**d)):
@@ -97,7 +100,7 @@ def plot_case(imgs, masks, label, path):
             plt.imshow(mask[col], **kwargs)
 
 
-def draw_dataset(ds, only_prostate_slices, include_raw):
+def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
@@ -108,7 +111,7 @@ def draw_dataset(ds, only_prostate_slices, include_raw):
         outdir = 'fig/masks'
         path = '{}/{}-{}.png'.format(outdir, case, scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
-        plot_case(imgs, [pmask] + lmasks, label, path)
+        plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
 
 def main():
@@ -117,7 +120,8 @@ def main():
     datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
                 for x in args.modes)
     for ds in datasets:
-        draw_dataset(ds, args.only_prostate_slices, args.include_raw)
+        draw_dataset(ds, args.only_prostate_slices, args.include_raw,
+                     args.connected_regions)
 
 
 if __name__ == '__main__':
