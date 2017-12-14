@@ -34,6 +34,8 @@ def parse_args():
           help='include "raw" b=2000 mode')
     p.add('-C', '--connected_regions', action='store_true',
           help='colorize connected regions')
+    p.add('-L', '--label', action='store_true',
+          help='write text label')
     return p.parse_args()
 
 
@@ -100,14 +102,16 @@ def plot_case(imgs, masks, label, path, connected_regions):
             plt.imshow(mask[col], **kwargs)
 
 
-def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions):
+def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions,
+                 label='{c}-{s} ({m})'):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
     for case, scan, lesions in ds.each_image_id():
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
                                            only_prostate_slices, include_raw)
-        label = '{}-{} ({})'.format(case, scan, ds.mode)
+        if label:
+            label = label.format(c=case, s=scan, m=ds.mode)
         outdir = 'fig/masks'
         path = '{}/{}-{}.png'.format(outdir, case, scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
@@ -119,9 +123,10 @@ def main():
     args = parse_args()
     datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
                 for x in args.modes)
+    label = '{c}-{s} ({m})' if args.label else None
     for ds in datasets:
         draw_dataset(ds, args.only_prostate_slices, args.include_raw,
-                     args.connected_regions)
+                     args.connected_regions, label=label)
 
 
 if __name__ == '__main__':
