@@ -108,13 +108,13 @@ def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions,
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
-    for case, scan, lesions in ds.each_image_id():
+    for i, (case, scan, lesions) in enumerate(ds.each_image_id(), 1):
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
                                            only_prostate_slices, include_raw)
         if label:
             label = label.format(c=case, s=scan, m=ds.mode)
         outdir = 'fig/masks'
-        path = '{od}/{c}-{s}.png'.format(od=outdir, c=case, s=scan)
+        path = '{od}/{i}_{c}-{s}.png'.format(od=outdir, i=i, c=case, s=scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
