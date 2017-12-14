@@ -114,7 +114,7 @@ def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions,
         if label:
             label = label.format(c=case, s=scan, m=ds.mode)
         outdir = 'fig/masks'
-        path = '{}/{}-{}.png'.format(outdir, case, scan)
+        path = '{od}/{c}-{s}.png'.format(od=outdir, c=case, s=scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
