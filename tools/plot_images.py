@@ -130,7 +130,8 @@ def main():
     label_fmt = '{c}-{s} ({m})' if args.label else None
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
-                     args.connected_regions, label_fmt=label_fmt)
+                     args.connected_regions, label_fmt=label_fmt,
+                     path_fmt='fig/masks/{i:03d}.png')
 
 
 if __name__ == '__main__':
