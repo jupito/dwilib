@@ -80,7 +80,7 @@ def get_label_plot(mask):
     """Get connected regions for visualization."""
     labels, n = measure.label(mask, return_num=True, connectivity=None)
     labels = (labels / n).astype(np.float32)
-    logging.info([mask.info['path'], n])
+    logging.debug([mask.info['path'], n])
     return labels
 
 
