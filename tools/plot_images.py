@@ -113,11 +113,9 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions,
     for i, (case, scan, lesions) in enumerate(ds.each_image_id(), 1):
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
                                            all_slices, include_raw)
-        if label_fmt:
-            label = label_fmt.format(c=case, s=scan, m=ds.mode)
-        else:
-            label = None
-        path = path_fmt.format(i=i, c=case, s=scan)
+        d = dict(i=i, c=case, s=scan, m=ds.mode)
+        label = label_fmt.format(**d) if label_fmt else None
+        path = path_fmt.format(**d)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
@@ -131,7 +129,7 @@ def main():
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
                      args.connected_regions, label_fmt=label_fmt,
-                     path_fmt='fig/masks/{i:03d}.png')
+                     path_fmt='fig/masks/{m}_{i:03d}.png')
 
 
 if __name__ == '__main__':
