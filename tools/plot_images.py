@@ -89,8 +89,8 @@ def plot_case(imgs, masks, label, path, connected_regions):
     overlay = dwi.mask.overlay_masks(masks)
     if connected_regions:
         masks = [get_label_plot(x) for x in masks]
-    d = dict(nrows=len(imgs) + len(masks), ncols=len(imgs[0]),
-             suptitle=label, path=path)
+    d = dict(nrows=len(imgs) + len(masks), ncols=len(imgs[0]), suptitle=label,
+             path=path)
     for i, plt in enumerate(dwi.plot.generate_plots(**d)):
         row, col = i // d['ncols'], i % d['ncols']
         kwargs = dict(vmin=0, vmax=1, cmap='hot')
