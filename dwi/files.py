@@ -164,7 +164,7 @@ def write_subregion_file(filename, win, comment=''):
     """
     if len(win) != 6:
         raise Exception('Invalid subregion: %s' % win)
-    entries = [win[2], win[3]-1, win[4], win[5]-1, win[0], win[1]-1]
+    entries = [win[2], win[3] - 1, win[4], win[5] - 1, win[0], win[1] - 1]
     with open(filename, 'w') as f:
         write_comment(f, comment)
         for entry in entries:
