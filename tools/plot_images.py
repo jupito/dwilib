@@ -104,7 +104,7 @@ def plot_case(imgs, masks, label, path, connected_regions):
 
 
 def draw_dataset(ds, all_slices, include_raw, connected_regions,
-                 label='{c}-{s} ({m})'):
+                 label='{c}-{s} ({m})', path='fig/masks/{i}_{c}-{s}.png'):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
@@ -113,8 +113,7 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions,
                                            all_slices, include_raw)
         if label:
             label = label.format(c=case, s=scan, m=ds.mode)
-        outdir = 'fig/masks'
-        path = '{od}/{i}_{c}-{s}.png'.format(od=outdir, i=i, c=case, s=scan)
+        path = path.format(i=i, c=case, s=scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
