@@ -100,7 +100,8 @@ def plot_case(imgs, masks, label, path, connected_regions):
             plt.imshow(overlay[col], **kwargs, alpha=1.0)
         else:
             mask = masks[row - len(imgs)]
-            plt.imshow(mask[col], **kwargs)
+            # plt.imshow(mask[col], **kwargs)
+            plt.imshow(mask[col], vmin=-1, vmax=1, cmap='gray')
 
 
 def draw_dataset(ds, all_slices, include_raw, connected_regions,
