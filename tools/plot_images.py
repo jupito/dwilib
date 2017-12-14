@@ -104,16 +104,19 @@ def plot_case(imgs, masks, label, path, connected_regions):
 
 
 def draw_dataset(ds, all_slices, include_raw, connected_regions,
-                 label='{c}-{s} ({m})', path='fig/masks/{i}_{c}-{s}.png'):
+                 label_fmt='{c}-{s} ({m})',
+                 path_fmt='fig/masks/{i}_{c}-{s}.png'):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
     for i, (case, scan, lesions) in enumerate(ds.each_image_id(), 1):
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
                                            all_slices, include_raw)
-        if label:
-            label = label.format(c=case, s=scan, m=ds.mode)
-        path = path.format(i=i, c=case, s=scan)
+        if label_fmt:
+            label = label_fmt.format(c=case, s=scan, m=ds.mode)
+        else:
+            label = None
+        path = path_fmt.format(i=i, c=case, s=scan)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
@@ -123,10 +126,10 @@ def main():
     args = parse_args()
     datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
                 for x in args.modes)
-    label = '{c}-{s} ({m})' if args.label else None
+    label_fmt = '{c}-{s} ({m})' if args.label else None
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
-                     args.connected_regions, label=label)
+                     args.connected_regions, label_fmt=label_fmt)
 
 
 if __name__ == '__main__':
