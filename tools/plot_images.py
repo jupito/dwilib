@@ -28,8 +28,8 @@ def parse_args():
           help='samplelist identifier')
     p.add('-c', '--cases', nargs='+', type=int,
           help='cases to include, if not all')
-    p.add('-o', '--only_prostate_slices', action='store_true',
-          help='include only prostate slices')
+    p.add('-A', '--all_slices', action='store_true',
+          help='include all slices')
     p.add('-r', '--include_raw', action='store_true',
           help='include "raw" b=2000 mode')
     p.add('-C', '--connected_regions', action='store_true',
@@ -39,7 +39,7 @@ def parse_args():
     return p.parse_args()
 
 
-def read_case(mode, case, scan, lesions, only_prostate_slices, include_raw):
+def read_case(mode, case, scan, lesions, all_slices, include_raw):
     """Read case. Return raw DWI, pmap, pmask, lmasks, initial prostate slice
     index.
     """
@@ -54,10 +54,10 @@ def read_case(mode, case, scan, lesions, only_prostate_slices, include_raw):
     pmask = pmask[mbb]
     lmasks = [x[mbb] for x in lmasks]
 
-    if only_prostate_slices:
-        pad = (0, np.inf, np.inf)
-    else:
+    if all_slices:
         pad = (np.inf, np.inf, np.inf)
+    else:
+        pad = (0, np.inf, np.inf)
     prostate_slices = pmask.mbb(pad=pad)
     img = img[prostate_slices]
     pmask = pmask[prostate_slices]
@@ -103,14 +103,14 @@ def plot_case(imgs, masks, label, path, connected_regions):
             plt.imshow(mask[col], **kwargs)
 
 
-def draw_dataset(ds, only_prostate_slices, include_raw, connected_regions,
+def draw_dataset(ds, all_slices, include_raw, connected_regions,
                  label='{c}-{s} ({m})'):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
     for i, (case, scan, lesions) in enumerate(ds.each_image_id(), 1):
         imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
-                                           only_prostate_slices, include_raw)
+                                           all_slices, include_raw)
         if label:
             label = label.format(c=case, s=scan, m=ds.mode)
         outdir = 'fig/masks'
@@ -126,7 +126,7 @@ def main():
                 for x in args.modes)
     label = '{c}-{s} ({m})' if args.label else None
     for ds in datasets:
-        draw_dataset(ds, args.only_prostate_slices, args.include_raw,
+        draw_dataset(ds, args.all_slices, args.include_raw,
                      args.connected_regions, label=label)
 
 
