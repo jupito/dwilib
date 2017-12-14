@@ -30,7 +30,7 @@ def parse_args():
           help='cases to include, if not all')
     p.add('-A', '--all_slices', action='store_true',
           help='include all slices')
-    p.add('-r', '--include_raw', action='store_true',
+    p.add('-R', '--include_raw', action='store_true',
           help='include "raw" b=2000 mode')
     p.add('-C', '--connected_regions', action='store_true',
           help='colorize connected regions')
