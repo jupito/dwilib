@@ -5,7 +5,6 @@
 import logging
 
 import numpy as np
-import matplotlib.pyplot as plt
 from skimage import measure
 
 import dwi.conf
@@ -14,8 +13,6 @@ import dwi.mask
 import dwi.plot
 import dwi.util
 from dwi.types import ImageMode
-
-plt.rcParams['savefig.dpi'] = '50'
 
 
 def parse_args():
@@ -52,7 +49,8 @@ def read_case(mode, case, scan, lesions, all_slices, include_raw):
     lmasks = [dwi.dataset.read_lesion_mask(mode, case, scan, x) for x in
               lesions]
 
-    mbb = img.mbb()
+    # mbb = img.mbb()
+    mbb = pmask.mbb(20)
     img = img[mbb]
     pmask = pmask[mbb]
     lmasks = [x[mbb] for x in lmasks]
@@ -96,6 +94,7 @@ def plot_case(imgs, masks, label, path, connected_regions):
              path=path)
     d['titles'] = [None] * (d['nrows'] * d['ncols'])
     for i, plt in enumerate(dwi.plot.generate_plots(**d)):
+        plt.rcParams['savefig.dpi'] = '30'
         row, col = i // d['ncols'], i % d['ncols']
         kwargs = dict(vmin=0, vmax=1, cmap='hot')
         if row < len(imgs):
@@ -120,6 +119,7 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions,
         label = label_fmt.format(**d) if label_fmt else None
         path = path_fmt.format(**d)
         # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
+        print('Plotting to {}'.format(path))
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
 
@@ -132,7 +132,7 @@ def main():
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
                      args.connected_regions, label_fmt=label_fmt,
-                     path_fmt='fig/masks/{m}_{i:03d}.png')
+                     path_fmt='fig/masks/{m}-{i:03d}.png')
 
 
 if __name__ == '__main__':
