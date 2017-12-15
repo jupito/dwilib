@@ -5,6 +5,7 @@
 import logging
 
 import numpy as np
+import matplotlib.pyplot as plt
 from skimage import measure
 
 import dwi.conf
@@ -13,6 +14,8 @@ import dwi.mask
 import dwi.plot
 import dwi.util
 from dwi.types import ImageMode
+
+plt.rcParams['savefig.dpi'] = '50'
 
 
 def parse_args():
@@ -106,7 +109,7 @@ def plot_case(imgs, masks, label, path, connected_regions):
 
 def draw_dataset(ds, all_slices, include_raw, connected_regions,
                  label_fmt='{c}-{s} ({m})',
-                 path_fmt='fig/masks/{i:03d}_{c}-{s}.png'):
+                 path_fmt='fig/masks/{i:03d}-{c}-{s}.png'):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
