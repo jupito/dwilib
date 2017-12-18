@@ -23,10 +23,15 @@ def parse_args():
     return p.parse_args()
 
 
-def process_image(img):
-    print(img.size, img.shape, img.dtype)
+def resize_image(img):
     while max(img.shape) > 4096:
         img = img[::2, ::2, :].copy()
+    return img
+
+
+def process_image(img):
+    print(img.size, img.shape, img.dtype)
+    img = resize_image(img)
     print(img.shape, img.dtype)
     # print(dwi.util.fivenum(img))
     # print(dwi.util.fivenum(img[..., 0]))
