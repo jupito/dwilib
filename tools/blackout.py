@@ -20,6 +20,8 @@ def parse_args():
           help='input image files')
     p.add('-o', '--outdir', type=Path, default=Path('out'),
           help='output directory')
+    p.add('-c', '--color', type=int, default=255,
+          help='color')
     return p.parse_args()
 
 
@@ -29,7 +31,7 @@ def resize_image(img):
     return img
 
 
-def process_image(img):
+def process_image(img, color):
     print(img.size, img.shape, img.dtype)
     img = resize_image(img)
     print(img.shape, img.dtype)
@@ -45,15 +47,15 @@ def process_image(img):
         # if np.median(img[i]) < 200:
         #     img[i, img[i] < 200] = 0
         if all(np.mean(img[i, :head, j]) < 200 for j in range(3)):
-            img[i, :, :] = 255
+            img[i, :, :] = color
     return img
 
 
-def process_file(infile, outfile):
+def process_file(infile, outfile, color):
     """Process a file."""
     img = io.imread(infile)
     try:
-        img = process_image(img)
+        img = process_image(img, color)
     except Exception as e:
         logging.exception(infile)
         return
@@ -67,7 +69,7 @@ def main():
     args = parse_args()
     for infile in args.infiles:
         outfile = args.outdir / infile.name
-        process_file(infile, outfile)
+        process_file(infile, outfile, args.color)
         gc.collect()
 
 
