@@ -35,11 +35,12 @@ def process_image(img):
     # img[0:300, :, 0] = 0
     # img[1000:1300, :, 1] = 0
     # img[2000:2300, :, 2] = 0
+    head = int(img.shape[1] / 4)
     for i in range(len(img)):
         # if np.median(img[i]) < 200:
         #     img[i, img[i] < 200] = 0
-        if all(np.mean(img[i, :500, j]) < 200 for j in range(3)):
-            img[i, :, :] = 0
+        if all(np.mean(img[i, :head, j]) < 200 for j in range(3)):
+            img[i, :, :] = 255
     return img
 
 
