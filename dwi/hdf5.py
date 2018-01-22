@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 import h5py
 
-import dwi.util
+from dwi.types import Path
 
 DEFAULT_DSETNAME = 'default'
 DEFAULT_DSETPARAMS = dict(
@@ -45,9 +45,14 @@ def read_hdf5(filename, ondisk=False, dsetname=DEFAULT_DSETNAME):
     With parameter "ondisk" True it will not be read into memory."""
     try:
         f = h5py.File(filename, 'r')
+    # On missing file, h5py raises OSError without errno (or filename).
+    except OSError as e:
+        if not Path(filename).exists():
+            raise FileNotFoundError(2, 'No such file or directory', filename)
+        e.filename = e.filename or filename
+        raise
     except IOError as e:
-        if e.filename is None:
-            e.filename = filename
+        e.filename = e.filename or filename
         raise
     if dsetname not in f:
         # No dataset of given name, try the one there is.
