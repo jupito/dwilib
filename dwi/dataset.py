@@ -40,6 +40,34 @@ class Dataset(object):
                 yield case, scan, lesion
 
 
+class DummyDataset(Dataset):
+    def __init__(self, mode, samplelist, cases=None):
+        self.mode = ImageMode(mode)
+        self.samplelist = samplelist
+        self.cases = cases
+
+    @property
+    def samplelist_path(self):
+        raise NotImplementedError()
+
+    def each_patient(self):
+        raise NotImplementedError()
+
+    def _cases(self):
+        return range(300)
+
+    def _scans(self):
+        return (x + y for x in '12' for y in 'ab')
+
+    def _lesions(self):
+        return (Lesion(x, '0+0', 'NA') for x in range(3))
+
+    def each_image_id(self):
+        for case in self.cases or self._cases():
+            for scan in self._scans():
+                yield case, scan, list(self._lesions())
+
+
 # @lru_cache(maxsize=16)
 def read_prostate_mask(mode, case, scan):
     """Read prostate mask."""
