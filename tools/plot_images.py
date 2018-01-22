@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""Draw images."""
+"""Draw images. NOTE: Run in the 'work' directory."""
 
 import logging
 
@@ -49,8 +49,7 @@ def read_case(mode, case, scan, lesions, all_slices, include_raw):
     lmasks = [dwi.dataset.read_lesion_mask(mode, case, scan, x) for x in
               lesions]
 
-    # mbb = img.mbb()
-    mbb = pmask.mbb(20)
+    mbb = pmask.mbb(10)
     img = img[mbb]
     pmask = pmask[mbb]
     lmasks = [x[mbb] for x in lmasks]
@@ -94,21 +93,22 @@ def plot_case(imgs, masks, label, path, connected_regions):
              path=path)
     d['titles'] = [None] * (d['nrows'] * d['ncols'])
     for i, plt in enumerate(dwi.plot.generate_plots(**d)):
-        plt.rcParams['savefig.dpi'] = '30'
+        plt.rcParams['savefig.dpi'] = '60'
         row, col = i // d['ncols'], i % d['ncols']
         kwargs = dict(vmin=0, vmax=1, cmap='hot')
         if row < len(imgs):
+            # It's an image.
             plt.imshow(imgs[row][col], cmap='gray')
             plt.imshow(overlay[col], **kwargs, alpha=1.0)
         else:
+            # It's a mask.
             mask = masks[row - len(imgs)]
-            # plt.imshow(mask[col], **kwargs)
-            plt.imshow(mask[col], vmin=-1, vmax=1, cmap='gray')
+            plt.imshow(mask[col], **kwargs)
+            # plt.imshow(mask[col], vmin=-1, vmax=1, cmap='gray')
 
 
-def draw_dataset(ds, all_slices, include_raw, connected_regions,
-                 label_fmt='{c}-{s} ({m})',
-                 path_fmt='fig/masks/{i:03d}-{c}-{s}.png'):
+def draw_dataset(ds, all_slices, include_raw, connected_regions, label_fmt,
+                 path_fmt):
     """Process a dataset."""
     logging.info('Mode: %s', ds.mode)
     logging.info('Samplelist: %s', ds.samplelist)
@@ -118,7 +118,6 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions,
         d = dict(i=i, c=case, s=scan, m=ds.mode)
         label = label_fmt.format(**d) if label_fmt else None
         path = path_fmt.format(**d)
-        # print(path, label, img.shape, pmask.shape, [x.shape for x in lmasks])
         print('Plotting to {}'.format(path))
         plot_case(imgs, [pmask] + lmasks, label, path, connected_regions)
 
@@ -128,11 +127,11 @@ def main():
     args = parse_args()
     datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
                 for x in args.modes)
-    label_fmt = '{c}-{s} ({m})' if args.label else None
+    label_fmt = ' {m} {c}-{s}' if args.label else None
+    path_fmt = 'fig/masks/{m}_{c:03d}-{s}.png'
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
-                     args.connected_regions, label_fmt=label_fmt,
-                     path_fmt='fig/masks/{m}-{i:03d}.png')
+                     args.connected_regions, label_fmt, path_fmt)
 
 
 if __name__ == '__main__':
