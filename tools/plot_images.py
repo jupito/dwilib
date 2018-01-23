@@ -46,8 +46,15 @@ def read_case(mode, case, scan, lesions, all_slices, include_raw):
     img = dwi.dataset.read_tmap(mode, case, scan)[:, :, :, 0]
     img = dwi.util.normalize(img, mode)
     pmask = dwi.dataset.read_prostate_mask(mode, case, scan)
-    lmasks = [dwi.dataset.read_lesion_mask(mode, case, scan, x) for x in
-              lesions]
+    lmasks = []
+    for i in lesions:
+        try:
+            lmasks.append(dwi.dataset.read_lesion_mask(mode, case, scan, i))
+        except FileNotFoundError as e:
+            # No more lesion masks.
+            logging.info('%s (got %d)', e, len(lmasks))
+            if not lmasks:
+                raise
 
     mbb = pmask.mbb(10)
     img = img[mbb]
@@ -117,7 +124,7 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions, label_fmt,
             imgs, pmask, lmasks, _ = read_case(ds.mode, case, scan, lesions,
                                                all_slices, include_raw)
         except FileNotFoundError as e:
-            logging.error(e)
+            logging.warning(e)
         else:
             d = dict(i=i, c=case, s=scan, m=ds.mode)
             label = label_fmt.format(**d) if label_fmt else None
