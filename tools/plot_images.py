@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
-"""Draw images. NOTE: Run in the 'work' directory."""
+"""Draw QC for images with their masks. The dummy dataset as a samplelist means
+that all listed case numbers are attempted to use, with maximum number of
+lesions. TODO: It has to be run in the 'work' directory."""
 
 import logging
 
@@ -24,8 +26,8 @@ def parse_args():
                    # 'T2w-std',
                    ],
           help='imaging modes')
-    p.add('-s', '--samplelist', default='all',
-          help='samplelist identifier')
+    p.add('-s', '--samplelist',
+          help='samplelist identifier (exclude to use the dummy dataset)')
     p.add('-c', '--cases', nargs='+', type=int,
           help='cases to include, if not all')
     p.add('-A', '--all_slices', action='store_true',
@@ -136,8 +138,8 @@ def draw_dataset(ds, all_slices, include_raw, connected_regions, label_fmt,
 def main():
     """Main."""
     args = parse_args()
-    datasets = (dwi.dataset.Dataset(x, args.samplelist, cases=args.cases)
-                for x in args.modes)
+    cls = dwi.dataset.Dataset if args.samplelist else dwi.dataset.DummyDataset
+    datasets = (cls(x, args.samplelist, cases=args.cases) for x in args.modes)
     label_fmt = ' {m} {c}-{s}' if args.label else None
     path_fmt = 'fig/masks/{m}_{c:03d}-{s}.png'
     for ds in datasets:
