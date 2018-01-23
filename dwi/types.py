@@ -160,7 +160,11 @@ def namedtuple_fmt(*args, sep='-', **kwargs):
     return t
 
 
+# NOTE: Experimental.
 ImageMode_NT = namedtuple_fmt('ImageMode_NT', ['modality', 'model', 'param'])
+GleasonScore_NT = namedtuple_fmt('GleasonScore_NT', ['primary', 'secondary',
+                                                     'tertiary'], sep='+')
+
 ImageTarget = namedtuple_fmt('ImageTarget', ['case', 'scan', 'lesion'])
 TextureSpec = namedtuple_fmt('TextureSpec', ['method', 'winsize', 'feature'])
 ROISpec = namedtuple_fmt('ROISpec', ['type', 'id'])
