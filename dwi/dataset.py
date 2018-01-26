@@ -68,6 +68,53 @@ class DummyDataset(Dataset):
                 yield case, scan, list(self._lesions())
 
 
+# TODO: A new attempt!
+class ImageData(object):
+    """Generate and easily access all images, masks, gleason scores, etc.
+
+    Combinations of values are indicated with lists of keys. Valid keys are
+    mode, case, scan, lesion, masktype.
+    """
+    def __init__(self, modes, cases, scans=None, maxlesions=3, masktypes=None):
+        if scans is None:
+            scans = [x + y for x in '12' for y in 'ab']
+        if masktypes is None:
+            masktypes = ['prostate', 'lesion']
+        self.choices = dict(
+            mode=list(modes),
+            case=list(cases),
+            scan=list(scans),
+            lesion=list(range(maxlesions)),
+            masktype=list(masktypes),
+        )
+
+    @property
+    def valid_keys(self):
+        return list(self.choices.keys())
+
+    def combinations(self, keys):
+        """Generate all value combinations for `keys` (in given order).
+        """
+        yield from self._combinations(keys, {})
+
+    def _combinations(self, keys, output):
+        """Generate all value combinations for `keys` (in given order).
+
+        Dictionary `output` is copied and passed recursively to keep state.
+        """
+        logging.debug([keys, output])
+        if keys:
+            key, rest = keys[0], keys[1:]
+            values = self.choices[key]
+            assert values, key
+            for value in values:
+                d = dict(output)
+                d[key] = value
+                yield from self._combinations(rest, d)
+        else:
+            yield output
+
+
 # @lru_cache(maxsize=16)
 def read_prostate_mask(mode, case, scan):
     """Read prostate mask."""
