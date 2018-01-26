@@ -67,33 +67,33 @@ def main():
     cases = read_cases()
     # print('{}: {}'.format(len(cases), ' '.join(str(x) for x in cases)))
 
-    s = (
-        '{case:3}'
-        ', {hist}'
+    # s = (
+    #     '{case:3}'
+    #     ', {hist}'
 
-        # ', {img-hB-1a}, {img-hB-1b}, {img-hB-2a}, {img-hB-2b}'
-        # ', {pro-hB-1a}, {pro-hB-1b}, {pro-hB-2a}, {pro-hB-2b}'
-        # ', {les-hB-1a}, {les-hB-1b}, {les-hB-2a}, {les-hB-2b}'
-        # ', {roi-hB-1a}, {roi-hB-1b}, {roi-hB-2a}, {roi-hB-2b}'
+    #     # ', {img-hB-1a}, {img-hB-1b}, {img-hB-2a}, {img-hB-2b}'
+    #     # ', {pro-hB-1a}, {pro-hB-1b}, {pro-hB-2a}, {pro-hB-2b}'
+    #     # ', {les-hB-1a}, {les-hB-1b}, {les-hB-2a}, {les-hB-2b}'
+    #     # ', {roi-hB-1a}, {roi-hB-1b}, {roi-hB-2a}, {roi-hB-2b}'
 
-        # ', {img-lB-1a}, {img-lB-1b}, {img-lB-2a}, {img-lB-2b}'
-        # ', {pro-lB-1a}, {pro-lB-1b}, {pro-lB-2a}, {pro-lB-2b}'
-        # ', {les-lB-1a}, {les-lB-1b}, {les-lB-2a}, {les-lB-2b}'
-        # ', {roi-lB-1a}, {roi-lB-1b}, {roi-lB-2a}, {roi-lB-2b}'
+    #     # ', {img-lB-1a}, {img-lB-1b}, {img-lB-2a}, {img-lB-2b}'
+    #     # ', {pro-lB-1a}, {pro-lB-1b}, {pro-lB-2a}, {pro-lB-2b}'
+    #     # ', {les-lB-1a}, {les-lB-1b}, {les-lB-2a}, {les-lB-2b}'
+    #     # ', {roi-lB-1a}, {roi-lB-1b}, {roi-lB-2a}, {roi-lB-2b}'
 
-        ', {img-hB:d}'
-        ', {pro-hB:d}'
-        ', {les-hB:d}'
-        ', {roi-hB:d}'
+    #     ', {img-hB:d}'
+    #     ', {pro-hB:d}'
+    #     ', {les-hB:d}'
+    #     ', {roi-hB:d}'
 
-        # ', {img-T2}'
-        # ', {pro-T2}'
-        # ', {les-T2}'
+    #     # ', {img-T2}'
+    #     # ', {pro-T2}'
+    #     # ', {les-T2}'
 
-        # ', {img-T2w}'
-        # ', {pro-T2w}'
-        # ', {les-T2w}'
-    )
+    #     # ', {img-T2w}'
+    #     # ', {pro-T2w}'
+    #     # ', {les-T2w}'
+    # )
     # print('# ' + s.translate(s.maketrans('', '', '{}')))
 
     dicts = (nums(x) for x in cases)
