@@ -10,8 +10,9 @@ roi-hB roi-lB
 
 from collections import defaultdict
 
-from dwi.types import Path
 from tabulate import tabulate
+
+from dwi.types import Path
 
 BASE = Path('/mri')
 LIST = 'misc/list/all.txt'
@@ -30,7 +31,7 @@ def nums(case):
     r = defaultdict(int)
     r['case'] = case
     d = dict(c=case)
-    r['hist'] = num('hist/New_ALL_RALP/{c}_*.*')
+    # r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
     # for scan in ['1a', '1b', '2a', '2b']:
     #     d['s'] = scan
     #     r['img-hB-'+scan] = num('images/DWI/{c}-{s}*.*')
@@ -92,7 +93,7 @@ def main():
         # ', {img-T2w}'
         # ', {pro-T2w}'
         # ', {les-T2w}'
-        )
+    )
     # print('# ' + s.translate(s.maketrans('', '', '{}')))
 
     dicts = (nums(x) for x in cases)
