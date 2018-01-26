@@ -93,8 +93,7 @@ class ImageData(object):
         return list(self.choices.keys())
 
     def combinations(self, keys):
-        """Generate all value combinations for `keys` (in given order).
-        """
+        """Generate all value combinations for `keys` (in given order)."""
         yield from self._combinations(keys, {})
 
     def _combinations(self, keys, output):
