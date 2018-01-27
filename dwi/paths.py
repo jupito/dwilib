@@ -119,6 +119,10 @@ class Paths(object):
         target = '{r}-0{e}'.format(r=path.stem, e=path.suffix)
         return path, target
 
+    def histology(self, case):
+        """Return path to histology image."""
+        return Path('hist/ALL_renamed_RALP').glob('{c}_*.*'.format(c=case))
+
 
 # The rest are for compatibility.
 
