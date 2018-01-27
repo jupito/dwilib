@@ -6,7 +6,7 @@ import logging
 import numpy as np
 
 from . import files, image, paths
-from .types import ImageMode, Lesion, TextureSpec
+from .types import ImageMode, Lesion, Path, TextureSpec
 from .util import unify_masks
 
 
@@ -75,18 +75,20 @@ class ImageData(object):
     Combinations of values are indicated with lists of keys. Valid keys are
     mode, case, scan, lesion, masktype.
     """
-    def __init__(self, modes, cases, scans=None, maxlesions=3, masktypes=None):
+    def __init__(self, modes, cases, scans=None, maxlesions=3, masktypes=None,
+                 base='.'):
         if scans is None:
             scans = [x + y for x in '12' for y in 'ab']
         if masktypes is None:
             masktypes = ['prostate', 'lesion']
         self.choices = dict(
-            mode=list(modes),
+            mode=[ImageMode(x) for x in modes],
             case=list(cases),
             scan=list(scans),
             lesion=list(range(maxlesions)),
             masktype=list(masktypes),
         )
+        self.base = Path(base)
 
     @property
     def valid_keys(self):
@@ -94,7 +96,7 @@ class ImageData(object):
 
     def combinations(self, keys):
         """Generate all value combinations for `keys` (in given order)."""
-        yield from self._combinations(keys, {})
+        yield from self._combinations(keys, ImageDataTarget(base=self.base))
 
     def _combinations(self, keys, output):
         """Generate all value combinations for `keys` (in given order).
@@ -107,11 +109,30 @@ class ImageData(object):
             values = self.choices[key]
             assert values, key
             for value in values:
-                d = dict(output)
+                d = ImageDataTarget(output)
                 d[key] = value
                 yield from self._combinations(rest, d)
         else:
             yield output
+
+
+class ImageDataTarget(dict):
+    """Target definition yielded by ImageData."""
+    @property
+    def image_path(self):
+        p = paths.Paths(self['mode'], base=self['base'])
+        return p.pmap(self['case'], self['scan'])
+
+    @property
+    def mask_path(self):
+        p = paths.Paths(self['mode'], base=self['base'])
+        return p.mask(self['masktype'], self['case'], self['scan'],
+                      lesion=self.get('lesion'))
+
+    @property
+    def histology_path(self):
+        p = paths.Paths('', base=self['base'])
+        return p.histology(self['case'])
 
 
 # @lru_cache(maxsize=16)
