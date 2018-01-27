@@ -4,13 +4,14 @@ from .types import AlgParams, ImageMode, ImageTarget, Path
 
 
 class Paths(object):
-    def __init__(self, mode):
+    def __init__(self, mode, base='.'):
         self.mode = ImageMode(mode)
+        self.base = Path(base)  # TODO: The `work` directory now, later `/mri`.
 
     def samplelist(self, samplelist):
         """Return path to samplelist."""
         d = dict(m=self.mode, sl=samplelist)
-        return Path('patients') / 'patients_{m[0]}_{sl}.txt'.format(**d)
+        return self.base / 'patients' / 'patients_{m[0]}_{sl}.txt'.format(**d)
 
     def pmap(self, case=None, scan=None, fmt='dicom'):
         """Return path to pmap."""
@@ -18,7 +19,7 @@ class Paths(object):
             fmt = 'h5'  # TODO: Temporary redirection.
         trg = ImageTarget(case, scan, None)
         d = dict(m=self.mode, t=trg)
-        path = Path('images/{}'.format(self.mode[:2]))
+        path = self.base / 'images' / str(self.mode[:2])
         if any(trg):
             if fmt == 'h5':
                 s = '{t}.h5'
@@ -34,8 +35,8 @@ class Paths(object):
 
     def subregion(self, case=None, scan=None):
         """Return path to subregion file. XXX: Obsolete."""
-        d = dict(m=self.mode, c=case, s=scan)
-        path = Path('subregions') / '{m[0]}'.format(**d)
+        d = dict(c=case, s=scan)
+        path = self.base / 'subregions' / str(self.mode[0])
         if case is not None and scan is not None:
             path /= '{c}_{s}_subregion10.txt'.format(**d)
         return path
@@ -45,7 +46,7 @@ class Paths(object):
         if masktype == 'all':
             return None
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
-        path = Path('masks')
+        path = self.base / 'masks'
         if masktype == 'prostate':
             s = '{mt}/{m[0]}/{c}-{s}.h5'
         elif masktype == 'lesion':
@@ -64,7 +65,7 @@ class Paths(object):
         if masktype == 'image':
             return self.pmap(case, scan)  # No ROI, but the whole image.
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
-        path = Path('rois/{mt}/{m}'.format(**d))
+        path = self.base / 'rois' / masktype / str(self.mode)
         if algparams:
             path /= str(AlgParams(algparams))
         if case is not None and scan is not None:
@@ -88,7 +89,8 @@ class Paths(object):
                  fmt='txt')
         if voxel == 'all':
             d['fmt'] = 'h5'
-        path = Path('texture/{mt}/{m}_{slices}_{portion}_{vx}'.format(**d))
+        path = (self.base / 'texture' / masktype /
+                '{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
             path /= str(AlgParams(algparams))
         if tspec is None:
@@ -99,19 +101,19 @@ class Paths(object):
 
     def std_cfg(self):
         """Return path to standardization configuration file."""
-        return Path('stdcfg_{m}.txt'.format(m=self.mode))
+        return self.base / 'stdcfg_{m}.txt'.format(m=self.mode)
 
     def histogram(self, roi, samplelist):
         """Return path to histogram plot."""
-        return Path('histograms/{m}_{r}_{s}.png'.format(m=self.mode, r=roi,
-                                                        s=samplelist))
+        return (self.base / 'histograms' /
+                '{m}_{r}_{s}.png'.format(m=self.mode, r=roi, s=samplelist))
 
-    def grid(self, case, scan, mt, tspec, fmt='txt'):
+    def grid(self, case, scan, masktype, tspec, fmt='txt'):
         """Return path to the first of the grid files.
 
         FIXME: The first element in the resulting tuple no more exists as file.
         """
-        path = Path('grid/{mt}/{m}'.format(mt=mt, m=self.mode))
+        path = self.base / 'grid' / masktype / str(self.mode)
         if tspec is not None:
             path /= str(tspec)
         if case is not None and scan is not None:
@@ -121,7 +123,9 @@ class Paths(object):
 
     def histology(self, case):
         """Return path to histology image."""
-        return Path('hist/ALL_renamed_RALP').glob('{c}_*.*'.format(c=case))
+        # NOTE: Doesn't use `self.mode`.
+        return (self.base / 'hist' /
+                'ALL_renamed_RALP').glob('{c}_*.*'.format(c=case))
 
 
 # The rest are for compatibility.
