@@ -65,6 +65,7 @@ def nums(case):
         r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
         r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
 
+    # Keep only if something was found.
     if any(dict(r, case=None).values()):
         return r
     return None
