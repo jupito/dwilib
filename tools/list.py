@@ -66,7 +66,8 @@ def nums(case):
 
 
 def main():
-    cases = read_cases()
+    # cases = read_cases()
+    cases = list(range(400))
     # print('{}: {}'.format(len(cases), ' '.join(str(x) for x in cases)))
 
     # s = (
