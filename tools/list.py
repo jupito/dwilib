@@ -55,7 +55,6 @@ def nums(case):
         r[m + '-img'] = num('images/{m}/{c}-*.*')
         r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
         r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
-    d.pop('m')
 
     if any(dict(r, case=None).values()):
         return r
