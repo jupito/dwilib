@@ -51,9 +51,11 @@ def nums(case):
         r['hB-roi'] += (num('masks/roi/DWI/{c}-{r}[ab]_*') > 1)
 
     for m in ['T2', 'T2w']:
-        r[m + '-img'] = num('images/' + m + '/{c}-*.*')
-        r[m + '-pro'] = num('masks/prostate/' + m + '/{c}-*.*')
-        r[m + '-les'] = num('masks/lesion/' + m + '/lesion1/{c}-*.*')
+        d['m'] = m
+        r[m + '-img'] = num('images/{m}/{c}-*.*')
+        r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
+        r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
+    d.pop('m')
 
     if any(dict(r, case=None).values()):
         return r
