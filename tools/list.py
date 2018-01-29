@@ -30,7 +30,7 @@ def nums(case):
     # r = {}
     r = defaultdict(int)
     r['case'] = case
-    d = dict(c=case)
+    d = dict(c=case)  # Used by num().
     # r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
     # for scan in ['1a', '1b', '2a', '2b']:
     #     d['s'] = scan
@@ -60,7 +60,9 @@ def nums(case):
     r['T2-les'] = num('masks/lesion/T2/lesion1/{c}-*.*')
     r['T2w-les'] = num('masks/lesion/T2/lesion1/{c}-*.*')
 
-    return r
+    if any(dict(r, case=None).values()):
+        return r
+    return None
 
 
 def main():
@@ -96,7 +98,8 @@ def main():
     # )
     # print('# ' + s.translate(s.maketrans('', '', '{}')))
 
-    dicts = (nums(x) for x in cases)
+    dicts = filter(None, (nums(x) for x in cases))
+
     # for d in dicts:
     #     # if d['hist'] and len(list(filter(None, d.values()))) > 2:
     #     # if len(list(filter(None, d.values()))) >= 5:
