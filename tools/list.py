@@ -41,14 +41,23 @@ def nums(case):
     #     r['les-lB-'+scan] = num('masks/lesion/DWI_lB/lesion1/{c}-{s}.*')
     #     r['roi-hB-'+scan] = num('masks/roi/DWI/{c}-{s}.*')
     #     r['roi-lB-'+scan] = num('masks/roi/DWI_lB/{c}-{s}.*')
-    for rep in [1, 2]:
+    for rep, scan in ((x, y) for x in '12' for y in 'ab'):
         d['r'] = rep
-        r['hB-img'] += (num('images/DWI/{c}-{r}[ab]*.*') > 1)
-        r['hB-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
-        r['hB-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
-        r['hB-pro'] += (num('masks/prostate/DWI/{c}-{r}[ab].*') > 1)
-        r['hB-les'] += (num('masks/lesion/DWI/lesion1/{c}-{r}[ab].*') > 1)
-        r['hB-roi'] += (num('masks/roi/DWI/{c}-{r}[ab]_*') > 1)
+        # r['hB-img'] += (num('images/DWI/{c}-{r}[ab]*.*') > 1)
+        # r['hB-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
+        # r['hB-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
+        # r['hB-pro'] += (num('masks/prostate/DWI/{c}-{r}[ab].*') > 1)
+        # r['hB-les'] += (num('masks/lesion/DWI/lesion1/{c}-{r}[ab].*') > 1)
+        # r['hB-roi'] += (num('masks/roi/DWI/{c}-{r}[ab]_*') > 1)
+        # for scan in 'ab':
+        d['s'] = scan
+        s = '-' + rep + scan
+        r['hB-img' + s] += bool(num('images/DWI/{c}-{r}{s}*.*'))
+        r['hB-Mono' + s] += bool(num('images/DWI-Mono/{c}-{r}{s}'))
+        r['hB-Kurt' + s] += bool(num('images/DWI-Kurt/{c}-{r}{s}'))
+        r['hB-pro' + s] += bool(num('masks/prostate/DWI/{c}-{r}{s}.*'))
+        r['hB-les' + s] += bool(num('masks/lesion/DWI/lesion1/{c}-{r}{s}.*'))
+        r['hB-roi' + s] += bool(num('masks/roi/DWI/{c}-{r}{s}_*'))
 
     for m in ['T2', 'T2w']:
         d['m'] = m
