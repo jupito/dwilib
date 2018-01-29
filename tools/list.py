@@ -24,14 +24,13 @@ def read_cases():
 
 def nums(case):
     def num(pat):
-        # print(pat, len(list(BASE.glob(pat.format(**d)))))
         return len(list(BASE.glob(pat.format(**d))))
 
-    # r = {}
     r = defaultdict(int)
     r['case'] = case
     d = dict(c=case)  # Used by num().
-    # r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
+
+    r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
     # for scan in ['1a', '1b', '2a', '2b']:
     #     d['s'] = scan
     #     r['img-hB-'+scan] = num('images/DWI/{c}-{s}*.*')
@@ -45,8 +44,8 @@ def nums(case):
     for rep in [1, 2]:
         d['r'] = rep
         r['hB-img'] += (num('images/DWI/{c}-{r}[ab]*.*') > 1)
-        # r['img-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
-        # r['img-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
+        r['img-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
+        r['img-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
         r['hB-pro'] += (num('masks/prostate/DWI/{c}-{r}[ab].*') > 1)
         r['hB-les'] += (num('masks/lesion/DWI/lesion1/{c}-{r}[ab].*') > 1)
         r['hB-roi'] += (num('masks/roi/DWI/{c}-{r}[ab]_*') > 1)
