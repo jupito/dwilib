@@ -27,9 +27,9 @@ def nums(case):
         return len(list(BASE.glob(pat.format(**d))))
 
     r = defaultdict(int)
-    r['case'] = case
     d = dict(c=case)  # Used by num().
 
+    r['case'] = case
     r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
     # for scan in ['1a', '1b', '2a', '2b']:
     #     d['s'] = scan
