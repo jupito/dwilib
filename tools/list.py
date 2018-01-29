@@ -44,8 +44,8 @@ def nums(case):
     for rep in [1, 2]:
         d['r'] = rep
         r['hB-img'] += (num('images/DWI/{c}-{r}[ab]*.*') > 1)
-        r['img-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
-        r['img-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
+        r['hB-Mono'] += (num('images/DWI-Mono/{c}-{r}[ab]') > 1)
+        r['hB-Kurt'] += (num('images/DWI-Kurt/{c}-{r}[ab]') > 1)
         r['hB-pro'] += (num('masks/prostate/DWI/{c}-{r}[ab].*') > 1)
         r['hB-les'] += (num('masks/lesion/DWI/lesion1/{c}-{r}[ab].*') > 1)
         r['hB-roi'] += (num('masks/roi/DWI/{c}-{r}[ab]_*') > 1)
