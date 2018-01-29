@@ -93,7 +93,7 @@ def nums_str(case):
 def add_score(dicts):
     """Add Gleason score."""
     patients = files.read_patients_file(BASE /
-                                        'work/patients/patients_DWI_all.txt')
+                                        'work/patients/patients_DWI_67.txt')
 
     def max_score(patient):
         return max(x.score for x in patient.lesions)
