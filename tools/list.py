@@ -57,7 +57,7 @@ def nums(case):
     r['T2w-pro'] = num('masks/prostate/T2w/{c}-*.*')
 
     r['T2-les'] = num('masks/lesion/T2/lesion1/{c}-*.*')
-    r['T2w-les'] = num('masks/lesion/T2/lesion1/{c}-*.*')
+    r['T2w-les'] = num('masks/lesion/T2w/lesion1/{c}-*.*')
 
     if any(dict(r, case=None).values()):
         return r
