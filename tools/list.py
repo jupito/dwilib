@@ -22,7 +22,7 @@ def read_cases():
     return sorted(int(x) for x in (BASE / LIST).read_text().split())
 
 
-def nums(case):
+def nums_int(case):
     def num(pat):
         return len(list(BASE.glob(pat.format(**d))))
 
@@ -54,10 +54,43 @@ def nums(case):
     return None
 
 
+def nums_str(case):
+    def num(pat):
+        return len(list(BASE.glob(pat.format(**d))))
+
+    r = defaultdict(str)
+    d = dict(c=case)  # Used by num().
+
+    r['case'] = case
+    r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
+    for rep, scan in ((x, y) for x in '12' for y in 'ab'):
+        d['r'] = rep
+        d['s'] = scan
+        t = rep + scan  # "True"
+        f = '-' * len(t)  # "False"
+        r['hB-img'] += t if num('images/DWI/{c}-{r}{s}*.*') else f
+        r['hB-Mono'] += t if num('images/DWI-Mono/{c}-{r}{s}') else f
+        r['hB-Kurt'] += t if num('images/DWI-Kurt/{c}-{r}{s}') else f
+        r['hB-pro'] += t if num('masks/prostate/DWI/{c}-{r}{s}.*') else f
+        r['hB-les'] += t if num('masks/lesion/DWI/lesion1/{c}-{r}{s}.*') else f
+        r['hB-roi'] += t if num('masks/roi/DWI/{c}-{r}{s}_*') else f
+
+    for m in ['T2', 'T2w']:
+        d['m'] = m
+        r[m + '-img'] = num('images/{m}/{c}-*.*')
+        r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
+        r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
+
+    # Keep only if something was found.
+    if any(dict(r, case=None).values()):
+        return r
+    return None
+
+
 def main():
     # cases = read_cases()
     cases = list(range(400))
-    dicts = filter(None, (nums(x) for x in cases))
+    dicts = filter(None, (nums_str(x) for x in cases))
     fmt = 'tsv'
     s = tabulate(dicts, headers='keys', tablefmt=fmt)
     s = s.replace('\t', ', ')
