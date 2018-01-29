@@ -8,10 +8,12 @@ lesion-hB lesion-lB
 roi-hB roi-lB
 """
 
+# import logging
 from collections import defaultdict
 
 from tabulate import tabulate
 
+from dwi import files
 from dwi.types import Path
 
 BASE = Path('/mri')
@@ -56,10 +58,12 @@ def nums_int(case):
 
 def nums_str(case):
     def num(pat):
-        return len(list(BASE.glob(pat.format(**d))))
+        n = len(list(BASE.glob(pat.format(**d))))
+        d['exist'] += n
+        return n
 
     r = defaultdict(str)
-    d = dict(c=case)  # Used by num().
+    d = dict(c=case, exist=0)  # Used by num().
 
     r['case'] = case
     r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
@@ -81,20 +85,38 @@ def nums_str(case):
         r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
         r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
 
-    # Keep only if something was found.
-    if any(dict(r, case=None).values()):
+    if d['exist']:
         return r
     return None
+
+
+def add_score(dicts):
+    """Add Gleason score."""
+    patients = files.read_patients_file(BASE /
+                                        'work/patients/patients_DWI_all.txt')
+
+    def max_score(patient):
+        return max(x.score for x in patient.lesions)
+
+    for d in dicts:
+        d['gs'] = '-'
+        for p in patients:
+            if p.num == d['case']:
+                d['gs'] = str(max_score(p))
+                break
 
 
 def main():
     # cases = read_cases()
     cases = list(range(400))
-    dicts = filter(None, (nums_str(x) for x in cases))
+    dicts = list(filter(None, (nums_str(x) for x in cases)))
+    add_score(dicts)
+
     fmt = 'tsv'
     s = tabulate(dicts, headers='keys', tablefmt=fmt)
     s = s.replace('\t', ', ')
     print(s)
+    assert len(s.split('\n')) == len(dicts) + 1
 
 
 if __name__ == '__main__':
