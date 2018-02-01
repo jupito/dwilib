@@ -58,10 +58,12 @@ def main(path, shape, outdir, fmt='h5'):
             logging.error('%s: %s', e, path)
             continue
         assert mask.ndim == 4, mask.shape
-        outname = '{}.{}-{}.{}'.format(path.name, i, number, fmt)
+        outname = '{p}.{i:02d}-{n}.{f}'.format(p=path.name, i=i, n=number,
+                                               f=fmt)
         outpath = outdir / outname
         attrs = {}
         print('Writing mask shape {}: {}'.format(mask.shape, outpath))
+        dwi.files.ensure_dir(outpath)
         dwi.files.write_pmap(outpath, mask, attrs)
 
 
