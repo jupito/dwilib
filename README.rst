@@ -9,8 +9,10 @@ data, with focus on prostate cancer.
 This software is being developed as part of a research project at the `Magnetic
 Resonance Imaging Research Center <http://mrc.utu.fi/>`_, Turku, Finland.
 
-Note: This is very much under construction. The program code is written on
-demand basis, for custom needs at in-house projects.
+Note: This is very much under construction. The program code is being written on
+demand basis, for custom needs at in-house projects. It has grown organically at
+the same time as the programmer has been studying the subject and learning the
+tools. So the code is quite messy in many places.
 
 
 Features
