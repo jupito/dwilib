@@ -58,11 +58,15 @@ def nums_str(case):
         d['exist'] += n
         return n
 
+    def ss(n):
+        """Return number as string if nonzero, else slash."""
+        return str(n or '-')
+
     r = defaultdict(str)
     d = dict(c=case, exist=0)  # Used by num().
 
     r['case'] = case
-    r['hist'] = num('hist/ALL_renamed_RALP/{c}_*.*')
+    r['hist'] = ss(num('hist/ALL_renamed_RALP/{c}_*.*'))
     for rep, scan in ((x, y) for x in '12' for y in 'ab'):
         d['r'] = rep
         d['s'] = scan
@@ -72,17 +76,16 @@ def nums_str(case):
         r['hB-Mono'] += t if num('images/DWI-Mono/{c}-{r}{s}') else f
         r['hB-Kurt'] += t if num('images/DWI-Kurt/{c}-{r}{s}') else f
         r['hB-pro'] += t if num('masks/prostate/DWI/{c}-{r}{s}.*') else f
-        r['hB-les'] += t if num('masks/lesion/DWI/lesion1/{c}-{r}{s}.*') else f
-        # r['hB-5x5'] += t if num('masks/roi/DWI/{c}-{r}{s}_*') else f
-        r['hB-5x5'] += str(num('masks/roi/DWI/{c}-{r}{s}_*'))
+        r['hB-les'] += ss(num('masks/lesion/DWI/lesion?/{c}-{r}{s}.*'))
+        r['hB-5x5'] += ss(num('masks/roi/DWI/{c}-{r}{s}_*'))
         r['lB-img'] += t if num('images/DWI_lB/{c}-{r}{s}*.*') else f
         r['lB-pro'] += t if num('masks/prostate/DWI_lB/{c}-{r}{s}.*') else f
 
     for m in ['T2', 'T2w']:
         d['m'] = m
-        r[m + '-img'] = num('images/{m}/{c}-*.*')
-        r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
-        r[m + '-les'] = num('masks/lesion/{m}/lesion?/{c}-*.*')
+        r[m + '-img'] = ss(num('images/{m}/{c}-*.*'))
+        r[m + '-pro'] = ss(num('masks/prostate/{m}/{c}-*.*'))
+        r[m + '-les'] = ss(num('masks/lesion/{m}/lesion?/{c}-*.*'))
 
     if d['exist']:
         return r
