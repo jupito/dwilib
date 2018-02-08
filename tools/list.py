@@ -1,12 +1,6 @@
 #!/usr/bin/python3
 
-"""pat
-pinky
-image-hB image-lB
-prostate-hB prostate-lB
-lesion-hB lesion-lB
-roi-hB roi-lB
-"""
+"""Produce inventory of all data."""
 
 # import logging
 from collections import defaultdict
@@ -21,10 +15,12 @@ LIST = 'misc/list/all.txt'
 
 
 def read_cases():
+    # XXX: Not used anymore.
     return sorted(int(x) for x in (BASE / LIST).read_text().split())
 
 
 def nums_int(case):
+    # XXX: Not used anymore.
     def num(pat):
         return len(list(BASE.glob(pat.format(**d))))
 
@@ -77,13 +73,16 @@ def nums_str(case):
         r['hB-Kurt'] += t if num('images/DWI-Kurt/{c}-{r}{s}') else f
         r['hB-pro'] += t if num('masks/prostate/DWI/{c}-{r}{s}.*') else f
         r['hB-les'] += t if num('masks/lesion/DWI/lesion1/{c}-{r}{s}.*') else f
-        r['hB-roi'] += t if num('masks/roi/DWI/{c}-{r}{s}_*') else f
+        # r['hB-5x5'] += t if num('masks/roi/DWI/{c}-{r}{s}_*') else f
+        r['hB-5x5'] += str(num('masks/roi/DWI/{c}-{r}{s}_*'))
+        r['lB-img'] += t if num('images/DWI_lB/{c}-{r}{s}*.*') else f
+        r['lB-pro'] += t if num('masks/prostate/DWI_lB/{c}-{r}{s}.*') else f
 
     for m in ['T2', 'T2w']:
         d['m'] = m
         r[m + '-img'] = num('images/{m}/{c}-*.*')
         r[m + '-pro'] = num('masks/prostate/{m}/{c}-*.*')
-        r[m + '-les'] = num('masks/lesion/{m}/lesion1/{c}-*.*')
+        r[m + '-les'] = num('masks/lesion/{m}/lesion?/{c}-*.*')
 
     if d['exist']:
         return r
@@ -92,18 +91,19 @@ def nums_str(case):
 
 def add_score(dicts):
     """Add Gleason score."""
-    patients = files.read_patients_file(BASE /
-                                        'work/patients/patients_DWI_67.txt')
+    path = BASE / 'work/patients/patients_DWI_67.txt'
+    patients = files.read_patients_file(path)
 
     def max_score(patient):
         return max(x.score for x in patient.lesions)
 
     for d in dicts:
-        d['gs'] = '-'
+        s = '-'
         for p in patients:
             if p.num == d['case']:
-                d['gs'] = str(max_score(p))
+                s = str(max_score(p))
                 break
+        d['GS'] = s
 
 
 def main():
