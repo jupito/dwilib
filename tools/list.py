@@ -67,11 +67,15 @@ def add_score(dicts):
     def max_score(patient):
         return max(x.score for x in patient.lesions)
 
+    def all_scores(patient):
+        return '/'.join(str(x.score) for x in patient.lesions)
+
     for d in dicts:
         s = '-'
         for p in patients:
             if p.num == d['case']:
-                s = str(max_score(p))
+                # s = str(max_score(p))
+                s = all_scores(p)
                 break
         d['GS'] = s
 
