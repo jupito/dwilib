@@ -1,8 +1,9 @@
 (A) Implement packaging. https://packaging.python.org/
-(A) Use xarray? http://xarray.pydata.org/en/stable/
 (B) Documentation by Sphinx. http://www.sphinx-doc.org/
 (B) Implement testing.
 (B) Use a namedtuple instead of GleasonScore? Also: Lesion, Patient, etc. https://docs.python.org/2/library/collections.html#collections.namedtuple
+(D) 2018-02-09 +use visvis for 3D image viewer
+(D) 2018-02-09 +use xarray? http://xarray.pydata.org/en/stable/
 (D) Could np.ma be used for image masks? https://docs.scipy.org/doc/numpy/reference/maskedarray.html
 (D) Subclass np.ndarry for versatile image class. https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 (E) Import from Scipy according to the guidelines: http://docs.scipy.org/doc/scipy/reference/api.html
