@@ -197,7 +197,7 @@ def get_slice_spacing(pos1, pos2):
     """Calculate slice spacing by looking at the difference in two neighboring
     ImagePositionPatient sequences.
     """
-    diffs = [abs(x-y) for x, y in zip(pos1, pos2)]
+    diffs = [abs(x - y) for x, y in zip(pos1, pos2)]
     if len([x for x in diffs if x > 0.05]) != 1:
         # More than one axis differs: use multi-axis distance.
         log.warning('Ambiguous slice spacing: %s, %s', pos1, pos2)
