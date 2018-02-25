@@ -12,7 +12,7 @@ import logging
 import re
 
 import numpy as np
-import dicom
+import pydicom
 
 from .types import Path
 from . import util
@@ -77,8 +77,8 @@ def read_files(paths):
 def read_slice(path, d):
     """Read a single slice."""
     try:
-        df = dicom.read_file(str(path))
-    except dicom.filereader.InvalidDicomError as e:
+        df = pydicom.read_file(str(path))
+    except pydicom.filereader.InvalidDicomError as e:
         log.error('Error reading %s: %s', path, e)
         return
     if 'PixelData' not in df:
