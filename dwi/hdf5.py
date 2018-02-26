@@ -14,7 +14,7 @@ DEFAULT_DSETPARAMS = dict(
     shuffle=True,  # Rearrange bytes for better compression.
     fletcher32=True,  # Flether32 checksum.
     track_times=False,  # Dataset creation timestamps.
-    )
+)
 
 
 def iterable(x):
