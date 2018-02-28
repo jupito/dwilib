@@ -47,6 +47,8 @@ class Paths(object):
             return None
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = self.base / 'masks'
+        if d['m'][0] == 'DWI':
+            d['m'] = ImageMode(['DWI_hB'] + d['m'][1:])
         if masktype == 'prostate':
             s = '{mt}/{m[0]}/{c}-{s}.h5'
         elif masktype == 'lesion':
