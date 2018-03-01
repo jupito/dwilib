@@ -9,8 +9,8 @@ and `merge_textures`.
 
 Example commands for task `texture`::
 
-  doit run texture:DWI-Mono-ADCm_CA_all_0_71_1b_None_stats_all_all_median
-  doit run texture:*_CA_all_0_*_*_*_median
+  doit run texture:DWI-Mono-ADCm_CA_all_0_71_1b_None_stats_all_median
+  doit run texture:*_CA_all_0_*_*_*_gabor_9_mean
 
 The first command runs task `texture` for a target which is specified as
 (mode, masktype, slices, portion, case, scan, lesion, method, winsize, voxel):
@@ -22,9 +22,9 @@ The first command runs task `texture` for a target which is specified as
 - case: 71,
 - scan id: 1b,
 - lesion number beginning from 1, or None if not applicable,
-- texture extraction method: stats,
-- window size: all (side length or all),
-- voxel specifier: median (alternatives: mean, all).
+- texture extraction method: stats, gabor, ...
+- window size: all (side length, all, mbb),
+- voxel specifier: median (all, mean, median).
 
 The second command uses wildcards expanded to all available combinations.
 
