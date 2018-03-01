@@ -141,7 +141,7 @@ class Patient(object):
         return self.num, self.name, self.scans, self.lesions
 
 
-def namedtuple_fmt(*args, sep='-', **kwargs):
+def namedtuple_fmt(*args, sep='-'):
     """Namedtuple with added formatting and parsing."""
     def _fmt_seq(seq):
         if not seq:
@@ -154,7 +154,7 @@ def namedtuple_fmt(*args, sep='-', **kwargs):
     def _parse(cls, s):
         return cls(*(x or None for x in s.split(sep)))
 
-    t = namedtuple(*args, **kwargs)
+    t = namedtuple(*args)
     t.__str__ = _fmt_seq
     t._parse = _parse
     return t
