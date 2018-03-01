@@ -48,7 +48,7 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = self.base / 'masks'
         if d['m'][0] == 'DWI':
-            d['m'] = ImageMode(['DWI_hB'] + d['m'][1:])
+            d['m'] = ImageMode(['DWI_hB'] + list(d['m'][1:]))
         if masktype == 'prostate':
             s = '{mt}/{m[0]}/{c}-{s}.h5'
         elif masktype == 'lesion':
@@ -56,7 +56,7 @@ class Paths(object):
         elif masktype in ['CA', 'N']:
             s = 'roi/{m[0]}/{c}-{s}_{mt}.h5'
         elif masktype == 'auto':
-            d['ap'] = AlgParams(algparams)
+            d['ap'] = AlgParams(*algparams)
             s = '{mt}/{m}/{ap}/{c}-{s}_auto.mask'
         else:
             raise Exception('Unknown mask type: {mt}'.format(**d))
@@ -69,7 +69,7 @@ class Paths(object):
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
         path = self.base / 'rois' / masktype / str(self.mode)
         if algparams:
-            path /= str(AlgParams(algparams))
+            path /= str(AlgParams(*algparams))
         if case is not None and scan is not None:
             if masktype == 'prostate':
                 s = '{c}-{s}.h5'
@@ -94,7 +94,7 @@ class Paths(object):
         path = (self.base / 'texture' / masktype /
                 '{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
-            path /= str(AlgParams(algparams))
+            path /= str(AlgParams(*algparams))
         if tspec is None:
             s = '{c}_{s}_{l}.{fmt}'
         else:
