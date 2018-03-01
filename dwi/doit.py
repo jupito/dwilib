@@ -26,7 +26,7 @@ def get_config():
         'verbosity': 1,
         # 'num_process': 7,
         'num_process': get_num_process(),
-        }
+    }
 
 
 def get_num_process(factor=0.9, default=1):
@@ -83,7 +83,7 @@ def lesions(mode, samplelist):
     for p in patients:
         for scan in p.scans:
             for i, _ in enumerate(p.lesions):
-                yield p.num, scan, i+1
+                yield p.num, scan, i + 1
 
 
 def texture_methods():
@@ -133,7 +133,7 @@ def find_roi_param_combinations(mode, samplelist):
         range(2, 13),  # ROI side min (3 was not good)
         range(3, 13),  # ROI side max
         chain(range(250, 2000, 250), [50, 100, 150, 200]),  # Number of ROIs
-        ]
+    ]
     if mode[0] == 'DWI':
         if samplelist == 'test':
             params = [
@@ -144,7 +144,7 @@ def find_roi_param_combinations(mode, samplelist):
                 # (2, 3, 9, 9, 1000),  # Kurt: corr
                 # (2, 3, 12, 12, 1750),  # Kurt: corr
                 # (2, 3, 5, 5, 500),  # Kurt K: corr, auc
-                ]
+            ]
         else:
             params = product(*find_roi_params)
         for t in params:
