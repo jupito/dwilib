@@ -86,7 +86,7 @@ def glcm_mbb(img, mask):
     slices = [slice(*t) for t in positions]
     img = img[slices]
     mask = mask[slices]
-    img[-mask] = 0
+    img[~mask] = 0
     feats = glcm_props(img, ignore_zeros=True)
     output = list(feats.values())
     names = [translate_name('glcm{}'.format(t)) for t in feats.keys()]
@@ -113,7 +113,7 @@ def lbp_freq_map(img, winsize, mask=None):
     assert len(output) == n, output.shape
     names = ['lbp({r},{i})'.format(r=radius, i=i) for i in range(n)]
     # if mask is not None:
-    #     output[:, -mask] = 0
+    #     output[:, ~mask] = 0
     return output, names
 
 

@@ -147,7 +147,7 @@ def haralick_mbb(img, mask):
     slices = [slice(*t) for t in positions]
     img = img[slices]
     mask = mask[slices]
-    img[-mask] = 0
+    img[~mask] = 0
     feats, names = haralick(img, ignore_zeros=True)
     names = ['haralick({i}-{n})'.format(i=i+1, n=dwi.util.abbrev(n))
              for i, n in enumerate(names)]
