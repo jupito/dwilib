@@ -98,7 +98,7 @@ METHODS = OrderedDict([
 
     # Methods that consider all selected voxels.
     ('stats_all', stats_mbb),  # Use the same mbb function.
-    ])
+])
 
 
 def get_texture_all(img, call, mask):
