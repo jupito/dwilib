@@ -138,7 +138,7 @@ def get_texture_map(img, call, winsize, mask):
                     tmap = dwi.hdf5.create_hdf5(path, shape, dtype,
                                                 fillvalue=np.nan)
             feats = np.rollaxis(feats, 0, 3)
-            feats[-mask_slice, :] = np.nan  # Fill background with NaN.
+            feats[~mask_slice, :] = np.nan  # Fill background with NaN.
             tmap[i, :, :, :] = feats
     return tmap, names
 
