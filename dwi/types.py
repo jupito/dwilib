@@ -7,7 +7,7 @@ from functools import total_ordering
 try:
     from pathlib2 import Path, PurePath
 except ImportError:
-    from pathlib import Path, PurePath
+    from pathlib import Path, PurePath  # noqa
 
 
 @total_ordering
