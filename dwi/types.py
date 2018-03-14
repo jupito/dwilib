@@ -163,6 +163,8 @@ def namedtuple_fmt(*args, **kwargs):
 
 
 # NOTE: Experimental.
+# TODO: See
+# https://stackoverflow.com/questions/3223236/creating-a-namedtuple-with-a-custom-hash-function
 ImageMode_NT = namedtuple_fmt('ImageMode_NT', ['modality', 'model', 'param'])
 GleasonScore_NT = namedtuple_fmt('GleasonScore_NT', ['primary', 'secondary',
                                                      'tertiary'], sep='+')
