@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 class DefaultValueHelpFormatter(argparse.HelpFormatter):
     """A formatter that appends possible default value to argument helptext."""
     def _expand_help(self, action):
-        s = super()._expand_help(action)
+        # s = super()._expand_help(action)
+        s = super(self.__class__, self)._expand_help(action)
         default = getattr(action, 'default', None)
         if default is None or default in [False, argparse.SUPPRESS]:
             return s
@@ -33,7 +34,8 @@ class FileArgumentParser(argparse.ArgumentParser):
     add = argparse.ArgumentParser.add_argument
 
     def __init__(self, fromfile_prefix_chars='@', **kwargs):
-        super().__init__(fromfile_prefix_chars=fromfile_prefix_chars, **kwargs)
+        # super().__init__(fromfile_prefix_chars=fromfile_prefix_chars, **kwargs)
+        super(self.__class__, self).__init__(fromfile_prefix_chars=fromfile_prefix_chars, **kwargs)
 
     def convert_arg_line_to_args(self, arg_line):
         """Fancier file reading."""
