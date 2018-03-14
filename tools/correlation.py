@@ -4,6 +4,7 @@
 
 import argparse
 import math
+
 import numpy as np
 from scipy import stats
 
@@ -46,7 +47,7 @@ def correlation(x, y, method='spearman'):
         f = methods[method]
         r, p = f(x, y)
         n = len(x)
-        stderr = 1 / math.sqrt(n-3)
+        stderr = 1 / math.sqrt(n - 3)
         delta = 1.96 * stderr
         lower = math.tanh(math.atanh(r) - delta)
         upper = math.tanh(math.atanh(r) + delta)
