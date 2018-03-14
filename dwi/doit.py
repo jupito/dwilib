@@ -21,7 +21,7 @@ from .types import Path, TextureSpec
 def get_config():
     """Get doit config (DOIT_CONFIG)."""
     return {
-        'backend': 'sqlite3',
+        # 'backend': 'sqlite3',
         'default_tasks': [],
         'verbosity': 1,
         # 'num_process': 7,
