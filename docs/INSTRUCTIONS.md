@@ -125,14 +125,14 @@ score`. Example files are provided in the source tree.
 
 Some examples:
 
-    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds 3+3 3+4 --voxel mean --pmapdir pmaps
-    correlation.py -v --samplelist samples.txt --patients patients.txt --thresholds --voxel mean --pmapdir pmaps
+    correlation.py -v --patients patients.txt --thresholds 3+3 3+4 --voxel mean --pmapdir pmaps
+    correlation.py -v --patients patients.txt --thresholds --voxel mean --pmapdir pmaps
 
 These calculate Spearman correlation coefficients for samples mentioned in
-samplelist file `samples.txt`, with pmap files in directory `pmaps`, grouping
-Gleason scores to three groups, or no groups at all. In first variation,
-parameter `--thresholds 3+3 3+4` sets the score groups to those smaller than
-equal to 3+3, 3+4, and those greater than 3+4.
+`patients.txt`, with pmap files in directory `pmaps`, grouping Gleason scores to
+three groups, or no groups at all. In first variation, parameter `--thresholds
+3+3 3+4` sets the score groups to those smaller than equal to 3+3, 3+4, and
+those greater than 3+4.
 
 Parametric map filenames should have the form `{c}_*_{s}_*.txt`, where `{c}` is
 case number and `{s}` is scan identifier.
