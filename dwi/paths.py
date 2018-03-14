@@ -8,10 +8,14 @@ class Paths(object):
         self.mode = ImageMode(mode)
         self.base = Path(base)  # TODO: The `work` directory now, later `/mri`.
 
+    @property
+    def work(self):
+        return self.base / 'work'
+
     def samplelist(self, samplelist):
         """Return path to samplelist."""
         d = dict(m=self.mode, sl=samplelist)
-        return self.base / 'patients' / 'patients_{m[0]}_{sl}.txt'.format(**d)
+        return self.work / 'patients' / 'patients_{m[0]}_{sl}.txt'.format(**d)
 
     def pmap(self, case=None, scan=None, fmt='dicom'):
         """Return path to pmap."""
@@ -36,7 +40,7 @@ class Paths(object):
     def subregion(self, case=None, scan=None):
         """Return path to subregion file. XXX: Obsolete."""
         d = dict(c=case, s=scan)
-        path = self.base / 'subregions' / str(self.mode[0])
+        path = self.work / 'subregions' / str(self.mode[0])
         if case is not None and scan is not None:
             path /= '{c}_{s}_subregion10.txt'.format(**d)
         return path
@@ -67,7 +71,7 @@ class Paths(object):
         if masktype == 'image':
             return self.pmap(case, scan)  # No ROI, but the whole image.
         d = dict(m=self.mode, mt=masktype, c=case, s=scan, l=lesion)
-        path = self.base / 'rois' / masktype / str(self.mode)
+        path = self.work / 'rois' / masktype / str(self.mode)
         if algparams:
             path /= str(AlgParams(*algparams))
         if case is not None and scan is not None:
@@ -91,7 +95,7 @@ class Paths(object):
                  fmt='txt')
         if voxel == 'all':
             d['fmt'] = 'h5'
-        path = (self.base / 'texture' / masktype /
+        path = (self.work / 'texture' / masktype /
                 '{m}_{slices}_{portion}_{vx}'.format(**d))
         if masktype == 'auto':
             path /= str(AlgParams(*algparams))
@@ -103,11 +107,11 @@ class Paths(object):
 
     def std_cfg(self):
         """Return path to standardization configuration file."""
-        return self.base / 'stdcfg_{m}.txt'.format(m=self.mode)
+        return self.work / 'stdcfg_{m}.txt'.format(m=self.mode)
 
     def histogram(self, roi, samplelist):
         """Return path to histogram plot."""
-        return (self.base / 'histograms' /
+        return (self.work / 'histograms' /
                 '{m}_{r}_{s}.png'.format(m=self.mode, r=roi, s=samplelist))
 
     def grid(self, case, scan, masktype, tspec, fmt='txt'):
@@ -115,7 +119,7 @@ class Paths(object):
 
         FIXME: The first element in the resulting tuple no more exists as file.
         """
-        path = self.base / 'grid' / masktype / str(self.mode)
+        path = self.work / 'grid' / masktype / str(self.mode)
         if tspec is not None:
             path /= str(tspec)
         if case is not None and scan is not None:
@@ -126,7 +130,7 @@ class Paths(object):
     def histology(self, case):
         """Return path to histology image."""
         # NOTE: Doesn't use `self.mode`.
-        return (self.base / 'hist' /
+        return (self.work / 'hist' /
                 'ALL_renamed_RALP').glob('{c}_*.*'.format(c=case))
 
 
