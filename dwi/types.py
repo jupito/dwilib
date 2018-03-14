@@ -88,8 +88,8 @@ class GleasonScore(object):
     def __eq__(self, other):
         return self.score == GleasonScore(other).score
 
-    # def __hash__(self):
-    #     return hash(self.score)
+    def __hash__(self):
+        return hash(tuple(self))
 
 
 class Lesion(object):
