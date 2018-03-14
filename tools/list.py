@@ -37,18 +37,24 @@ def nums_str(case):
     for rep, scan in ((x, y) for x in '12' for y in 'ab'):
         d['r'] = rep
         d['s'] = scan
-        t = rep + scan  # "True"
-        f = '-' * len(t)  # "False"
-        r['hB-img'] += t if num('images/DWI/{c}-{r}{s}*.*') else f
-        r['hB-Mono'] += t if num('images/DWI-Mono/{c}-{r}{s}') else f
-        r['hB-Kurt'] += t if num('images/DWI-Kurt/{c}-{r}{s}') else f
+        # t = rep + scan  # "True"
+        # f = '-' * len(t)  # "False"
+        # r['hB-img'] += t if num('images/DWI/{c}-{r}{s}*.*') else f
+        # r['hB-Mono'] += t if num('images/DWI-Mono/{c}-{r}{s}') else f
+        # r['hB-Kurt'] += t if num('images/DWI-Kurt/{c}-{r}{s}') else f
+        r['hB-img'] += ss(num('images/DWI/{c}-{r}{s}*.*'))
+        r['hB-Mono'] += ss(num('images/DWI-Mono/{c}-{r}{s}'))
+        r['hB-Kurt'] += ss(num('images/DWI-Kurt/{c}-{r}{s}'))
 
-        r['hB-pro'] += t if num('masks/prostate/DWI_hB/{c}-{r}{s}_*.*') else f
+        # r['hB-pro'] += t if num('masks/prostate/DWI_hB*/{c}-{r}{s}_*.*') else f
+        r['hB-pro'] += ss(num('masks/prostate/DWI_hB*/{c}-{r}{s}_*.*'))
         r['hB-les'] += ss(num('masks/lesion/DWI_hB/lesion?/{c}-{r}{s}.*'))
         r['hB-5x5'] += ss(num('masks/roi/DWI_hB/{c}-{r}{s}_*'))
 
-        r['lB-img'] += t if num('images/DWI_lB/{c}-{r}{s}*.*') else f
-        r['lB-pro'] += t if num('masks/prostate/DWI_lB/{c}-{r}{s}.*') else f
+        # r['lB-img'] += t if num('images/DWI_lB/{c}-{r}{s}*.*') else f
+        # r['lB-pro'] += t if num('masks/prostate/DWI_lB/{c}-{r}{s}.*') else f
+        r['lB-img'] += ss(num('images/DWI_lB/{c}-{r}{s}*.*'))
+        r['lB-pro'] += ss(num('masks/prostate/DWI_lB/{c}-{r}{s}.*'))
         r['lB-5x5'] += ss(num('masks/roi/DWI_lB/{c}-{r}{s}_*'))
 
     for m in ['T2', 'T2w']:
