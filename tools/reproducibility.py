@@ -49,8 +49,8 @@ def plot(values, param, figdir):
     """
     baselines = np.asarray(as_pairs(values))
     n = len(baselines[0])
-    it = dwi.plot.generate_plots(ncols=3, titles=(param,)*3,
-                                 xlabels=('index',)*3,
+    it = dwi.plot.generate_plots(ncols=3, titles=(param,) * 3,
+                                 xlabels=('index',) * 3,
                                  ylabels=('value', 'difference', 'value'),
                                  path='{}/{}.png'.format(figdir, param))
     for i, plt in enumerate(it):
@@ -71,7 +71,7 @@ def plot(values, param, figdir):
             # Plot sample pairs as bars.
             def key(pair):
                 a, b = pair
-                return abs(a-b)
+                return abs(a - b)
             pairs = baselines.T
             pairs = np.asarray(sorted(pairs, key=key))
             left = range(n)
