@@ -40,7 +40,7 @@ def correlation(x, y, method='spearman'):
         pearson=stats.pearsonr,
         spearman=stats.spearmanr,
         kendall=stats.kendalltau,
-    )
+        )
     if dwi.util.all_equal(x):
         r = p = lower = upper = np.nan
     else:
