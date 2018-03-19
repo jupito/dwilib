@@ -99,8 +99,8 @@ def sort_pmapfiles(paths):
     def sortkey(path):
         head, tail = os.path.split(path)
         root, ext = os.path.splitext(tail)
-        c, s, l = root.split('_')
-        return head, c, l, s
+        case, scan, lesion = root.split('_')
+        return head, case, lesion, scan
     return sorted(paths, key=sortkey)
 
 
