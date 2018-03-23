@@ -80,34 +80,18 @@ def _read_pmaps(patients, pmapdir, voxel='all', multiroi=False, dropok=False,
     return data
 
 
-def read_pmaps(patients_file, pmapdir, thresholds, voxel, multiroi, dropok,
-               location):
-    """Read pmaps labeled by their Gleason score.
-
-    Label thresholds are maximum scores of each label group. Labels are ordinal
-    of score if no thresholds provided.
-
-    XXX: Obsolete code, used still by tools/roc_auc.py and
-    tools/correlation.py.
-    """
-    # TODO: Support for selecting measurements over scan pairs
-    patients = files.read_patients_file(patients_file)
-    patient.label_lesions(patients, thresholds=thresholds)
-    data = _read_pmaps(patients, pmapdir, voxel=voxel, multiroi=multiroi,
-                       dropok=dropok, location=location)
-    return data
-
-
-def collect_data(patients, pmapdirs, normalvoxel=None, thresholds=('3+3',),
-                 voxel='all', multiroi=False, dropok=False, location=None,
-                 verbose=False):
+def collect_data(patients_file, pmapdirs, normalvoxel=None,
+                 thresholds=('3+3',), voxel='all', multiroi=False,
+                 dropok=False, location=None, verbose=False):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
     for i, pmapdir in enumerate(pmapdirs):
-        data = read_pmaps(patients, pmapdir, thresholds, voxel, multiroi,
-                          dropok, location)
+        patients = files.read_patients_file(patients_file)
+        patient.label_lesions(patients, thresholds=thresholds)
+        data = _read_pmaps(patients, pmapdir, voxel=voxel, multiroi=multiroi,
+                           dropok=dropok, location=location)
         if scores is None:
             scores, groups, group_sizes = patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
