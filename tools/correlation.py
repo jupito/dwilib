@@ -8,6 +8,7 @@ import math
 import numpy as np
 from scipy import stats
 
+import dwi.files
 import dwi.patient
 import dwi.util
 from dwi.compat import collect_data
@@ -22,7 +23,7 @@ def parse_args():
                    help='patients file')
     p.add_argument('--pmapdir', nargs='+', required=True,
                    help='input pmap directory')
-    p.add_argument('--thresholds', nargs='*', default=[],
+    p.add_argument('--thresholds', nargs='*', default=['3+3'],
                    help='classification thresholds (group maximums)')
     p.add_argument('--voxel', default='all',
                    help='index of voxel to use, or all, sole, mean, median')
@@ -58,10 +59,11 @@ def main():
     """Main."""
     args = parse_args()
 
-    d = dict(thresholds=args.thresholds, voxel=args.voxel,
-             multiroi=args.multilesion, dropok=args.dropok,
+    patients = dwi.files.read_patients_file(args.patients)
+    dwi.patient.label_lesions(patients, thresholds=args.thresholds)
+    d = dict(voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok,
              verbose=args.verbose)
-    X, Y, params = collect_data(args.patients, args.pmapdir, **d)
+    X, Y, params = collect_data(patients, args.pmapdir, **d)
 
     # Print correlations.
     if args.verbose > 1:

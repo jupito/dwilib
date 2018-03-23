@@ -7,6 +7,7 @@ AUCs and draw the ROC curves into a file.
 import argparse
 import numpy as np
 
+import dwi.files
 import dwi.patient
 import dwi.plot
 import dwi.stats
@@ -51,10 +52,11 @@ def main():
     if args.normalvoxel is not None and args.voxel != 'all':
         raise ValueError('Argument --normalvoxel implies --voxel=all')
 
-    d = dict(thresholds=[args.threshold], voxel=args.voxel,
-             multiroi=args.multilesion, dropok=args.dropok,
+    patients = dwi.files.read_patients_file(args.patients)
+    dwi.patient.label_lesions(patients, thresholds=[args.threshold])
+    d = dict(voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok,
              normalvoxel=args.normalvoxel, verbose=args.verbose)
-    X, Y, params = collect_data(args.patients, args.pmapdir, **d)
+    X, Y, params = collect_data(patients, args.pmapdir, **d)
 
     # Print AUCs and bootstrapped AUCs.
     if args.verbose > 1:

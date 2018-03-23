@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 
-from . import asciifile, dataset, files, patient
+from . import asciifile, dataset
 from .types import Path, TextureSpec
 
 
@@ -96,16 +96,13 @@ def _grouping(data):
     return different_scores, group_scores, group_sizes
 
 
-def collect_data(patients_file, pmapdirs, normalvoxel=None,
-                 thresholds=('3+3',), voxel='all', multiroi=False,
-                 dropok=False, location=None, verbose=False):
+def collect_data(patients, pmapdirs, normalvoxel=None, voxel='all',
+                 multiroi=False, dropok=False, location=None, verbose=False):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
     for i, pmapdir in enumerate(pmapdirs):
-        patients = files.read_patients_file(patients_file)
-        patient.label_lesions(patients, thresholds=thresholds)
         data = _read_pmaps(patients, pmapdir, voxel=voxel, multiroi=multiroi,
                            dropok=dropok, location=location)
         if scores is None:
