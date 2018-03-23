@@ -31,3 +31,9 @@ def grouping(data):
     group_scores = [sorted(set(g)) for g in groups]
     group_sizes = [len(g) for g in groups]
     return different_scores, group_scores, group_sizes
+
+
+def keep_scan(patients, i):
+    """Discard other scans except index i. NOTE: Changes the structure."""
+    for p in patients:
+        p.scans = [p.scans[i]]
