@@ -80,6 +80,22 @@ def _read_pmaps(patients, pmapdir, voxel='all', multiroi=False, dropok=False,
     return data
 
 
+def _grouping(data):
+    """Return different scores sorted, grouped scores, and their sample sizes.
+
+    See `collect_data()`."""
+    scores = [d['score'] for d in data]
+    labels = [d['label'] for d in data]
+    n_labels = max(labels) + 1
+    groups = [[] for _ in range(n_labels)]
+    for s, l in zip(scores, labels):
+        groups[l].append(s)
+    different_scores = sorted(set(scores))
+    group_scores = [sorted(set(g)) for g in groups]
+    group_sizes = [len(g) for g in groups]
+    return different_scores, group_scores, group_sizes
+
+
 def collect_data(patients_file, pmapdirs, normalvoxel=None,
                  thresholds=('3+3',), voxel='all', multiroi=False,
                  dropok=False, location=None, verbose=False):
@@ -93,7 +109,7 @@ def collect_data(patients_file, pmapdirs, normalvoxel=None,
         data = _read_pmaps(patients, pmapdir, voxel=voxel, multiroi=multiroi,
                            dropok=dropok, location=location)
         if scores is None:
-            scores, groups, group_sizes = patient.grouping(data)
+            scores, groups, group_sizes = _grouping(data)
         for j, param in enumerate(data[0]['params']):
             x = [v[j] for d in data for v in d['pmap']]
             if normalvoxel is None:
