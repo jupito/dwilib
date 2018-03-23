@@ -80,8 +80,8 @@ def _read_pmaps(patients, pmapdir, voxel='all', multiroi=False, dropok=False,
     return data
 
 
-def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
-               multiroi=False, dropok=False, location=None):
+def read_pmaps(patients_file, pmapdir, thresholds, voxel, multiroi, dropok,
+               location):
     """Read pmaps labeled by their Gleason score.
 
     Label thresholds are maximum scores of each label group. Labels are ordinal
@@ -98,14 +98,16 @@ def read_pmaps(patients_file, pmapdir, thresholds=('3+3',), voxel='all',
     return data
 
 
-def collect_data(patients, pmapdirs, normalvoxel=None, verbose=False,
-                 **kwargs):
+def collect_data(patients, pmapdirs, normalvoxel=None, thresholds=('3+3',),
+                 voxel='all', multiroi=False, dropok=False, location=None,
+                 verbose=False):
     """Collect all data (each directory, each pmap, each feature)."""
     X, Y = [], []
     params = []
     scores = None
     for i, pmapdir in enumerate(pmapdirs):
-        data = read_pmaps(patients, pmapdir, **kwargs)
+        data = read_pmaps(patients, pmapdir, thresholds, voxel, multiroi,
+                          dropok, location)
         if scores is None:
             scores, groups, group_sizes = patient.grouping(data)
         for j, param in enumerate(data[0]['params']):
