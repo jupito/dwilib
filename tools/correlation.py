@@ -61,9 +61,9 @@ def main():
 
     patients = dwi.files.read_patients_file(args.patients)
     dwi.patient.label_lesions(patients, thresholds=args.thresholds)
-    d = dict(voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok,
-             verbose=args.verbose)
-    X, Y, params = collect_data(patients, args.pmapdir, **d)
+    X, Y, params = collect_data(patients, args.pmapdir, voxel=args.voxel,
+                                multiroi=args.multilesion, dropok=args.dropok,
+                                verbose=args.verbose)
 
     # Print correlations.
     if args.verbose > 1:

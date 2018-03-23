@@ -54,9 +54,10 @@ def main():
 
     patients = dwi.files.read_patients_file(args.patients)
     dwi.patient.label_lesions(patients, thresholds=[args.threshold])
-    d = dict(voxel=args.voxel, multiroi=args.multilesion, dropok=args.dropok,
-             normalvoxel=args.normalvoxel, verbose=args.verbose)
-    X, Y, params = collect_data(patients, args.pmapdir, **d)
+    X, Y, params = collect_data(patients, args.pmapdir, voxel=args.voxel,
+                                multiroi=args.multilesion, dropok=args.dropok,
+                                normalvoxel=args.normalvoxel,
+                                verbose=args.verbose)
 
     # Print AUCs and bootstrapped AUCs.
     if args.verbose > 1:
