@@ -30,6 +30,8 @@ def parse_args():
                    help='number of bootstraps (try 2000)')
     p.add_argument('--voxel', default='all',
                    help='index of voxel to use, or all, sole, mean, median')
+    p.add_argument('--scan', type=int, default=None,
+                   help='index of scan to use, if not all')
     p.add_argument('--normalvoxel', type=int,
                    help='index of voxel to use as Gleason score zero: '
                    'implies --voxel=all, ignores --threshold')
@@ -53,6 +55,8 @@ def main():
         raise ValueError('Argument --normalvoxel implies --voxel=all')
 
     patients = dwi.files.read_patients_file(args.patients)
+    if args.scan is not None:
+        dwi.patient.keep_scan(patients, args.scan)
     dwi.patient.label_lesions(patients, thresholds=[args.threshold])
     X, Y, params = collect_data(patients, args.pmapdir, voxel=args.voxel,
                                 multiroi=args.multilesion, dropok=args.dropok,
