@@ -7,10 +7,13 @@ import logging
 
 import numpy as np
 from skimage import io
+import PIL.Image
 
 import dwi.conf
 import dwi.util
 from dwi.files import Path
+
+PIL.Image.MAX_IMAGE_PIXELS *= 4  # Elude DecompressionBombError.
 
 
 def parse_args():
