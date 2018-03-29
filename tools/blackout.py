@@ -19,25 +19,26 @@ PIL.Image.MAX_IMAGE_PIXELS *= 4  # Elude DecompressionBombError.
 def parse_args():
     """Parse command-line arguments."""
     p = dwi.conf.get_parser(description=__doc__)
-    p.add('infiles', nargs='+', type=Path,
-          help='input image files')
-    p.add('-o', '--outdir', type=Path, default=Path('out'),
-          help='output directory')
     p.add('-c', '--color', type=int, default=255,
           help='color')
+    p.add('-m', '--maxshape', type=int, nargs=2,
+          help='maximum width')
+    p.add('-o', '--outdir', type=Path, default=Path('out'),
+          help='output directory')
+    p.add('infiles', nargs='+', type=Path,
+          help='input image files')
     return p.parse_args()
 
 
-def resize_image(img):
-    while max(img.shape) > 4096:
+def resize_image(img, maxshape):
+    """Halve image axes until within maximum shape."""
+    # while max(img.shape) > 4096:
+    while img.shape[0] > maxshape[0] or img.shape[1] > maxshape[1]:
         img = img[::2, ::2, :].copy()
     return img
 
 
 def process_image(img, color):
-    print(img.size, img.shape, img.dtype)
-    img = resize_image(img)
-    print(img.shape, img.dtype)
     # print(dwi.util.fivenum(img))
     # print(dwi.util.fivenum(img[..., 0]))
     # print(dwi.util.fivenum(img[..., 1]))
@@ -54,10 +55,16 @@ def process_image(img, color):
     return img
 
 
-def process_file(infile, outfile, color):
+def process_file(infile, outfile, color, maxshape, verbose):
     """Process a file."""
     img = io.imread(infile)
+    if verbose > 0:
+        print(img.shape, img.dtype, img.size)
     try:
+        if maxshape is not None:
+            img = resize_image(img, maxshape)
+            if verbose > 1:
+                print(img.shape, img.dtype, img.size)
         img = process_image(img, color)
     except Exception as e:
         logging.exception(infile)
@@ -72,7 +79,7 @@ def main():
     args = parse_args()
     for infile in args.infiles:
         outfile = args.outdir / infile.name
-        process_file(infile, outfile, args.color)
+        process_file(infile, outfile, args.color, args.maxshape, args.verbose)
         gc.collect()
 
 
