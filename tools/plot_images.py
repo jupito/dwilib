@@ -2,7 +2,7 @@
 
 """Draw QC for images with their masks. The dummy dataset as a samplelist means
 that all listed case numbers are attempted to use, with maximum number of
-lesions. TODO: It has to be run in the 'work' directory."""
+lesions."""
 
 import logging
 
@@ -141,7 +141,7 @@ def main():
     cls = dwi.dataset.Dataset if args.samplelist else dwi.dataset.DummyDataset
     datasets = (cls(x, args.samplelist, cases=args.cases) for x in args.modes)
     label_fmt = ' {m} {c}-{s}' if args.label else None
-    path_fmt = 'fig/masks/{m}_{c:03d}-{s}.png'
+    path_fmt = 'work/fig/masks/{m}_{c:03d}-{s}.png'
     for ds in datasets:
         draw_dataset(ds, args.all_slices, args.include_raw,
                      args.connected_regions, label_fmt, path_fmt)
