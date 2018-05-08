@@ -41,7 +41,7 @@ def parse_args():
     return p.parse_args()
 
 
-def read_case(mode, case, scan, lesions, all_slices, include_raw):
+def read_case(mode, case, scan, lesions, all_slices, include_raw, mbb_pad=10):
     """Read case. Return raw DWI, pmap, pmask, lmasks, initial prostate slice
     index.
     """
@@ -58,10 +58,11 @@ def read_case(mode, case, scan, lesions, all_slices, include_raw):
             if not lmasks:
                 raise
 
-    mbb = pmask.mbb(10)
-    img = img[mbb]
-    pmask = pmask[mbb]
-    lmasks = [x[mbb] for x in lmasks]
+    if mbb_pad is not None:
+        mbb = pmask.mbb(mbb_pad)
+        img = img[mbb]
+        pmask = pmask[mbb]
+        lmasks = [x[mbb] for x in lmasks]
 
     if all_slices:
         pad = (np.inf, np.inf, np.inf)
@@ -78,7 +79,8 @@ def read_case(mode, case, scan, lesions, all_slices, include_raw):
         raw = dwi.dataset.read_tmap(rawmode[0], case, scan,
                                     params=[-1])[:, :, :, 0]
         raw = dwi.util.normalize(raw, rawmode)
-        raw = raw[mbb]
+        if mbb_pad is not None:
+            raw = raw[mbb]
         raw = raw[prostate_slices]
         images = [raw] + images
 
