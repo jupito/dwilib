@@ -47,7 +47,7 @@ def nums_str(case):
         r['hB-Kurt'] += ss(num('images/DWI-Kurt/{c}-{r}{s}'))
 
         # r['hB-pro'] += t if num('masks/prostate/DWI_hB*/{c}-{r}{s}_*.*') else f
-        r['hB-pro'] += ss(num('masks/prostate/DWI_hB*/{c}-{r}{s}_*.*'))
+        r['hB-pro'] += ss(num('masks/prostate/DWI_hB*/{c}-{r}{s}*.*'))
         r['hB-les'] += ss(num('masks/lesion/DWI_hB/lesion?/{c}-{r}{s}.*'))
         r['hB-5x5'] += ss(num('masks/roi/DWI_hB/{c}-{r}{s}_*'))
 
