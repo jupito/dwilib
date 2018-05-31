@@ -141,12 +141,12 @@ def samplelist_path(mode, samplelist):
     return str(Paths(mode).samplelist(samplelist))
 
 
-def pmap_path(mode, **kwargs):
-    return str(Paths(mode).pmap(**kwargs))
+def pmap_path(mode, *args, **kwargs):
+    return str(Paths(mode).pmap(*args, **kwargs))
 
 
-def mask_path(mode, masktype, case, scan, **kwargs):
-    return str(Paths(mode).mask(masktype, case, scan, **kwargs))
+def mask_path(mode, masktype, case, scan, *args, **kwargs):
+    return str(Paths(mode).mask(masktype, case, scan, *args, **kwargs))
 
 
 def roi_path(mode, masktype, **kwargs):
