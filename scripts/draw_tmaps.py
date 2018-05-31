@@ -113,14 +113,14 @@ def read_pmap(mode, case, scan, img_slice):
 
 def read_tmap(mode, case, scan, img_slice, texture_spec):
     mode = ImageMode(mode)
-    tmap = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
+    path = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
                                   texture_spec, voxel='all')
 
     # TODO: Kludge to remove `_mbb` from `glcm_mbb`.
     t = texture_spec._replace(method=texture_spec.method.split('_')[0])
 
     param = '{t.winsize}-{t.method}({t.feature})'.format(t=t)
-    tmap, attrs = dwi.files.read_pmap(tmap, ondisk=True, params=[param])
+    tmap, attrs = dwi.files.read_pmap(path, ondisk=True, params=[param])
     tscale = tuple(np.nanpercentile(tmap[:, :, :, 0], (1, 99)))
     tmap = tmap[img_slice, :, :, 0]
     assert param == attrs['parameters'][0]
