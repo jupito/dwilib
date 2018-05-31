@@ -43,10 +43,10 @@ def show_images(Imgs, ylabels=None, xlabels=None, vmin=None, vmax=None,
                 outfile=None):
     """Show a grid of images. Imgs is an array of columns of rows of images."""
     ncols, nrows = max(len(imgs) for imgs in Imgs), len(Imgs)
-    fig = pl.figure(figsize=(ncols*6, nrows*6))
+    fig = pl.figure(figsize=(ncols * 6, nrows * 6))
     for i, imgs in enumerate(Imgs):
         for j, img in enumerate(imgs):
-            ax = fig.add_subplot(nrows, ncols, i*ncols+j+1)
+            ax = fig.add_subplot(nrows, ncols, i * ncols + j + 1)
             ax.set_title('%i, %i' % (i, j))
             if ylabels:
                 ax.set_ylabel(ylabels[i])
@@ -68,7 +68,7 @@ def plot_rocs(X, Y, params=None, autoflip=False, outfile=None):
         params = [str(i) for i in range(len(X))]
     assert len(X) == len(Y) == len(params)
     n_rows, n_cols = len(params), 1
-    pl.figure(figsize=(n_cols*6, n_rows*6))
+    pl.figure(figsize=(n_cols * 6, n_rows * 6))
     for x, y, param, row in zip(X, Y, params, range(n_rows)):
         x = dwi.stats.scale_standard(x)
         fpr, tpr, auc = dwi.stats.calculate_roc_auc(y, x, autoflip=autoflip)
@@ -100,11 +100,11 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
         # Multiply single title.
         titles = titles * (ncols * nrows)
     # assert len(titles) == nrows * ncols
-    fig = plt.figure(figsize=(ncols*6, nrows*6))
+    fig = plt.figure(figsize=(ncols * 6, nrows * 6))
     if suptitle:
         fig.suptitle(suptitle)
     for i, title in enumerate(titles):
-        ax = fig.add_subplot(nrows, ncols, i+1)
+        ax = fig.add_subplot(nrows, ncols, i + 1)
         if title is not None:
             ax.set_title(title, **(title_kwargs or {}))
         if xlabels is not None:
@@ -129,7 +129,7 @@ def noticks(plot):
         axis='both', which='both',
         bottom='off', top='off', left='off', right='off',
         labelbottom='off', labeltop='off', labelleft='off', labelright='off',
-    )
+        )
 
 
 def plot_grid(im, centroid, base=5, color=(1, 0, 0, 1), linestyle=(0, (1, 1)),
@@ -149,7 +149,7 @@ def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
     # Copied from http://stackoverflow.com/questions/18195758/
     #     set-matplotlib-colorbar-size-to-match-graph
     divider = axes_grid1.make_axes_locatable(im.axes)
-    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1/aspect)
+    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1 / aspect)
     pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
     current_ax = plt.gca()
     cax = divider.append_axes('right', size=width, pad=pad)
