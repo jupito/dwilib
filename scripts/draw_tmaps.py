@@ -230,6 +230,7 @@ def plot(images, title, path):
 
     def prostate_texture(plt):
         show_image(plt, images['tmap'], scale=tscale)
+        show_image(plt, images['tmap_lesion'])
         show_outline(plt, images['lmasks'])
 
     def lesion_texture(plt):
