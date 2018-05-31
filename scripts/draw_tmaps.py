@@ -271,15 +271,15 @@ def main():
         words = line.split()
         mode = words[0]
         texture_spec = TextureSpec(*words[1:])
-        print(i, mode, texture_spec)
         it = cases_scans_lesions(mode, args.samplelist, thresholds=thresholds)
         for c, s, l in it:
             if blacklist and c in blacklist:
                 continue
             if whitelist and c not in whitelist:
                 continue
-            if 0 not in (x.label for x in l):
-                continue
+            # if 0 not in (x.label for x in l):
+            #     continue  # Exclude if there's no first score group present.
+            print(i, mode, texture_spec, c, s, l)
             try:
                 images, _ = read(mode, c, s, texture_spec)
             except IOError as e:
