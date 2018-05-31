@@ -46,8 +46,8 @@ def show_outline(plt, masks, cmaps=None):
         cmaps = ('coolwarm', 'viridis', 'hot')
     assert len(masks) <= len(cmaps)
     for mask, cmap in zip(masks, cmaps):
-        view = np.full_like(mask, np.nan, dtype=np.float16)
-        view = dwi.mask.border(mask, out=view).astype(np.uint8)
+        view = np.full_like(mask, np.nan, dtype=np.float)
+        view = dwi.mask.border(mask, out=view)
         d = dict(cmap=cmap, interpolation='nearest', vmin=0, vmax=1, alpha=1.0)
         plt.imshow(view, **d)
 
@@ -91,13 +91,14 @@ def read_lmask(mode, case, scan):
         pass
     masks = [dwi.files.read_mask(x) for x in paths]
 
-    # Manually override slice index.
-    slice_indices = {
-        (64, '1a', 'T2w-std'): 7,
-        (64, '1a', 'T2-fitted'): 5,
-        }
+    # # Manually override slice index.
+    # slice_indices = {
+    #     (64, '1a', 'T2w-std'): 7,
+    #     (64, '1a', 'T2-fitted'): 5,
+    #     }
 
-    slice_index = slice_indices.get((case, scan, str(mode)))
+    # slice_index = slice_indices.get((case, scan, str(mode)))
+    slice_index = None
     lmask, img_slice = get_lesion_mask(masks, slice_index=slice_index)
     return lmask, img_slice, [x[img_slice] for x in masks]
 
