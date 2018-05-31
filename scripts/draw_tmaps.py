@@ -116,7 +116,7 @@ def read_tmap(mode, case, scan, img_slice, texture_spec):
     path = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
                                   texture_spec, voxel='all')
 
-    # TODO: Kludge to remove `_mbb` from `glcm_mbb`.
+    # TODO: Kludge to remove `_mbb` from `glcm_mbb`. Filenames don't have it.
     t = texture_spec._replace(method=texture_spec.method.split('_')[0])
 
     param = '{t.winsize}-{t.method}({t.feature})'.format(t=t)
