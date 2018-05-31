@@ -11,6 +11,7 @@ import numpy as np
 
 import dwi.files
 import dwi.mask
+import dwi.patient
 import dwi.paths
 import dwi.plot
 from dwi.types import ImageMode, Path, TextureSpec
@@ -46,7 +47,7 @@ def show_outline(plt, masks, cmaps=None):
     assert len(masks) <= len(cmaps)
     for mask, cmap in zip(masks, cmaps):
         view = np.full_like(mask, np.nan, dtype=np.float16)
-        view = dwi.mask.border(mask, out=view)
+        view = dwi.mask.border(mask, out=view).astype(np.uint8)
         d = dict(cmap=cmap, interpolation='nearest', vmin=0, vmax=1, alpha=1.0)
         plt.imshow(view, **d)
 
@@ -82,7 +83,10 @@ def read_lmask(mode, case, scan):
     paths = []
     try:
         for i in range(1, 4):
-            paths.append(dwi.paths.mask_path(mode, 'lesion', case, scan, i))
+            path = Path(dwi.paths.mask_path(mode, 'lesion', case, scan,
+                                            lesion=i))
+            if path.exists():
+                paths.append(path)
     except IOError:
         pass
     masks = [dwi.files.read_mask(x) for x in paths]
@@ -111,7 +115,11 @@ def read_tmap(mode, case, scan, img_slice, texture_spec):
     mode = ImageMode(mode)
     tmap = dwi.paths.texture_path(mode, case, scan, None, 'prostate', 'all', 0,
                                   texture_spec, voxel='all')
-    param = '{t.winsize}-{t.method}({t.feature})'.format(t=texture_spec)
+
+    # TODO: Kludge to remove `_mbb` from `glcm_mbb`.
+    t = texture_spec._replace(method=texture_spec.method.split('_')[0])
+
+    param = '{t.winsize}-{t.method}({t.feature})'.format(t=t)
     tmap, attrs = dwi.files.read_pmap(tmap, ondisk=True, params=[param])
     tscale = tuple(np.nanpercentile(tmap[:, :, :, 0], (1, 99)))
     tmap = tmap[img_slice, :, :, 0]
@@ -123,7 +131,7 @@ def read_histology(case):
     """Read histology section image."""
     from glob import glob
     import PIL
-    pattern = '/mri/pink_images/extracted/{}-*'.format(case)
+    pattern = '/mri/hist/pink_images/extracted/{}-*'.format(case)
     paths = glob(pattern)
     if not paths:
         raise IOError('Histology image not found: {}'.format(pattern))
@@ -206,20 +214,27 @@ def plot(images, title, path):
     pscale = (0, 1)
     # tscale = tuple(np.nanpercentile(images['tmap'], (1, 99)))
     tscale = images['tscale']
+
     def histology_image(plt):
         plt.imshow(images['histology'])
         # plt.title('histology section')
+
     # def pmap(plt):
     #     show_image(plt, images['pmap'], scale=pscale, cmap='gray')
+    #
+
     def prostate_pmap(plt):
         show_image(plt, images['pmap_prostate'], scale=pscale, cmap='gray')
         show_outline(plt, images['lmasks'])
+
     def prostate_texture(plt):
         show_image(plt, images['tmap'], scale=tscale)
         show_outline(plt, images['lmasks'])
+
     def lesion_texture(plt):
         # show_image(plt, images['tmap_lesion'], scale=tscale)
         show_image(plt, images['tmap_lesion'])
+
     funcs = [histology_image, prostate_pmap, prostate_texture, lesion_texture]
     it = dwi.plot.generate_plots(ncols=len(funcs), suptitle=title, path=path)
     for i, plt in enumerate(it):
@@ -249,7 +264,8 @@ def main():
     # thresholds = ('3+3', '3+4')
     thresholds = ('3+3',)
     blacklist = []  # + [21, 22, 27, 42, 74, 79]
-    whitelist = []  # + [23, 24, 26, 29, 64]
+    # whitelist = []  # + [23, 24, 26, 29, 64]
+    whitelist = [26, 42, 64]
 
     for i, line in enumerate(dwi.files.valid_lines(args.featlist)):
         words = line.split()
@@ -274,10 +290,10 @@ def main():
             lesions = ', '.join('{} {} {}'.format(x.score, x.location,
                                                   labelnames[x.label])
                                 for x in l)
-            d = dict(m=mode, c=c, s=s, l=lesions, tw=int(texture_spec.winsize),
+            d = dict(m=mode, c=c, s=s, l=lesions, tw=texture_spec.winsize,
                      tm=texture_spec.method, tf=texture_spec.feature)
-            title = '{c}-{s} ({l})\n{m} {tm}({tf})-{tw:02}'.format(**d)
-            filename = '{c:03}-{s}_{m}_{tm}({tf})-{tw:02}.png'.format(**d)
+            title = '{c}-{s} ({l})\n{m} {tm}({tf})-{tw}'.format(**d)
+            filename = '{c:03}-{s}_{m}_{tm}({tf})-{tw}.png'.format(**d)
             plot(images, title, Path(args.outdir, filename))
 
 
