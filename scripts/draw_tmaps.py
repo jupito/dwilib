@@ -43,7 +43,11 @@ def show_image(plt, image, colorbar=True, scale=None, **kwargs):
 def show_outline(plt, masks, cmaps=None):
     """Show outline."""
     if cmaps is None:
-        cmaps = ('coolwarm', 'viridis', 'hot')
+        # cmaps = ('coolwarm', 'viridis', 'hot')
+        # cmaps = ['spring'] * 3
+        # cmaps = ['rainbow'] * 3
+        # cmaps = 'spring', 'summer', 'autumn', 'winter'
+        cmaps = ['Wistia', 'cool_r', 'spring']
     assert len(masks) <= len(cmaps)
     for mask, cmap in zip(masks, cmaps):
         view = np.full_like(mask, np.nan, dtype=np.float)
