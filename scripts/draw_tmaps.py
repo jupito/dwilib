@@ -185,11 +185,11 @@ def read(mode, case, scan, texture_spec):
     lmask = lmask[bb].copy()
     lmasks = [x[bb].copy() for x in lmasks]
 
-    if mode.startswith('DWI'):
-        pmap = rescale(pmap, 2)
-        tmap = rescale(tmap, 2)
-        lmask = rescale_as_float(lmask, 2)
-        lmasks = [rescale_as_float(x, 2) for x in lmasks]
+    # if mode.startswith('DWI'):
+    #     pmap = rescale(pmap, 2)
+    #     tmap = rescale(tmap, 2)
+    #     lmask = rescale_as_float(lmask, 2)
+    #     lmasks = [rescale_as_float(x, 2) for x in lmasks]
 
     # Remove lesion voxels outside prostate.
     lmask[np.isnan(tmap)] = False
@@ -225,6 +225,7 @@ def plot(images, title, path):
     #
 
     def prostate_pmap(plt):
+        # XXX: Scale in these funcs?
         show_image(plt, images['pmap_prostate'], scale=pscale, cmap='gray')
         show_outline(plt, images['lmasks'])
 
@@ -237,7 +238,7 @@ def plot(images, title, path):
         # show_image(plt, images['tmap_lesion'], scale=tscale)
         show_image(plt, images['tmap_lesion'])
 
-    funcs = [histology_image, prostate_pmap, prostate_texture, lesion_texture]
+    funcs = [histology_image, prostate_pmap, prostate_texture]
     it = dwi.plot.generate_plots(ncols=len(funcs), suptitle=title, path=path)
     for i, plt in enumerate(it):
         dwi.plot.noticks(plt)
