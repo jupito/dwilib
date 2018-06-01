@@ -37,7 +37,7 @@ def show_image(plt, image, colorbar=True, scale=None, **kwargs):
     d.update(kwargs)
     im = plt.imshow(image, **d)
     if colorbar:
-        dwi.plot.add_colorbar(im, pad_fraction=0)
+        dwi.plot.add_colorbar(im, pad_fraction=0, format='')
 
 
 def show_outline(plt, masks, cmaps=None):
