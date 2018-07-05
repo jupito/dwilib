@@ -245,6 +245,7 @@ def plot(images, title, path):
     funcs = [histology_image, prostate_pmap, prostate_texture]
     it = dwi.plot.generate_plots(ncols=len(funcs), suptitle=title, path=path)
     for i, plt in enumerate(it):
+        plt.rcParams['savefig.dpi'] = '300'
         dwi.plot.noticks(plt)
         f = funcs[i]
         # plt.title(f.__name__.replace('_', ' '))
@@ -298,10 +299,11 @@ def main():
                                                   labelnames[x.label])
                                 for x in l)
             d = dict(m=mode, c=c, s=s, l=lesions, tw=texture_spec.winsize,
-                     tm=texture_spec.method, tf=texture_spec.feature)
+                     tm=texture_spec.method, tf=texture_spec.feature,
+                     suffix='png')
             title = '{c}-{s} ({l})\n{m} {tm}({tf})-{tw}'.format(**d)
-            filename = '{c:03}-{s}_{m}_{tm}({tf})-{tw}.png'.format(**d)
-            plot(images, title, Path(args.outdir, filename))
+            path = '{c:03}-{s}_{m}_{tm}({tf})-{tw}.{suffix}'.format(**d)
+            plot(images, title, Path(args.outdir, path))
 
 
 if __name__ == '__main__':
