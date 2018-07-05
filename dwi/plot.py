@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import axes_grid1
 import pylab as pl
 
+import dwi.files
 import dwi.stats
 import dwi.util
 
@@ -115,6 +116,7 @@ def generate_plots(nrows=1, ncols=1, titles=None, xlabels=None, ylabels=None,
     plt.tight_layout()
     if path is not None:
         log.info('Plotting to %s', path)
+        dwi.files.ensure_dir(path)
         plt.savefig(str(path), bbox_inches='tight')
     else:
         plt.show()
