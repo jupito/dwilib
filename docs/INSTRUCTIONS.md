@@ -2,8 +2,10 @@ Instructions for using dwilib
 =============================
 
 
+
 Files
 -----
+
 Directory "tools" contains tools for different tasks which are described below.
 They expect to find the library directory "dwi" along the usual path of Python
 libraries, so modify the environment variable PYTHONPATH as needed.
@@ -11,8 +13,10 @@ libraries, so modify the environment variable PYTHONPATH as needed.
 Directory "scripts" contains some smaller scripts that were used at some point
 when calculating things for our research.
 
+
 ### Model fitting
 * pmap.py -- Fit diffusion models to imaging data (see below).
+
 
 ### Statistical
 * compare_masks.py -- Compare ROI masks.
@@ -21,6 +25,7 @@ when calculating things for our research.
 * reproducibility.py -- Calculate reproducibility measures, like coefficient of
   repeatability (CR) and intraclass correlation coefficient (ICC(3,1)).
 * roc_auc.py -- Calculate and compare diagnostic ROC AUCs.
+
 
 ### Plotting
 * compare_boxplot.py
@@ -33,10 +38,12 @@ when calculating things for our research.
 * plot.py
 * plot_gleason.py
 
+
 ### DICOM tools
 * anonymize_dicom.py -- Anonymize DICOM files.
 * info_dicom.py -- Show information on DICOM files.
 * view_dicom.py -- View DICOM DWI images.
+
 
 ### Other
 * dodo.py -- Build tool for [DoIt](http://pydoit.org/).
@@ -46,8 +53,10 @@ when calculating things for our research.
 * print_all.py
 * test-rls.py
 
+
 ### Old and deprecated
 * compare_auc.py -- Calculate and compare diagnostic ROC AUCs.
+
 
 
 Fitting models to data
@@ -111,6 +120,7 @@ generates the normalized signal intensity curves for the whole image into file
 `out.txt`.
 
 
+
 Correlation and ROC AUC analysis
 --------------------------------
 
@@ -157,6 +167,7 @@ Bootstrapped AUCs are also calculated, here with 5000 bootsraps. Parameter
 `--autoflip` just flips the data when necessary to make the AUC always greater
 than 0.5. If you give more than one pmap directory, the statistical difference
 of AUCs is calculated for them.
+
 
 
 Reproducibility measures
