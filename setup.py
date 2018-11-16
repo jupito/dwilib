@@ -16,7 +16,7 @@ with open('README.rst') as f:
 
 setup(
     name='dwilib',
-    version='0.1.0.dev2',
+    version='0.1.8.dev',
     description='Research tools for MRI-based CAD of cancer',
     long_description=long_description,
     long_description_content_type='text/x-rst',
@@ -62,14 +62,15 @@ setup(
 
     # packages=find_packages(exclude=['contrib', 'doc', 'tests']),
     packages=find_packages(),
+    include_package_data=True,
     package_data={
         # 'dwilib': ['examples/doit.cfg'],
         # 'dwilib': ['examples/doit.cfg'],
-        # '': [
-        #     'doc/*',
-        #     'examples/*',
-        #     'tools',
-        #     ],
+        '': [
+            'doc/*',
+            'examples/*',
+            'tools/*',
+            ],
     },
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
