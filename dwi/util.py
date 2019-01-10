@@ -43,7 +43,7 @@ def crop_image(image, subwindow, onebased=False):
     indices.
     """
     if onebased:
-        subwindow = [i-1 for i in subwindow]
+        subwindow = [i - 1 for i in subwindow]
     z1, z2, y1, y2, x1, x2 = subwindow
     return image[z1:z2, y1:y2, x1:x2]
 
@@ -53,7 +53,7 @@ def select_subwindow(image, subwindow, onebased=False):
     set to nan.
     """
     if onebased:
-        subwindow = [i-1 for i in subwindow]
+        subwindow = [i - 1 for i in subwindow]
     z1, z2, y1, y2, x1, x2 = subwindow
     mask = np.zeros_like(image, dtype=np.bool)
     mask[z1:z2, y1:y2, x1:x2] = True
@@ -87,11 +87,11 @@ def sliding_window(a, winshape, mask=None):
     winshape = normalize_sequence(winshape, a.ndim)
     if not all(0 < w <= i for w, i in zip(winshape, a.shape)):
         raise ValueError('Invalid window shape: {}'.format(winshape))
-    shape = tuple(i-w+1 for i, w in zip(a.shape, winshape))
+    shape = tuple(i - w + 1 for i, w in zip(a.shape, winshape))
     for indices in np.ndindex(shape):
-        origin = tuple(i+w//2 for i, w in zip(indices, winshape))
+        origin = tuple(i + w // 2 for i, w in zip(indices, winshape))
         if mask is None or mask[origin]:
-            slices = [slice(i, i+w) for i, w in zip(indices, winshape)]
+            slices = [slice(i, i + w) for i, w in zip(indices, winshape)]
             window = np.squeeze(a[slices])
             yield origin, window
 
@@ -116,8 +116,8 @@ def bounding_box(array, pad=0):
         array = ~nans
     r = []
     for a, l, p in zip(array.nonzero(), array.shape, pad):
-        x = max(min(a)-p, 0)
-        y = min(max(a)+1+p, l)
+        x = max(min(a) - p, 0)
+        y = min(max(a) + 1 + p, l)
         r.append((x, y))
     return tuple(r)
 
@@ -172,8 +172,8 @@ def normalize_si_curve_fix(si):
         si[:] = 0
     else:
         for i in range(1, len(si)):
-            if si[i] > si[i-1]:
-                si[i] = si[i-1]
+            if si[i] > si[i - 1]:
+                si[i] = si[i - 1]
         si[:] /= si[0]
 
 
@@ -184,7 +184,7 @@ def scale(a):
     # TODO: Allow in-place, this is a likely memory hog.
     a = np.asanyarray(a)
     mn, mx = np.nanmin(a), np.nanmax(a)
-    return (a-mn) / (mx-mn)
+    return (a - mn) / (mx - mn)
 
 
 def centroid(img):
@@ -199,7 +199,7 @@ def centroid(img):
         other_axes = tuple(x for x in all_axes if x != i)
         summed = np.nansum(img, axis=other_axes)
         assert summed.ndim == 1
-        c = np.nansum([i*x for i, x in enumerate(summed)]) / np.nansum(summed)
+        c = np.nansum([i * x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
     return tuple(centers)
 
@@ -211,7 +211,7 @@ def atleast_nd(n, a):
     """
     a = np.asanyarray(a)
     if a.ndim < n:
-        a = a.reshape((1,) * (n-a.ndim) + a.shape)
+        a = a.reshape((1,) * (n - a.ndim) + a.shape)
     return a
 
 
@@ -269,7 +269,7 @@ def normalize(pmap, mode):
         in_range = (0, 400)
         # TODO: 5-1a has different scale, could handle in DICOM loader?
         if pmap.max() < 100:
-            in_range = tuple(x/100 for x in in_range)
+            in_range = tuple(x / 100 for x in in_range)
     elif mode in ('DWI-Mono-ADCm', 'DWI-Kurt-ADCk'):
         assert pmap.dtype in [np.float32, np.float64]
         # in_range = (0, 0.005)
@@ -307,7 +307,7 @@ def quantize(img, levels=32, dtype=np.uint8):
     assert np.all(img >= 0) and np.all(img <= 1), (img.min(), img.max())
     # img = skimage.img_as_ubyte(img)
     # img //= int(round(256 / levels))
-    return (img * levels).clip(0, levels-1).astype(dtype)
+    return (img * levels).clip(0, levels - 1).astype(dtype)
 
 
 def cpu_count():
