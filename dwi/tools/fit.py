@@ -14,8 +14,9 @@ import dwi.models
 def parse_args(models):
     """Parse command-line arguments."""
     formatter = argparse.RawDescriptionHelpFormatter
+    epilog = 'Available models:\n' + '\n'.join(models)
     p = argparse.ArgumentParser(description=__doc__, formatter_class=formatter,
-                                epilog='Available models:\n'+'\n'.join(models))
+                                epilog=epilog)
     p.add_argument('-v', '--verbose', action='count',
                    help='increase verbosity')
     p.add_argument('--input', metavar='PATH', required=True,
@@ -59,8 +60,8 @@ def get_timepoints(model, attrs):
     return timepoints
 
 
-def fix_T2(image, attrs):
-    # There may be an already fitted fake 'zero echo time.'
+def fix_t2(image, attrs):
+    """There may be an already fitted fake 'zero echo time'; drop it."""
     if attrs['echotimes'][0] == 0:
         attrs['echotimes'] = attrs['echotimes'][1:]
         image = image[..., 1:]
@@ -84,6 +85,7 @@ def get_params(model, timepoints):
 
 
 def main():
+    """Main."""
     models = ['{n}: {d}'.format(n=x.name, d=x.desc) for x in dwi.models.Models]
     args = parse_args(models)
 
@@ -118,7 +120,7 @@ def main():
         image = np.mean(image, axis=(0, 1, 2), keepdims=True)
 
     if model.name == 'T2':
-        image, attrs = fix_T2(image, attrs)
+        image, attrs = fix_t2(image, attrs)
     if args.verbose:
         n = np.count_nonzero(-np.isnan(image[..., 0]))
         print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
