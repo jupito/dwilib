@@ -58,7 +58,7 @@ def select_subwindow(image, subwindow, onebased=False):
     mask = np.zeros_like(image, dtype=np.bool)
     mask[z1:z2, y1:y2, x1:x2] = True
     copy = image.copy()
-    copy[-mask] = np.nan
+    copy[~mask] = np.nan
     return copy
 
 

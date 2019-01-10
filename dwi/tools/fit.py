@@ -122,7 +122,7 @@ def main():
     if model.name == 'T2':
         image, attrs = fix_t2(image, attrs)
     if args.verbose:
-        n = np.count_nonzero(-np.isnan(image[..., 0]))
+        n = np.count_nonzero(~np.isnan(image[..., 0]))
         print('Fitting {m} to {n} voxels'.format(m=model.name, n=n))
         print('Guesses:', [len(p.guesses(1)) for p in model.params])
     timepoints = get_timepoints(model, attrs)
