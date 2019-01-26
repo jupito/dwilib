@@ -197,17 +197,17 @@ def flip_minmax(a):
     return -a + a.min() + a.max()
 
 
-def centroid(img):
+def centroid(a):
     """Calculate image centroid, i.e. center of mass, as a tuple of floats.
 
     NaN values are considered massless.
     """
-    img = np.asanyarray(img)
-    all_axes = tuple(range(img.ndim))
+    a = np.asanyarray(a)
+    all_axes = tuple(range(a.ndim))
     centers = []
     for i in all_axes:
         other_axes = tuple(x for x in all_axes if x != i)
-        summed = np.nansum(img, axis=other_axes)
+        summed = np.nansum(a, axis=other_axes)
         assert summed.ndim == 1
         c = np.nansum([i * x for i, x in enumerate(summed)]) / np.nansum(summed)
         centers.append(c)
