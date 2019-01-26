@@ -55,8 +55,9 @@ def valid_lines(path):
 
 
 def ensure_dir(path):
-    """Ensure existence of the file's parent directory."""
+    """Ensure existence of the file's parent directory. Return path itself."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 @contextmanager
