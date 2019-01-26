@@ -85,7 +85,7 @@ def parse_patient(line, include_lines=False):
     p = re.compile(regexp, flags=re.VERBOSE)
     m = p.match(line)
     if m is None:
-        raise ValueError('Invalid line in patients file: %s', line)
+        raise ValueError(f'Invalid line in patients file: {line}')
     num = m.group('num')
     name = m.group('name')
     scans = sorted(m.group('scans').lower().split(','))
@@ -117,7 +117,7 @@ def parse_sample(line):
     p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
     m = p.match(line)
     if m is None:
-        raise ValueError('Invalid line in samplelist file: %s', line)
+        raise ValueError(f'Invalid line in samplelist file: {line}')
     case, name, scans = m.groups()
     case = int(case)
     name = name.lower()
@@ -142,7 +142,7 @@ def read_subregion_file(filename):
     for line in valid_lines(filename):
         entries.append(int(float(line)))
     if len(entries) != 6:
-        raise Exception('Invalid subregion file: %s' % filename)
+        raise Exception(f'Invalid subregion file: {filename}')
     entries = entries[4:6] + entries[0:4]  # Move z indices to front.
     # Add one to "last" indices get Python-like start:stop indices.
     entries[1] += 1
@@ -164,7 +164,7 @@ def write_subregion_file(filename, win, comment=''):
     y_first, y_last, x_first, x_last, z_first, z_last.
     """
     if len(win) != 6:
-        raise Exception('Invalid subregion: %s' % win)
+        raise Exception(f'Invalid subregion: {win}')
     entries = [win[2], win[3] - 1, win[4], win[5] - 1, win[0], win[1] - 1]
     with open(filename, 'w') as f:
         write_comment(f, comment)
@@ -188,7 +188,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
     """Write parametric map file either as HDF5 or ASCII."""
     pmap = np.asanyarray(pmap)
     if pmap.ndim < 2:
-        raise Exception('Not enough dimensions: {}'.format(pmap.shape))
+        raise Exception(f'Not enough dimensions: {pmap.shape}')
     if 'parameters' not in attrs:
         attrs['parameters'] = [str(i) for i in range(pmap.shape[-1])]
     if 'shape' not in attrs:
@@ -207,7 +207,7 @@ def write_pmap(filename, pmap, attrs, fmt=None):
         pmap = pmap.reshape((-1, pmap.shape[-1]))  # Can't keep shape.
         asciifile.write_ascii_file(filename, pmap, None, attrs=attrs)
     else:
-        raise Exception('Cannot write format: {}'.format(fmt))
+        raise Exception(f'Cannot write format: {fmt}')
 
 
 def asindices(iterable, lst):
@@ -274,7 +274,7 @@ def check_spacing(attrs, expected_voxel_spacing, n_dec):
     vs = [round(x, n_dec) for x in attrs['voxel_spacing']]
     evs = [round(x, n_dec) for x in expected_voxel_spacing]
     if vs != evs:
-        raise ValueError('Expected voxel spacing {}, got {}'.format(evs, vs))
+        raise ValueError(f'Expected voxel spacing {evs}, got {vs}')
 
 
 def check_container(mask, container, allowed_outside):
