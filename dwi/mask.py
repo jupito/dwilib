@@ -155,7 +155,7 @@ class Mask3D(object):
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
         if onebased:
-            coordinates = [i-1 for i in coordinates]
+            coordinates = [i - 1 for i in coordinates]
         z0, z1, y0, y1, x0, x1 = coordinates
         array = self.array[z0:z1, y0:y1, x0:x1]
         return Mask3D(array)
@@ -222,7 +222,7 @@ def border(mask, out=None):
     if out is None:
         out = np.zeros_like(mask, dtype=np.bool)
     # Try to guess a good window shape; thicker border for bigger resolution.
-    winshape = [max(x//70, 3) for x in mask.shape]
+    winshape = [max(x // 70, 3) for x in mask.shape]
     for i, win in dwi.util.sliding_window(mask, winshape):
         selected = np.count_nonzero(win) / win.size
         if 0.3 < selected < 0.6:
