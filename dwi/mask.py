@@ -245,6 +245,14 @@ def overlay_masks(masks, out=None):
     return out
 
 
+def contours(mask):
+    """Find contours in mask."""
+    level = np.ptp(mask) / 2
+    kwargs = dict(fully_connected='low', positive_orientation='low')
+    # kwargs = dict(fully_connected='high', positive_orientation='high')
+    return measure.find_contours(mask, level, **kwargs)
+
+
 def nregions(mask):
     """Return number of connected regions in mask."""
     _, n = measure.label(mask, return_num=True, connectivity=None)
