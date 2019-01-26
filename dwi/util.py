@@ -200,7 +200,8 @@ def flip_minmax(a):
 def centroid(a):
     """Calculate image centroid, i.e. center of mass, as a tuple of floats.
 
-    NaN values are considered massless.
+    Values are considered as weights. NaN values are considered massless.
+    NOTE: Use `scipy.ndimage.center_of_mass` instead, it does the same thing.
     """
     a = np.asanyarray(a)
     all_axes = tuple(range(a.ndim))
