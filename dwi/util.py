@@ -187,6 +187,16 @@ def scale(a):
     return (a - mn) / (mx - mn)
 
 
+def flip_minmax(a):
+    """Flip minimum and maximum values of a array (signed or unsigned).
+
+    Useful for iverting images: unlike `skimage.util.invert`, makes no
+    assumption of value range, and it remains the same.
+    """
+    a = np.asanyarray(a)
+    return -a + a.min() + a.max()
+
+
 def centroid(img):
     """Calculate image centroid, i.e. center of mass, as a tuple of floats.
 
