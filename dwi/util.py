@@ -32,7 +32,7 @@ def abbrev(name):
 
 def all_equal(a):
     """Tell whether all members of (multidimensional) array are equal, while
-    ignoring nan values.
+    ignoring NaN values.
     """
     a = np.asarray(a)
     return np.nanmin(a) == np.nanmax(a)
@@ -50,7 +50,7 @@ def crop_image(image, subwindow, onebased=False):
 
 def select_subwindow(image, subwindow, onebased=False):
     """Get a copy of image with only a subwindow selected and everything else
-    set to nan.
+    set to NaN.
     """
     if onebased:
         subwindow = [i - 1 for i in subwindow]
@@ -102,7 +102,7 @@ def bounding_box(array, pad=0):
     Parameter pad can be a single integer or a sequence of dimensions. It may
     contain infinity for maximum padding.
 
-    The value to leave outside box is nan, if any, otherwise zero.
+    The value to leave outside box is NaN, if any, otherwise zero.
 
     Use example:
         mbb = dwi.util.bounding_box(mask)
@@ -129,7 +129,7 @@ def bbox(array, pad=0):
 
 def fivenum(a):
     """Return the Tukey five-number summary (minimum, quartile 1, median,
-    quartile 3, maximum), while ignoring nan values.
+    quartile 3, maximum), while ignoring NaN values.
     """
     return tuple(np.nanpercentile(a, range(0, 101, 25)))
 
@@ -179,7 +179,7 @@ def normalize_si_curve_fix(si):
 
 def scale(a):
     """Apply feature scaling: bring all values to range [0, 1], while ignoring
-    nan values.
+    NaN values.
     """
     # TODO: Allow in-place, this is a likely memory hog.
     a = np.asanyarray(a)
