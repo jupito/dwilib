@@ -188,13 +188,13 @@ def scale(a):
 
 
 def flip_minmax(a):
-    """Flip minimum and maximum values of a array (signed or unsigned).
+    """Flip minimum and maximum values of an array (signed or unsigned).
 
     Useful for iverting images: unlike `skimage.util.invert`, makes no
-    assumption of value range, and it remains the same.
+    assumption of value range, and it remains the same. Ignores NaN.
     """
     a = np.asanyarray(a)
-    return -a + a.min() + a.max()
+    return -a + a.nanmin() + a.nanmax()
 
 
 def centroid(a):
