@@ -299,7 +299,7 @@ def normalize(pmap, mode):
         if pmap.dtype == np.int32:
             # The rescaler cannot handle int32.
             pmap = np.asarray(pmap, dtype=np.int16)
-        assert pmap.dtype == np.int16
+        # assert pmap.dtype == np.int16
         in_range = (0, 2000)
     else:
         raise ValueError('Invalid mode: {}'.format(mode))
