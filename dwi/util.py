@@ -205,11 +205,12 @@ def centroid(a):
     a = np.asanyarray(a)
     all_axes = tuple(range(a.ndim))
     centers = []
-    for i in all_axes:
-        other_axes = tuple(x for x in all_axes if x != i)
+    for ax in all_axes:
+        other_axes = tuple(x for x in all_axes if x != ax)
         summed = np.nansum(a, axis=other_axes)
         assert summed.ndim == 1
-        c = np.nansum([i * x for i, x in enumerate(summed)]) / np.nansum(summed)
+        c = (np.nansum([i * x for i, x in enumerate(summed)]) /
+             np.nansum(summed))
         centers.append(c)
     return tuple(centers)
 
