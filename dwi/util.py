@@ -194,7 +194,7 @@ def flip_minmax(a):
     assumption of value range, and it remains the same. Ignores NaN.
     """
     a = np.asanyarray(a)
-    return -a + a.nanmin() + a.nanmax()
+    return -a + np.nanmin(a) + np.nanmax(a)
 
 
 def centroid(a):
