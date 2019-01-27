@@ -81,12 +81,8 @@ def plot_histograms(Histograms, outfile, smooth=False):
                     maxmax = mx
                 minmin = min(minmin, mn)
                 maxmax = max(maxmax, mx)
-            # s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
-            #                                       minmin, maxmax)
-            # s = param + '; ' + s
-            s = '{p}; {ln}; {r}; [{mn:.5g}, {mx:.5g}]'
-            d = dict(p=param, ln=len(histograms), r=rng, mn=minmin, mx=maxmax)
-            pl.title(s.format(**d))
+            pl.title(f'{param}; {len(histograms)}; {rng}; '
+                     f'[{minmin:.5g}, {maxmax:.5g}]')
     # pl.tight_layout()
     logging.info('Plotting to %s...', outfile)
     pl.savefig(outfile, bbox_inches='tight')
