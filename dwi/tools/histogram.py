@@ -62,7 +62,7 @@ def plot_histograms(Histograms, outfile, smooth=False):
     nrows = len({x[0] for x in Histograms})
     ncols = len({x[1] for x in Histograms})
     # logging.warning('## %s ', [nrows, ncols])
-    fig = pl.figure(figsize=(ncols*6, nrows*6))
+    fig = pl.figure(figsize=(ncols * 6, nrows * 6))
     # pl.yscale('log')
     for i, ((param, rng), histograms) in enumerate(Histograms.items(), 1):
         # logging.warning('#### %s ', [i, param, rng, len(histograms)])
@@ -84,8 +84,8 @@ def plot_histograms(Histograms, outfile, smooth=False):
             # s = '{}; {}; [{:.5g}, {:.5g}]'.format(len(histograms), rng,
             #                                       minmin, maxmax)
             # s = param + '; ' + s
-            s = '{p}; {l}; {r}; [{min:.5g}, {max:.5g}]'
-            d = dict(p=param, l=len(histograms), r=rng, min=minmin, max=maxmax)
+            s = '{p}; {ln}; {r}; [{mn:.5g}, {mx:.5g}]'
+            d = dict(p=param, ln=len(histograms), r=rng, mn=minmin, mx=maxmax)
             pl.title(s.format(**d))
     # pl.tight_layout()
     logging.info('Plotting to %s...', outfile)
@@ -103,9 +103,9 @@ def add_histograms(hists, path, img, param, ranges, verbose):
         logging.warning('Image contains negatives: %s', path)
     if verbose:
         s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
-        d = dict(s=original_shape, t=img.dtype, fp=img.size/original_size,
+        d = dict(s=original_shape, t=img.dtype, fp=img.size / original_size,
                  m=np.mean(img), fn=dwi.util.fivenums(img), param=param,
-                 p=path))
+                 p=path)
         print(s.format(**d))
     for rng in ranges:
         if isinstance(rng, list):
