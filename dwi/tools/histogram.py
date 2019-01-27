@@ -74,7 +74,7 @@ def plot_histograms(Histograms, outfile, smooth=False):
                 if smooth:
                     x, y = smoothen(x, y)
                 pl.plot(x, y)
-                # pl.bar(x, y, width=x[1]-x[0])
+                # pl.bar(x, y, width=x[1] - x[0])
                 if minmin is None:
                     minmin = mn
                 if maxmax is None:
@@ -98,18 +98,16 @@ def add_histograms(hists, path, img, param, ranges, verbose):
         # negatives = img[img < 0]
         logging.warning('Image contains negatives: %s', path)
     if verbose:
-        s = 'Read {s}, {t}, {fp:.1%}, {m:.4g}, {fn}, {param}, {p}'
-        d = dict(s=original_shape, t=img.dtype, fp=img.size / original_size,
-                 m=np.mean(img), fn=dwi.util.fivenums(img), param=param,
-                 p=path)
-        print(s.format(**d))
+        print(f'Read {original_shape}, {img.dtype}, '
+              f'{img.size / original_size:.1%}, {np.mean(img):.4g}, '
+              f'{dwi.util.fivenums(img)}, {param}, {path}')
     for rng in ranges:
         if isinstance(rng, list):
             incl = True
         if isinstance(rng, tuple):
             incl = False
         m1, m2 = np.percentile(img, rng)
-        key = (param, str(rng))
+        key = param, str(rng)
         hists.setdefault(key, []).append(histogram(img, m1, m2, incl))
     # hists[0].append(histogram(img, None, None))
     # hists[1].append(histogram(img, 0, 100))
