@@ -47,9 +47,7 @@ def get_mbb(img, mask):
     """Get image MBB."""
     mbb = img[..., 0].mbb()
     logging.info('Taking MBB: %s', [(x.start, x.stop) for x in mbb])
-    img = img[mbb]
-    mask = mask[mbb]
-    return img, mask
+    return img[mbb], mask[mbb]
 
 
 def normalize(img):
