@@ -38,7 +38,7 @@ def biexp_flip(params):
     """If Df < Ds, flip them."""
     if params[1] < params[2]:
         params[1], params[2] = params[2], params[1]
-        params[0] = 1.-params[0]
+        params[0] = 1.0 - params[0]
 
 
 # Model functions.
@@ -56,7 +56,7 @@ def adck(b, ADCk, K, C=1):
 
     C * exp(-b * ADCk + 1/6 * b^2 * ADCk^2 * K)
     """
-    return C * np.exp(-b * ADCk + 1/6 * b**2 * ADCk**2 * K)
+    return C * np.exp(-b * ADCk + 1 / 6 * b**2 * ADCk**2 * K)
 
 
 def adcs(b, ADCs, alpha, C=1):
@@ -72,7 +72,7 @@ def biexp(b, Af, Df, Ds, C=1):
 
     C * ((1 - Af) * exp(-b * Ds) + Af * exp(-b * Df))
     """
-    return C * ((1-Af) * np.exp(-b*Ds) + Af * np.exp(-b*Df))
+    return C * ((1 - Af) * np.exp(-b * Ds) + Af * np.exp(-b * Df))
 
 
 def t2(t, T2, C=1):
