@@ -110,14 +110,14 @@ Models.append(Model(
     [
         Parameter('ADCm', (0.0001, 0.003, 0.00001), (0, 1)),
         ParamC
-    ]))
+        ]))
 Models.append(Model(
     'MonoN',
     'Normalized ADC monoexponential',
     lambda p, x: adcm(x, *p),
     [
         Parameter('ADCmN', (0.0001, 0.003, 0.00001), (0, 1)),
-    ],
+        ],
     preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model(
@@ -128,7 +128,7 @@ Models.append(Model(
         Parameter('ADCk', (0.0001, 0.003, 0.00002), (0, 1)),
         Parameter('K', (0.0, 2.0, 0.1), (0, 10)),
         ParamC
-    ]))
+        ]))
 Models.append(Model(
     'KurtN',
     'Normalized ADC kurtosis',
@@ -136,7 +136,7 @@ Models.append(Model(
     [
         Parameter('ADCkN', (0.0001, 0.003, 0.00002), (0, 1)),
         Parameter('KN', (0.0, 2.0, 0.1), (0, 10)),
-    ],
+        ],
     preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model(
@@ -147,7 +147,7 @@ Models.append(Model(
         Parameter('ADCs', (0.0001, 0.003, 0.00002), (0, 1)),
         Parameter('Alpha', (0.1, 1.0, 0.05), (0, 1)),
         ParamC
-    ]))
+        ]))
 Models.append(Model(
     'StretchedN',
     'Normalized ADC stretched',
@@ -155,7 +155,7 @@ Models.append(Model(
     [
         Parameter('ADCsN', (0.0001, 0.003, 0.00002), (0, 1)),
         Parameter('AlphaN', (0.1, 1.0, 0.05), (0, 1)),
-    ],
+        ],
     preproc=dwi.util.normalize_si_curve))
 
 Models.append(Model(
@@ -167,7 +167,7 @@ Models.append(Model(
         Parameter('Df', (0.001, 0.009, 0.0002), (0, 1)),
         Parameter('Ds', (0.000, 0.004, 0.00002), (0, 1)),
         ParamC
-    ],
+        ],
     postproc=biexp_flip))
 Models.append(Model(
     'BiexpN',
@@ -177,7 +177,7 @@ Models.append(Model(
         Parameter('AfN', (0.2, 1.0, 0.1), (0, 1)),
         Parameter('DfN', (0.001, 0.009, 0.0002), (0, 1)),
         Parameter('DsN', (0.000, 0.004, 0.00002), (0, 1)),
-    ],
+        ],
     preproc=dwi.util.normalize_si_curve,
     postproc=biexp_flip))
 
@@ -188,4 +188,4 @@ Models.append(Model(
     [
         Parameter('T2', (1, 300, 50), (1, 300)),
         Parameter('C', (0.25, 1, 0.5), (0, 1e9), relative=True)
-    ]))
+        ]))
