@@ -336,3 +336,12 @@ def hostname():
     if not name:
         raise OSError(None, 'Could not determine hostname')
     return name
+
+
+def md5sum_strings(strings):
+    """Get MD5 checksum of a sequence of strings."""
+    import hashlib
+    h = hashlib.md5()
+    for s in strings:
+        h.update(bytes(s, 'utf-8'))
+    return h.hexdigest()
