@@ -25,24 +25,24 @@ def stem_and_leaf(values):
     stems = defaultdict(list)
     for v in sorted(values):
         stem = int(v)
-        leaf = int((v-stem) * 10)
+        leaf = int((v - stem) * 10)
         stems[stem].append(leaf)
     lines = []
-    for i in range(min(stems), max(stems)+1):
+    for i in range(min(stems), max(stems) + 1):
         leaves = ''.join(str(x) for x in stems[i])
-        lines.append('{i:2}|{l}'.format(i=i, l=leaves))
+        lines.append(f'{i:2}|{leaves}')
     return lines
 
 
 def resample_bootstrap_single(a):
     """Get a bootstrap resampled group for single array."""
-    indices = [random.randint(0, len(a)-1) for _ in a]
+    indices = [random.randint(0, len(a) - 1) for _ in a]
     return a[indices]
 
 
 def resample_bootstrap(Y, X):
     """Get a bootstrap resampled group without stratification."""
-    indices = [random.randint(0, len(Y)-1) for _ in Y]
+    indices = [random.randint(0, len(Y) - 1) for _ in Y]
     return Y[indices], X[indices]
 
 
@@ -66,7 +66,7 @@ def resample_bootstrap_stratified(Y, X):
     indices = []
     for u in uniques:
         l = get_indices(Y, u)
-        l_rnd = [l[random.randint(0, len(l)-1)] for _ in l]
+        l_rnd = [l[random.randint(0, len(l) - 1)] for _ in l]
         for v in l_rnd:
             indices.append(v)
     return Y[indices], X[indices]
@@ -155,8 +155,8 @@ def conf_int(x, p=0.05):
     """Confidence interval of a normally distributed array."""
     x = sorted(x)
     l = len(x)
-    i1 = int(round((p/2) * l + 0.5))
-    i2 = int(round((1-p/2) * l - 0.5))
+    i1 = int(round((p / 2) * l + 0.5))
+    i2 = int(round((1 - p / 2) * l - 0.5))
     ci1 = x[i1]
     ci2 = x[i2]
     return ci1, ci2
@@ -166,11 +166,11 @@ def mean_squared_difference(a1, a2):
     """Return mean squared difference of two arrays."""
     a1 = np.asanyarray(a1)
     a2 = np.asanyarray(a2)
-    assert len(a1) == len(a2), 'Array length mismatch'
+    assert len(a1) == len(a2), (len(a1), len(a2))
     n = len(a1)
-    ds = a1-a2
+    ds = a1 - a2
     sds = ds**2
-    msd = np.sqrt(sum(sds) / (n-1))
+    msd = np.sqrt(sum(sds) / (n - 1))
     return msd
 
 
@@ -186,9 +186,9 @@ def repeatability_coeff(a1, a2, avgfun=np.mean):
     avg = avgfun(a)
     avg_ci1, avg_ci2 = conf_int(a)
     msd = mean_squared_difference(a1, a2)
-    ci = 1.96*msd / np.sqrt(n)
-    wcv = (msd/np.sqrt(2)) / avg
-    cor = 1.96*msd
+    ci = 1.96 * msd / np.sqrt(n)
+    wcv = (msd / np.sqrt(2)) / avg
+    cor = 1.96 * msd
     d = dict(avg=avg, avg_ci1=avg_ci1, avg_ci2=avg_ci2, msd=msd, ci=ci,
              wcv=wcv, cor=cor)
     return d
@@ -208,15 +208,15 @@ def icc(baselines):
     mpt = np.mean(data, axis=0)  # Mean per target.
     mpr = np.mean(data, axis=1)  # Mean per rater.
     tm = np.mean(data)  # Total mean.
-    wss = sum(sum((data-mpt)**2))  # Within-target sum of squares.
-    # wms = wss / (n * (k-1))  # Within-target mean of squares.
-    rss = sum((mpr-tm)**2) * n  # Between-rater sum of squares.
-    # rms = rss / (k-1)  # Between-rater mean of squares.
-    bss = sum((mpt-tm)**2) * k  # Between-target sum of squares.
-    bms = bss / (n-1)  # Between-target mean of squares.
+    wss = sum(sum((data - mpt)**2))  # Within-target sum of squares.
+    # wms = wss / (n * (k - 1))  # Within-target mean of squares.
+    rss = sum((mpr - tm)**2) * n  # Between-rater sum of squares.
+    # rms = rss / (k - 1)  # Between-rater mean of squares.
+    bss = sum((mpt - tm)**2) * k  # Between-target sum of squares.
+    bms = bss / (n - 1)  # Between-target mean of squares.
     ess = wss - rss  # Residual sum of squares.
-    ems = ess / ((k-1) * (n-1))  # Residual mean of squares.
-    icc31 = (bms - ems) / (bms + (k-1)*ems)
+    ems = ess / ((k - 1) * (n - 1))  # Residual mean of squares.
+    icc31 = (bms - ems) / (bms + (k - 1) * ems)
     return icc31
 
 
@@ -249,9 +249,9 @@ def wilcoxon_signed_rank_test(x, conflevel=0.95):
     from rpy2.robjects import numpy2ri
     from rpy2.robjects.packages import importr
     numpy2ri.activate()
-    stats = importr('stats')
+    r_stats = importr('stats')
     d = {'conf.int': True, 'conf.level': conflevel}
-    r = stats.wilcox_test(np.array(x), **d)
+    r = r_stats.wilcox_test(np.array(x), **d)
     r = dict(
         statistic=np.asscalar(np.asarray(r.rx('statistic'))),
         pvalue=np.asscalar(np.asarray(r.rx('p.value'))),
