@@ -1,6 +1,7 @@
 """Statistical functionality."""
 
 from collections import defaultdict
+import math
 import random
 
 import numpy as np
@@ -91,6 +92,27 @@ def scale_standard(x):
 def scale_minmax(x):
     """Scale to range."""
     return sklearn.preprocessing.minmax_scale(x)
+
+
+def correlation(x, y, method='spearman'):
+    """Calculate correlation with p-value and confidence interval."""
+    assert len(x) == len(y)
+    methods = dict(
+        pearson=stats.pearsonr,
+        spearman=stats.spearmanr,
+        kendall=stats.kendalltau,
+        )
+    if dwi.util.all_equal(x):
+        r = p = lower = upper = np.nan
+    else:
+        f = methods[method]
+        r, p = f(x, y)
+        n = len(x)
+        stderr = 1 / math.sqrt(n - 3)
+        delta = 1.96 * stderr
+        lower = math.tanh(math.atanh(r) - delta)
+        upper = math.tanh(math.atanh(r) + delta)
+    return dict(r=r, p=p, lower=lower, upper=upper)
 
 
 def calculate_roc_auc(y, x, autoflip=False, scale=True):

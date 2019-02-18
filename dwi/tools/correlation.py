@@ -3,13 +3,13 @@
 """Calculate correlation for parametric maps vs. Gleason scores."""
 
 import argparse
-import math
 
 import numpy as np
 from scipy import stats
 
 import dwi.files
 import dwi.patient
+import dwi.stats
 import dwi.util
 from dwi.compat import collect_data
 
@@ -34,27 +34,6 @@ def parse_args():
     return p.parse_args()
 
 
-def correlation(x, y, method='spearman'):
-    """Calculate correlation with p-value and confidence interval."""
-    assert len(x) == len(y)
-    methods = dict(
-        pearson=stats.pearsonr,
-        spearman=stats.spearmanr,
-        kendall=stats.kendalltau,
-        )
-    if dwi.util.all_equal(x):
-        r = p = lower = upper = np.nan
-    else:
-        f = methods[method]
-        r, p = f(x, y)
-        n = len(x)
-        stderr = 1 / math.sqrt(n - 3)
-        delta = 1.96 * stderr
-        lower = math.tanh(math.atanh(r) - delta)
-        upper = math.tanh(math.atanh(r) + delta)
-    return dict(r=r, p=p, lower=lower, upper=upper)
-
-
 def main():
     """Main."""
     args = parse_args()
@@ -71,7 +50,7 @@ def main():
     params_maxlen = max(len(x) for x in params)
     for x, y, param in zip(X, Y, params):
         d = dict(param=param, l=params_maxlen, f='.3f')
-        d.update(correlation(x, y))
+        d.update(dwi.stats.correlation(x, y))
         if args.verbose:
             s = '{param:{l}}  {r:+{f}}  {p:{f}}  {lower:+{f}}  {upper:+{f}}'
         else:
