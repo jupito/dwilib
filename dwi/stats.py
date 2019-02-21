@@ -121,8 +121,8 @@ def calculate_roc_auc(y, x, autoflip=False, scale=True):
     By default, the samples are scaled, because sklearn.metrics.roc_curve()
     interprets very close samples as equal.
     """
-    y = np.asarray(y)
-    x = np.asarray(x)
+    y = np.asanyarray(y)
+    x = np.asanyarray(x)
     if scale:
         x = scale_standard(x)
     fpr, tpr, _ = sklearn.metrics.roc_curve(y, x)
@@ -147,6 +147,8 @@ def roc_auc(labels, values, autoflip=False, nboot=None):
     results under 0.5 are 'switched' automatically. Returns a dictionary with
     keys: auc: AUC, flipped: whether flipped, ci1, ci2: confidence interval.
     """
+    labels = np.asanyarray(labels)
+    values = np.asanyarray(values)
     _, _, auc = dwi.stats.calculate_roc_auc(labels, values, autoflip=False,
                                             scale=False)
     if autoflip and auc < 0.5:
