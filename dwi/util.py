@@ -15,6 +15,25 @@ from scipy.ndimage import interpolation
 from skimage import exposure
 
 
+def one(iterable, too_short=None, too_long=None):
+    """Return the first item from *iterable*, which is expected to contain only
+    that item. Raise an exception if *iterable* is empty or has more than one
+    item. Taken from `more_itertools.one`.
+    """
+    it = iter(iterable)
+    try:
+        value = next(it)
+    except StopIteration:
+        raise too_short or ValueError('Too few items in iterable (expected 1)')
+    try:
+        next(it)
+    except StopIteration:
+        pass
+    else:
+        raise too_long or ValueError('Too many items in iterable (expected 1)')
+    return value
+
+
 def get_loglevel(name):
     """Return the numeric correspondent of a logging level name."""
     try:
