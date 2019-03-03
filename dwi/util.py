@@ -34,6 +34,11 @@ def one(iterable, too_short=None, too_long=None):
     return value
 
 
+def middle(seq):
+    """Return middle item of a sequence, or the first of two middle items."""
+    return seq[(len(seq) - 1) // 2]
+
+
 def get_loglevel(name):
     """Return the numeric correspondent of a logging level name."""
     try:
