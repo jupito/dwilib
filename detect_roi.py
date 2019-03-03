@@ -4,6 +4,7 @@
 # TODO: Use masks as boolean, not float.
 # TODO: Use skimage.draw.circle to draw a disk.
 # TODO: Calculate histograms for prostate and lesion.
+# TODO: Normalize images before blob detection?
 
 # import contextlib
 import csv
@@ -204,6 +205,7 @@ def likert_malign(value):
 
 
 def correlations(roi_avgs, labels):
+    roi_avgs = list(roi_avgs.values())
     def corr(x):
         # scale = dwi.stats.scale_standard
         return dwi.stats.correlation(x, labels, method='spearman')
@@ -211,6 +213,7 @@ def correlations(roi_avgs, labels):
 
 
 def aucs(roi_avgs, labels):
+    roi_avgs = list(roi_avgs.values())
     def auc(x):
         return dwi.stats.roc_auc(labels, x, autoflip=True)
     return [auc([x[i] for x in roi_avgs]) for i in range(3)]
@@ -228,18 +231,23 @@ pats['use'] = pats[['GS_P', 'has_ADC']].apply(all_exist, axis=1)
 pats = pats[pats['use'] == True]
 pats['label33'] = pats['GS_P'].apply(lambda x: gleason_malign(x, (3, 3)))
 pats['label34'] = pats['GS_P'].apply(lambda x: gleason_malign(x, (3, 4)))
+pats['label_likert'] = pats['Likert_Lmax'].apply(likert_malign)
 
-
-bundles = [one(dwi.readnib.load_images(x, [MODE])) for x in pats.index]
-
-res = [dwi.detectlesion.detect_blob(x, OUTDIR) for x in bundles]
-roi_avgs = [x['roi_avgs'] for x in res]
-
-# it = (dwi.readnib.get_slices(x) for x in bundles)
-# slice_info_ = [(x, *y) for x, y in it]
-# it = (dwi.readnib.get_slices(x) for x in bundles)
-# slice_info = [dict(i_slice=x, img=y, masks=z) for x, (y, *z) in it]
-
+bundles = {k: v for k, v in bundles.items() if k in pats.index}
+# res = [dwi.detectlesion.detect_blob(x, OUTDIR) for x in bundles.values()]
+# roi_avgs = [x['roi_avgs'] for x in res]
+blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_shape[0])
+         for k, v in bundles.items()}
+kwargs = dict(
+    avg=np.nanmedian,
+    # avg=np.nanmean,
+    # avg=lambda x: np.nanpercentile(x, 50),
+    )
+rois = {k: [dwi.detectlesion.select_best_blob(v, x, **kwargs)
+            for x in blobs[k]['blobs_list']]
+        for k, v in bundles.items()}
+roi_avgs = {k: [dwi.detectlesion.get_blob_avg(v, x, **kwargs) for x in rois[k]]
+            for k, v in bundles.items()}
 
 label_lists = [pats.label33, pats.label34]
 cors33, cors34 = (correlations(roi_avgs, x) for x in label_lists)

@@ -13,23 +13,30 @@ import dwi.mask
 import dwi.util
 from dwi.types2 import ImageMode, ImageTarget, GleasonScore
 
+DEFAULT_ROOT = '~/tmp/data/Data_Organized_29012019'
+DEFAULT_SUFFIX = '.nii'
+DEFAULT_COLLECTION = 'IMPROD'
+DEFAULT_PSTEM = 'PM'
+DEFAULT_LSTEM = 'LS'
+DEFAULT_VOXEL_SHAPES = dict(DWI=(2, 2, 3), T2w=(0.625, 0.625, 3))
+
 log = logging.getLogger(__name__)
 
 
 class ImageBundle:
     """A bundle of (image, pmask, lmask) for (mode, case) in NIFTI format."""
-    _suffix = '.nii'
 
-    def __init__(self, mode, target):
+    def __init__(self, mode, target, root=DEFAULT_ROOT,
+                 suffix=DEFAULT_SUFFIX, collection=DEFAULT_COLLECTION):
         self.mode = mode
         self.target = target
-
-    @staticmethod
-    def _root():
-        return Path('~/tmp/data/Data_Organized_29012019').expanduser()
+        self._root = Path(root).expanduser()
+        self._suffix = suffix
+        self._collection = collection
 
     def _modalitydir(self):
-        return self._root() / f'IMPROD_{self.mode.modality}_human_drawn'
+        return (self._root /
+                f'{self._collection}_{self.mode.modality}_human_drawn')
 
     def _imagedir(self):
         return (self._modalitydir() /
@@ -62,15 +69,22 @@ class ImageBundle:
         # print(*self.image.header.items(), sep='\n\t')
         # fdata = self.image.get_fdata()
 
-    def exists(self, stem='LS'):
+    def exists(self, stem=DEFAULT_LSTEM):
         return self._path(stem).exists()  # For simplicity check only lesion.
 
     @property
+    def shape(self):
+        return self.image.shape
+
+    @property
+    def dtype(self):
+        return self.image.get_data_dtype()
+
+    @property
     def voxel_shape(self):
-        """Get voxel shape."""
+        """Get voxel shape (in millimetres)."""
         # TODO: Get from NIFTI headers.
-        voxel_shapes = dict(DWI=(2, 2, 3), T2w=(0.625, 0.625, 3))
-        return voxel_shapes[self.mode.modality[:3]]
+        return DEFAULT_VOXEL_SHAPES[self.mode.modality[:3]]
 
     @property
     def image(self):
@@ -79,11 +93,11 @@ class ImageBundle:
 
     @property
     def pmask(self):
-        return self._load('PM').as_reoriented(self._ornt())
+        return self._load(DEFAULT_PSTEM).as_reoriented(self._ornt())
 
     @property
     def lmask(self):
-        return self._load('LS').as_reoriented(self._ornt())
+        return self._load(DEFAULT_LSTEM).as_reoriented(self._ornt())
 
     @property
     def image_data(self):
@@ -99,13 +113,13 @@ class ImageBundle:
 
     @lru_cache(None)
     def p_mbb(self, pad=5):
-        pad = np.inf, pad, pad
-        return dwi.util.bbox(self.pmask_data, pad=pad)
+        return dwi.util.bbox(self.pmask_data, pad=(np.inf, pad, pad))
 
     @lru_cache(None)
     def p_max_slice_index(self):
         """Get the slice index with maximum prostate area."""
         mask = dwi.mask.Mask3D(self.pmask_data[self.p_mbb()])
+        assert len(mask.max_slices()) < 3
         return mask.max_slices()[0]
 
     def image_slice(self):
@@ -119,6 +133,11 @@ class ImageBundle:
     def lmask_slice(self):
         """Get the lesion mask slice with maximum prostate area."""
         return self.lmask_data[self.p_mbb()][self.p_max_slice_index()]
+
+    def pmasked_image_slice(self):
+        masked_image = self.image_slice().copy()
+        masked_image[~self.pmask_slice().astype(np.bool)] = np.nan
+        return masked_image
 
 
 # def load_images(case, modes):

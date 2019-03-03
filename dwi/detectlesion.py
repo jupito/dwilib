@@ -100,18 +100,40 @@ def find_image_contours(image):
     return measure.find_contours(image, level, **kwargs)
 
 
-def select_blob(image, pmask, blobs, avg=np.nanmedian):
+# def select_blob(image, pmask, blobs, avg=np.nanmedian):
+#     """Select best blob from candidates."""
+#     # Pick blob disk with minimum average value.
+#     blobs_in_prostate = [x for x in blobs if is_blob_in_mask(x, pmask)]
+#     circles = [draw.circle(y, x, r, shape=image.shape) for
+#                y, x, r in blobs_in_prostate]
+#     pimage = image.copy()
+#     pimage[~pmask.astype(np.bool)] = np.nan
+#     avgs = [avg(pimage[x]) for x in circles]
+#     assert all(avgs), avgs
+#     i = np.argmin(avgs)
+#     return blobs_in_prostate[i], avgs[i]
+
+
+def select_best_blob(bundle, blobs, avg=np.nanmedian):
     """Select best blob from candidates."""
     # Pick blob disk with minimum average value.
-    blobs_in_prostate = [x for x in blobs if is_blob_in_mask(x, pmask)]
-    circles = [draw.circle(y, x, r, shape=image.shape) for
+    blobs_in_prostate = [x for x in blobs
+                         if is_blob_in_mask(x, bundle.pmask_slice())]
+    circles = [draw.circle(y, x, r, shape=bundle.image_slice().shape) for
                y, x, r in blobs_in_prostate]
-    pimage = image.copy()
-    pimage[~pmask.astype(np.bool)] = np.nan
+    pimage = bundle.pmasked_image_slice()
     avgs = [avg(pimage[x]) for x in circles]
     assert all(avgs), avgs
     i = np.argmin(avgs)
-    return blobs_in_prostate[i], avgs[i]
+    return blobs_in_prostate[i]
+
+
+def get_blob_avg(bundle, blob, avg=np.nanmedian):
+    """Return average value of a blob."""
+    y, x, r = blob
+    circle = draw.circle(y, x, r, shape=bundle.image_slice().shape)
+    pimage = bundle.pmasked_image_slice()
+    return avg(pimage[circle])
 
 
 def plot_blobs(image, masks, blobs_list, rois, titles, performances,
