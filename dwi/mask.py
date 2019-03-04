@@ -247,14 +247,14 @@ def overlay_masks(masks, out=None):
 
 def contours(mask):
     """Find contours in mask."""
-    # TODO: Handle boolean masks, too.
-    level = np.ptp(mask) / 2
+    mask = np.asanyarray(mask, dtype=np.bool).astype(dtype=np.int8)
     kwargs = dict(fully_connected='low', positive_orientation='low')
     # kwargs = dict(fully_connected='high', positive_orientation='high')
-    return measure.find_contours(mask, level, **kwargs)
+    return measure.find_contours(mask, 0.5, **kwargs)
 
 
 def nregions(mask):
     """Return number of connected regions in mask."""
+    mask = np.asanyarray(mask)
     _, n = measure.label(mask, return_num=True, connectivity=None)
     return n
