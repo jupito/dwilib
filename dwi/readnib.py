@@ -2,6 +2,7 @@
 
 # http://nipy.org/nibabel/gettingstarted.html
 
+import dataclasses
 import logging
 from functools import lru_cache
 from pathlib import Path
@@ -18,32 +19,45 @@ DEFAULT_SUFFIX = '.nii'
 DEFAULT_COLLECTION = 'IMPROD'
 DEFAULT_PSTEM = 'PM'
 DEFAULT_LSTEM = 'LS'
-# DEFAULT_VOXEL_SHAPES = dict(DWI=(2., 2., 3.), T2w=(0.625, 0.625, 3.))
 DEFAULT_VOXEL_SHAPES = dict(DWI=(3., 2., 2.), T2w=(3., 0.625, 0.625))
 
 log = logging.getLogger(__name__)
 
 
+@dataclasses.dataclass
+class PathInfo:
+    root: str = '~/tmp/data/Data_Organized_29012019'
+    suffix: str = '.nii'
+    collection: str = 'IMPROD'
+
+    def __init__(self, root, suffix, collection):
+        self.root = Path(root).expanduser()
+        self.suffix = suffix
+        self.collection = collection
+
+    def modalitydir(self, mode):
+        return self.root / f'{self.collection}_{mode.modality}_human_drawn'
+
+    def imagedir(self, mode, target):
+        return self.modalitydir(mode) / f'{target.case}_L{target.lesion}'
+
+    def path(self, mode, target, stem):
+        return (self.imagedir(mode, target) / stem).with_suffix(self.suffix)
+
+
+DEFAULT_PATHINFO = PathInfo(root='~/tmp/data/Data_Organized_29012019',
+                            suffix='.nii', collection='IMPROD')
+
+
 class ImageBundle:
     """A bundle of (image, pmask, lmask) for (mode, case) in NIFTI format."""
-    def __init__(self, mode, target, root=DEFAULT_ROOT,
-                 suffix=DEFAULT_SUFFIX, collection=DEFAULT_COLLECTION):
+    def __init__(self, mode, target, pathinfo=DEFAULT_PATHINFO):
         self.mode = mode
         self.target = target
-        self._root = Path(root).expanduser()
-        self._suffix = suffix
-        self._collection = collection
-
-    def _modalitydir(self):
-        return (self._root /
-                f'{self._collection}_{self.mode.modality}_human_drawn')
-
-    def _imagedir(self):
-        return (self._modalitydir() /
-                f'{self.target.case}_L{self.target.lesion}')
+        self.pathinfo = pathinfo
 
     def _path(self, stem):
-        return (self._imagedir() / stem).with_suffix(self._suffix)
+        return self.pathinfo.path(self.mode, self.target, stem)
 
     def _load(self, stem):
         return nib.load(str(self._path(stem)))
