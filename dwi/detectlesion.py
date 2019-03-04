@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 class BlobDetector:
     def __init__(self, image, voxel_size, **kwargs):
-        assert np.issubdtype(image.dtype, np.float), image.dtype
+        image = np.asfarray(image)
         self.image = color.rgb2gray(image)
         self.image = dwi.util.flip_minmax(self.image)
         self.voxel_size = voxel_size
@@ -62,9 +62,10 @@ class BlobDetector:
 
     @lru_cache(None)
     def doh(self):
+        image = np.asfarray(self.image, dtype=np.double)
         # skimage.feature.blob_doh(image, min_sigma=1, max_sigma=30,
         #     num_sigma=10, threshold=0.01, overlap=0.5, log_scale=False)
-        blobs = feature.blob_doh(self.image, **self.blob_ka, **self.doh_ka)
+        blobs = feature.blob_doh(image, **self.blob_ka, **self.doh_ka)
         # Here, radius is approx. equal to sigma.
         return blobs
 
@@ -81,8 +82,7 @@ class BlobDetector:
 def find_blobs(image, voxel_size):
     """Find blobs in image."""
     log.info([image.shape, image.dtype, voxel_size])
-    assert np.issubdtype(image.dtype, np.float), image.dtype
-
+    image = np.asfarray(image)
     image_gray = color.rgb2gray(image)
     # inverted = -image_gray + image_gray.max()
     inverted = dwi.util.flip_minmax(image_gray)
@@ -106,7 +106,8 @@ def find_blobs(image, voxel_size):
 
     # skimage.feature.blob_doh(image, min_sigma=1, max_sigma=30,
     #     num_sigma=10, threshold=0.01, overlap=0.5, log_scale=False)
-    blobs_doh = feature.blob_doh(inverted, **blob_args, **doh_args)
+    dbl = np.asfarray(inverted, dtype=np.double)  # blobs_doh requires double.
+    blobs_doh = feature.blob_doh(dbl, **blob_args, **doh_args)
     # Here, radius is approx. equal to sigma.
 
     blobs_list = [blobs_log, blobs_dog, blobs_doh]

@@ -122,15 +122,15 @@ class ImageBundle:
 
     @property
     def image_data(self):
-        return self.image.get_fdata()
+        return self.image.get_fdata(dtype=np.float32)
 
     @property
     def pmask_data(self):
-        return self.pmask.get_fdata().clip(0, 1)
+        return nimage_as_mask(self.pmask)
 
     @property
     def lmask_data(self):
-        return self.lmask.get_fdata().clip(0, 1)
+        return nimage_as_mask(self.lmask)
 
     @lru_cache(None)
     def p_mbb(self, pad=5):
@@ -156,7 +156,7 @@ class ImageBundle:
 
     def pmasked_image_slice(self):
         masked = self.image_slice().copy()
-        masked[~self.pmask_slice().astype(np.bool)] = np.nan
+        masked[~self.pmask_slice()] = np.nan
         return masked
 
 #     def pmasked_image_slice_(self):
@@ -164,6 +164,16 @@ class ImageBundle:
 #         masked[np.isnan(masked)] = np.random.random_sample(masked.shape).clip(np.nanmin(masked), np.nanmax(masked))[np.isnan(masked)]
 #         assert not np.any(np.isnan(masked))
 #         return masked
+
+
+def nimage_as_mask(nimage):
+    """Convert Nifti image to boolean mask.
+
+    Clip to [0, 1] before casting to bool, in case background < 0.
+    """
+    # return np.asanyarray(nimage.dataobj, dtype=np.bool)
+    # return nimage.get_fdata().clip(0, 1).astype(np.bool)
+    return np.asanyarray(nimage.dataobj).clip(0, 1).astype(np.bool)
 
 
 # def load_images(case, modes):
