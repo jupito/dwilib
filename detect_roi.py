@@ -205,7 +205,6 @@ def likert_malign(value):
 
 
 def correlations(roi_avgs, labels):
-    roi_avgs = list(roi_avgs.values())
     def corr(x):
         # scale = dwi.stats.scale_standard
         return dwi.stats.correlation(x, labels, method='spearman')
@@ -213,7 +212,6 @@ def correlations(roi_avgs, labels):
 
 
 def aucs(roi_avgs, labels):
-    roi_avgs = list(roi_avgs.values())
     def auc(x):
         return dwi.stats.roc_auc(labels, x, autoflip=True)
     return [auc([x[i] for x in roi_avgs]) for i in range(3)]
@@ -234,10 +232,13 @@ pats['label34'] = pats['GS_P'].apply(lambda x: gleason_malign(x, (3, 4)))
 pats['label_likert'] = pats['Likert_Lmax'].apply(likert_malign)
 
 bundles = {k: v for k, v in bundles.items() if k in pats.index}
+
 # res = [dwi.detectlesion.detect_blob(x, OUTDIR) for x in bundles.values()]
 # roi_avgs = [x['roi_avgs'] for x in res]
-blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_shape[0])
+
+blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_size())
          for k, v in bundles.items()}
+print(*([len(x) for x in y['blobs_list']] for y in blobs.values()))
 kwargs = dict(
     avg=np.nanmedian,
     # avg=np.nanmean,
@@ -248,6 +249,10 @@ rois = {k: [dwi.detectlesion.select_best_blob(v, x, **kwargs)
         for k, v in bundles.items()}
 roi_avgs = {k: [dwi.detectlesion.get_blob_avg(v, x, **kwargs) for x in rois[k]]
             for k, v in bundles.items()}
+roi_avgs = list(roi_avgs.values())
+
+for k, b in bundles.items():
+    dwi.detectlesion.plot_bundle_blobs(b, blobs[k], rois[k], OUTDIR)
 
 label_lists = [pats.label33, pats.label34]
 cors33, cors34 = (correlations(roi_avgs, x) for x in label_lists)

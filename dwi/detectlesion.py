@@ -3,7 +3,7 @@
 # http://scikit-image.org/docs/dev/_downloads/a35d9b7dfd6d18cf5e01952d15cc3af6/plot_blob.py
 
 import logging
-from functools import reduce
+from functools import lru_cache, reduce
 from math import sqrt
 from operator import add
 
@@ -22,13 +22,60 @@ import dwi.util
 log = logging.getLogger(__name__)
 
 
-def maskratio(large, small):
-    """Calculate and validate mask size ratio."""
-    sizes = [np.count_nonzero(x) for x in [large, small]]
-    if 0 in sizes or sizes[1] >= sizes[0]:
-        log.error('Mask size mismatch: large %i, small %i', *sizes)
-        return np.nan
-    return sizes[1] / sizes[0]
+class BlobDetector:
+    def __init__(self, image, voxel_size, **kwargs):
+        assert np.issubdtype(image.dtype, np.float), image.dtype
+        self.image = color.rgb2gray(image)
+        self.image = dwi.util.flip_minmax(self.image)
+        self.voxel_size = voxel_size
+        self.set_kwargs(**kwargs)
+
+    def set_kwargs(self, blob_ka={}, log_ka={}, dog_ka={}, doh_ka={}):
+        """Set keyword arguments for blob detection functions."""
+        # v = self.voxel_size
+        mm = 1 / self.voxel_size  # A millimetre in voxel lengths.
+        # self.blob_ka = dict(min_sigma=3 * mm, max_sigma=10 * mm, overlap=0.33)
+        self.blob_ka = dict(min_sigma=5 * mm, max_sigma=12 * mm, overlap=0.5)
+        self.log_ka = dict(num_sigma=5, threshold=0.1, log_scale=False)
+        self.dog_ka = dict(sigma_ratio=1.6, threshold=0.1)
+        self.doh_ka = dict(num_sigma=5, threshold=0.01, log_scale=False)
+        self.blob_ka.update(blob_ka)
+        self.log_ka.update(log_ka)
+        self.dog_ka.update(dog_ka)
+        self.doh_ka.update(doh_ka)
+
+    @lru_cache(None)
+    def log(self):
+        # skimage.feature.blob_log(image, min_sigma=1, max_sigma=50,
+        #     num_sigma=10, threshold=0.2, overlap=0.5, log_scale=False)
+        blobs = feature.blob_log(self.image, **self.blob_ka, **self.log_ka)
+        blobs[:, 2] = blobs[:, 2] * sqrt(2)  # Compute radii in 3rd column.
+        return blobs
+
+    @lru_cache(None)
+    def dog(self):
+        # skimage.feature.blob_dog(image, min_sigma=1, max_sigma=50,
+        #     sigma_ratio=1.6, threshold=2.0, overlap=0.5)
+        blobs = feature.blob_dog(self.image, **self.blob_ka, **self.dog_ka)
+        blobs[:, 2] = blobs[:, 2] * sqrt(2)  # Compute radii in 3rd column.
+        return blobs
+
+    @lru_cache(None)
+    def doh(self):
+        # skimage.feature.blob_doh(image, min_sigma=1, max_sigma=30,
+        #     num_sigma=10, threshold=0.01, overlap=0.5, log_scale=False)
+        blobs = feature.blob_doh(self.image, **self.blob_ka, **self.doh_ka)
+        # Here, radius is approx. equal to sigma.
+        return blobs
+
+    def find_blobs(self):
+        blobs_list = [self.log(), self.dog(), self.doh()]
+        titles = ['Laplacian of Gaussian', 'Difference of Gaussian',
+                  'Determinant of Hessian']
+        short_titles = [dwi.util.abbrev(x) for x in titles]
+        return dict(blobs_log=self.log(), blobs_dog=self.dog(),
+                    blobs_doh=self.doh(), blobs_list=blobs_list,
+                    titles=titles, short_titles=short_titles)
 
 
 def find_blobs(image, voxel_size):
@@ -40,45 +87,44 @@ def find_blobs(image, voxel_size):
     # inverted = -image_gray + image_gray.max()
     inverted = dwi.util.flip_minmax(image_gray)
 
-    # blob_args = dict(min_sigma=2, max_sigma=5)
-    # l = np.min(image.shape)
-    # blob_args = dict(min_sigma=l / 20, max_sigma=l / 5)
-    blob_args = dict(min_sigma=3 / voxel_size,
-                     max_sigma=10 / voxel_size,
-                     overlap=0.33)
-    # num_sigma, sigma_ratio = 10, 1.6
-    num_sigma, sigma_ratio = 5, 1.6
-    log.info([blob_args, num_sigma, sigma_ratio])
+    mm = 1 / voxel_size  # A millimetre in voxel lengths.
+    # blob_args = dict(min_sigma=3 * mm, max_sigma=10 * mm, overlap=0.33)
+    blob_args = dict(min_sigma=5 * mm, max_sigma=12 * mm, overlap=0.5)
+    log_args = dict(num_sigma=5, threshold=0.1, log_scale=False)
+    dog_args = dict(sigma_ratio=1.6, threshold=0.1)
+    doh_args = dict(num_sigma=5, threshold=0.01, log_scale=False)
 
     # skimage.feature.blob_log(image, min_sigma=1, max_sigma=50,
-    #                          num_sigma=10, threshold=0.2, overlap=0.5,
-    #                          log_scale=False)
-    blobs_log = feature.blob_log(inverted, **blob_args, num_sigma=num_sigma,
-                                 threshold=0.1, log_scale=False)
+    #     num_sigma=10, threshold=0.2, overlap=0.5, log_scale=False)
+    blobs_log = feature.blob_log(inverted, **blob_args, **log_args)
     blobs_log[:, 2] = blobs_log[:, 2] * sqrt(2)  # Compute radii in 3rd column.
 
     # skimage.feature.blob_dog(image, min_sigma=1, max_sigma=50,
-    #                          sigma_ratio=1.6, threshold=2.0, overlap=0.5)
-    blobs_dog = feature.blob_dog(inverted, **blob_args,
-                                 sigma_ratio=sigma_ratio, threshold=0.1)
+    #     sigma_ratio=1.6, threshold=2.0, overlap=0.5)
+    blobs_dog = feature.blob_dog(inverted, **blob_args, **dog_args)
     blobs_dog[:, 2] = blobs_dog[:, 2] * sqrt(2)  # Compute radii in 3rd column.
 
     # skimage.feature.blob_doh(image, min_sigma=1, max_sigma=30,
-    #                          num_sigma=10, threshold=0.01, overlap=0.5,
-    #                          log_scale=False)
-    blobs_doh = feature.blob_doh(inverted, **blob_args, num_sigma=num_sigma,
-                                 threshold=0.01, log_scale=False)
+    #     num_sigma=10, threshold=0.01, overlap=0.5, log_scale=False)
+    blobs_doh = feature.blob_doh(inverted, **blob_args, **doh_args)
     # Here, radius is approx. equal to sigma.
 
     blobs_list = [blobs_log, blobs_dog, blobs_doh]
     titles = ['Laplacian of Gaussian', 'Difference of Gaussian',
               'Determinant of Hessian']
     short_titles = [dwi.util.abbrev(x) for x in titles]
-    return dict(blobs_log=blobs_log,
-                blobs_dog=blobs_dog,
-                blobs_doh=blobs_doh,
-                blobs_list=blobs_list,
+    return dict(blobs_log=blobs_log, blobs_dog=blobs_dog,
+                blobs_doh=blobs_doh, blobs_list=blobs_list,
                 titles=titles, short_titles=short_titles)
+
+
+def maskratio(large, small):
+    """Calculate and validate mask size ratio."""
+    sizes = [np.count_nonzero(x) for x in [large, small]]
+    if 0 in sizes or sizes[1] >= sizes[0]:
+        log.error('Mask size mismatch: large %i, small %i', *sizes)
+        return np.nan
+    return sizes[1] / sizes[0]
 
 
 def is_blob_in_mask(blob, mask):
@@ -119,6 +165,7 @@ def select_best_blob(bundle, blobs, avg=np.nanmedian):
     # Pick blob disk with minimum average value.
     blobs_in_prostate = [x for x in blobs
                          if is_blob_in_mask(x, bundle.pmask_slice())]
+    assert len(blobs_in_prostate) > 0, (blobs, bundle.image_slice().shape)
     circles = [draw.circle(y, x, r, shape=bundle.image_slice().shape) for
                y, x, r in blobs_in_prostate]
     pimage = bundle.pmasked_image_slice()
@@ -197,46 +244,64 @@ def plot_blobs(image, masks, blobs_list, rois, titles, performances,
     plt.close('all')
 
 
-def detect_blob(bundle, outdir=None):
-    """Detect blobs and plot them. Return performance info."""
-    assert bundle.voxel_shape[0] == bundle.voxel_shape[1], bundle.voxel_shape
-    # i_slice, (img, *masks) = dwi.readnib.get_slices(bundle)
+def plot_bundle_blobs(bundle, blob_info, rois, outdir):
     i_slice = bundle.p_max_slice_index()
-    img = bundle.image_slice()
-    pmask, lmask = bundle.pmask_slice(), bundle.lmask_slice()
-    # img = dwi.util.normalize(img, 'ADCm')
-    ret = dict(i_slice=i_slice, n_slices=bundle.image.shape[0],
-               maskratio=maskratio(pmask, lmask))
-
-    blob_info = find_blobs(img, bundle.voxel_shape[0])
-    blobs_list = blob_info['blobs_list']
-    short_titles = blob_info['short_titles']
-    performances = [blob_performance(x, [pmask, lmask]) for x in blobs_list]
-    ret['performances'] = [x[1] for x in performances]
-    log.info(performances)
-
-    kwargs = dict(
-        avg=np.nanmedian,
-        # avg=np.nanmean,
-        # avg=lambda x: np.nanpercentile(x, 50),
-        )
-    rois_avgs = [select_blob(img, pmask, x, **kwargs) for x in blobs_list]
-    ret['rois'] = [x[0] for x in rois_avgs]
-    ret['roi_avgs'] = [x[1] for x in rois_avgs]
-    print([tuple(x) for x in ret['rois']])
-
+    n_slices = bundle.image.shape[0]
     suptitle = ', '.join([f'{bundle.mode.param}',
                           f'case {bundle.target.case}',
-                          f'slice {i_slice}/{ret["n_slices"]}'])
+                          f'slice {i_slice}/{n_slices}'])
+    performances = [[-1] * 2] * 3
     if outdir is None:
         outpath = None
     else:
         stem = f'{bundle.mode.param}_{bundle.target.case}'
         outpath = (outdir / stem).with_suffix('.png')
         dwi.files.ensure_dir(outpath)
-    plot_blobs(img, [pmask, lmask], blobs_list, ret['rois'], short_titles,
+    plot_blobs(bundle.image_slice(), [bundle.pmask_slice(),
+                                      bundle.lmask_slice()],
+               blob_info['blobs_list'], rois, blob_info['short_titles'],
                performances, suptitle=suptitle, outpath=outpath)
-    return ret
+
+
+# def detect_blob(bundle, outdir=None):
+#     """Detect blobs and plot them. Return performance info."""
+#     # i_slice, (img, *masks) = dwi.readnib.get_slices(bundle)
+#     i_slice = bundle.p_max_slice_index()
+#     img = bundle.image_slice()
+#     pmask, lmask = bundle.pmask_slice(), bundle.lmask_slice()
+#     # img = dwi.util.normalize(img, 'ADCm')
+#     ret = dict(i_slice=i_slice, n_slices=bundle.image.shape[0],
+#                maskratio=maskratio(pmask, lmask))
+# 
+#     blob_info = find_blobs(img, bundle.voxel_size())
+#     blobs_list = blob_info['blobs_list']
+#     short_titles = blob_info['short_titles']
+#     performances = [blob_performance(x, [pmask, lmask]) for x in blobs_list]
+#     ret['performances'] = [x[1] for x in performances]
+#     log.info(performances)
+# 
+#     kwargs = dict(
+#         avg=np.nanmedian,
+#         # avg=np.nanmean,
+#         # avg=lambda x: np.nanpercentile(x, 50),
+#         )
+#     rois_avgs = [select_blob(img, pmask, x, **kwargs) for x in blobs_list]
+#     ret['rois'] = [x[0] for x in rois_avgs]
+#     ret['roi_avgs'] = [x[1] for x in rois_avgs]
+#     print([tuple(x) for x in ret['rois']])
+# 
+#     suptitle = ', '.join([f'{bundle.mode.param}',
+#                           f'case {bundle.target.case}',
+#                           f'slice {i_slice}/{ret["n_slices"]}'])
+#     if outdir is None:
+#         outpath = None
+#     else:
+#         stem = f'{bundle.mode.param}_{bundle.target.case}'
+#         outpath = (outdir / stem).with_suffix('.png')
+#         dwi.files.ensure_dir(outpath)
+#     plot_blobs(img, [pmask, lmask], blobs_list, ret['rois'], short_titles,
+#                performances, suptitle=suptitle, outpath=outpath)
+#     return ret
 
 
 # def detect_blobs(case, modes, outdir):

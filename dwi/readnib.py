@@ -11,21 +11,21 @@ import numpy as np
 
 import dwi.mask
 import dwi.util
-from dwi.types2 import ImageMode, ImageTarget, GleasonScore
+# from dwi.types2 import ImageMode, ImageTarget
 
 DEFAULT_ROOT = '~/tmp/data/Data_Organized_29012019'
 DEFAULT_SUFFIX = '.nii'
 DEFAULT_COLLECTION = 'IMPROD'
 DEFAULT_PSTEM = 'PM'
 DEFAULT_LSTEM = 'LS'
-DEFAULT_VOXEL_SHAPES = dict(DWI=(2, 2, 3), T2w=(0.625, 0.625, 3))
+# DEFAULT_VOXEL_SHAPES = dict(DWI=(2., 2., 3.), T2w=(0.625, 0.625, 3.))
+DEFAULT_VOXEL_SHAPES = dict(DWI=(3., 2., 2.), T2w=(3., 0.625, 0.625))
 
 log = logging.getLogger(__name__)
 
 
 class ImageBundle:
     """A bundle of (image, pmask, lmask) for (mode, case) in NIFTI format."""
-
     def __init__(self, mode, target, root=DEFAULT_ROOT,
                  suffix=DEFAULT_SUFFIX, collection=DEFAULT_COLLECTION):
         self.mode = mode
@@ -61,7 +61,7 @@ class ImageBundle:
 
     def _print_debug_info(self):
         lst = [self.image, self.pmask, self.lmask]
-        print(self.target, self.voxel_shape, self.image.shape,
+        print(self.target, self.voxel_shape(), self.image.shape,
               [x.get_data_dtype() for x in lst],
               [x.affine.shape for x in lst],
               [x.header.get_slope_inter() for x in lst],
@@ -80,15 +80,22 @@ class ImageBundle:
     def dtype(self):
         return self.image.get_data_dtype()
 
-    @property
     def voxel_shape(self):
-        """Get voxel shape (in millimetres)."""
-        # TODO: Get from NIFTI headers.
-        return DEFAULT_VOXEL_SHAPES[self.mode.modality[:3]]
+        """Get voxel shape in millimetres."""
+        shape = self.image.header.get_zooms()[:3]
+        default = DEFAULT_VOXEL_SHAPES[self.mode.modality[:3]]
+        assert ([round(x, 1) for x in shape] ==
+                [round(x, 1) for x in default]), shape
+        return shape
+
+    def voxel_size(self):
+        """Get voxel width, which is assumed to be equal to height."""
+        shape = self.voxel_shape()
+        assert shape[1] == shape[2], shape
+        return shape[1]
 
     @property
     def image(self):
-        # return self._load(self.mode.param)
         return self._load(self.mode.param).as_reoriented(self._ornt())
 
     @property
@@ -119,8 +126,7 @@ class ImageBundle:
     def p_max_slice_index(self):
         """Get the slice index with maximum prostate area."""
         mask = dwi.mask.Mask3D(self.pmask_data[self.p_mbb()])
-        assert len(mask.max_slices()) < 3
-        return mask.max_slices()[0]
+        return dwi.util.middle(mask.max_slices())
 
     def image_slice(self):
         """Get the image slice with maximum prostate area."""
@@ -135,9 +141,15 @@ class ImageBundle:
         return self.lmask_data[self.p_mbb()][self.p_max_slice_index()]
 
     def pmasked_image_slice(self):
-        masked_image = self.image_slice().copy()
-        masked_image[~self.pmask_slice().astype(np.bool)] = np.nan
-        return masked_image
+        masked = self.image_slice().copy()
+        masked[~self.pmask_slice().astype(np.bool)] = np.nan
+        return masked
+
+#     def pmasked_image_slice_(self):
+#         masked = self.pmasked_image_slice()
+#         masked[np.isnan(masked)] = np.random.random_sample(masked.shape).clip(np.nanmin(masked), np.nanmax(masked))[np.isnan(masked)]
+#         assert not np.any(np.isnan(masked))
+#         return masked
 
 
 # def load_images(case, modes):
