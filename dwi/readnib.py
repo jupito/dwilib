@@ -15,7 +15,7 @@ import dwi.util
 # from dwi.types2 import ImageMode, ImageTarget
 
 DEFAULT_ROOT = '~/tmp/data/Data_Organized_29012019'
-DEFAULT_SUFFIX = '.nii'
+DEFAULT_SUFFIX = '.nii.gz'
 DEFAULT_COLLECTION = 'IMPROD'
 DEFAULT_PSTEM = 'PM'
 DEFAULT_LSTEM = 'LS'
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 @dataclasses.dataclass
 class PathInfo:
     root: str = '~/tmp/data/Data_Organized_29012019'
-    suffix: str = '.nii'
+    suffix: str = '.nii.gz'
     collection: str = 'IMPROD'
 
     def __init__(self, root, suffix, collection):
@@ -46,7 +46,7 @@ class PathInfo:
 
 
 DEFAULT_PATHINFO = PathInfo(root='~/tmp/data/Data_Organized_29012019',
-                            suffix='.nii', collection='IMPROD')
+                            suffix='.nii.gz', collection='IMPROD')
 
 
 class ImageBundle:

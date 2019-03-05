@@ -236,8 +236,11 @@ bundles = {k: v for k, v in bundles.items() if k in pats.index}
 # res = [dwi.detectlesion.detect_blob(x, OUTDIR) for x in bundles.values()]
 # roi_avgs = [x['roi_avgs'] for x in res]
 
-blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_size())
-         for k, v in bundles.items()}
+# blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_size())
+#          for k, v in bundles.items()}
+detectors = {k: dwi.detectlesion.BlobDetector(v.image_slice(), v.voxel_size())
+             for k, v in bundles.items()}
+blobs = {k: v.find_blobs() for k, v in detectors.items()}
 print(*([len(x) for x in y['blobs_list']] for y in blobs.values()))
 kwargs = dict(
     avg=np.nanmedian,
