@@ -31,8 +31,12 @@ import dwi.util
 from dwi.types2 import ImageMode, ImageTarget, GleasonScore
 from dwi.util import one
 
-PATIENT_INFO_PATH = dict(PRO3='patients_PRO3.tsv')
-OUTDIR = Path('/home/jupito/Documents/work/roi_placement/tmp')
+PATIENT_INFO_PATH = dict(
+    IMPROD='patients_IMPROD.tsv',
+    PRO3='patients_PRO3.tsv',
+    SUPP='patients_SUPP.tsv',
+    )
+FIGDIR = Path('/home/jupito/Documents/work/roi_placement/figs')
 MODES = [ImageMode(*x) for x in [('DWI5b500', '', 'ADC'), ('T2w', '', 'T2W')]]
 MODE = MODES[0]
 
@@ -217,12 +221,18 @@ def aucs(roi_avgs, labels):
     return [auc([x[i] for x in roi_avgs]) for i in range(3)]
 
 
+pathinfo_old = dwi.readnib.PathInfo(root='~/tmp/data/Data_Organized_29012019',
+                                    suffix='.nii.gz', collection='IMPROD')
+pathinfo_IMPROD = dwi.readnib.PathInfo(root='~/tmp/data/Data_Organized',
+                                       suffix='.nii.gz', collection='IMPROD')
+
 pats = (read_patients_info_df()
         .pipe(convert_patient_info_df)
         .pipe(augment_patient_info_df))
 
 targets = {x: ImageTarget(x, '', 1) for x in pats.index}
-bundles = {k: dwi.readnib.ImageBundle(MODE, v) for k, v in targets.items()}
+bundles = {k: dwi.readnib.ImageBundle(MODE, v, pathinfo_old) for k, v in
+           targets.items()}
 pats['has_ADC'] = [bundles[x].exists() for x in pats.index]
 pats['use'] = pats[['GS_P', 'has_ADC']].apply(all_exist, axis=1)
 
@@ -233,7 +243,7 @@ pats['label_likert'] = pats['Likert_Lmax'].apply(likert_malign)
 
 bundles = {k: v for k, v in bundles.items() if k in pats.index}
 
-# res = [dwi.detectlesion.detect_blob(x, OUTDIR) for x in bundles.values()]
+# res = [dwi.detectlesion.detect_blob(x, FIGDIR) for x in bundles.values()]
 # roi_avgs = [x['roi_avgs'] for x in res]
 
 # blobs = {k: dwi.detectlesion.find_blobs(v.image_slice(), v.voxel_size())
@@ -255,8 +265,16 @@ roi_avgs = {k: [dwi.detectlesion.get_blob_avg(v, x, **kwargs) for x in rois[k]]
 roi_avgs = list(roi_avgs.values())
 
 for k, b in bundles.items():
-    dwi.detectlesion.plot_bundle_blobs(b, blobs[k], rois[k], OUTDIR)
+    dwi.detectlesion.plot_bundle_blobs(b, blobs[k], rois[k], FIGDIR)
 
 label_lists = [pats.label33, pats.label34]
 cors33, cors34 = (correlations(roi_avgs, x) for x in label_lists)
 aucs33, aucs34 = (aucs(roi_avgs, x) for x in label_lists)
+
+try:
+    if _old[-1] != (aucs33, aucs34):
+        _old.append((aucs33, aucs34))
+except NameError:
+    _old = []
+    _old.append((aucs33, aucs34))
+print(_old[-1] == (aucs33, aucs34))
