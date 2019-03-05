@@ -29,14 +29,15 @@ import dwi.readnib
 import dwi.stats
 import dwi.util
 from dwi.types2 import ImageMode, ImageTarget, GleasonScore
-from dwi.util import one
+# from dwi.util import one
 
+WORKDIR = Path('/home/jupito/Documents/work/roi_placement')
+DATADIR = WORKDIR / 'data/Data_Organized'
+FIGDIR = WORKDIR / 'figs'
 PATIENT_INFO_PATH = dict(
-    IMPROD='patients_IMPROD.tsv',
-    PRO3='patients_PRO3.tsv',
-    SUPP='patients_SUPP.tsv',
+    IMPROD=DATADIR / 'patients_IMPROD.tsv',
+    PRO3_SUPP=DATADIR / 'SUPP_PRO3_DWI5b500_human_drawn/43PRO3_34SUPP_csv.csv'
     )
-FIGDIR = Path('/home/jupito/Documents/work/roi_placement/figs')
 MODES = [ImageMode(*x) for x in [('DWI5b500', '', 'ADC'), ('T2w', '', 'T2W')]]
 MODE = MODES[0]
 
@@ -89,16 +90,16 @@ class PatientInfo:
         return max(list(filter(None, self.likerts)) or [None])
 
 
-def read_csv_dicts(path, **kwargs):
-    """Read columns from CSV as a dict of lists."""
-    with open(path) as f:
-        yield from csv.DictReader(f, **kwargs)
+# def read_csv_dicts(path, **kwargs):
+#     """Read columns from CSV as a dict of lists."""
+#     with open(path) as f:
+#         yield from csv.DictReader(f, **kwargs)
 
 
-def read_patient_info(path='patients.tsv'):
-    """Read patient info file."""
-    it = (PatientInfo(x) for x in read_csv_dicts(path, delimiter='\t'))
-    return {x.no: x for x in it}
+# def read_patient_info(path='patients.tsv'):
+#     """Read patient info file."""
+#     it = (PatientInfo(x) for x in read_csv_dicts(path, delimiter='\t'))
+#     return {x.no: x for x in it}
 
 
 def value_default(func, value, default=None):
@@ -222,16 +223,18 @@ def aucs(roi_avgs, labels):
 
 
 pathinfo_old = dwi.readnib.PathInfo(root='~/tmp/data/Data_Organized_29012019',
-                                    suffix='.nii.gz', collection='IMPROD')
+                                    collection='IMPROD')
 pathinfo_IMPROD = dwi.readnib.PathInfo(root='~/tmp/data/Data_Organized',
-                                       suffix='.nii.gz', collection='IMPROD')
+                                       collection='IMPROD')
+pathinfo_SUPP_PRO3 = dwi.readnib.PathInfo(root='~/tmp/data/Data_Organized',
+                                          collection='SUPP_PRO3')
 
 pats = (read_patients_info_df()
         .pipe(convert_patient_info_df)
         .pipe(augment_patient_info_df))
 
 targets = {x: ImageTarget(x, '', 1) for x in pats.index}
-bundles = {k: dwi.readnib.ImageBundle(MODE, v, pathinfo_old) for k, v in
+bundles = {k: dwi.readnib.ImageBundle(MODE, v, pathinfo_IMPROD) for k, v in
            targets.items()}
 pats['has_ADC'] = [bundles[x].exists() for x in pats.index]
 pats['use'] = pats[['GS_P', 'has_ADC']].apply(all_exist, axis=1)
