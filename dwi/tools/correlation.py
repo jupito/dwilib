@@ -46,10 +46,10 @@ def main():
         print('# param  r  p  lower  upper')
     params_maxlen = max(len(x) for x in params)
     for x, y, param in zip(X, Y, params):
-        d = dict(param=param, l=params_maxlen, f='.3f')
+        d = dict(param=param, len=params_maxlen, f='.3f')
         d.update(dwi.stats.correlation(x, y))
         if args.verbose:
-            s = '{param:{l}}  {r:+{f}}  {p:{f}}  {lower:+{f}}  {upper:+{f}}'
+            s = '{param:{len}}  {r:+{f}}  {p:{f}}  {lower:+{f}}  {upper:+{f}}'
         else:
             s = '{r:+.3f}'
         print(s.format(**d))
