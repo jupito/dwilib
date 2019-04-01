@@ -7,7 +7,7 @@
 # TODO: Normalize images before blob detection?
 
 # import contextlib
-import csv
+# import csv
 import logging
 # import multiprocessing as mp
 # from collections import OrderedDict
@@ -36,7 +36,7 @@ DATADIR = WORKDIR / 'data/Data_Organized'
 FIGDIR = WORKDIR / 'figs'
 PATIENT_INFO_PATH = dict(
     IMPROD=DATADIR / 'patients_IMPROD.tsv',
-    PRO3_SUPP=DATADIR / 'SUPP_PRO3_DWI5b500_human_drawn/43PRO3_34SUPP_csv.csv'
+    PRO3_SUPP=DATADIR / 'SUPP_PRO3_DWI5b500_human_drawn/43PRO3_34SUPP_csv.csv',
     )
 MODES = [ImageMode(*x) for x in [('DWI5b500', '', 'ADC'), ('T2w', '', 'T2W')]]
 MODE = MODES[0]
@@ -46,6 +46,7 @@ log = logging.getLogger(__name__)
 
 class PatientInfo:
     """Patient info read from the TSV file."""
+
     def __init__(self, info):
         self.info = dict(info)
         self.bundle = None
@@ -55,6 +56,7 @@ class PatientInfo:
 
     @property
     def no(self):
+        """Patient number."""
         return int(self.info['Pro3 no'])
 
     @property
@@ -131,7 +133,7 @@ def namax(iterable):
 
 
 def all_exist(seq):
-    """Are all values in `seq1` not-NA and true?"""
+    """Tell whether all values in `seq1` are not-NA and true."""
     return all(bool(x) and pd.notna(x) for x in seq)
 
 
@@ -181,7 +183,7 @@ def gleason_malign(value, threshold=(3, 3)):
 
 
 def likert_malign(value):
-    """Is Likert grade malign?"""
+    """Tell whether a Likert grade is malign."""
     assert value in range(1, 6), value
     return value > 2
 
