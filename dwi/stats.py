@@ -41,10 +41,10 @@ def resample_bootstrap_single(a):
     return a[indices]
 
 
-def resample_bootstrap(Y, X):
+def resample_bootstrap(y, x):
     """Get a bootstrap resampled group without stratification."""
-    indices = [random.randint(0, len(Y) - 1) for _ in Y]
-    return Y[indices], X[indices]
+    indices = [random.randint(0, len(y) - 1) for _ in y]
+    return y[indices], x[indices]
 
 
 def get_indices(seq, val):
@@ -56,21 +56,21 @@ def get_indices(seq, val):
     return r
 
 
-def resample_bootstrap_stratified(Y, X):
+def resample_bootstrap_stratified(y, x):
     """Get a bootstrap resampled group with stratification.
 
-    Note that as a side-effect the resulting Y array will be sorted, but that
-    doesn't matter because X will be randomized accordingly.
+    Note that as a side-effect the resulting y array will be sorted, but that
+    doesn't matter because x will be randomized accordingly.
     """
     # TODO: Should be rewritten to make it faster.
-    uniques = np.unique(Y)
+    uniques = np.unique(y)
     indices = []
     for u in uniques:
-        l = get_indices(Y, u)
+        l = get_indices(y, u)
         l_rnd = [l[random.randint(0, len(l) - 1)] for _ in l]
         for v in l_rnd:
             indices.append(v)
-    return Y[indices], X[indices]
+    return y[indices], x[indices]
 
 
 def posneg_to_labelsvalues(pos, neg):
