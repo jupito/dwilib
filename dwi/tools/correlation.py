@@ -4,9 +4,6 @@
 
 import argparse
 
-import numpy as np
-from scipy import stats
-
 import dwi.files
 import dwi.patient
 import dwi.stats
