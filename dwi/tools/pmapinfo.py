@@ -18,7 +18,9 @@ lambdas = dict(
     type=lambda x: x.dtype,
     shape=lambda x: shorten(x.shape),
     size=lambda x: x.size,
-    mbb=lambda x: shorten(x[x.mbb()].shape),
+    mbb=lambda x: shorten(','.join(f'{slc.start:03d}-{slc.stop:03d}' for slc in
+                                   x.mbb())),
+    mbbshape=lambda x: shorten(x[x.mbb()].shape),
     spacing=lambda x: shorten(x.spacing),
     centroid=lambda x: ','.join(str(int(round(y))) for y in x.centroid()),
 
