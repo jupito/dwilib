@@ -4,20 +4,19 @@ import dataclasses
 
 
 class ConvertibleDataclass:
-    """..."""
+    """Data class with member functions for convenient conversion."""
     _astuple = dataclasses.astuple
     _asdict = dataclasses.asdict
 
 
 class IterableDataclass:
-    """..."""
+    """Iterable data class."""
     def __iter__(self):
         return iter(dataclasses.astuple(self))
 
 
 class SplitItemDataclass:
     """A data class that provides a way to format items using a separator."""
-
     _sep = '-'  # Item separator.
 
     @classmethod
@@ -37,7 +36,7 @@ class SplitItemDataclass:
 
 @dataclasses.dataclass(frozen=True)
 class ImageMode(ConvertibleDataclass, SplitItemDataclass):
-    """..."""
+    """Image mode, e.g. `DWI-Mono-ADCm`."""
     modality: str
     model: str
     param: str
@@ -45,7 +44,7 @@ class ImageMode(ConvertibleDataclass, SplitItemDataclass):
 
 @dataclasses.dataclass(order=True, frozen=True)
 class ImageTarget(ConvertibleDataclass, SplitItemDataclass):
-    """..."""
+    """Image target, e.g. `42-1a-1`."""
     case: int
     scan: str
     lesion: int
@@ -53,9 +52,9 @@ class ImageTarget(ConvertibleDataclass, SplitItemDataclass):
 
 @dataclasses.dataclass(order=True, frozen=True)
 class TextureSpec(ConvertibleDataclass, SplitItemDataclass):
-    """Texture feature specification."""
+    """Texture feature specification, e.g. `ADCm-11-gabor(1,0.3,mean)`."""
     method: str
-    winsize: str
+    winsize: str  # Note that winsize can be an integer, `all`, or `mbb`.
     feature: str
 
 
@@ -70,6 +69,7 @@ class GleasonScore(ConvertibleDataclass, IterableDataclass,
     _sep = '+'
 
     def label(self, *threshold_seq):
+        """Return label, when threshold is the maximum of the first class."""
         return self > self.__class__(*threshold_seq)
 
 
