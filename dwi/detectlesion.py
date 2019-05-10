@@ -213,8 +213,8 @@ def plot_blobs(image, masks, blobs_list, rois, titles, performances,
             return colors['prostate']
         return colors['outside']
 
-    fig, axes = plt.subplots(1, len(blobs_list), figsize=(9, 3), sharex=True,
-                             sharey=True)
+    fig, axes = plt.subplots(1, len(blobs_list), figsize=(9, 3),
+                             sharex=True, sharey=True)
     if suptitle is not None:
         fig.suptitle(suptitle)
     ax = axes.ravel()
@@ -258,8 +258,8 @@ def plot_bundle_blobs(bundle, blob_info, rois, outdir):
         stem = f'{bundle.mode.param}_{bundle.target.case}'
         outpath = (outdir / stem).with_suffix('.png')
         dwi.files.ensure_dir(outpath)
-    plot_blobs(bundle.image_slice(), [bundle.pmask_slice(),
-                                      bundle.lmask_slice()],
+    plot_blobs(bundle.image_slice(),
+               [bundle.pmask_slice(), bundle.lmask_slice()],
                blob_info['blobs_list'], rois, blob_info['short_titles'],
                performances, suptitle=suptitle, outpath=outpath)
 
