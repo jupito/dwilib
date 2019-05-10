@@ -245,23 +245,29 @@ def plot_blobs(image, masks, blobs_list, rois, titles, performances,
     plt.close('all')
 
 
+def get_figpath(bundle, directory, suffix='.png'):
+    """Get figure path (if directory given) and ensure it exists."""
+    if directory is None:
+        return None
+    stem = f'{bundle.mode.param}_{bundle.target.case}'
+    outpath = (directory / stem).with_suffix(suffix)
+    dwi.files.ensure_dir(outpath)
+    return outpath
+
+
 def plot_bundle_blobs(bundle, blob_info, rois, outdir):
+    """..."""
     i_slice = bundle.p_max_slice_index()
     n_slices = bundle.image.shape[0]
     suptitle = ', '.join([f'{bundle.mode.param}',
                           f'case {bundle.target.case}',
                           f'slice {i_slice}/{n_slices}'])
     performances = [[-1] * 2] * 3
-    if outdir is None:
-        outpath = None
-    else:
-        stem = f'{bundle.mode.param}_{bundle.target.case}'
-        outpath = (outdir / stem).with_suffix('.png')
-        dwi.files.ensure_dir(outpath)
     plot_blobs(bundle.image_slice(),
                [bundle.pmask_slice(), bundle.lmask_slice()],
                blob_info['blobs_list'], rois, blob_info['short_titles'],
-               performances, suptitle=suptitle, outpath=outpath)
+               performances, suptitle=suptitle,
+               outpath=get_figpath(bundle, outdir))
 
 
 # def detect_blob(bundle, outdir=None):
@@ -273,14 +279,14 @@ def plot_bundle_blobs(bundle, blob_info, rois, outdir):
 #     # img = dwi.util.normalize(img, 'ADCm')
 #     ret = dict(i_slice=i_slice, n_slices=bundle.image.shape[0],
 #                maskratio=maskratio(pmask, lmask))
-# 
+#
 #     blob_info = find_blobs(img, bundle.voxel_size())
 #     blobs_list = blob_info['blobs_list']
 #     short_titles = blob_info['short_titles']
 #     performances = [blob_performance(x, [pmask, lmask]) for x in blobs_list]
 #     ret['performances'] = [x[1] for x in performances]
 #     log.info(performances)
-# 
+#
 #     kwargs = dict(
 #         avg=np.nanmedian,
 #         # avg=np.nanmean,
@@ -290,7 +296,7 @@ def plot_bundle_blobs(bundle, blob_info, rois, outdir):
 #     ret['rois'] = [x[0] for x in rois_avgs]
 #     ret['roi_avgs'] = [x[1] for x in rois_avgs]
 #     print([tuple(x) for x in ret['rois']])
-# 
+#
 #     suptitle = ', '.join([f'{bundle.mode.param}',
 #                           f'case {bundle.target.case}',
 #                           f'slice {i_slice}/{ret["n_slices"]}'])
