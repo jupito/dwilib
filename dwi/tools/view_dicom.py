@@ -153,6 +153,8 @@ def parse_args():
                    help='ROI (6 integers, zero-based)')
     p.add_argument('-m', '--mask', nargs='+',
                    help='mask files')
+    p.add_argument('--maskmbb', type=int,
+                   help='mask mbb pad')
     p.add_argument('--std',
                    help='standardization file to use')
     p.add_argument('-n', '--normalize', metavar='MODE',
@@ -283,6 +285,11 @@ def main():
             masks = [x[bb] for x in masks]
     else:
         masks = None
+
+    if args.maskmbb is not None:
+        bb = dwi.util.bbox(dwi.util.unify_masks(masks), pad=args.maskmbb)
+        masks = [x[bb] for x in masks]
+        img = img[bb + (slice(0, img.shape[-1]),)]
 
     if args.zoom:
         img, masks = zoom(img, masks, spacing=attrs.get('voxel_spacing'))
