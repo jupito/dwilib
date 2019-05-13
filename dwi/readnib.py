@@ -27,10 +27,10 @@ log = logging.getLogger(__name__)
 @dataclasses.dataclass
 class PathInfo:
     root: str = '~/tmp/data/Data_Organized_29012019'
-    collection: str = 'IMPROD'
     suffix: str = '.nii.gz'
+    collection: str = 'IMPROD'
 
-    def __init__(self, root, collection, suffix='.nii.gz'):
+    def __init__(self, root, suffix, collection):
         self.root = Path(root).expanduser()
         self.suffix = suffix
         self.collection = collection
@@ -46,7 +46,7 @@ class PathInfo:
 
 
 DEFAULT_PATHINFO = PathInfo(root='~/tmp/data/Data_Organized_29012019',
-                            collection='IMPROD')
+                            suffix='.nii.gz', collection='IMPROD')
 
 
 class ImageBundle:
