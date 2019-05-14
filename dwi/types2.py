@@ -71,19 +71,3 @@ class GleasonScore(ConvertibleDataclass, IterableDataclass,
     def label(self, *threshold_seq):
         """Return label, when threshold is the maximum of the first class."""
         return self > self.__class__(*threshold_seq)
-
-
-# @classmethod
-# def parse(cls, s):
-#     return cls(*(int(x) for x in s.split('+')))
-
-# def __str__(self):
-#     return '+'.join(str(x) for x in filter(None, self._astuple()))
-
-# @property
-# def label33(self):
-#     return self.label(3, 3)
-
-# @property
-# def label34(self):
-#     return self.label(3, 4)
