@@ -52,7 +52,7 @@ class ImageTarget(ConvertibleDataclass, SplitItemDataclass):
 
 @dataclasses.dataclass(order=True, frozen=True)
 class TextureSpec(ConvertibleDataclass, SplitItemDataclass):
-    """Texture feature specification, e.g. `ADCm-11-gabor(1,0.3,mean)`."""
+    """Texture feature specification, e.g. `gabor-9-1,0.3,mean`."""
     method: str
     winsize: str  # Note that winsize can be an integer, `all`, or `mbb`.
     feature: str
