@@ -174,13 +174,13 @@ def write_subregion_file(filename, win, comment=''):
 
 def guess_format(path):
     """Guess file format identifier from it's suffix. Default to DICOM."""
-    # return PurePath(path).suffix[1:]
-    # suffix = ''.join(PurePath(path).suffixes)[1:]  # XXX: Fails eg .bak.h5.
-    suffix = PurePath(path).suffix[1:]  # TODO: Fails on .nii.gz.
-    if suffix in ['h5', 'txt', 'zip']:
-        return suffix
-    if suffix in ['nii', 'nii.gz']:
-        return 'nifti'
+    path = Path(path)
+    if path.is_file():
+        suffixes = [x.lower() for x in path.suffixes]
+        if suffixes[-1] in ['.h5', '.txt', '.zip']:
+            return suffixes[-1][1:]
+        if suffixes[-1] == '.nii' or path.suffixes[-2:] == ['.nii', '.gz']:
+            return 'nifti'
     return 'dicom'
 
 
