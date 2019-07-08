@@ -11,7 +11,7 @@ import numpy as np
 
 from . import asciifile, dicomfile, hdf5, nifti
 from .types import Lesion, Patient
-from .types import Path, PurePath
+from .types import Path
 
 log = logging.getLogger(__name__)
 COMMENT_PREFIX = '#'
