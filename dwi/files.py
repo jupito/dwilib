@@ -19,7 +19,7 @@ COMMENT_PREFIX = '#'
 
 @contextmanager
 def temp_dir():
-    """A temporary directory context that deletes it afterwards."""
+    """Generate a temporary directory context that deletes it afterwards."""
     tmpdir = tempfile.mkdtemp()
     try:
         yield tmpdir
@@ -72,6 +72,7 @@ def mapped(shape, dtype, fill_value=None):
 
 def parse_patient(line, include_lines=False):
     """Parse a line in patient list file.
+
     Format: num name scan1,scan2,... score [location]
     """
     regexp = r"""
@@ -112,6 +113,7 @@ def read_patients_file(path, include_lines=False):
 
 def parse_sample(line):
     """Parse a line in sample list file.
+
     Format: num name scan1,scan2,...
     """
     p = re.compile(r'(\d+)\s+(\w+)\s+([\w,]+)')
