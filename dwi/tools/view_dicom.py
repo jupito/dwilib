@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 
-"""View a multi-slice, multi-parameter DICOM image or pmap via the matplotlib
-GUI."""
+"""View a multi-slice, multi-parameter image or pmap via the matplotlib GUI."""
 
 # TODO Rename to general image viewer, not just dicom.
 
 import argparse
 import logging
 import sys
+from functools import lru_cache
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ import dwi.standardize
 import dwi.util
 
 
-class Gui(object):
+class Gui:
     """A GUI widget for viewing 4D images (from DICOM etc.)."""
     cmaps = [
         'viridis',
@@ -42,12 +42,12 @@ class Gui(object):
     q: quit'''.format(len(cmaps), ' '.join(cmaps))
 
     def __init__(self, image, params, label=None, masks=None):
+        """Initialize with an image."""
         assert image.ndim == 4, image.shape
         assert image.shape[-1] == len(params), (image.shape, params)
         assert image.dtype in (np.bool, np.float32, np.float64), image.dtype
         self.image = image
         self.params = params
-        self.max_param_length = max(len(x) for x in params)
         self.pos = [0, 0]  # Slice, parameter index.
         self.update = [True, True]  # Update horizontal, vertical?
         self.is_reverse_cmap = False
@@ -57,6 +57,11 @@ class Gui(object):
         if masks:
             dwi.mask.overlay_masks(masks, self.image)
         self.im = None
+
+    @lru_cache(None)
+    def max_param_length(self):
+        """Return maximum parameter length."""
+        return max(len(x) for x in self.params)
 
     def show(self):
         """Activate the GUI."""
@@ -110,9 +115,9 @@ class Gui(object):
             col = int(event.xdata)
             val = self.image[slc, row, col, param]
             s = ('\rPos: {s:2d},{r:3d},{c:3d},{p:2d}'
-                 ' Value: {v:10g} Param: {n:{l}} ')
+                 ' Value: {v:10g} Param: {n:{ln}} ')
             d = dict(r=row, c=col, s=slc, p=param, v=val, n=self.params[param],
-                     l=self.max_param_length)
+                     ln=self.max_param_length())
             sys.stdout.write(s.format(**d))
             sys.stdout.flush()
         view = self.image[slc, :, :, param]
@@ -264,7 +269,7 @@ def main():
 
     print('Image shape: {s}, type: {t}'.format(s=img.shape, t=img.dtype))
     print('Voxels: {nv}, non-zero: {nz}, non-NaN: {nn}'.format(
-        nv=img.size, nz=np.count_nonzero(img), nn=img.size-n))
+        nv=img.size, nz=np.count_nonzero(img), nn=img.size - n))
     print('Five-num: {}'.format(dwi.util.fivenums(img)))
 
     # Normalize wrt. signal intensity curve start or imaging parameter specs.
