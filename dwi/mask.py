@@ -31,8 +31,8 @@ import dwi.files
 import dwi.util
 
 
-class Mask(object):
-    """Single-slice mask for a 3D image. Deprecated, use Mask3D instead.
+class Mask:
+    """Single-slice mask for a 3D image. NOTE: Deprecated, use Mask3D instead.
 
     Variables
     ---------
@@ -56,9 +56,9 @@ class Mask(object):
     def get_subwindow(self, coordinates, onebased=True):
         """Get a view of a specific subwindow."""
         if onebased:
-            coordinates = [i-1 for i in coordinates]  # One-based indexing.
+            coordinates = [i - 1 for i in coordinates]  # One-based indexing.
         z0, z1, y0, y1, x0, x1 = coordinates
-        assert z0 == z1-1, 'Multi-slice subwindow of single-slice mask.'
+        assert z0 == z1 - 1, 'Multi-slice subwindow of single-slice mask.'
         slc = self.slice - z0
         array = self.array[y0:y1, x0:x1]
         return Mask(slc, array)
@@ -71,7 +71,7 @@ class Mask(object):
         """Return selected voxels of an array as a flat array."""
         if array.ndim == self.array.ndim:
             return array[self.array]
-        return array[self.slice-1, self.array]
+        return array[self.slice - 1, self.array]
 
     def selected_slice(self, a):
         """Return the selected slice of an array."""
@@ -87,7 +87,7 @@ class Mask(object):
     def convert_to_3d(self, n_slices):
         """Convert a 2D mask to a 3D mask with given number of slices."""
         a = np.zeros((n_slices,) + self.array.shape, dtype=np.bool)
-        a[self.slice-1, :, :] = self.array
+        a[self.slice - 1, :, :] = self.array
         return Mask3D(a)
 
     def write(self, filename):
@@ -103,7 +103,7 @@ class Mask(object):
             f.write(mask_to_text(self.array.astype(int)))
 
 
-class Mask3D(object):
+class Mask3D:
     """Multi-slice mask for a 3D image.
 
     Variables
@@ -188,7 +188,7 @@ class Mask3D(object):
         mbb = self.bounding_box()
         mbb_shape = [b - a for a, b in mbb]
         mbb_size = np.prod(mbb_shape)
-        return (mbb_size == self.n_selected())
+        return mbb_size == self.n_selected()
 
 
 def load_ascii(filename):
