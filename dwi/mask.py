@@ -163,7 +163,7 @@ class Mask3D:
     def apply_mask(self, a, value=0):
         """Cover masked voxels of an array by zero (or other value)."""
         copy = a.copy()
-        copy[-self.array, ...] = value
+        copy[~self.array, ...] = value
         return copy
 
     def where(self):
@@ -211,7 +211,7 @@ def load_ascii(filename):
 
 def read_mask(path):
     """Read a mask."""
-    if path.lower().endswith('.mask') and not os.path.isdir(path):
+    if str(path).lower().endswith('.mask') and not os.path.isdir(path):
         return load_ascii(path)  # Old 2D ASCII mask.
     return Mask3D(dwi.files.read_mask(path))
 
