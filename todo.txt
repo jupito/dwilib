@@ -1,3 +1,7 @@
+(A) 2019-08-01 +check which dataset is current @findroi
+(A) 2019-08-01 +calculate lesion histograms @findroi
+
+(C) +check_out pyevtk(.hl) @library for writing @VTK files
 (A) Implement packaging. https://packaging.python.org/
 (B) Documentation by Sphinx. http://www.sphinx-doc.org/
 (B) Implement testing.
@@ -7,4 +11,4 @@
 (D) Could np.ma be used for image masks? https://docs.scipy.org/doc/numpy/reference/maskedarray.html
 (D) Subclass np.ndarry for versatile image class. https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
 (E) Import from Scipy according to the guidelines: http://docs.scipy.org/doc/scipy/reference/api.html
-(E) Replace pydicom with nibabel or medpy?
+(E) Replace pydicom with nibabel or medpy? Or imageio?
