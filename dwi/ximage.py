@@ -10,13 +10,20 @@ import xarray as xr
 from . import files
 
 
-def create(image, attrs, path=None):
-    logging.warning('%s, %s', image.shape, image.dtype)
-    logging.warning(attrs)
-    dims = ('slc', 'col', 'row', 'param')
+# class XImage(xr.DataArray):
+#     @classmethod
+#     def read(cls, path):
+#         pmap, attrs = files.read_pmap(path, **kwargs)
+#         return clr(
+
+
+def create(image, attrs, path):
+    logging.info('%s, %s', image.shape, image.dtype)
+    logging.info(attrs)
+    # dims = 'slc', 'col', 'row', 'param'
+    dims = 'z', 'y', 'x', 'param'
     image = xr.DataArray(image, dims=dims, name=path.name, attrs=attrs)
-    if path is not None:
-        image.attrs['path'] = str(path)
+    image.attrs['path'] = str(path)
     return image
 
 
@@ -26,3 +33,7 @@ def create_dataset(images):
 
 def read(path, **kwargs):
     return create(*files.read_pmap(path, **kwargs), path=path)
+
+
+def read_mask(path, **kwargs):
+    return create([files.read_mask(path, **kwargs), {}], path=path)
