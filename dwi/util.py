@@ -62,6 +62,15 @@ def all_equal(a):
     return np.nanmin(a) == np.nanmax(a)
 
 
+def enlarge_array(a, shape, fill_value=0):
+    """Enlarge array `a` to a copy of larger `shape`."""
+    a = np.asanyarray(a)
+    ret = np.full_like(a, fill_value, shape=shape)
+    slices = [slice(x) for x in a.shape]
+    ret[slices] = a
+    return ret
+
+
 def crop_image(image, subwindow, onebased=False):
     """Get a view of image subwindow defined as Python-like start:stop
     indices.
